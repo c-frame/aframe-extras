@@ -1,0 +1,28 @@
+{
+  "name": "sandbox-aframe",
+  "version": "1.0.0",
+  "description": "Imma make a WebVR.",
+  "main": "index.js",
+  "dependencies": {
+    "aframe": "github:aframevr/aframe#dev",
+    "aframe-gamepad-controls": "^0.3.4",
+    "aframe-keyboard-controls": "^0.2.0",
+    "aframe-obj-loader-component": "0.0.5",
+    "aframe-proxy-controls": "^0.5.4"
+  },
+  "devDependencies": {
+    "budo": "^8.0.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "aframe",
+    "a-frame",
+    "vr",
+    "webgl",
+    "webvr"
+  ],
+  "author": "Don McCurdy <dm@donmccurdy.com>",
+  "license": "MIT"
+}
