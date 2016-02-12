@@ -2,24 +2,37 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Scene • Examples</title>
+    <title>Examples • Platforms</title>
+    <script src="bundle.js"></script>
   </head>
   <body>
-    <a-scene proxy-controls>
+    <a-scene proxy-controls="proxyUrl: https://proxy-controls.donmccurdy.com">
       <!-- Player -->
-      <a-entity camera
-                position="3 5 -10"
-                rotation="90 90 90"
+      <a-entity id="player"
+                camera
+                position="15 1.764 10"
                 look-controls
                 gamepad-controls
-                keyboard-controls>
+                keyboard-controls
+                jump-ability="enableDoubleJump: true">
       </a-entity>
 
       <!-- Terrain -->
-      <a-entity id="terrain"></a-entity>
+      <a-plane id="terrain"
+               rotation="90 0 0"
+               position="0 -1 0"
+               height="100"
+               width="100"
+               color="#AAFAAA">
+      </a-plane>
+
+      <!-- Platforms (placeholder) -->
+      <a-entity id="platforms"></a-entity>
 
       <!-- Sky -->
-      <a-sky color="#AADDF0"></a-sky>
+      <a-sky id="sky"
+             color="#AADDF0">
+      </a-sky>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#ccc"></a-light>
@@ -27,6 +40,5 @@
       <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
 
     </a-scene>
-    <script src="bundle.js"></script>
   </body>
 </html>

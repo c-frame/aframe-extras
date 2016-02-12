@@ -9,10 +9,9 @@
   },
   "dependencies": {
     "aframe": "github:aframevr/aframe#dev",
-    "aframe-gamepad-controls": "^0.3.4",
-    "aframe-keyboard-controls": "^0.2.0",
-    "aframe-obj-loader-component": "0.0.5",
-    "aframe-proxy-controls": "^0.5.4"
+    "aframe-gamepad-controls": "^0.3.5",
+    "aframe-keyboard-controls": "^0.2.2",
+    "aframe-proxy-controls": "^0.5.5"
   },
   "devDependencies": {
     "budo": "^8.0.4"
