@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Imma make a WebVR.",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/donmccurdy/sandbox-aframe.git"
+  },
   "dependencies": {
     "aframe": "github:aframevr/aframe#dev",
     "aframe-gamepad-controls": "^0.3.4",
