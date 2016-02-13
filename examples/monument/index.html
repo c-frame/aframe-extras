@@ -5,26 +5,35 @@
     <title>Examples • Platforms</title>
     <!-- <script src="https://aframe.io/releases/0.1.0/aframe.min.js"></script> -->
     <script src="bundle.js"></script>
+    <style>
+      #audio {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+      }
+    </style>
   </head>
   <body>
     <a-scene proxy-controls="proxyUrl: https://proxy-controls.donmccurdy.com"
-             terrain="#terrain [geometry], #platforms [geometry]"
+             terrain="#terrain [geometry], #scene"
              stats="false">
       <!-- Player -->
       <a-entity id="player"
                 camera
                 position="15 1.764 10"
+                look-controls
                 keyboard-controls="acceleration: 200"
                 gamepad-controls="acceleration: 200"
                 jump-ability="enableDoubleJump: true;
                               debug: true;">
       </a-entity>
 
-      <!--
-        Platforms
-        Just a placeholder - platforms.js will insert random blocks.
-      -->
-      <a-entity id="platforms"></a-entity>
+      <!-- Scene -->
+      <a-entity id="scene"
+                loader="src: url(/assets/monu9.obj);
+                        mtl: url(/assets/monu9.mtl);"
+                position="0 0 0">
+      </a-entity>
 
       <!--
         Terrain
@@ -35,7 +44,7 @@
               height="1"
               width="1000"
               depth="1000"
-              color="#AAFAAA">
+              color="#BCDFFF">
       </a-cube>
 
       <!-- Sky -->
@@ -47,5 +56,6 @@
       <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
 
     </a-scene>
+    <iframe id="audio" src="https://embed.spotify.com/?uri=spotify:album:4PvakqSTVKDmAj0v0UEuC1" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>
   </body>
 </html>

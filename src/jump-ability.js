@@ -59,6 +59,8 @@ module.exports = {
   tick: function (t, tDelta) {
     var terrain = this.getTerrain();
 
+    if (Number.isNaN(tDelta)) return;
+
     if (!terrain.length) {
       if (this.data.debug) console.warn('[jump-ability] Cannot jump - no terrain found.');
       return;
@@ -66,7 +68,7 @@ module.exports = {
 
     this.position.copy(this.el.getAttribute('position'));
     this.raycaster.ray.origin.copy(this.position);
-    var intersections = this.raycaster.intersectObjects(terrain);
+    var intersections = this.raycaster.intersectObjects(terrain, true /* recursive */);
     this.isOnObject = intersections.length > 0;
 
     if (this.isOnObject && this.velocity <= 0) {
@@ -97,38 +99,38 @@ module.exports = {
   ——————————————————————————————————————————————*/
 
   getTerrain: (function () {
-    var terrainObjects = [];
+    var terrainObjects = [],
+        cached = false;
 
     return function () {
       // Cache terrain for performance.
-      if (terrainObjects.length) {
+      if (cached) {
         return terrainObjects;
       }
 
       if (this.data.debug) console.time('[jump-ability] getTerrain()');
 
       var terrainSelector = this.el.sceneEl.getAttribute('terrain'),
-          terrainGroups = this.el.sceneEl.querySelectorAll(terrainSelector);
+          terrainEls = this.el.sceneEl.querySelectorAll(terrainSelector),
+          pending = terrainSelector.split(',').length - terrainEls.length;
 
-      // Select all groups indicated in a-scene[terrain].
-      for (var i1 = 0, l1 = terrainGroups.length; i1 < l1; i1++) {
-        var terrainEls = terrainGroups[i1].querySelectorAll('[geometry]');
-        // Select any elements in these groups with geometry.
-        for (var i2 = 0, l2 = terrainEls.length; i2 < l2; i2++) {
-          if (terrainEls[i2].object3D) {
-            // Select all meshes from each object.
-            for (var i3 = 0, l3 = terrainEls[i2].object3D.children.length; i3 < l3; i3++) {
-              terrainObjects.push(terrainEls[i2].object3D.children[i3]);
-            }
-          }
+      for (var i = 0, l = terrainEls.length; i < l; i++) {
+        if (terrainEls[i].object3D) {
+          terrainObjects.push(terrainEls[i].object3D);
+        } else {
+          pending++;
         }
       }
 
       if (this.data.debug) {
         console.timeEnd('[jump-ability] getTerrain()');
         console.info('[jump-ability] %d terrain geometries found.', terrainObjects.length);
+        if (pending) {
+          console.info('[jump-ability] awaiting %d more terrain geometries', pending);
+        }
       }
 
+      cached = !pending;
       return terrainObjects;
     };
   }())
