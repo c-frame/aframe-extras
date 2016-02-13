@@ -3,40 +3,46 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>Examples • Platforms</title>
+    <!-- <script src="https://aframe.io/releases/0.1.0/aframe.min.js"></script> -->
     <script src="bundle.js"></script>
   </head>
   <body>
-    <a-scene proxy-controls="proxyUrl: https://proxy-controls.donmccurdy.com">
+    <a-scene proxy-controls="proxyUrl: https://proxy-controls.donmccurdy.com"
+             terrain="#terrain, #platforms">
       <!-- Player -->
       <a-entity id="player"
                 camera
                 position="15 1.764 10"
-                look-controls
-                gamepad-controls
-                keyboard-controls
-                jump-ability="enableDoubleJump: true">
+                keyboard-controls="acceleration: 200"
+                gamepad-controls="acceleration: 200"
+                jump-ability="enableDoubleJump: true;
+                              debug: true;">
       </a-entity>
 
-      <!-- Terrain -->
-      <a-plane id="terrain"
-               rotation="90 0 0"
-               position="0 -1 0"
-               height="100"
-               width="100"
-               color="#AAFAAA">
-      </a-plane>
-
-      <!-- Platforms (placeholder) -->
+      <!--
+        Platforms
+        Just a placeholder - platforms.js will insert random blocks.
+      -->
       <a-entity id="platforms"></a-entity>
 
+      <!--
+        Terrain
+        a-plane would be ideal here, but for some reason it doesn't seem to be
+        working with THREE.Raycaster.
+      -->
+      <a-cube id="terrain"
+              height="1"
+              width="1000"
+              depth="1000"
+              color="#AAFAAA">
+      </a-cube>
+
       <!-- Sky -->
-      <a-sky id="sky"
-             color="#AADDF0">
-      </a-sky>
+      <a-sky id="sky" color="#AADDF0"></a-sky>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#ccc"></a-light>
-      <a-light color="#ddf" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ddf" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
       <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
 
     </a-scene>
