@@ -2,7 +2,9 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Examples • Platforms</title>
+    <title>Examples • Monument</title>
+    <script src="https://aframe.io/releases/latest/aframe.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-obj-loader-component/v0.0.5/dist/aframe-obj-loader-component.min.js"></script>
     <script src="bundle.js"></script>
     <style>
       #audio {
@@ -29,8 +31,8 @@
 
       <!-- Scene -->
       <a-entity id="scene"
-                loader="src: url(/assets/monu9.obj);
-                        mtl: url(/assets/monu9.mtl);"
+                obj-loader="src: url(/assets/monu9.obj);
+                            mtl: url(/assets/monu9.mtl);"
                 position="0 0 0">
       </a-entity>
 

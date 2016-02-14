@@ -38,6 +38,11 @@ module.exports = {
       this.bindings[events[i]] = beginJump;
       this.el.addEventListener(events[i], beginJump);
     }
+
+    var scene = this.el.sceneEl;
+    if (scene.addBehavior) {
+      scene.addBehavior(this);
+    }
   },
 
   remove: function () {
@@ -52,9 +57,16 @@ module.exports = {
   /* Render loop
   ——————————————————————————————————————————————*/
 
-  update: function () {
-    this.tick();
-  },
+  update: (function () {
+    var prevTime = NaN;
+
+    return function () {
+      var t = Date.now(),
+          tDelta = t - prevTime;
+      this.tick(t, tDelta);
+      prevTime = t;
+    };
+  }()),
 
   tick: function (t, tDelta) {
     var terrain = this.getTerrain();

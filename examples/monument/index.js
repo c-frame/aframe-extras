@@ -1,4 +1,4 @@
-var AFRAME = require('aframe');
+var AFRAME = window.AFRAME.aframeCore || window.AFRAME;
 
 /* Components
 ——————————————————————————————————————————————*/
