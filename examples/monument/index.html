@@ -26,7 +26,18 @@
                 keyboard-controls="acceleration: 200"
                 gamepad-controls="acceleration: 200"
                 jump-ability="enableDoubleJump: true;
-                              debug: true;">
+                              debug: true;
+                              soundJump: #sound-jump;
+                              soundLand: #sound-land;">
+        <a-entity id="sound-jump"
+                  sound="src: https://sandbox.donmccurdy.com/assets/sound/grunt-male.mp3;
+                         on: fire;">
+        </a-entity>
+        <a-entity id="sound-land"
+                  sound="src: https://sandbox.donmccurdy.com/assets/sound/footfall.mp3;
+                         on: fire;
+                         volume: 2;">
+        </a-entity>
       </a-entity>
 
       <!-- Scene -->

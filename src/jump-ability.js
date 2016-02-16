@@ -16,6 +16,8 @@ module.exports = {
     playerHeight: { default: 1.764 },
     enableDoubleJump: { default: false },
     distance: { default: 10 },
+    soundJump: { default: '' },
+    soundLand: { default: '' },
     debug: { default: false }
   },
 
@@ -83,9 +85,12 @@ module.exports = {
     var intersections = this.raycaster.intersectObjects(terrain, true /* recursive */);
     this.isOnObject = intersections.length > 0;
 
-    if (this.isOnObject && this.velocity <= 0) {
+    if (this.isOnObject && this.velocity < 0) {
       this.velocity = 0;
       this.numJumps = 0;
+      if (this.data.soundLand) {
+        this.el.querySelector(this.data.soundLand).emit('fire');
+      }
     } else if (!this.isOnObject || this.velocity) {
       this.position.y = Math.max(
         this.position.y + this.velocity * tDelta / 300,
@@ -104,6 +109,9 @@ module.exports = {
     if (this.isOnObject || this.data.enableDoubleJump && this.numJumps === 1) {
       this.velocity = 15;
       this.numJumps++;
+      if (this.data.soundJump) {
+        this.el.querySelector(this.data.soundJump).emit('fire');
+      }
     }
   },
 
