@@ -11,7 +11,7 @@
     "aframe": "github:aframevr/aframe#dev",
     "aframe-gamepad-controls": "^0.3.5",
     "aframe-keyboard-controls": "^0.2.2",
-    "aframe-proxy-controls": "^0.5.5"
+    "aframe-proxy-controls": "^0.5.6"
   },
   "devDependencies": {
     "budo": "^8.0.4"
