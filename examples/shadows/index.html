@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Examples • Shadows</title>
+    <script src="https://aframe.io/releases/latest/aframe.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-obj-loader-component/v0.0.5/dist/aframe-obj-loader-component.min.js"></script>
+    <script src="bundle.js"></script>
+  </head>
+  <body>
+    <a-scene proxy-controls
+             terrain="#terrain [geometry], #floater [geometry]"
+             stats="false">
+      <!-- Player -->
+      <a-entity id="player"
+                camera
+                position="15 1.764 10"
+                look-controls
+                keyboard-controls="acceleration: 200"
+                gamepad-controls="acceleration: 200"
+                jump-ability="enableDoubleJump: true;
+                              debug: true;
+                              soundJump: #sound-jump;
+                              soundLand: #sound-land;">
+        <a-entity id="sound-jump"
+                  sound="src: https://sandbox.donmccurdy.com/assets/sound/grunt-male.mp3;
+                         on: fire;">
+        </a-entity>
+        <a-entity id="sound-land"
+                  sound="src: https://sandbox.donmccurdy.com/assets/sound/footfall.mp3;
+                         on: fire;
+                         volume: 2;">
+        </a-entity>
+      </a-entity>
+
+      <!-- Scene -->
+<!--       <a-entity id="scene"
+                obj-loader="src: url(/assets/monu9.obj);
+                            mtl: url(/assets/monu9.mtl);"
+                position="0 0 0"
+                shadow="cast: true; receive: true">
+      </a-entity> -->
+
+      <a-cube id="floater"
+      				shadow="cast: true; receive: true"
+      				position="0 15 0"
+      				width="10"
+      				height="10"
+      				depth="10"
+      				color="#FF0000">
+      </a-cube>
+
+      <!--
+        Terrain
+        a-plane would be ideal here, but for some reason it doesn't seem to be
+        working with THREE.Raycaster.
+      -->
+      <a-cube id="terrain"
+              height="1"
+              width="1000"
+              depth="1000"
+              color="#BCDFFF"
+              shadow="receive: true">
+      </a-cube>
+
+      <!-- Sky -->
+      <a-sky id="sky" color="#AADDF0"></a-sky>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#ccc"></a-light>
+      <!-- <a-light color="#ddf" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light> -->
+      <!-- <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light> -->
+      <a-entity position="0 30 0"
+      					light="castShadow: true; intensity: 0.4; shadowBias: 0.01
+                       shadowCameraFar: 30; shadowCameraNear: 1;
+                       shadowCameraFov: 50; type: point"></a-entity>
+
+    </a-scene>
+  </body>
+</html>
