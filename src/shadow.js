@@ -14,17 +14,18 @@ module.exports = {
   },
 
   init: function () {
-    this.update();
+    this.update({});
   },
 
-  tick: function () {
-    this.update();
-  },
+  tick: function () {},
 
-  update: function () {
-    var el = this.el;
-    el.object3D.castShadow = this.data.cast;
-    el.object3D.receiveShadow = this.data.receive;
+  update: function (previousData) {
+    // TODO: This check won't be necessary after v0.2.0.
+    if (previousData) {
+      var el = this.el;
+      el.object3D.castShadow = this.data.cast;
+      el.object3D.receiveShadow = this.data.receive;
+    }
   },
 
   remove: function () {}

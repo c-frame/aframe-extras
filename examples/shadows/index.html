@@ -9,7 +9,7 @@
   </head>
   <body>
     <a-scene proxy-controls
-             terrain="#terrain [geometry], #floater [geometry]"
+             terrain="#terrain, #floater"
              stats="false">
       <!-- Player -->
       <a-entity id="player"
@@ -41,39 +41,43 @@
                 shadow="cast: true; receive: true">
       </a-entity> -->
 
-      <a-cube id="floater"
-      				shadow="cast: true; receive: true"
-      				position="0 15 0"
-      				width="10"
-      				height="10"
-      				depth="10"
-      				color="#FF0000">
-      </a-cube>
+      <a-entity id="floater"
+              geometry="primitive: box;
+                        height: 10;
+                        width: 10;
+                        depth: 10;"
+              material="color: #FF0000;"
+              shadow="cast: true; receive: true"
+              position="0 15 0">
+      </a-entity>
 
       <!--
         Terrain
         a-plane would be ideal here, but for some reason it doesn't seem to be
         working with THREE.Raycaster.
       -->
-      <a-cube id="terrain"
-              height="1"
-              width="1000"
-              depth="1000"
-              color="#BCDFFF"
-              shadow="receive: true">
-      </a-cube>
+      <a-entity id="terrain"
+                geometry="primitive: box;
+                          height: 1;
+                          width: 1000;
+                          depth: 1000;"
+                material="color: #BCDFFF;"
+                shadow="receive: true">
+      </a-entity>
 
       <!-- Sky -->
       <a-sky id="sky" color="#AADDF0"></a-sky>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#ccc"></a-light>
-      <!-- <a-light color="#ddf" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light> -->
-      <!-- <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light> -->
-      <a-entity position="0 30 0"
-      					light="castShadow: true; intensity: 0.4; shadowBias: 0.01
-                       shadowCameraFar: 30; shadowCameraNear: 1;
-                       shadowCameraFov: 50; type: point"></a-entity>
+      <a-entity position="0 40 0"
+                shadow-light="type: point;
+                       intensity: 0.4;
+                       castShadow: true; 
+                       shadowBias: 0.01;
+                       shadowCameraFov: 50;
+                       shadowCameraFar: 30;
+                       shadowCameraNear: 1;"></a-entity>
 
     </a-scene>
   </body>

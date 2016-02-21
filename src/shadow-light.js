@@ -54,18 +54,23 @@ module.exports = {
     this.light = this.getLight();
     el.object3D.add(this.light);
     el.sceneEl.registerLight(el);
+
+    if (!el.sceneEl.renderer.shadowMap.enabled) {
+      el.sceneEl.renderer.shadowMap.enabled = true;
+    }
   },
 
-  update: function () {
-    var el = this.el;
-    el.object3D.remove(this.light);
-    this.light = this.getLight();
-    el.object3D.add(this.light);
+  update: function (previousData) {
+    // TODO: This check won't be necessary after v0.2.0.
+    if (previousData) {
+      var el = this.el;
+      el.object3D.remove(this.light);
+      this.light = this.getLight();
+      el.object3D.add(this.light);
+    }
   },
 
-  tick: function () {
-    this.update();
-  },
+  tick: function () {},
 
   remove: function () {},
 
