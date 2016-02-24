@@ -15,6 +15,7 @@ module.exports = {
 
   init: function () {
     this.update({});
+    this.el.addEventListener('model-loaded', this.update.bind(this, {}, 'foobar'));
   },
 
   tick: function () {},
@@ -22,9 +23,15 @@ module.exports = {
   update: function (previousData) {
     // TODO: This check won't be necessary after v0.2.0.
     if (previousData) {
-      var el = this.el;
-      el.object3D.castShadow = this.data.cast;
-      el.object3D.receiveShadow = this.data.receive;
+      var data = this.data;
+
+      // Applied recursively to support imported models.
+      this.el.object3D.traverse(function(node) {
+        if (node instanceof THREE.Mesh) {
+          node.castShadow = data.cast;
+          node.receiveShadow = data.receive;
+        }
+      });
     }
   },
 

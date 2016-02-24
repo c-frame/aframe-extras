@@ -4,13 +4,12 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>Examples • Shadows</title>
     <script src="https://aframe.io/releases/latest/aframe.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-obj-loader-component/v0.1.0/dist/aframe-obj-loader-component.min.js"></script>
     <script src="bundle.js"></script>
   </head>
   <body>
     <a-scene proxy-controls
-             terrain="#terrain, #floater"
-             stats="false">
+             terrain="#terrain, #scene, #floater"
+             stats="true">
       <!-- Player -->
       <a-entity id="player"
                 camera
@@ -18,29 +17,19 @@
                 look-controls
                 keyboard-controls="acceleration: 200"
                 gamepad-controls="acceleration: 200"
-                jump-ability="enableDoubleJump: true;
-                              debug: true;
-                              soundJump: #sound-jump;
-                              soundLand: #sound-land;">
-        <a-entity id="sound-jump"
-                  sound="src: https://sandbox.donmccurdy.com/assets/sound/grunt-male.mp3;
-                         on: fire;">
-        </a-entity>
-        <a-entity id="sound-land"
-                  sound="src: https://sandbox.donmccurdy.com/assets/sound/footfall.mp3;
-                         on: fire;
-                         volume: 2;">
+                jump-ability="enableDoubleJump: true;">
         </a-entity>
       </a-entity>
 
       <!-- Scene -->
-<!--       <a-entity id="scene"
+      <a-entity id="scene"
                 obj-loader="src: url(/assets/monu9.obj);
                             mtl: url(/assets/monu9.mtl);"
-                position="0 0 0"
+                position="0 0.5 0"
                 shadow="cast: true; receive: true">
-      </a-entity> -->
+      </a-entity>
 
+<!-- 
       <a-entity id="floater"
               geometry="primitive: box;
                         height: 10;
@@ -48,14 +37,10 @@
                         depth: 10;"
               material="color: #FF0000;"
               shadow="cast: true; receive: true"
-              position="0 15 0">
-      </a-entity>
+              position="0 80 0">
+      </a-entity> -->
 
-      <!--
-        Terrain
-        a-plane would be ideal here, but for some reason it doesn't seem to be
-        working with THREE.Raycaster.
-      -->
+      <!-- Terrain -->
       <a-entity id="terrain"
                 geometry="primitive: box;
                           height: 1;
@@ -70,13 +55,13 @@
 
       <!-- Lighting -->
       <a-light type="ambient" color="#ccc"></a-light>
-      <a-entity position="0 40 0"
+      <a-entity position="10 500 10"
                 shadow-light="type: point;
                        intensity: 0.4;
                        castShadow: true; 
                        shadowBias: 0.01;
                        shadowCameraFov: 50;
-                       shadowCameraFar: 30;
+                       shadowCameraFar: 3000;
                        shadowCameraNear: 1;"></a-entity>
 
     </a-scene>
