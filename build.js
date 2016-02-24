@@ -3,13 +3,10 @@
 var chalk = require('chalk'),
     path = require('path'),
     fs = require('fs-extra'),
-    // zlib = require('zlib'),
     browserify = require('browserify');
 
 var EXAMPLES_DIR = 'examples',
     BUILD_DIR = 'build';
-
-// var gzip = zlib.createGzip();
 
 console.log(chalk.green('Bundling examples...'));
 
@@ -31,9 +28,6 @@ fs.readdirSync(BUILD_DIR)
       .bundle();
     bundle
       .pipe(fs.createWriteStream(path.join(dir, 'bundle.js')));
-    // bundle
-    //   .pipe(gzip)
-    //   .pipe(fs.createWriteStream(path.join(dir, 'bundle.js.gz')));
   });
 
 process.on('exit', () => console.log(chalk.black.bgGreen('  Success! 🍻   ')));
