@@ -145,12 +145,12 @@ module.exports = {
       if (this.data.debug) {
         console.timeEnd('[jump-ability] getTerrain()');
         console.info('[jump-ability] %d terrain geometries found.', terrainObjects.length);
-        if (pending) {
+        if (pending > 0) {
           console.info('[jump-ability] awaiting %d more terrain geometries', pending);
         }
       }
 
-      cached = !pending;
+      cached = pending <= 0;
       return terrainObjects;
     };
   }())
