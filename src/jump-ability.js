@@ -134,6 +134,7 @@ module.exports = {
           terrainEls = this.el.sceneEl.querySelectorAll(terrainSelector),
           pending = terrainSelector.split(',').length - terrainEls.length;
 
+      terrainObjects = [];
       for (var i = 0, l = terrainEls.length; i < l; i++) {
         if (terrainEls[i].object3D) {
           terrainObjects.push(terrainEls[i].object3D);
