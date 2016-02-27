@@ -15,7 +15,7 @@ module.exports = {
     on: { default: 'keydown:Space gamepadbuttondown:0' },
     playerHeight: { default: 1.764 },
     enableDoubleJump: { default: false },
-    distance: { default: 10 },
+    distance: { default: 5 },
     soundJump: { default: '' },
     soundLand: { default: '' },
     debug: { default: false }
@@ -107,7 +107,7 @@ module.exports = {
 
   beginJump: function () {
     if (this.isOnObject || this.data.enableDoubleJump && this.numJumps === 1) {
-      this.velocity = 15;
+      this.velocity = 10;
       this.numJumps++;
       if (this.data.soundJump) {
         this.el.querySelector(this.data.soundJump).emit('fire');

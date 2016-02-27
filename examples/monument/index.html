@@ -32,8 +32,8 @@
                 camera
                 position="15 1.764 10"
                 look-controls
-                keyboard-controls="acceleration: 200"
-                gamepad-controls="acceleration: 200"
+                keyboard-controls="acceleration: 100"
+                gamepad-controls="acceleration: 100"
                 jump-ability="enableDoubleJump: true;
                               debug: true;
                               soundJump: #sound-jump;
@@ -51,9 +51,9 @@
 
       <!-- Scene -->
       <a-entity id="scene"
+                scale="0.5 0.5 0.5"
                 obj-loader="src: url(/assets/monu9.obj);
-                            mtl: url(/assets/monu9.mtl);"
-                position="0 0 0">
+                            mtl: url(/assets/monu9.mtl);">
       </a-entity>
 
       <!--
@@ -65,6 +65,7 @@
               height="1"
               width="1000"
               depth="1000"
+              position="0 -0.5 0"
               color="#BCDFFF">
       </a-cube>
 
