@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Examples • Walls 2</title>
+    <script src="https://aframe.io/releases/latest/aframe.js"></script>
+    <script src="bundle.js"></script>
+  </head>
+  <body>
+    <a-scene proxy-controls physics stats="true">
+      <!-- Player -->
+      <a-entity id="player"
+                fps-controls
+                camera
+                position="15 11.764 10"
+                look-controls
+                keyboard-controls="enabled: false">
+        </a-entity>
+      </a-entity>
+
+      <!-- Scene -->
+      <a-entity rigid-body
+                position="0 5 0"
+                geometry="primitive: box;
+                          height: 10;
+                          width: 10;
+                          depth: 10;"
+                material="color: #118822;">
+      </a-entity>
+      <a-entity rigid-body
+                position="10 5 0"
+                geometry="primitive: box;
+                          height: 10;
+                          width: 10;
+                          depth: 10;"
+                material="color: #AA0000;">
+      </a-entity>
+      <a-entity rigid-body
+                position="0 5 10"
+                geometry="primitive: box;
+                          height: 10;
+                          width: 10;
+                          depth: 10;"
+                material="color: #2222EE;">
+      </a-entity>
+
+      <!-- Terrain -->
+      <a-entity id="ground"
+                ground-body
+                geometry="primitive: box;
+                          height: 1;
+                          width: 1000;
+                          depth: 1000;"
+                position="0 -0.5 0"
+                material="color: #BCDFFF;">
+      </a-entity>
+
+      <!-- Sky -->
+      <a-sky id="sky" color="#AADDF0"></a-sky>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#ccc"></a-light>
+      <a-light color="#ddf" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ddf" position="13 10 20" distance="50" intensity="0.4" type="point"></a-light>
+
+    </a-scene>
+  </body>
+</html>
