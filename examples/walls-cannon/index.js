@@ -13,8 +13,8 @@ AFRAME.registerComponent('proxy-controls', require('aframe-proxy-controls'));
 
 AFRAME.registerComponent('physics', {
   schema: {
-    defaultMatFrictionCoef: {default: 0.0},
-    defaultMatRestitution: {default: 0.3},
+    friction: {default: 0.0},
+    restitution: {default: 0.3},
     iterations: {default: 5},
     gravity: {default: -9.8}
   },
@@ -30,12 +30,10 @@ AFRAME.registerComponent('physics', {
     world.broadphase = new CANNON.NaiveBroadphase();
 
     this.material = new CANNON.Material('slipperyMaterial');
-    this.contactMaterial = new CANNON.ContactMaterial(
-      this.material,
-      this.material,
-      this.data.defaultMatFrictionCoef,
-      this.data.defaultMatRestitution
-    );
+    this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
+        friction: this.data.friction,
+        restitution: this.data.restitution
+    });
     world.addContactMaterial(this.contactMaterial);
 
     this.el.addBehavior(this);
@@ -65,7 +63,9 @@ AFRAME.registerComponent('physics', {
 
 AFRAME.registerComponent('rigid-body', {
   schema: {
-    mass: { default: 5 }
+    mass: {default: 500},
+    linearDamping: {default: 0.01},
+    angularDamping: {default: 0.01}
   },
   init: function () {
     var physics = this.el.sceneEl.components.physics;
@@ -78,7 +78,9 @@ AFRAME.registerComponent('rigid-body', {
         shape: new CANNON.Box(halfExtents), 
         material: physics.material,
         position: new CANNON.Vec3(pos.x, pos.y, pos.z),
-        mass: this.data.mass
+        mass: this.data.mass,
+        linearDamping: this.data.linearDamping,
+        angularDamping: this.data.angularDamping
       });
       physics.world.add(this.body);
 
@@ -107,7 +109,8 @@ AFRAME.registerComponent('ground-body', {
     if (physics) {
       this.body = new CANNON.Body({
         shape: new CANNON.Plane(), 
-        material: physics.material
+        material: physics.material,
+        mass: 0
       });
       this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
       physics.world.add(this.body);
