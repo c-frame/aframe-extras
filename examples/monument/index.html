@@ -14,11 +14,28 @@
         width: 240px;
         z-index: 1;
       }
+      #audio-close {
+        position: absolute;
+        left: 250px;
+        bottom: 53px;
+        height: 32px;
+        width: 32px;
+        line-height: 32px;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.6);
+        color: #FFF;
+        text-align: center;
+        cursor: pointer;
+      }
       @media (min-width: 480px) {
         #audio {
           bottom: 20px;
           left: 20px;
           width: 300px;
+        }
+        #audio-close {
+          bottom: 68px;
+          left: 325px;
         }
       }
     </style>
@@ -79,5 +96,14 @@
 
     </a-scene>
     <iframe id="audio" src="https://embed.spotify.com/?uri=spotify:album:4PvakqSTVKDmAj0v0UEuC1" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>
+    <div id="audio-close">×</div>
+    <script>
+var audio = document.querySelector('#audio'),
+    audioClose = document.querySelector('#audio-close')
+audioClose.addEventListener('click', function () {
+  audio.remove();
+  audioClose.remove();
+});
+    </script>
   </body>
 </html>
