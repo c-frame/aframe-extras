@@ -10,9 +10,6 @@
 var GamepadButton = require('../../lib/GamepadButton'),
     GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
 
-var MAX_DELTA = 0.2,
-    PI_2 = Math.PI / 2;
-
 var JOYSTICK_EPS = 0.2;
 
 module.exports = {
@@ -33,19 +30,6 @@ module.exports = {
 
     // Enable/disable features
     enabled:           { default: true },
-    movementEnabled:   { default: true },
-    lookEnabled:       { default: true },
-    flyEnabled:        { default: false },
-
-    // Constants
-    easing:            { default: 20 },
-    acceleration:      { default: 65 },
-    sensitivity:       { default: 0.04 },
-
-    // Control axes
-    pitchAxis:         { default: 'x', oneOf: [ 'x', 'y', 'z' ] },
-    yawAxis:           { default: 'y', oneOf: [ 'x', 'y', 'z' ] },
-    rollAxis:          { default: 'z', oneOf: [ 'x', 'y', 'z' ] },
 
     // Debugging
     debug:             { default: false }
@@ -61,16 +45,6 @@ module.exports = {
   init: function () {
     var scene = this.el.sceneEl;
     this.prevTime = window.performance.now();
-
-    // Movement
-    this.velocity = new THREE.Vector3(0, 0, 0);
-    this.direction = new THREE.Vector3(0, 0, 0);
-
-    // Rotation
-    this.pitch = new THREE.Object3D();
-    this.yaw = new THREE.Object3D();
-    this.yaw.position.y = 10;
-    this.yaw.add(this.pitch);
 
     // Button state
     this.buttons = {};
@@ -89,9 +63,7 @@ module.exports = {
    * Called when component is attached and when component data changes.
    * Generally modifies the entity based on the data.
    */
-  update: function (previousData) {
-    this.updateRotation();
-    this.updatePosition(!!previousData);
+  update: function () {
     this.updateButtonState();
   },
 
@@ -99,8 +71,6 @@ module.exports = {
    * Called on each iteration of main render loop.
    */
   tick: function () {
-    this.updateRotation();
-    this.updatePosition();
     this.updateButtonState();
   },
 
@@ -114,92 +84,42 @@ module.exports = {
    * Movement
    */
 
-  isEnabled: function () {
-  	return false;
+  isVelocityActive: function () {
+    var gamepad = this.getGamepad();
+
+    if (!gamepad) return false;
+
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y;
+
+    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
   },
 
-  getVelocityDelta: function (dt) {
+  isRotationActive: function () {
+    return false;
+  },
 
+  getVelocityDelta: function () {
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y,
+        dVelocity = new THREE.Vector3();
+
+    if (Math.abs(inputX) > JOYSTICK_EPS) {
+      dVelocity.x += inputX;
+    }
+    if (Math.abs(inputY) > JOYSTICK_EPS) {
+      dVelocity.z += inputY;
+    }
+
+    return dVelocity;
   },
 
   getRotationDelta: function (dt) {
 
-  },
-
-  updatePosition: function (reset) {
-    // var data = this.data;
-    // var acceleration = data.acceleration;
-    // var easing = data.easing;
-    // var velocity = this.velocity;
-    // var time = window.performance.now();
-    // var delta = (time - this.prevTime) / 1000;
-    // var rollAxis = data.rollAxis;
-    // var pitchAxis = data.pitchAxis;
-    // var el = this.el;
-    // var gamepad = this.getGamepad();
-    // this.prevTime = time;
-
-    // // If data has changed or FPS is too low
-    // // we reset the velocity
-    // if (reset || delta > MAX_DELTA) {
-    //   velocity[rollAxis] = 0;
-    //   velocity[pitchAxis] = 0;
-    //   return;
-    // }
-
-    // velocity[rollAxis] -= velocity[rollAxis] * easing * delta;
-    // velocity[pitchAxis] -= velocity[pitchAxis] * easing * delta;
-
-    // var position = el.getComputedAttribute('position');
-
-    // if (data.enabled && data.movementEnabled && gamepad) {
-    //   var dpad = this.getDpad(),
-    //       inputX = dpad.x || this.getJoystick(0).x,
-    //       inputY = dpad.y || this.getJoystick(0).y;
-    //   if (Math.abs(inputX) > JOYSTICK_EPS) {
-    //     velocity[pitchAxis] += inputX * acceleration * delta;
-    //   }
-    //   if (Math.abs(inputY) > JOYSTICK_EPS) {
-    //     velocity[rollAxis] += inputY * acceleration * delta;
-    //   }
-    // }
-
-    // var movementVector = this.getMovementVector(delta);
-
-    // el.object3D.translateX(movementVector.x);
-    // el.object3D.translateY(movementVector.y);
-    // el.object3D.translateZ(movementVector.z);
-
-    // el.setAttribute('position', {
-    //   x: position.x + movementVector.x,
-    //   y: position.y + movementVector.y,
-    //   z: position.z + movementVector.z
-    // });
-  },
-
-  getMovementVector: function (delta) {
-    // if (this._getMovementVector) {
-    //   return this._getMovementVector(delta);
-    // }
-
-    // var rotation = new THREE.Euler(0, 0, 0, 'YXZ');
-
-    // this._getMovementVector = function (delta) {
-    //   var elRotation = this.el.getAttribute('rotation');
-    //   this.direction.copy(this.velocity);
-    //   this.direction.multiplyScalar(delta);
-    //   if (!elRotation) { return this.direction; }
-    //   if (!this.data.flyEnabled) { elRotation.x = 0; }
-    //   rotation.set(
-    //     THREE.Math.degToRad(elRotation.x),
-    //     THREE.Math.degToRad(elRotation.y),
-    //     0
-    //   );
-    //   this.direction.applyEuler(rotation);
-    //   return this.direction;
-    // };
-
-    // return this._getMovementVector(delta);
   },
 
   /*******************************************************************

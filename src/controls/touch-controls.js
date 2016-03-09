@@ -1,17 +1,32 @@
 module.exports = {
-  init: function () {},
-  remove: function () {},
-  update: (function () {
-    var tPrev = Date.now();
-    return function () {
-      var t = Date.now();
-      this.tick(t, t - tPrev);
-      tPrev = t;
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+
+    this.listeners = {
+      onpress: function () { this.isMoving = true; }.bind(this),
+      onrelease: function () { this.isMoving = false; }.bind(this),
     };
-  }()),
-  tick: function (t, dt) {},
+
+    window.addEventListener('mousedown', this.listeners.onpress);
+    window.addEventListener('touchstart', this.listeners.onpress);
+    window.addEventListener('mouseup', this.listeners.onrelease);
+    window.addEventListener('touchend', this.listeners.onrelease);
+  },
+
+  remove: function () {
+    window.removeEventListener('mousedown', this.listeners.onpress);
+    window.removeEventListener('touchstart', this.listeners.onpress);
+    window.removeEventListener('mouseup', this.listeners.onrelease);
+    window.removeEventListener('touchend', this.listeners.onrelease);
+  },
+
+  update: function () {},
+  tick: function () {},
 
   // Rotation controls interface
-  isEnabled: function () { return false; },
-  getVelocityDelta: function (dt) {}
+  isVelocityActive: function () { return this.isMoving; },
+  getVelocityDelta: function () {
+    this.dVelocity.z = this.isMoving ? -1 : 0;
+    return this.dVelocity.clone();
+  }
 };

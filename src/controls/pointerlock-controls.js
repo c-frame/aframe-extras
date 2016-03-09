@@ -12,6 +12,6 @@ module.exports = {
   tick: function (t, dt) {},
 
   // Rotation controls interface
-  isEnabled: function () { return false; },
+  isRotationActive: function () { return false; },
   getRotationDelta: function (dt) {}
 };

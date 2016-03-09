@@ -47,7 +47,7 @@ module.exports = {
     this.updateButtonState();
   },
 
-  isEnabled: function () { return true; },
+  isVelocityActive: function () { return !!Object.keys(this.getKeys()).length; },
 
   getVelocityDelta: function () {
     var data = this.data,
@@ -61,7 +61,7 @@ module.exports = {
       if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
     }
 
-    return this.dVelocity;
+    return this.dVelocity.clone();
   },
 
   /*******************************************************************

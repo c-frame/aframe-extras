@@ -77,7 +77,7 @@ module.exports = {
     rotationControls = data.rotationControls;
     for (var i = 0, l = data.rotationControls.length; i < l; i++) {
       control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
-      if (control && control.isEnabled()) {
+      if (control && control.isRotationActive()) {
         if (control.getRotationDelta) {
           rotation = this.el.getAttribute('rotation');
           dRotation = control.getRotationDelta(dt);
@@ -108,7 +108,7 @@ module.exports = {
     movementControls = data.movementControls;
     for (var i = 0, l = data.movementControls.length; i < l; i++) {
       control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
-      if (control && control.isEnabled()) {
+      if (control && control.isVelocityActive()) {
         if (control.getVelocityDelta) {
           dVelocity = control.getVelocityDelta(dt);
         } else if (control.getVelocity) {
