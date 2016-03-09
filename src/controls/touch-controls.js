@@ -3,21 +3,17 @@ module.exports = {
     this.dVelocity = new THREE.Vector3();
 
     this.listeners = {
-      onpress: function () { this.isMoving = true; }.bind(this),
-      onrelease: function () { this.isMoving = false; }.bind(this),
+      touchstart: function () { this.isMoving = true; }.bind(this),
+      touchend: function () { this.isMoving = false; }.bind(this),
     };
 
-    window.addEventListener('mousedown', this.listeners.onpress);
-    window.addEventListener('touchstart', this.listeners.onpress);
-    window.addEventListener('mouseup', this.listeners.onrelease);
-    window.addEventListener('touchend', this.listeners.onrelease);
+    window.addEventListener('touchstart', this.listeners.touchstart);
+    window.addEventListener('touchend', this.listeners.touchend);
   },
 
   remove: function () {
-    window.removeEventListener('mousedown', this.listeners.onpress);
-    window.removeEventListener('touchstart', this.listeners.onpress);
-    window.removeEventListener('mouseup', this.listeners.onrelease);
-    window.removeEventListener('touchend', this.listeners.onrelease);
+    window.removeEventListener('touchstart', this.listeners.touchstart);
+    window.removeEventListener('touchend', this.listeners.touchend);
   },
 
   update: function () {},
