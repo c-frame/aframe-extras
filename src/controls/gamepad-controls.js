@@ -84,7 +84,7 @@ module.exports = {
    * Movement
    */
 
-  isVelocityActive: function () {
+  isMovementActive: function () {
     var gamepad = this.getGamepad();
 
     if (!gamepad) return false;
@@ -101,7 +101,7 @@ module.exports = {
     return false;
   },
 
-  getVelocityDelta: function () {
+  getMovementDelta: function () {
     var dpad = this.getDpad(),
         joystick0 = this.getJoystick(0),
         inputX = dpad.x || joystick0.x,

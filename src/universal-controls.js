@@ -108,14 +108,13 @@ module.exports = {
     movementControls = data.movementControls;
     for (var i = 0, l = data.movementControls.length; i < l; i++) {
       control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
-      if (control && control.isVelocityActive()) {
-        if (control.getVelocityDelta) {
-          dVelocity = control.getVelocityDelta(dt);
+      if (control && control.isMovementActive()) {
+        if (control.getMovementDelta) {
+          dVelocity = control.getMovementDelta(dt);
         } else if (control.getVelocity) {
-          throw new Error('getVelocity() not currently supported, use getVelocityDelta()');
+          throw new Error('getVelocity() not currently supported, use getMovementDelta()');
         } else {
-          console.error('Invalid movement controls: %s', data.movementControls[i]);
-          throw new Error('Position cannot be updated.');
+          throw new Error('Incompatible movement controls: ', data.movementControls[i]);
         }
         break;
       }

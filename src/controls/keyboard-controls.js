@@ -47,9 +47,9 @@ module.exports = {
     this.updateButtonState();
   },
 
-  isVelocityActive: function () { return !!Object.keys(this.getKeys()).length; },
+  isMovementActive: function () { return !!Object.keys(this.getKeys()).length; },
 
-  getVelocityDelta: function () {
+  getMovementDelta: function () {
     var data = this.data,
         keys = this.getKeys();
 

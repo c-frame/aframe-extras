@@ -24,8 +24,8 @@ module.exports = {
   tick: function () {},
 
   // Rotation controls interface
-  isVelocityActive: function () { return this.isMoving; },
-  getVelocityDelta: function () {
+  isMovementActive: function () { return this.isMoving; },
+  getMovementDelta: function () {
     this.dVelocity.z = this.isMoving ? -1 : 0;
     return this.dVelocity.clone();
   }
