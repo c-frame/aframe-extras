@@ -23,7 +23,6 @@ module.exports = {
   update: function () {},
   tick: function () {},
 
-  // Rotation controls interface
   isMovementActive: function () { return this.isMoving; },
   getMovementDelta: function () {
     this.dVelocity.z = this.isMoving ? -1 : 0;
