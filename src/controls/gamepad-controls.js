@@ -113,11 +113,11 @@ module.exports = {
   /*******************************************************************
    * Movement
    */
-  
+
   isEnabled: function () {
   	return false;
   },
-  
+
   getVelocityDelta: function (dt) {
 
   },
@@ -205,7 +205,7 @@ module.exports = {
   /*******************************************************************
    * Rotation
    */
-  
+
   updateRotation: function () {
     // if (this._updateRotation) {
     //   return this._updateRotation();
@@ -250,7 +250,7 @@ module.exports = {
     //   var lookVector = this.getJoystick(1);
     //   if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
     //   if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
-      
+
     //   // If external controls have been active more recently than gamepad,
     //   // and gamepad hasn't moved, don't overwrite the existing rotation.
     //   if (tLastExternalActivity > tLastLocalActivity && !lookVector.lengthSq()) {
@@ -332,7 +332,7 @@ module.exports = {
   /**
    * Returns the state of the given button.
    * @param  {number} index The button (0-N) for which to find state.
-   * @return {GamepadButton} 
+   * @return {GamepadButton}
    */
   getButton: function (index) {
     return this.getGamepad().buttons[index];

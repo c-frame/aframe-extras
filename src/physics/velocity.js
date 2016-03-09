@@ -1,17 +1,26 @@
 /**
  * Velocity, in m/s.
  */
-module.exports = {
+
+var AFRAME = window.AFRAME;
+
+module.exports = AFRAME.aframeCore.utils.extend({
   schema: {
-    x: { default: 0.0 },
-    y: { default: 0.0 },
-    z: { default: 0.0 }
+    x: { default: 0 },
+    y: { default: 0 },
+    z: { default: 0 }
   },
-  init: function () {},
+  init: function () {
+    if (this.el.sceneEl.addBehavior) {
+      this.el.sceneEl.addBehavior(this);
+    }
+  },
   remove: function () {},
   update: (function () {
     var tPrev = Date.now();
-    return function () {
+    return function (previousData) {
+      if (previousData) return;
+
       var t = Date.now();
       this.tick(t, t - tPrev);
       tPrev = t;
@@ -25,4 +34,4 @@ module.exports = {
       z: position.z + this.data.z * dt / 1000
     });
   },
-};
+}, AFRAME.aframeCore.utils.coordinates.componentMixin);

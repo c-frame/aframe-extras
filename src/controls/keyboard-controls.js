@@ -1,4 +1,4 @@
-require('./lib/keyboard.polyfill');
+require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
     PROXY_FLAG = '__keyboard-controls-proxy';
@@ -24,7 +24,7 @@ module.exports = {
   },
 
   init: function () {
-    this.velocity = new THREE.Vector3();
+    this.dVelocity = new THREE.Vector3();
     this.localKeys = {};
     this.listeners = {
       keydown: this.onKeyDown.bind(this),
@@ -47,19 +47,21 @@ module.exports = {
     this.updateButtonState();
   },
 
+  isEnabled: function () { return true; },
+
   getVelocityDelta: function () {
     var data = this.data,
-        keys = this.getKeys(),
-        dVelocity = {x: 0, y: 0, z: 0};
+        keys = this.getKeys();
 
+    this.dVelocity.set(0, 0, 0);
     if (data.enabled) {
-      if (keys.KeyW || keys.ArrowUp)    { dVelocity.z -= 1; }
-      if (keys.KeyA || keys.ArrowLeft)  { dVelocity.x -= 1; }
-      if (keys.KeyS || keys.ArrowDown)  { dVelocity.z += 1; }
-      if (keys.KeyD || keys.ArrowRight) { dVelocity.x += 1; }
+      if (keys.KeyW || keys.ArrowUp)    { this.dVelocity.z -= 1; }
+      if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
+      if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
+      if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
     }
 
-    return dVelocity;
+    return this.dVelocity;
   },
 
   /*******************************************************************
@@ -130,7 +132,7 @@ module.exports = {
   /*******************************************************************
   * Accessors
   */
- 
+
   isPressed: function (code) {
     return code in this.getKeys();
   },

@@ -1,26 +1,41 @@
-// Ordered by precedence.
-var DEFAULT_MOVEMENT_COMPONENTS = [
-      'gamepad-controls', 'keyboard-controls', 'touch-movement'
-    ],
-    DEFAULT_ROTATION_COMPONENTS = [
-      'hmd-rotation', 'pointerlock-rotation', 'gamepad-controls', 'mousedrag-rotation'
-    ];
+/**
+ * Universal Controls
+ *
+ * @author Don McCurdy <dm@donmccurdy.com>
+ */
 
-var MAX_DELTA = 0.2;
+var COMPONENT_SUFFIX = '-controls',
+    MAX_DELTA = 0.2; // ms
 
 module.exports = {
+
+  /*******************************************************************
+   * Schema
+   */
+
+  dependencies: ['velocity'],
+
   schema: {
     enabled:              { default: true },
-    movementControls:     { default: DEFAULT_MOVEMENT_COMPONENTS },
-    rotationControls:     { default: DEFAULT_ROTATION_COMPONENTS },
-    movementSpeed:        { default: 15 },
-    movementEasing:       { default: 20 },
-    movementAcceleration: { default: 65 },
+    movementControls:     { default: ['gamepad', 'keyboard', 'touch'] },
+    rotationControls:     { default: ['hmd', 'pointerlock', 'gamepad', 'mousedrag'] },
+    movementSpeed:        { default: 5 }, // m/s
+    movementEasing:       { default: 15 }, // m/s2
+    movementAcceleration: { default: 80 }, // m/s2
   },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
   init: function () {
     this.velocity = new THREE.Vector3();
+
+    if (this.el.sceneEl.addBehavior) {
+      this.el.sceneEl.addBehavior(this);
+    }
   },
-  remove: function () {},
+
   update: (function () {
     var tPrev = Date.now();
     return function () {
@@ -30,28 +45,38 @@ module.exports = {
     };
   }()),
 
+  remove: function () {},
+
+  /*******************************************************************
+   * Tick
+   */
+
   tick: function (t, dt) {
     // Update rotation.
     this.updateRotation(dt);
 
     // Update velocity.
-    if (dt > MAX_DELTA) {
+    if (dt / 1000 > MAX_DELTA) {
       // If FPS drops too low, reset the velocity.
       this.velocity.set(0, 0, 0);
       this.el.setAttribute('velocity', this.velocity);
     } else {
-      this.updatePosition(dt);
-    }    
+      this.updateVelocity(dt);
+    }
   },
+
+  /*******************************************************************
+   * Rotation
+   */
 
   updateRotation: function (dt) {
     var control, rotationControls,
         rotation, dRotation,
-        data;
+        data = this.data;
 
-    rotationControls = data.rotationControls.split(' ');
+    rotationControls = data.rotationControls;
     for (var i = 0, l = data.rotationControls.length; i < l; i++) {
-      control = this.el.components[data.rotationControls[i]];
+      control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
       if (control && control.isEnabled()) {
         if (control.getRotationDelta) {
           rotation = this.el.getAttribute('rotation');
@@ -71,31 +96,54 @@ module.exports = {
     }
   },
 
+  /*******************************************************************
+   * Movement
+   */
+
   updateVelocity: function (dt) {
     var control, movementControls,
         velocity, dVelocity,
-        data;
+        data = this.data;
 
-    movementControls = data.movementControls.split(' ');
+    movementControls = data.movementControls;
     for (var i = 0, l = data.movementControls.length; i < l; i++) {
-      control = this.el.components[data.movementControls[i]];
+      control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
       if (control && control.isEnabled()) {
         if (control.getVelocityDelta) {
-          velocity = this.el.getAttribute('velocity');
           dVelocity = control.getVelocityDelta(dt);
-          this.velocity.set(velocity.x + dVelocity.x, velocity.y + dVelocity.y, velocity.z + dVelocity.z);
-          if (this.velocity.lengthSq() > data.movementSpeed * data.movementSpeed) {
-            this.velocity.setLength(data.movementSpeed);
-          }
-          this.el.setAttribute('velocity', this.velocity);
         } else if (control.getVelocity) {
-          this.velocity.copy(control.getVelocity());
-          this.el.setAttribute('velocity', this.velocity);
+          throw new Error('getVelocity() not currently supported, use getVelocityDelta()');
         } else {
           console.error('Invalid movement controls: %s', data.movementControls[i]);
+          throw new Error('Position cannot be updated.');
         }
         break;
       }
     }
+
+    velocity = this.velocity;
+    velocity.copy(this.el.getAttribute('velocity'));
+    velocity.x -= velocity.x * data.movementEasing * dt / 1000;
+    velocity.z -= velocity.z * data.movementEasing * dt / 1000;
+
+    if (dVelocity) {
+      if (dVelocity.length() > 1) {
+        dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
+      } else {
+        dVelocity.multiplyScalar(this.data.movementAcceleration * dt / 1000);
+      }
+
+      velocity.set(
+        velocity.x + dVelocity.x,
+        velocity.y + dVelocity.y,
+        velocity.z + dVelocity.z
+      );
+
+      if (velocity.length() > data.movementSpeed) {
+        velocity.setLength(data.movementSpeed);
+      }
+    }
+
+    this.el.setAttribute('velocity', velocity);
   }
 };

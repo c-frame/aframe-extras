@@ -1,12 +1,12 @@
 var AFRAME = window.AFRAME.aframeCore || window.AFRAME;
 
 // Movement
-AFRAME.registerComponent('touch-movement', require('./touch-movement'));
+AFRAME.registerComponent('touch-controls', require('./touch-controls'));
 
 // Rotation
-AFRAME.registerComponent('hmd-rotation', require('./hmd-rotation'));
-AFRAME.registerComponent('mousedrag-rotation', require('./mousedrag-rotation'));
-AFRAME.registerComponent('pointerlock-rotation', require('./pointerlock-rotation'));
+AFRAME.registerComponent('hmd-controls', require('./hmd-controls'));
+AFRAME.registerComponent('mousedrag-controls', require('./mousedrag-controls'));
+AFRAME.registerComponent('pointerlock-controls', require('./pointerlock-controls'));
 
 // Movement + Rotation
 AFRAME.registerComponent('gamepad-controls', require('./gamepad-controls'));
