@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Examples • Walking</title>
+    <script src="https://aframe.io/releases/0.1.2/aframe.js"></script>
+    <script src="bundle.js"></script>
+  </head>
+  <body>
+    <a-scene proxy-controls>
+      <!-- Player -->
+      <a-entity camera
+                universal-controls
+                gamepad-controls keyboard-controls touch-controls
+                hmd-controls pointerlock-controls gamepad-controls mousedrag-controls
+                velocity="0 0 0"
+                position="0 1.764 0">
+        </a-entity>
+      </a-entity>
+
+      <!-- Terrain -->
+      <a-entity geometry="primitive: plane"
+                rotation="-90 0 0"
+                scale="100 100 1"
+                material="src: url(../../assets/grid.png);
+                          repeat: 100 100;">
+      </a-entity>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#fff"></a-light>
+    </a-scene>
+  </body>
+</html>
