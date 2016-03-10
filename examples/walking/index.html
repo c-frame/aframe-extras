@@ -7,7 +7,7 @@
     <script src="bundle.js"></script>
   </head>
   <body>
-    <a-scene proxy-controls>
+    <a-scene proxy-controls stats="true">
       <!-- Player -->
       <a-entity camera
                 universal-controls
@@ -21,9 +21,9 @@
       <!-- Terrain -->
       <a-entity geometry="primitive: plane"
                 rotation="-90 0 0"
-                scale="100 100 1"
+                scale="64 64 1"
                 material="src: url(../../assets/grid.png);
-                          repeat: 100 100;">
+                          repeat: 64 64;">
       </a-entity>
 
       <!-- Lighting -->
