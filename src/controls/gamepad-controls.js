@@ -63,9 +63,7 @@ module.exports = {
    * Called when component is attached and when component data changes.
    * Generally modifies the entity based on the data.
    */
-  update: function () {
-    this.updateButtonState();
-  },
+  update: function () { this.tick(); },
 
   /**
    * Called on each iteration of main render loop.
@@ -81,13 +79,11 @@ module.exports = {
   remove: function () { },
 
   /*******************************************************************
-   * Movement
+   * Universal controls - movement
    */
 
   isMovementActive: function () {
-    var gamepad = this.getGamepad();
-
-    if (!gamepad) return false;
+    if (!this.data.enabled || !this.isConnected()) return false;
 
     var dpad = this.getDpad(),
         joystick0 = this.getJoystick(0),
@@ -95,10 +91,6 @@ module.exports = {
         inputY = dpad.y || joystick0.y;
 
     return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
-  },
-
-  isRotationActive: function () {
-    return false;
   },
 
   getMovementDelta: function () {
@@ -118,80 +110,23 @@ module.exports = {
     return dVelocity;
   },
 
-  getRotationDelta: function (dt) {
-
-  },
-
   /*******************************************************************
-   * Rotation
+   * Universal controls - rotation
    */
 
-  updateRotation: function () {
-    // if (this._updateRotation) {
-    //   return this._updateRotation();
-    // }
+  isRotationActive: function () {
+    if (!this.data.enabled || !this.isConnected()) return false;
 
-    // var initialRotation = new THREE.Vector3(),
-    //     prevInitialRotation = new THREE.Vector3(),
-    //     prevFinalRotation = new THREE.Vector3();
+    var joystick1 = this.getJoystick(1);
 
-    // var tCurrent,
-    //     tLastLocalActivity = 0,
-    //     tLastExternalActivity = 0;
+    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
+  },
 
-    // var ROTATION_EPS = 0.0001,
-    //     DEBOUNCE = 500;
-
-    // this._updateRotation = function () {
-    //   if (!this.data.lookEnabled || !this.getGamepad()) {
-    //     return;
-    //   }
-
-    //   tCurrent = Date.now();
-    //   initialRotation.copy(this.el.getAttribute('rotation') || initialRotation);
-
-    //   // If initial rotation for this frame is different from last frame, and
-    //   // doesn't match last gamepad state, assume an external component is
-    //   // active on this element.
-    //   if (initialRotation.distanceToSquared(prevInitialRotation) > ROTATION_EPS
-    //       && initialRotation.distanceToSquared(prevFinalRotation) > ROTATION_EPS) {
-    //     prevInitialRotation.copy(initialRotation);
-    //     tLastExternalActivity = tCurrent;
-    //     return;
-    //   }
-
-    //   prevInitialRotation.copy(initialRotation);
-
-    //   // If external controls have been active in last 500ms, wait.
-    //   if (tCurrent - tLastExternalActivity < DEBOUNCE) {
-    //     return;
-    //   }
-
-    //   var lookVector = this.getJoystick(1);
-    //   if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
-    //   if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
-
-    //   // If external controls have been active more recently than gamepad,
-    //   // and gamepad hasn't moved, don't overwrite the existing rotation.
-    //   if (tLastExternalActivity > tLastLocalActivity && !lookVector.lengthSq()) {
-    //     return;
-    //   }
-
-    //   lookVector.multiplyScalar(this.data.sensitivity);
-    //   this.yaw.rotation.y -= lookVector.x;
-    //   this.pitch.rotation.x -= lookVector.y;
-    //   this.pitch.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitch.rotation.x));
-
-    //   this.el.setAttribute('rotation', {
-    //     x: THREE.Math.radToDeg(this.pitch.rotation.x),
-    //     y: THREE.Math.radToDeg(this.yaw.rotation.y),
-    //     z: 0
-    //   });
-    //   prevFinalRotation.copy(this.el.getAttribute('rotation'));
-    //   tLastLocalActivity = tCurrent;
-    // };
-
-    // return this._updateRotation();
+  getRotationDelta: function () {
+    var lookVector = this.getJoystick(1);
+    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
+    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
+    return lookVector;
   },
 
   /*******************************************************************

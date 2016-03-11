@@ -5,7 +5,8 @@
  */
 
 var COMPONENT_SUFFIX = '-controls',
-    MAX_DELTA = 0.2; // ms
+    MAX_DELTA = 0.2, // ms
+    PI_2 = Math.PI / 2;
 
 module.exports = {
 
@@ -22,6 +23,7 @@ module.exports = {
     movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
     movementAcceleration: { default: 80 }, // m/s2
+    rotationSensitivity:  { default: 0.04 } // radians/frame, ish
   },
 
   /*******************************************************************
@@ -29,7 +31,14 @@ module.exports = {
    */
 
   init: function () {
+    // Movement
     this.velocity = new THREE.Vector3();
+
+    // Rotation
+    this.pitch = new THREE.Object3D();
+    this.yaw = new THREE.Object3D();
+    this.yaw.position.y = 10;
+    this.yaw.add(this.pitch);
 
     if (this.el.sceneEl.addBehavior) {
       this.el.sceneEl.addBehavior(this);
@@ -81,10 +90,14 @@ module.exports = {
         if (control.getRotationDelta) {
           rotation = this.el.getAttribute('rotation');
           dRotation = control.getRotationDelta(dt);
+          dRotation.multiplyScalar(data.rotationSensitivity);
+          this.yaw.rotation.y -= dRotation.x;
+          this.pitch.rotation.x -= dRotation.y;
+          this.pitch.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitch.rotation.x));
           this.el.setAttribute('rotation', {
-            x: rotation.x + dRotation.x,
-            y: rotation.y + dRotation.y,
-            z: rotation.z + dRotation.z
+            x: THREE.Math.radToDeg(this.pitch.rotation.x),
+            y: THREE.Math.radToDeg(this.yaw.rotation.y),
+            z: 0
           });
         } else if (control.getRotation) {
           this.el.setAttribute('rotation', control.getRotation());
