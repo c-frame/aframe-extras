@@ -39,6 +39,7 @@ module.exports = {
     this.yaw = new THREE.Object3D();
     this.yaw.position.y = 10;
     this.yaw.add(this.pitch);
+    this.heading = new THREE.Euler(0, 0, 0, 'YXZ');
 
     if (this.el.sceneEl.addBehavior) {
       this.el.sceneEl.addBehavior(this);
@@ -64,9 +65,8 @@ module.exports = {
     // Update rotation.
     this.updateRotation(dt);
 
-    // Update velocity.
+    // Update velocity. If FPS is too low, reset.
     if (dt / 1000 > MAX_DELTA) {
-      // If FPS drops too low, reset the velocity.
       this.velocity.set(0, 0, 0);
       this.el.setAttribute('velocity', this.velocity);
     } else {
@@ -139,18 +139,33 @@ module.exports = {
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
 
     if (dVelocity) {
+      // Set acceleration
       if (dVelocity.length() > 1) {
         dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
       } else {
         dVelocity.multiplyScalar(this.data.movementAcceleration * dt / 1000);
       }
 
+      // Rotate to heading
+      var rotation = this.el.getAttribute('rotation');
+      if (rotation) {
+        rotation.x = 0; // no flying
+        this.heading.set(
+          THREE.Math.degToRad(rotation.x),
+          THREE.Math.degToRad(rotation.y),
+          0
+        );
+        dVelocity.applyEuler(this.heading);
+      }
+
+      // Apply
       velocity.set(
         velocity.x + dVelocity.x,
         velocity.y + dVelocity.y,
         velocity.z + dVelocity.z
       );
 
+      // Limit speed
       if (velocity.length() > data.movementSpeed) {
         velocity.setLength(data.movementSpeed);
       }
