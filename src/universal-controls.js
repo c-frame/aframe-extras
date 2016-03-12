@@ -19,7 +19,7 @@ module.exports = {
   schema: {
     enabled:              { default: true },
     movementControls:     { default: ['gamepad', 'keyboard', 'touch'] },
-    rotationControls:     { default: ['hmd', 'pointerlock', 'gamepad', 'mousedrag'] },
+    rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
     movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
     movementAcceleration: { default: 80 }, // m/s2

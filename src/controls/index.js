@@ -5,8 +5,7 @@ AFRAME.registerComponent('touch-controls', require('./touch-controls'));
 
 // Rotation
 AFRAME.registerComponent('hmd-controls', require('./hmd-controls'));
-AFRAME.registerComponent('mousedrag-controls', require('./mousedrag-controls'));
-AFRAME.registerComponent('pointerlock-controls', require('./pointerlock-controls'));
+AFRAME.registerComponent('mouse-controls', require('./mouse-controls'));
 
 // Movement + Rotation
 AFRAME.registerComponent('gamepad-controls', require('./gamepad-controls'));
