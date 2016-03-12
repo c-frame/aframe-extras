@@ -7,13 +7,21 @@ module.exports = {
       touchend: function () { this.isMoving = false; }.bind(this),
     };
 
-    window.addEventListener('touchstart', this.listeners.touchstart);
-    window.addEventListener('touchend', this.listeners.touchend);
+    var sceneEl = this.el.sceneEl,
+        canvasEl = sceneEl && sceneEl.canvas;
+
+    canvasEl.addEventListener('touchstart', this.listeners.touchstart);
+    canvasEl.addEventListener('touchend', this.listeners.touchend);
   },
 
   remove: function () {
-    window.removeEventListener('touchstart', this.listeners.touchstart);
-    window.removeEventListener('touchend', this.listeners.touchend);
+    var sceneEl = this.el.sceneEl,
+        canvasEl = sceneEl && sceneEl.canvas;
+
+    if (!canvasEl) return;
+
+    canvasEl.removeEventListener('touchstart', this.listeners.touchstart);
+    canvasEl.removeEventListener('touchend', this.listeners.touchend);
   },
 
   update: function () {},
