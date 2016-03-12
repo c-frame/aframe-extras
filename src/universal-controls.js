@@ -23,7 +23,7 @@ module.exports = {
     movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
     movementAcceleration: { default: 80 }, // m/s2
-    rotationSensitivity:  { default: 0.04 } // radians/frame, ish
+    rotationSensitivity:  { default: 0.05 } // radians/frame, ish
   },
 
   /*******************************************************************
@@ -79,8 +79,7 @@ module.exports = {
    */
 
   updateRotation: function (dt) {
-    var control, rotationControls,
-        rotation, dRotation,
+    var control, rotationControls, dRotation,
         data = this.data;
 
     rotationControls = data.rotationControls;
@@ -88,7 +87,6 @@ module.exports = {
       control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
       if (control && control.isRotationActive()) {
         if (control.getRotationDelta) {
-          rotation = this.el.getAttribute('rotation');
           dRotation = control.getRotationDelta(dt);
           dRotation.multiplyScalar(data.rotationSensitivity);
           this.yaw.rotation.y -= dRotation.x;
@@ -102,7 +100,7 @@ module.exports = {
         } else if (control.getRotation) {
           this.el.setAttribute('rotation', control.getRotation());
         } else {
-          console.error('Invalid rotation controls: %s', data.rotationControls[i]);
+          throw new Error('Incompatible rotation controls: %s', data.rotationControls[i]);
         }
         break;
       }
