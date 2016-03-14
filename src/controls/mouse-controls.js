@@ -79,7 +79,9 @@ module.exports = {
   },
 
   getRotationDelta: function () {
-    return this.lookVector.clone().multiplyScalar(this.data.sensitivity);
+    var dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
+    this.lookVector.set(0, 0, 0);
+    return dRotation;
   },
 
   /*******************************************************************
