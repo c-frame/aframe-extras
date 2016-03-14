@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Examples • Obstacles</title>
+    <script src="https://aframe.io/releases/0.1.2/aframe.js"></script>
+    <script src="bundle.js"></script>
+  </head>
+  <body>
+    <a-scene physics
+             proxy-controls
+             stats="true">
+      <!-- Player -->
+      <a-entity camera
+                universal-controls
+                gamepad-controls keyboard-controls touch-controls
+                hmd-controls gamepad-controls mouse-controls
+                dynamic-body
+                velocity="0 0 0"
+                position="0 1.764 0">
+        </a-entity>
+      </a-entity>
+
+      <!-- Terrain -->
+      <a-entity geometry="primitive: plane"
+                rotation="-90 0 0"
+                scale="64 64 1"
+                position="0 0 0"
+                rigid-body="width: 64;
+                            height: 1;
+                            depth: 64;
+                            mass: 0;"
+                material="src: url(../../assets/grid.png);
+                          repeat: 64 64;">
+      </a-entity>
+
+      <!-- Obstacles -->
+      <a-cube color="#39BB82"
+              width="10"
+              height="5"
+              depth="2"
+              position="3 2.5 -5"
+              rigid-body="width: 10;
+                          height: 5;
+                          depth: 2;
+                          mass: 0;"></a-cube>
+      <a-cube color="#39BB82"
+              width="10"
+              height="5"
+              depth="2"
+              position="3 2.5 5"
+              rigid-body="width: 10;
+                          height: 5;
+                          depth: 2;
+                          mass: 0;"></a-cube>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#bbb"></a-light>
+      <a-light color="#ccc" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ccc" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
+    </a-scene>
+  </body>
+</html>

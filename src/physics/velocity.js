@@ -29,6 +29,7 @@ module.exports = AFRAME.aframeCore.utils.extend({
   tick: function (t, dt) {
     var data = this.data,
         position = this.el.getAttribute('position');
+
     this.el.setAttribute('position', {
       x: position.x + data.x * dt / 1000,
       y: position.y + data.y * dt / 1000,

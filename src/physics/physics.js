@@ -50,7 +50,7 @@ module.exports = {
    * Interface
    */
 
-  registerRigidBody: function (body) {
+  registerBody: function (body) {
     this.world.add(body);
   }
 };
