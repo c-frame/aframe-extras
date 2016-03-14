@@ -156,14 +156,8 @@ module.exports = {
         dVelocity.applyEuler(this.heading);
       }
 
-      // Apply
-      velocity.set(
-        velocity.x + dVelocity.x,
-        velocity.y + dVelocity.y,
-        velocity.z + dVelocity.z
-      );
+      velocity.add(dVelocity);
 
-      // Limit speed
       if (velocity.length() > data.movementSpeed) {
         velocity.setLength(data.movementSpeed);
       }
