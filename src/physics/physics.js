@@ -2,10 +2,13 @@ var CANNON = require('cannon');
 
 module.exports = {
   schema: {
-    friction: {default: 0.0},
-    restitution: {default: 0.3},
-    iterations: {default: 5},
-    gravity: {default: -9.8}
+    friction:     { default: 0.0 },
+    restitution:  { default: 0.3 },
+    iterations:   { default: 5 },
+    gravity:      { default: -9.8 },
+
+    // If true, show wireframes around physics bodies.
+    debug:        { default: false }
   },
   init: function () {
     this.validate();

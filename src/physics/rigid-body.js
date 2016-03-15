@@ -4,8 +4,7 @@
  * Solid body without deformation, but which is subject to collisions and gravity.
  */
 
-var CANNON = require('cannon'),
-    AFRAME = window.AFRAME;
+var CANNON = require('cannon');
 
 module.exports = {
   schema: {
@@ -37,6 +36,22 @@ module.exports = {
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
+
+    // Apply rotation
+    var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
+    this.body.quaternion.setFromEuler(
+      THREE.Math.degToRad(rot.x),
+      THREE.Math.degToRad(rot.y),
+      THREE.Math.degToRad(rot.z),
+      'XYZ'
+    );
+    this.body.quaternion.normalize();
+
+    // Show wireframe
+    if (physics.data.debug) {
+      var mesh = CANNON.shape2mesh(this.body).children[0];
+      this.el.object3D.add(new THREE.EdgesHelper(mesh, 0xff0000));
+    }
 
     physics.registerBody(this.body);
     if (this.el.sceneEl.addBehavior) el.sceneEl.addBehavior(this);
