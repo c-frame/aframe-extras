@@ -22,12 +22,32 @@ module.exports = {
       return;
     }
 
-    // TODO
+    var el = this.el,
+        data = this.data,
+        pos = el.getAttribute('position');
+
+    this.euler = new THREE.Euler();
+
+    var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
+    this.body = new CANNON.Body({
+      shape: new CANNON.Box(halfExtents),
+      material: physics.material,
+      position: new CANNON.Vec3(pos.x, pos.y, pos.z),
+      mass: data.mass,
+      linearDamping: data.linearDamping,
+      angularDamping: data.angularDamping
+    });
+
+    if (el.getAttribute('rotation')) {
+      // TODO - Quaternion->Euler conversion leaves something to be desired.
+      throw new Error('[dynamic-body] Preset rotation not yet supported.');
+    }
 
     // Show wireframe
     if (physics.data.debug) {
       var mesh = CANNON.shape2mesh(this.body).children[0];
-      this.el.object3D.add(new THREE.EdgesHelper(mesh, 0xff0000));
+      this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
+      this.el.sceneEl.object3D.add(this.wireframe);
     }
 
     physics.registerBody(this.body);
@@ -35,6 +55,26 @@ module.exports = {
     console.info('[dynamic-body] loaded');
   },
   remove: function () {},
-  update: function () {},
-  tick: function () {}
+  update: function () { this.tick(); },
+  tick: function () {
+    var physics = this.el.sceneEl.components.physics;
+    if (!physics) return;
+
+    // Update mesh
+    // this.body.quaternion.toEuler(this.euler, 'YZX' /* XYZ not supported */);
+    // this.euler.x = THREE.Math.radToDeg(this.euler.x);
+    // this.euler.y = THREE.Math.radToDeg(this.euler.y);
+    // this.euler.z = THREE.Math.radToDeg(this.euler.z);
+    // this.el.setAttribute('rotation', {x: this.euler.x, y: this.euler.y, z: this.euler.z});
+
+    this.el.object3D.quaternion.copy(this.body.quaternion);
+    this.el.setAttribute('position', this.body.position);
+
+    // Update wireframe
+    if (physics.data.debug) {
+      this.wireframe.quaternion.copy(this.body.quaternion);
+      this.wireframe.position.copy(this.body.position);
+      this.wireframe.updateMatrix();
+    }
+  }
 };

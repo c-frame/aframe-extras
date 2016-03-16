@@ -2,7 +2,7 @@ var CANNON = require('cannon');
 
 module.exports = {
   schema: {
-    friction:     { default: 0.0 },
+    friction:     { default: 0.01 },
     restitution:  { default: 0.3 },
     iterations:   { default: 5 },
     gravity:      { default: -9.8 },
@@ -45,7 +45,7 @@ module.exports = {
     this.t0 = t1;
   },
   tick: function (t, dt) {
-    this.world.step(dt);
+    this.world.step(Math.min(dt / 1000, 4 / 60 /* 15 fps, at worst */));
   },
   remove: function () {},
 

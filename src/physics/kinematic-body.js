@@ -46,7 +46,7 @@ module.exports = {
 
     physics.registerBody(this.body);
     if (el.sceneEl.addBehavior) el.sceneEl.addBehavior(this);
-    console.info('[dynamic-body] loaded');
+    console.info('[kinematic-body] loaded');
   },
   remove: function () {},
 
