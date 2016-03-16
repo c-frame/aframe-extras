@@ -6,6 +6,7 @@ var AFRAME = window.AFRAME;
 
 module.exports = AFRAME.aframeCore.utils.extend({
   schema: {
+    // TODO - type: vec3
     x: { default: 0 },
     y: { default: 0 },
     z: { default: 0 }

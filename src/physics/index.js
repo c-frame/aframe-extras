@@ -5,3 +5,4 @@ AFRAME.registerComponent('dynamic-body', require('./dynamic-body'));
 AFRAME.registerComponent('kinematic-body', require('./kinematic-body'));
 AFRAME.registerComponent('rigid-body', require('./rigid-body'));
 AFRAME.registerComponent('velocity', require('./velocity'));
+AFRAME.registerComponent('quaternion', require('./quaternion'));

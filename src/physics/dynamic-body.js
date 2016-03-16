@@ -39,7 +39,7 @@ module.exports = {
     });
 
     if (el.getAttribute('rotation')) {
-      // TODO - Quaternion->Euler conversion leaves something to be desired.
+      // Gimbal lock with Euler rotation is problematic.
       throw new Error('[dynamic-body] Preset rotation not yet supported.');
     }
 
@@ -60,14 +60,7 @@ module.exports = {
     var physics = this.el.sceneEl.components.physics;
     if (!physics) return;
 
-    // Update mesh
-    // this.body.quaternion.toEuler(this.euler, 'YZX' /* XYZ not supported */);
-    // this.euler.x = THREE.Math.radToDeg(this.euler.x);
-    // this.euler.y = THREE.Math.radToDeg(this.euler.y);
-    // this.euler.z = THREE.Math.radToDeg(this.euler.z);
-    // this.el.setAttribute('rotation', {x: this.euler.x, y: this.euler.y, z: this.euler.z});
-
-    this.el.object3D.quaternion.copy(this.body.quaternion);
+    this.el.setAttribute('quaternion', this.body.quaternion);
     this.el.setAttribute('position', this.body.position);
 
     // Update wireframe
