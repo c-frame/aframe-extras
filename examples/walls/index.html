@@ -15,20 +15,23 @@
                 universal-controls
                 gamepad-controls keyboard-controls touch-controls
                 hmd-controls gamepad-controls mouse-controls
-                dynamic-body
+                kinematic-body
                 velocity="0 0 0"
                 position="0 1.764 0">
         </a-entity>
       </a-entity>
 
-      <!-- Terrain -->
-      <a-entity geometry="primitive: plane"
+      <!-- Ground -->
+      <a-entity id="ground"
+                geometry="primitive: plane;
+                          width: 64;
+                          height: 64;
+                          depth: 64;"
                 rotation="-90 0 0"
-                scale="64 64 1"
                 position="0 0 0"
                 rigid-body="width: 64;
-                            height: 1;
-                            depth: 64;
+                            height: 64;
+                            depth: 0.5;
                             mass: 0;"
                 material="src: url(../../assets/grid.png);
                           repeat: 64 64;">

@@ -8,13 +8,13 @@ var CANNON = require('cannon');
 
 module.exports = {
   schema: {
-    width: { default: 1 },
-    height: { default: 1 },
-    depth: { default: 1 },
+    width:          { default: 1 },
+    height:         { default: 1 },
+    depth:          { default: 1 },
 
-    mass: { default: 5 },
-    linearDamping: {default: 0.01},
-    angularDamping: {default: 0.01}
+    mass:           { default: 5 },
+    linearDamping:  { default: 0.01 },
+    angularDamping: { default: 0.01 }
   },
   init: function () {
     var physics = this.el.sceneEl.components.physics;
@@ -50,7 +50,9 @@ module.exports = {
     // Show wireframe
     if (physics.data.debug) {
       var mesh = CANNON.shape2mesh(this.body).children[0];
-      this.el.object3D.add(new THREE.EdgesHelper(mesh, 0xff0000));
+      this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
+      this.syncWireframe();
+      this.el.sceneEl.object3D.add(this.wireframe);
     }
 
     physics.registerBody(this.body);
@@ -59,6 +61,17 @@ module.exports = {
   },
   remove: function () {},
 
-  update: function () {},
-  tick: function () {}
+  update: function () { this.tick(); },
+  tick: function () {
+    var physics = this.el.sceneEl.components.physics;
+    if (physics && physics.data.debug) {
+      this.syncWireframe();
+    }
+  },
+
+  syncWireframe: function () {
+      this.wireframe.quaternion.copy(this.body.quaternion);
+      this.wireframe.position.copy(this.body.position);
+      this.wireframe.updateMatrix();
+  }
 };

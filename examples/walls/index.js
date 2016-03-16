@@ -3,6 +3,8 @@ var AFRAME = window.AFRAME.aframeCore || window.AFRAME;
 /* Components
 ——————————————————————————————————————————————*/
 
+require('../../lib/CANNON-shape2mesh');
+
 require('../../src/controls/');
 require('../../src/physics/');
 

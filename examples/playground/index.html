@@ -15,20 +15,23 @@
                 universal-controls
                 gamepad-controls keyboard-controls touch-controls
                 hmd-controls gamepad-controls mouse-controls
-                dynamic-body
+                kinematic-body
                 velocity="0 0 0"
                 position="10 1.764 0">
         </a-entity>
       </a-entity>
 
-      <!-- Terrain -->
-      <a-entity geometry="primitive: plane"
+      <!-- Ground -->
+      <a-entity id="ground"
+                geometry="primitive: plane;
+                          width: 64;
+                          height: 64;
+                          depth: 64;"
                 rotation="-90 0 0"
-                scale="64 64 1"
                 position="0 0 0"
                 rigid-body="width: 64;
-                            height: 1;
-                            depth: 64;
+                            height: 64;
+                            depth: 0.5;
                             mass: 0;"
                 material="src: url(../../assets/grid.png);
                           repeat: 64 64;">
@@ -49,12 +52,12 @@
       <!-- Ramp -->
       <a-cube id="ramp"
               color="#39BB82"
-              width="2"
+              width="1"
               height="10"
               depth="18.86796"
               position="0 -4 -6.5"
               rotation="30 0 0"
-              rigid-body="width: 2;
+              rigid-body="width: 1;
                           height: 10;
                           depth: 18.86796;
                           mass: 0;"></a-cube>

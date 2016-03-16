@@ -44,8 +44,8 @@ module.exports = {
     if (this.t0) this.tick(t1, t1 - this.t0);
     this.t0 = t1;
   },
-  tick: function (t, tDelta) {
-    this.world.step(tDelta / (60 * 2));
+  tick: function (t, dt) {
+    this.world.step(dt);
   },
   remove: function () {},
 

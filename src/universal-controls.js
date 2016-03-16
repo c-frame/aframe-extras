@@ -147,17 +147,16 @@ module.exports = {
       // Rotate to heading
       var rotation = this.el.getAttribute('rotation');
       if (rotation) {
-        rotation.x = 0; // no flying
-        this.heading.set(
-          THREE.Math.degToRad(rotation.x),
-          THREE.Math.degToRad(rotation.y),
-          0
-        );
+        this.heading.set(0 /* no flying */, THREE.Math.degToRad(rotation.y), 0);
         dVelocity.applyEuler(this.heading);
       }
 
       velocity.add(dVelocity);
 
+      // TODO - Several issues here:
+      // (1) Interferes w/ gravity.
+      // (2) Interferes w/ jumping.
+      // (3) Likely to interfere w/ relative position to moving platform.
       if (velocity.length() > data.movementSpeed) {
         velocity.setLength(data.movementSpeed);
       }
