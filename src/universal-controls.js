@@ -81,10 +81,9 @@ module.exports = {
    */
 
   updateRotation: function (dt) {
-    var control, rotationControls, dRotation,
+    var control, dRotation,
         data = this.data;
 
-    rotationControls = data.rotationControls;
     for (var i = 0, l = data.rotationControls.length; i < l; i++) {
       control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
       if (control && control.isRotationActive()) {
@@ -114,11 +113,9 @@ module.exports = {
    */
 
   updateVelocity: function (dt) {
-    var control, movementControls,
-        velocity, dVelocity,
+    var control, velocity, dVelocity,
         data = this.data;
 
-    movementControls = data.movementControls;
     for (var i = 0, l = data.movementControls.length; i < l; i++) {
       control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
       if (control && control.isMovementActive()) {

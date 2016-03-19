@@ -78,9 +78,12 @@ module.exports = {
     return this.data.enabled && (this.mouseDown || this.pointerLocked);
   },
 
+  /**
+   * Returns the sum of all mouse movement since last call.
+   */
   getRotationDelta: function () {
     var dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
-    this.lookVector.set(0, 0, 0);
+    this.lookVector.set(0, 0);
     return dRotation;
   },
 
@@ -93,13 +96,16 @@ module.exports = {
 
     if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) return;
 
-    this.lookVector.x = event.movementX || event.mozMovementX;
-    this.lookVector.y = event.movementY || event.mozMovementY;
+    var movementX = event.movementX || event.mozMovementX || 0;
+    var movementY = event.movementY || event.mozMovementY || 0;
 
-    if (this.lookVector.x === undefined || this.lookVector.y === undefined) {
-      this.lookVector.x = event.screenX - previousMouseEvent.screenX;
-      this.lookVector.y = event.screenY - previousMouseEvent.screenY;
+    if (!this.pointerLocked) {
+      movementX = event.screenX - previousMouseEvent.screenX;
+      movementY = event.screenY - previousMouseEvent.screenY;
     }
+
+    this.lookVector.x += movementX;
+    this.lookVector.y += movementY;
 
     this.previousMouseEvent = event;
   },
