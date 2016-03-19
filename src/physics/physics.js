@@ -53,7 +53,12 @@ module.exports = {
    * Interface
    */
 
-  registerBody: function (body) {
-    this.world.add(body);
+  addBody: function (body) {
+    this.world.addBody(body);
+  },
+
+  removeBody: function (body) {
+    this.world.removeBody(body);
   }
+
 };

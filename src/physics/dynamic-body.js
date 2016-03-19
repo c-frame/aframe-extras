@@ -6,6 +6,11 @@
 var CANNON = require('cannon');
 
 module.exports = {
+
+  /*******************************************************************
+   * Schema
+   */
+
   schema: {
     width:          { default: 1 },
     height:         { default: 1 },
@@ -15,6 +20,11 @@ module.exports = {
     linearDamping:  { default: 0.01 },
     angularDamping: { default: 0.01 }
   },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
   init: function () {
     var physics = this.el.sceneEl.components.physics;
     if (!physics) {
@@ -50,12 +60,24 @@ module.exports = {
       this.el.sceneEl.object3D.add(this.wireframe);
     }
 
-    physics.registerBody(this.body);
+    physics.addBody(this.body);
     if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
     console.info('[dynamic-body] loaded');
   },
-  remove: function () {},
+
+  remove: function () {
+    var physics = this.el.sceneEl.components.physics;
+    if (physics) physics.removeBody(this.body);
+    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
+  },
+
+
+  /*******************************************************************
+   * Tick
+   */
+
   update: function () { this.tick(); },
+
   tick: function () {
     var physics = this.el.sceneEl.components.physics;
     if (!physics) return;
