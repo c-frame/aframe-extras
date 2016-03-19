@@ -78,10 +78,13 @@ module.exports = {
 
   update: function () { this.tick(); },
   tick: function () {
+    if (!this.body) return;
+
     var physics = this.el.sceneEl.components.physics;
-    if (physics && physics.data.debug) {
-      this.syncWireframe();
-    }
+
+    if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
+    if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
+    if (physics.data.debug) this.syncWireframe();
   },
 
   /*******************************************************************
