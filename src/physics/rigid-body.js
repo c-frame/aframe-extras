@@ -1,7 +1,8 @@
 /**
  * Rigid body.
  *
- * Solid body without deformation, but which is subject to collisions and gravity.
+ * Solid body with a fixed position. Unaffected by gravity and collisions, but
+ * other objects may collide with it.
  */
 
 var CANNON = require('cannon');
@@ -13,13 +14,9 @@ module.exports = {
    */
 
   schema: {
-    width:          { default: 1 },
-    height:         { default: 1 },
-    depth:          { default: 1 },
-
-    mass:           { default: 5 },
-    linearDamping:  { default: 0.01 },
-    angularDamping: { default: 0.01 }
+    width:  { default: 1 },
+    height: { default: 1 },
+    depth:  { default: 1 }
   },
 
   /*******************************************************************
@@ -39,10 +36,10 @@ module.exports = {
 
     var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
     this.body = new CANNON.Body({
+      mass: 0,
       shape: new CANNON.Box(halfExtents),
       material: physics.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
-      mass: data.mass,
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
@@ -54,8 +51,7 @@ module.exports = {
       THREE.Math.degToRad(rot.y),
       THREE.Math.degToRad(rot.z),
       'XYZ'
-    );
-    this.body.quaternion.normalize();
+    ).normalize();
 
     // Show wireframe
     if (physics.data.debug) {
