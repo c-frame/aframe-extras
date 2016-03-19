@@ -12,29 +12,28 @@ module.exports = AFRAME.aframeCore.utils.extend({
     z: { default: 0 }
   },
   init: function () {
-    if (this.el.sceneEl.addBehavior) {
-      this.el.sceneEl.addBehavior(this);
-    }
+    this.tPrev = Date.now();
+
+    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
   },
   remove: function () {},
-  update: (function () {
-    var tPrev = Date.now();
-    return function (previousData) {
-      if (previousData) return;
-
-      var t = Date.now();
-      this.tick(t, t - tPrev);
-      tPrev = t;
-    };
-  }()),
+  update: function (previousData) {
+    if (previousData) return;
+    var t = Date.now();
+    this.tick(t, t - this.tPrev);
+    this.tPrev = t;
+  },
   tick: function (t, dt) {
-    var data = this.data,
+    var physics = this.el.sceneEl.components.physics || {data:{maxInterval: 1 / 60}},
+        velocity = this.el.getAttribute('velocity'), // TODO - why not this.el.data?
         position = this.el.getAttribute('position');
 
+    dt = Math.min(dt, physics.data.maxInterval * 1000);
+
     this.el.setAttribute('position', {
-      x: position.x + data.x * dt / 1000,
-      y: position.y + data.y * dt / 1000,
-      z: position.z + data.z * dt / 1000
+      x: position.x + velocity.x * dt / 1000,
+      y: position.y + velocity.y * dt / 1000,
+      z: position.z + velocity.z * dt / 1000
     });
   },
 }, AFRAME.aframeCore.utils.coordinates.componentMixin);

@@ -7,6 +7,10 @@ module.exports = {
     iterations:   { default: 5 },
     gravity:      { default: -9.8 },
 
+    // Never step more than four frames at once. Effectively pauses the scene
+    // when out of focus, and prevents weird "jumps" when focus returns.
+    maxInterval:      { default: 4 / 60 },
+
     // If true, show wireframes around physics bodies.
     debug:        { default: false }
   },
@@ -45,7 +49,7 @@ module.exports = {
     this.t0 = t1;
   },
   tick: function (t, dt) {
-    this.world.step(Math.min(dt / 1000, 4 / 60 /* 15 fps, at worst */));
+    this.world.step(Math.min(dt / 1000, this.data.maxInterval));
   },
   remove: function () {},
 
