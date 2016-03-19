@@ -10,3 +10,4 @@ require('../../src/physics/');
 
 AFRAME.registerComponent('proxy-controls', require('aframe-proxy-controls'));
 AFRAME.registerComponent('universal-controls', require('../../src/universal-controls'));
+AFRAME.registerComponent('toggle-velocity', require('../../src/toggle-velocity'));

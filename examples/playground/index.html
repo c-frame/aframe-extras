@@ -7,7 +7,7 @@
     <script src="bundle.js"></script>
   </head>
   <body>
-    <a-scene physics="debug: true"
+    <a-scene physics
              proxy-controls
              stats="true">
       <!-- Player -->
@@ -49,6 +49,27 @@
               position="0 -4.04 -6.33"
               rotation="30 0 0"
               rigid-body="width: 1; height: 10; depth: 18.86796;"></a-cube>
+
+      <!-- Moving platforms -->
+      <a-cube id="platform1"
+              color="#39BB82"
+              width="4"
+              height="0.25"
+              depth="4"
+              position="7 0.125 -15"
+              velocity="0 0 0"
+              toggle-velocity="axis: z; min: -5; max: 5;"
+              rigid-body="width: 4; height: 0.25; depth: 4;"></a-cube>
+      <a-cube id="platform2"
+              color="#39BB82"
+              width="4"
+              height="0.25"
+              depth="4"
+              position="-7 0.125 -15"
+              velocity="0 0 0"
+              toggle-velocity="axis: y; min: 0.125; max: 5;"
+              rigid-body="width: 4; height: 0.25; depth: 4;"></a-cube>
+
 
       <!-- Blocks -->
       <a-cube color="#39BB82"

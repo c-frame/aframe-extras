@@ -61,6 +61,7 @@ module.exports = {
       this.el.sceneEl.object3D.add(this.wireframe);
     }
 
+    this.body.el = this.el;
     physics.addBody(this.body);
     if (this.el.sceneEl.addBehavior) el.sceneEl.addBehavior(this);
     console.info('[rigid-body] loaded');

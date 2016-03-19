@@ -99,17 +99,17 @@ module.exports = {
 
       var body = this.body,
           data = this.data,
-          world = this.el.sceneEl.components.physics.world,
-          isCollidingWithGround = false,
-          groundNormal;
+          physics = this.el.sceneEl.components.physics,
+          didCollideWithGround = false,
+          groundNormal, groundBody;
+
+      dt = Math.min(dt, physics.data.maxInterval * 1000);
 
       velocity.copy(this.el.getAttribute('velocity'));
-
       body.velocity.copy(velocity);
       body.position.copy(this.el.getAttribute('position'));
-      body.position.y -= (data.height - data.radius); // TODO - Simplify.
 
-      for (var i = 0, contact; (contact = world.contacts[i]); i++) {
+      for (var i = 0, contact; (contact = physics.world.contacts[i]); i++) {
         // 1. Find any collisions involving this element. Get the contact
         // normal, and make sure it's oriented _out_ of the other object.
         if (body.id === contact.bi.id) {
@@ -123,31 +123,51 @@ module.exports = {
         if (body.velocity.dot(surfaceNormal) < -EPS) {
           // 2. If current trajectory attempts to move _through_ another
           // object, project the velocity against the collision plane to
-          // prevent passing through. If colliding with something roughly
-          // horizontal (+/- 45º), then consider that the current 'ground.'
-          isCollidingWithGround = isCollidingWithGround || surfaceNormal.y > 0.5;
+          // prevent passing through.
           velocity = velocity.projectOnPlane(surfaceNormal);
-        } else if (surfaceNormal.y > 0.5) {
-          // 3. If in contact with something but not trying to pass through it,
+
+          // 3.If colliding with something roughly horizontal (+/- 45º), then
+          // consider that the current 'ground.'
+          if (surfaceNormal.y > 0.5) {
+            didCollideWithGround = true;
+            groundNormal = surfaceNormal;
+            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
+          }
+        } else if (surfaceNormal.y > 0.5 && !groundBody) {
+          // 4. If in contact with something but not trying to pass through it,
           // and that something is horizontal, +/- 45º, then store it in case
           // there's no other 'ground' available.
           groundNormal = surfaceNormal;
+          groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
         }
       }
 
-      if (!isCollidingWithGround && groundNormal) {
-        // 4. If not colliding with anything horizontal, but still in contact
+      if (!didCollideWithGround && groundNormal) {
+        // 5. If not colliding with anything horizontal, but still in contact
         // with a horizontal surface, pretend it's a collision.
         //
         // TODO - This prevents jumping, but it also prevents awkward bobbling
         // while moving on ramps. Probably fixable by checking the angle.
         velocity = velocity.projectOnPlane(groundNormal);
-      } else if (!isCollidingWithGround) {
-        // 5. If not in contact with anything horizontal, apply world gravity.
+      } else if (!didCollideWithGround) {
+        // 6. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
-        velocity.add(world.gravity.scale(dt * 4.0 / 1000));
+        velocity.add(physics.world.gravity.scale(dt * 4.0 / 1000));
       }
 
+      // 7. If the ground surface has a velocity, apply it directly to current
+      // position, not velocity, to preserve relative velocity.
+      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
+        var groundVelocity = groundBody.el.getAttribute('velocity');
+        body.position.copy({
+          x: body.position.x + groundVelocity.x * dt / 1000,
+          y: body.position.y + groundVelocity.y * dt / 1000,
+          z: body.position.z + groundVelocity.z * dt / 1000
+        });
+        this.el.setAttribute('position', body.position);
+      }
+
+      body.position.y -= (data.height - data.radius); // TODO - Simplify.
       body.velocity.copy(velocity);
       this.el.setAttribute('velocity', velocity);
     };
