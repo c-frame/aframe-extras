@@ -3,8 +3,8 @@ module.exports = {
     this.dVelocity = new THREE.Vector3();
 
     this.listeners = {
-      touchstart: function () { this.isMoving = true; }.bind(this),
-      touchend: function () { this.isMoving = false; }.bind(this),
+      touchstart: function (e) { this.isMoving = true; e.preventDefault(); }.bind(this),
+      touchend: function (e) { this.isMoving = false; e.preventDefault(); }.bind(this),
     };
 
     var sceneEl = this.el.sceneEl,
