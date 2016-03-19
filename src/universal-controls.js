@@ -18,7 +18,9 @@ module.exports = {
 
   schema: {
     enabled:              { default: true },
+    movementEnabled:      { default: true },
     movementControls:     { default: ['gamepad', 'keyboard', 'touch'] },
+    rotationEnabled:      { default: true },
     rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
     movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
@@ -63,13 +65,13 @@ module.exports = {
 
   tick: function (t, dt) {
     // Update rotation.
-    this.updateRotation(dt);
+    if (this.data.rotationEnabled) this.updateRotation(dt);
 
     // Update velocity. If FPS is too low, reset.
-    if (dt / 1000 > MAX_DELTA) {
+    if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
       this.velocity.set(0, 0, 0);
       this.el.setAttribute('velocity', this.velocity);
-    } else {
+    } else if (this.data.movementEnabled) {
       this.updateVelocity(dt);
     }
   },
@@ -157,9 +159,9 @@ module.exports = {
       // (1) Interferes w/ gravity.
       // (2) Interferes w/ jumping.
       // (3) Likely to interfere w/ relative position to moving platform.
-      if (velocity.length() > data.movementSpeed) {
-        velocity.setLength(data.movementSpeed);
-      }
+      // if (velocity.length() > data.movementSpeed) {
+      //   velocity.setLength(data.movementSpeed);
+      // }
     }
 
     this.el.setAttribute('velocity', velocity);

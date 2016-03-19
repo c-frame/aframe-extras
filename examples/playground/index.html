@@ -17,9 +17,7 @@
                 hmd-controls gamepad-controls mouse-controls
                 kinematic-body
                 velocity="0 0 0"
-                position="10 1.764 0">
-        </a-entity>
-      </a-entity>
+                position="10 1.764 0"></a-entity>
 
       <!-- Ground -->
       <a-entity id="ground"
@@ -29,10 +27,9 @@
                           depth: 64;"
                 rotation="-90 0 0"
                 position="0 0 0"
-                rigid-body="width: 64; height: 64; depth: 0.5; mass: 0;"
+                rigid-body="width: 64; height: 64; depth: 0.1; mass: 0;"
                 material="src: url(../../assets/grid.png);
-                          repeat: 64 64;">
-      </a-entity>
+                          repeat: 64 64;"></a-entity>
 
       <!-- Tower -->
       <a-cube id="tower"
