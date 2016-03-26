@@ -1,8 +1,14 @@
-var AFRAME = window.AFRAME.aframeCore || window.AFRAME;
-
-AFRAME.registerComponent('physics', require('./physics'));
-AFRAME.registerComponent('dynamic-body', require('./dynamic-body'));
-AFRAME.registerComponent('kinematic-body', require('./kinematic-body'));
-AFRAME.registerComponent('rigid-body', require('./rigid-body'));
-AFRAME.registerComponent('velocity', require('./velocity'));
-AFRAME.registerComponent('quaternion', require('./quaternion'));
+module.exports = {
+  'physics':        require('./physics'),
+  'dynamic-body':   require('./dynamic-body'),
+  'kinematic-body': require('./kinematic-body'),
+  'rigid-body':     require('./rigid-body'),
+  registerAll: function (AFRAME) {
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME = AFRAME.aframeCore || AFRAME;
+    AFRAME.registerComponent('physics',         this['physics']);
+    AFRAME.registerComponent('dynamic-body',    this['dynamic-body']);
+    AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
+    AFRAME.registerComponent('rigid-body',      this['rigid-body']);
+  }
+};

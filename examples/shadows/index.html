@@ -8,17 +8,15 @@
     <script src="bundle.js"></script>
   </head>
   <body>
-    <a-scene proxy-controls
-             terrain="#terrain, #scene, #floater"
-             stats="true">
+    <a-scene stats="true">
       <!-- Player -->
       <a-entity id="player"
                 camera
-                position="15 1.764 10"
-                look-controls
-                keyboard-controls="acceleration: 100"
-                gamepad-controls="acceleration: 100"
-                jump-ability="enableDoubleJump: true;">
+                universal-controls
+                gamepad-controls keyboard-controls touch-controls
+                hmd-controls gamepad-controls mouse-controls
+                velocity="0 0 0"
+                position="15 1.764 10">
       </a-entity>
 
       <!-- Scene -->

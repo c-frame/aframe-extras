@@ -5,8 +5,8 @@ var AFRAME = window.AFRAME.aframeCore || window.AFRAME;
 
 require('../../lib/CANNON-shape2mesh');
 
-require('../../src/controls/');
-require('../../src/physics/');
-
+var extras = require('../..');
+extras.controls.registerAll();
+extras.math.registerAll();
+extras.physics.registerAll();
 AFRAME.registerComponent('proxy-controls', require('aframe-proxy-controls'));
-AFRAME.registerComponent('universal-controls', require('../../src/universal-controls'));

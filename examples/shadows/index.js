@@ -3,10 +3,8 @@ var AFRAME = window.AFRAME.aframeCore || window.AFRAME;
 /* Components
 ——————————————————————————————————————————————*/
 
-AFRAME.registerComponent('gamepad-controls', require('aframe-gamepad-controls'));
-AFRAME.registerComponent('keyboard-controls', require('aframe-keyboard-controls'));
-AFRAME.registerComponent('proxy-controls', require('aframe-proxy-controls'));
-AFRAME.registerComponent('jump-ability', require('../../src/jump-ability'));
+var extras = require('../..');
+extras.controls.registerAll();
+extras.math.registerAll();
+extras.shadows.registerAll();
 AFRAME.registerComponent('obj-loader', require('aframe-obj-loader-component'));
-AFRAME.registerComponent('shadow-light', require('../../src/shadows/shadow-light'));
-AFRAME.registerComponent('shadow', require('../../src/shadows/shadow'));
