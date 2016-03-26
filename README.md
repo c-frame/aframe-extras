@@ -1,4 +1,4 @@
-# :wind_chime: A-Frame Extras :wind_chime:
+# A-Frame Extras
 
 Add-ons and helpers for A-Frame VR.
 
