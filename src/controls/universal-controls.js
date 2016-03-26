@@ -48,22 +48,13 @@ module.exports = {
     }
   },
 
-  update: (function () {
-    var tPrev = Date.now();
-    return function () {
-      var t = Date.now();
-      this.tick(t, t - tPrev);
-      tPrev = t;
-    };
-  }()),
-
-  remove: function () {},
-
   /*******************************************************************
    * Tick
    */
 
   tick: function (t, dt) {
+    if (isNaN(dt)) { return; }
+
     // Update rotation.
     if (this.data.rotationEnabled) this.updateRotation(dt);
 
@@ -118,11 +109,11 @@ module.exports = {
 
     for (var i = 0, l = data.movementControls.length; i < l; i++) {
       control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
-      if (control && control.isMovementActive()) {
-        if (control.getMovementDelta) {
-          dVelocity = control.getMovementDelta(dt);
+      if (control && control.isVelocityActive()) {
+        if (control.getVelocityDelta) {
+          dVelocity = control.getVelocityDelta(dt);
         } else if (control.getVelocity) {
-          throw new Error('getVelocity() not currently supported, use getMovementDelta()');
+          throw new Error('getVelocity() not currently supported, use getVelocityDelta()');
         } else {
           throw new Error('Incompatible movement controls: ', data.movementControls[i]);
         }

@@ -6,6 +6,7 @@
  */
 
 var CANNON = require('cannon');
+require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
 
@@ -25,6 +26,7 @@ module.exports = {
 
   init: function () {
     var physics = this.el.sceneEl.components.physics;
+
     if (!physics) {
       this.el.sceneEl.addEventListener('physics-loaded', this.init.bind(this));
       return;

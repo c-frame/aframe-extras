@@ -4,12 +4,11 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Walls</title>
-    <script src="https://aframe.io/releases/0.1.2/aframe.js"></script>
-    <script src="bundle.js"></script>
+    <script src="https://aframe.io/releases/0.2.0/aframe.js"></script>
+    <script src="../aframe-extras.js"></script>
   </head>
   <body>
-    <a-scene physics
-             proxy-controls>
+    <a-scene physics>
       <!-- Player -->
       <a-entity camera
                 universal-controls
@@ -29,9 +28,8 @@
                 rotation="-90 0 0"
                 position="0 0 0"
                 static-body="width: 64;
-                            height: 64;
-                            depth: 0.5;
-                            mass: 0;"
+                             height: 64;
+                             depth: 0.5;"
                 material="src: url(../../assets/grid.png);
                           repeat: 64 64;">
       </a-entity>
@@ -43,18 +41,16 @@
               depth="2"
               position="3 2.5 -5"
               static-body="width: 10;
-                          height: 5;
-                          depth: 2;
-                          mass: 0;"></a-cube>
+                           height: 5;
+                           depth: 2;"></a-cube>
       <a-cube color="#39BB82"
               width="10"
               height="5"
               depth="2"
               position="3 2.5 5"
               static-body="width: 10;
-                          height: 5;
-                          depth: 2;
-                          mass: 0;"></a-cube>
+                           height: 5;
+                           depth: 2;"></a-cube>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#bbb"></a-light>

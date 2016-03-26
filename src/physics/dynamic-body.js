@@ -4,6 +4,7 @@
  * Moves according to physics simulation, and may collide with other objects.
  */
 var CANNON = require('cannon');
+require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
 
@@ -27,6 +28,7 @@ module.exports = {
 
   init: function () {
     var physics = this.el.sceneEl.components.physics;
+
     if (!physics) {
       this.el.sceneEl.addEventListener('physics-loaded', this.init.bind(this));
       return;
@@ -80,13 +82,13 @@ module.exports = {
   update: function () { this.tick(); },
 
   tick: function () {
-    var physics = this.el.sceneEl.components.physics;
-    if (!physics) return;
+    if (!this.body) return;
 
     this.el.setAttribute('quaternion', this.body.quaternion);
     this.el.setAttribute('position', this.body.position);
 
     // Update wireframe
+    var physics = this.el.sceneEl.components.physics;
     if (physics.data.debug) {
       this.wireframe.quaternion.copy(this.body.quaternion);
       this.wireframe.position.copy(this.body.position);
