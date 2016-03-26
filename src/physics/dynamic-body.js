@@ -27,10 +27,11 @@ module.exports = {
    */
 
   init: function () {
-    var physics = this.el.sceneEl.components.physics;
+    var sceneEl = this.el.sceneEl,
+        physics = sceneEl.components && sceneEl.components.physics;
 
     if (!physics) {
-      this.el.sceneEl.addEventListener('physics-loaded', this.init.bind(this));
+      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
       return;
     }
 
@@ -64,7 +65,6 @@ module.exports = {
 
     this.body.el = this.el;
     physics.addBody(this.body);
-    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
     console.info('[dynamic-body] loaded');
   },
 
@@ -78,8 +78,6 @@ module.exports = {
   /*******************************************************************
    * Tick
    */
-
-  update: function () { this.tick(); },
 
   tick: function () {
     if (!this.body) return;

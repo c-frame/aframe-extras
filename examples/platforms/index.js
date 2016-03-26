@@ -1,36 +1,33 @@
-var AFRAME = window.AFRAME.aframeCore || window.AFRAME;
-
-/* Components
-——————————————————————————————————————————————*/
-
-AFRAME.registerComponent('jump-ability', require('../../src/misc/jump-ability'));
-AFRAME.registerComponent('keyboard-controls', require('aframe-keyboard-controls'));
-AFRAME.registerComponent('proxy-controls', require('aframe-proxy-controls'));
-
 /* Platforms
 ——————————————————————————————————————————————*/
 
-document.addEventListener('DOMContentLoaded', function () {
+document.querySelector('a-scene').addEventListener('render-target-loaded', function () {
   var MAP_SIZE = 10,
       PLATFORM_SIZE = 5,
       NUM_PLATFORMS = 50;
 
   var platformsEl = document.querySelector('#platforms');
 
-  var v,
-      aCube;
+  var dims = ''
+    + 'width: ' + PLATFORM_SIZE + '; '
+    + 'height: ' + PLATFORM_SIZE + '; '
+    + 'depth: ' + PLATFORM_SIZE + ';';
+
+  var v, box;
   for (var i = 0;  i < NUM_PLATFORMS; i++) {
     v = {
       x: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE,
       y: (Math.floor(Math.random() * MAP_SIZE)                ) * PLATFORM_SIZE + PLATFORM_SIZE / 2,
       z: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE
     };
-    aCube = document.createElement('a-cube');
-    aCube.setAttribute('position', v.x + ' ' + v.y + ' ' + v.z);
-    aCube.setAttribute('height', PLATFORM_SIZE);
-    aCube.setAttribute('width', PLATFORM_SIZE);
-    aCube.setAttribute('depth', PLATFORM_SIZE);
-    platformsEl.appendChild(aCube);
+    box = document.createElement('a-cube');
+    box.setAttribute('color', '#39BB82');
+    box.setAttribute('width', PLATFORM_SIZE);
+    box.setAttribute('height', PLATFORM_SIZE);
+    box.setAttribute('depth', PLATFORM_SIZE);
+    box.setAttribute('static-body', dims);
+    box.setAttribute('position', v.x + ' ' + v.y + ' ' + v.z);
+    platformsEl.appendChild(box);
   }
 
   console.info('Platforms loaded.');

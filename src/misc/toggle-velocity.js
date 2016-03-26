@@ -25,9 +25,11 @@ module.exports = {
         velocity = this.el.getAttribute('velocity'),
         position = this.el.getAttribute('position');
     if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
-      this.el.setAttribute('velocity', data.axis, -data.speed);
+      velocity[data.axis] = -data.speed;
+      this.el.setAttribute('velocity', velocity);
     } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
-      this.el.setAttribute('velocity', data.axis, data.speed);
+      velocity[data.axis] = data.speed;
+      this.el.setAttribute('velocity', velocity);
     }
   },
 };

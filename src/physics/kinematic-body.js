@@ -35,10 +35,11 @@ module.exports = {
    */
 
   init: function () {
-    var physics = this.el.sceneEl.components.physics;
+    var sceneEl = this.el.sceneEl,
+        physics = sceneEl.components && sceneEl.components.physics;
 
     if (!physics) {
-      this.el.sceneEl.addEventListener('physics-loaded', this.init.bind(this));
+      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
       return;
     }
 
@@ -57,7 +58,6 @@ module.exports = {
     this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
 
     physics.addBody(this.body);
-    if (el.sceneEl.addBehavior) el.sceneEl.addBehavior(this);
     console.info('[kinematic-body] loaded');
   },
 
@@ -96,6 +96,7 @@ module.exports = {
 
       dt = Math.min(dt, physics.data.maxInterval * 1000);
 
+      groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));
       body.velocity.copy(velocity);
       body.position.copy(this.el.getAttribute('position'));
@@ -133,7 +134,7 @@ module.exports = {
         }
       }
 
-      if (!didCollideWithGround && groundNormal) {
+      if (!didCollideWithGround && groundNormal.y) {
         // 5. If not colliding with anything horizontal, but still in contact
         // with a horizontal surface, pretend it's a collision.
         //
