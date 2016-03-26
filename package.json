@@ -24,6 +24,7 @@
     "fs-extra": "^0.26.5"
   },
   "scripts": {
+    "dev": "budo browser.js:examples/aframe-extras.js",
     "dist": "browserify browser.js -o dist/aframe-extras.js",
     "build": "./build.js",
     "postpublish": "npm run dist",
