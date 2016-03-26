@@ -25,11 +25,11 @@
   },
   "scripts": {
     "build": "./build.js",
-    "dist": "echo \"Warning: dist not created\"'",
+    "dist": "echo \"Warning: dist not created\"",
     "postpublish": "npm run dist",
     "test": "echo \"Warning: no tests found\"",
     "preversion": "npm run test",
-    "version": "npm run dist && git add -A dist",
+    "version": "echo \"Warning: skipping 'npm run dist && git add -A dist'\"",
     "postversion": "git push && git push --tags && npm publish"
   },
   "keywords": [
