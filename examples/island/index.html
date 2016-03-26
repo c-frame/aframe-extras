@@ -4,35 +4,32 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Island</title>
-    <script src="https://aframe.io/releases/latest/aframe.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-proxy-controls/v0.5.3/dist/aframe-proxy-controls.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-gamepad-controls/v0.3.2/dist/aframe-gamepad-controls.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-keyboard-controls/v0.1.5/dist/aframe-keyboard-controls.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-obj-loader-component/v0.1.0/dist/aframe-obj-loader-component.js"></script>
+    <script src="https://aframe.io/releases/0.2.0/aframe.js"></script>
+    <script src="../aframe-extras.js"></script>
   </head>
   <body>
-    <a-scene proxy-controls="debug: true">
+    <a-scene>
       <!--
         Camera + Gamepad controls
         Button 0 is "A" on an Xbox controller.
       -->
       <a-entity camera
-                position="3 5 -10"
-                rotation="90 90 90"
-                look-controls
-                gamepad-controls
-                keyboard-controls>
+                universal-controls
+                gamepad-controls keyboard-controls touch-controls
+                hmd-controls gamepad-controls mouse-controls
+                velocity="0 0 0"
+                position="3 5 -10">
       </a-entity>
 
       <!--
-        Example scene, blatantly copied from an official example:
-        https://github.com/aframevr/aframe/tree/master/examples/template-models
+        Example scene
+        Made in MagicaVoxel.
       -->
       <a-entity position="0 0 0"
                 scale="0.3 0.3 0.3"
                 material="color: blue"
-                obj-loader="src: url(../../assets/island-hut/island-hut.obj);
-                            mtl: url(../../assets/island-hut/island-hut.mtl);"></a-entity>
+                obj-model="obj: url(../../assets/island-hut/island-hut.obj);
+                           mtl: url(../../assets/island-hut/island-hut.mtl);"></a-entity>
 
       <!--
         Sky

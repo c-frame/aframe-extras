@@ -4,22 +4,22 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Platforms</title>
-    <script src="https://aframe.io/releases/latest/aframe.js"></script>
-    <script src="bundle.js"></script>
+    <script src="https://aframe.io/releases/0.2.0/aframe.js"></script>
+    <script src="../aframe-extras.js"></script>
   </head>
   <body>
-    <a-scene proxy-controls
-             terrain="#terrain [geometry], #platforms [geometry]"
-             stats="false">
+    <a-scene physics stats="true">
       <!-- Player -->
       <a-entity id="player"
                 camera
+                universal-controls
+                gamepad-controls keyboard-controls touch-controls
+                hmd-controls gamepad-controls mouse-controls
+                kinematic-body
+                velocity="0 0 0"
                 position="15 1.764 10"
-                keyboard-controls="acceleration: 200"
-                look-controls
-                gamepad-controls-DISABLED="acceleration: 200"
                 jump-ability="enableDoubleJump: true;
-                              debug: true;">
+                              distance: 10;">
       </a-entity>
 
       <!--
@@ -28,17 +28,20 @@
       -->
       <a-entity id="platforms"></a-entity>
 
-      <!--
-        Terrain
-        a-plane would be ideal here, but for some reason it doesn't seem to be
-        working with THREE.Raycaster.
-      -->
-      <a-cube id="terrain"
-              height="1"
-              width="1000"
-              depth="1000"
-              color="#AAFAAA">
-      </a-cube>
+      <!-- Ground -->
+      <a-entity id="ground"
+                geometry="primitive: plane;
+                          width: 64;
+                          height: 64;
+                          depth: 64;"
+                rotation="-90 0 0"
+                position="0 0 0"
+                static-body="width: 64;
+                             height: 64;
+                             depth: 0.5;"
+                material="src: url(../../assets/grid.png);
+                          repeat: 64 64;">
+      </a-entity>
 
       <!-- Sky -->
       <a-sky id="sky" color="#AADDF0"></a-sky>
@@ -49,5 +52,41 @@
       <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
 
     </a-scene>
+    <script>
+/* Platforms
+——————————————————————————————————————————————*/
+
+document.querySelector('a-scene').addEventListener('render-target-loaded', function () {
+  var MAP_SIZE = 10,
+      PLATFORM_SIZE = 5,
+      NUM_PLATFORMS = 50;
+
+  var platformsEl = document.querySelector('#platforms');
+
+  var dims = ''
+    + 'width: ' + PLATFORM_SIZE + '; '
+    + 'height: ' + PLATFORM_SIZE + '; '
+    + 'depth: ' + PLATFORM_SIZE + ';';
+
+  var v, box;
+  for (var i = 0;  i < NUM_PLATFORMS; i++) {
+    v = {
+      x: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE,
+      y: (Math.floor(Math.random() * MAP_SIZE)                ) * PLATFORM_SIZE + PLATFORM_SIZE / 2,
+      z: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE
+    };
+    box = document.createElement('a-cube');
+    box.setAttribute('color', '#39BB82');
+    box.setAttribute('width', PLATFORM_SIZE);
+    box.setAttribute('height', PLATFORM_SIZE);
+    box.setAttribute('depth', PLATFORM_SIZE);
+    box.setAttribute('static-body', dims);
+    box.setAttribute('position', v.x + ' ' + v.y + ' ' + v.z);
+    platformsEl.appendChild(box);
+  }
+
+  console.info('Platforms loaded.');
+});
+    </script>
   </body>
 </html>

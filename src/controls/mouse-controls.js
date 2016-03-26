@@ -4,75 +4,76 @@
  * Based on: https://github.com/aframevr/aframe/pull/1056
  */
 module.exports = {
-
-  /*******************************************************************
-   * Schema
-   */
-
   schema: {
     enabled: { default: true },
     pointerlockEnabled: { default: true },
     sensitivity: { default: 1 / 25 }
   },
 
-  /*******************************************************************
-   * Lifecycle
-   */
-
   init: function () {
-    var canvasEl = this.el.sceneEl.canvas;
-
     this.mouseDown = false;
     this.pointerLocked = false;
     this.lookVector = new THREE.Vector2();
+    this.bindMethods();
+  },
 
-    this.listeners = {
-      mousedown: this.onMouseDown.bind(this),
-      mousemove: this.onMouseMove.bind(this),
-      mouseup: this.releaseMouse.bind(this),
-      mouseout: this.releaseMouse.bind(this),
+  play: function () {
+    this.addEventListeners();
+  },
 
-      pointerlockchange: this.onPointerLockChange.bind(this),
-      mozpointerlockchange: this.onPointerLockChange.bind(this),
-      pointerlockerror: this.onPointerLockChange.bind(this)
-    };
-
-    canvasEl.addEventListener('mousedown', this.listeners.mousedown, false);
-    canvasEl.addEventListener('mousemove', this.listeners.mousemove, false);
-    canvasEl.addEventListener('mouseup', this.listeners.mouseup, false);
-    canvasEl.addEventListener('mouseout', this.listeners.mouseout, false);
-
-    document.addEventListener('pointerlockchange', this.listeners.pointerlockchange, false);
-    document.addEventListener('mozpointerlockchange', this.listeners.mozpointerlockchange, false);
-    document.addEventListener('pointerlockerror', this.listeners.pointerlockerror, false);
+  pause: function () {
+    this.removeEventListeners();
+    this.lookVector.set(0, 0);
   },
 
   remove: function () {
-    var sceneEl = this.el.sceneEl,
-        canvasEl = sceneEl && sceneEl.canvas;
-
-    if (canvasEl) {
-      canvasEl.removeEventListener('mousedown', this.listeners.mousedown);
-      canvasEl.removeEventListener('mousemove', this.listeners.mousemove);
-      canvasEl.removeEventListener('mouseup', this.listeners.mouseup);
-      canvasEl.removeEventListener('mouseout', this.listeners.mouseout);
-    }
-
-    document.addEventListener('pointerlockchange', this.listeners.pointerlockchange, false);
-    document.addEventListener('mozpointerlockchange', this.listeners.mozpointerlockchange, false);
-    document.addEventListener('pointerlockerror', this.listeners.pointerlockerror, false);
+    this.pause();
   },
 
-  /*******************************************************************
-   * Tick
-   */
+  bindMethods: function () {
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+  },
 
-  update: function () {},
-  tick: function () {},
+  addEventListeners: function () {
+    var sceneEl = this.el.sceneEl;
+    var canvasEl = sceneEl.canvas;
+    var data = this.data;
 
-  /*******************************************************************
-   * Universal interface
-   */
+    if (!canvasEl) {
+      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+      return;
+    }
+
+    canvasEl.addEventListener('mousedown', this.onMouseDown, false);
+    canvasEl.addEventListener('mousemove', this.onMouseMove, false);
+    canvasEl.addEventListener('mouseup', this.onMouseUp, false);
+    canvasEl.addEventListener('mouseout', this.onMouseUp, false);
+
+    if (data.pointerlockEnabled) {
+      document.addEventListener('pointerlockchange', this.onPointerLockChange, false);
+      document.addEventListener('mozpointerlockchange', this.onPointerLockChange, false);
+      document.addEventListener('pointerlockerror', this.onPointerLockError, false);
+    }
+  },
+
+  removeEventListeners: function () {
+    var canvasEl = this.el.sceneEl && this.sceneEl.canvas;
+    if (canvasEl) {
+      canvasEl.removeEventListener('mousedown', this.onMouseDown, false);
+      canvasEl.removeEventListener('mousemove', this.onMouseMove, false);
+      canvasEl.removeEventListener('mouseup', this.onMouseUp, false);
+      canvasEl.removeEventListener('mouseout', this.onMouseUp, false);
+    }
+    document.removeEventListener('pointerlockchange', this.onPointerLockChange, false);
+    document.removeEventListener('mozpointerlockchange', this.onPointerLockChange, false);
+    document.removeEventListener('pointerlockerror', this.onPointerLockError, false);
+  },
 
   isRotationActive: function () {
     return this.data.enabled && (this.mouseDown || this.pointerLocked);
@@ -87,14 +88,12 @@ module.exports = {
     return dRotation;
   },
 
-  /*******************************************************************
-   * Mouse events
-   */
-
   onMouseMove: function (event) {
     var previousMouseEvent = this.previousMouseEvent;
 
-    if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) return;
+    if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) {
+      return;
+    }
 
     var movementX = event.movementX || event.mozMovementX || 0;
     var movementY = event.movementY || event.mozMovementY || 0;
@@ -125,13 +124,9 @@ module.exports = {
     }
   },
 
-  releaseMouse: function () {
+  onMouseUp: function () {
     this.mouseDown = false;
   },
-
-  /*******************************************************************
-   * Pointerlock events
-   */
 
   onPointerLockChange: function () {
     this.pointerLocked = !!(document.pointerLockElement || document.mozPointerLockElement);

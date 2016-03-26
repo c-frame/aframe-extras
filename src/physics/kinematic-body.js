@@ -35,10 +35,11 @@ module.exports = {
    */
 
   init: function () {
-    var physics = this.el.sceneEl.components.physics;
+    var sceneEl = this.el.sceneEl,
+        physics = sceneEl.components && sceneEl.components.physics;
 
     if (!physics) {
-      this.el.sceneEl.addEventListener('physics-loaded', this.init.bind(this));
+      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
       return;
     }
 
@@ -57,7 +58,6 @@ module.exports = {
     this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
 
     physics.addBody(this.body);
-    if (el.sceneEl.addBehavior) el.sceneEl.addBehavior(this);
     console.info('[kinematic-body] loaded');
   },
 
@@ -69,16 +69,6 @@ module.exports = {
   /*******************************************************************
    * Tick
    */
-
-  update: (function () {
-    var prevTime = NaN;
-
-    return function () {
-      var t = Date.now();
-      this.tick(t, t - prevTime);
-      prevTime = t;
-    };
-  }()),
 
   /**
    * Checks CANNON.World for collisions and attempts to apply them to the
@@ -92,7 +82,8 @@ module.exports = {
    */
   tick: (function () {
     var velocity = new THREE.Vector3(),
-        surfaceNormal = new THREE.Vector3();
+        currentSurfaceNormal = new THREE.Vector3(),
+        groundNormal = new THREE.Vector3();
 
     return function (t, dt) {
       if (!this.body) return;
@@ -101,10 +92,11 @@ module.exports = {
           data = this.data,
           physics = this.el.sceneEl.components.physics,
           didCollideWithGround = false,
-          groundNormal, groundBody;
+          groundBody;
 
       dt = Math.min(dt, physics.data.maxInterval * 1000);
 
+      groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));
       body.velocity.copy(velocity);
       body.position.copy(this.el.getAttribute('position'));
@@ -113,41 +105,39 @@ module.exports = {
         // 1. Find any collisions involving this element. Get the contact
         // normal, and make sure it's oriented _out_ of the other object.
         if (body.id === contact.bi.id) {
-          contact.ni.negate(surfaceNormal);
+          contact.ni.negate(currentSurfaceNormal);
         } else if (body.id === contact.bj.id) {
-          surfaceNormal.copy(contact.ni);
+          currentSurfaceNormal.copy(contact.ni);
         } else {
           continue;
         }
 
-        if (body.velocity.dot(surfaceNormal) < -EPS) {
+        if (body.velocity.dot(currentSurfaceNormal) < -EPS) {
           // 2. If current trajectory attempts to move _through_ another
           // object, project the velocity against the collision plane to
           // prevent passing through.
-          velocity = velocity.projectOnPlane(surfaceNormal);
+          velocity = velocity.projectOnPlane(currentSurfaceNormal);
 
           // 3.If colliding with something roughly horizontal (+/- 45º), then
           // consider that the current 'ground.'
-          if (surfaceNormal.y > 0.5) {
+          if (currentSurfaceNormal.y > 0.5) {
             didCollideWithGround = true;
-            groundNormal = surfaceNormal;
+            groundNormal.copy(currentSurfaceNormal);
             groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
           }
-        } else if (surfaceNormal.y > 0.5 && !groundBody) {
+        } else if (currentSurfaceNormal.y > 0.5 && !groundBody) {
           // 4. If in contact with something but not trying to pass through it,
           // and that something is horizontal, +/- 45º, then store it in case
           // there's no other 'ground' available.
-          groundNormal = surfaceNormal;
+          groundNormal.copy(currentSurfaceNormal);
           groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
         }
       }
 
-      if (!didCollideWithGround && groundNormal) {
+      if (!didCollideWithGround && groundNormal.y && velocity.y < EPS) {
         // 5. If not colliding with anything horizontal, but still in contact
-        // with a horizontal surface, pretend it's a collision.
-        //
-        // TODO - This prevents jumping, but it also prevents awkward bobbling
-        // while moving on ramps. Probably fixable by checking the angle.
+        // with a horizontal surface, pretend it's a collision. Ignore this if
+        // vertical velocity is > 0, to allow jumping.
         velocity = velocity.projectOnPlane(groundNormal);
       } else if (!didCollideWithGround) {
         // 6. If not in contact with anything horizontal, apply world gravity.

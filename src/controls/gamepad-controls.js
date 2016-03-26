@@ -82,7 +82,7 @@ module.exports = {
    * Universal controls - movement
    */
 
-  isMovementActive: function () {
+  isVelocityActive: function () {
     if (!this.data.enabled || !this.isConnected()) return false;
 
     var dpad = this.getDpad(),
@@ -93,7 +93,7 @@ module.exports = {
     return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
   },
 
-  getMovementDelta: function () {
+  getVelocityDelta: function () {
     var dpad = this.getDpad(),
         joystick0 = this.getJoystick(0),
         inputX = dpad.x || joystick0.x,
