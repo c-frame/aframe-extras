@@ -36,7 +36,7 @@ src
 │   ├── kinematic-body.js
 │   ├── physics.js
 │   ├── quaternion.js
-│   ├── rigid-body.js
+│   ├── static-body.js
 │   └── velocity.js
 ├── shadows
 │   ├── shadow-light.js
@@ -78,7 +78,7 @@ Components for A-Frame physics integration, built on [CANNON.js](http://schteppe
 **Object Types:**
 
 - `dynamic-body`: Object that moves only according to physics simulation, which has mass and may collide with other objects.
-- `rigid-body`: Static body with a fixed position. Unaffected by gravity and collisions, but other objects may collide with it.
+- `static-body`: Static body with a fixed position. Unaffected by gravity and collisions, but other objects may collide with it.
 - `kinematic-body`: Controlled but dynamic body, which moves but is not affected (directly) by the physics engine. Intended for use on the player's model. Gravity and collisions are simulated, without giving full control to the physics engine.
 
 **Math:**

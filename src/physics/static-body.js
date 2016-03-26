@@ -1,5 +1,5 @@
 /**
- * Rigid body.
+ * Static body.
  *
  * Solid body with a fixed position. Unaffected by gravity and collisions, but
  * other objects may collide with it.
@@ -64,7 +64,7 @@ module.exports = {
     this.body.el = this.el;
     physics.addBody(this.body);
     if (this.el.sceneEl.addBehavior) el.sceneEl.addBehavior(this);
-    console.info('[rigid-body] loaded');
+    console.info('[static-body] loaded');
   },
 
   remove: function () {
