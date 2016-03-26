@@ -1,14 +1,16 @@
 {
-  "name": "sandbox-aframe",
+  "name": "aframe-extras",
   "version": "1.0.0",
-  "description": "Imma make a WebVR.",
+  "description": "Add-ons and examples for A-Frame VR.",
+  "author": "Don McCurdy <dm@donmccurdy.com>",
+  "license": "MIT",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/donmccurdy/sandbox-aframe.git"
+    "url": "git+https://github.com/donmccurdy/aframe-extras.git"
   },
   "dependencies": {
-    "aframe": "github:aframevr/aframe#dev",
+    "aframe": "^0.2.0",
     "aframe-gamepad-controls": "^0.3.5",
     "aframe-keyboard-controls": "^0.2.2",
     "aframe-obj-loader-component": "^0.1.0",
@@ -31,7 +33,5 @@
     "vr",
     "webgl",
     "webvr"
-  ],
-  "author": "Don McCurdy <dm@donmccurdy.com>",
-  "license": "MIT"
+  ]
 }
