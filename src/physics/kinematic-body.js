@@ -134,12 +134,10 @@ module.exports = {
         }
       }
 
-      if (!didCollideWithGround && groundNormal.y) {
+      if (!didCollideWithGround && groundNormal.y && velocity.y < EPS) {
         // 5. If not colliding with anything horizontal, but still in contact
-        // with a horizontal surface, pretend it's a collision.
-        //
-        // TODO - This prevents jumping, but it also prevents awkward bobbling
-        // while moving on ramps. Probably fixable by checking the angle.
+        // with a horizontal surface, pretend it's a collision. Ignore this if
+        // vertical velocity is > 0, to allow jumping.
         velocity = velocity.projectOnPlane(groundNormal);
       } else if (!didCollideWithGround) {
         // 6. If not in contact with anything horizontal, apply world gravity.
