@@ -21,6 +21,7 @@ extras.registerAll();                                       // Register everythi
 
 ## Add-ons
 
+<!-- tree src -I index.js -->
 ```
 src
 ├── controls
@@ -28,21 +29,22 @@ src
 │   ├── hmd-controls.js
 │   ├── keyboard-controls.js
 │   ├── mouse-controls.js
-│   └── touch-controls.js
-├── json-model.js
-├── jump-ability.js
+│   ├── touch-controls.js
+│   └── universal-controls.js
+├── math
+│   ├── quaternion.js
+│   └── velocity.js
+├── misc
+│   ├── jump-ability.js
+│   └── toggle-velocity.js
 ├── physics
 │   ├── dynamic-body.js
 │   ├── kinematic-body.js
 │   ├── physics.js
-│   ├── quaternion.js
-│   ├── static-body.js
-│   └── velocity.js
-├── shadows
-│   ├── shadow-light.js
-│   └── shadow.js
-├── toggle-velocity.js
-└── universal-controls.js
+│   └── static-body.js
+└── shadows
+    ├── shadow-light.js
+    └── shadow.js
 ```
 
 ### Controls
