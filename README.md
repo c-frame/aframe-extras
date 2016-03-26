@@ -10,9 +10,9 @@ npm install --save aframe-extras
 
 ```javascript
 var extras = require('aframe-extras');
-AFRAME.registerComponent('velocity', extras.physics.velocity); // Register a single component.
-extras.physics.registerAll();                                  // Register a particular package.
-extras.registerAll();                                          // Register everything.
+AFRAME.registerComponent('velocity', extras.math.velocity); // Register a single component.
+extras.physics.registerAll();                               // Register a particular package.
+extras.registerAll();                                       // Register everything.
 ```
 
 ## Usage (Global)
