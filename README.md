@@ -36,6 +36,7 @@ src
 │   └── velocity.js
 ├── misc
 │   ├── jump-ability.js
+│   ├── three-model.js
 │   └── toggle-velocity.js
 ├── physics
 │   ├── dynamic-body.js

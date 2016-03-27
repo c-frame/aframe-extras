@@ -1,0 +1,139 @@
+{
+    "images": [{
+        "url": "brickwork-texture.jpg",
+        "name": "brickwork-texture.jpg",
+        "uuid": "42DD1324-C9D2-391F-B0E3-4357A64776FD"
+    },{
+        "url": "brickwork-bump-map.jpg",
+        "name": "brickwork-bump-map.jpg",
+        "uuid": "98C78303-52E7-38ED-85AF-29F06978E3BD"
+    }],
+    "animations": [{
+        "fps": 29,
+        "tracks": [],
+        "name": "default"
+    }],
+    "metadata": {
+        "generator": "io_three",
+        "type": "Object",
+        "version": 4.4
+    },
+    "textures": [{
+        "repeat": [1,1],
+        "magFilter": 1006,
+        "minFilter": 1008,
+        "mapping": 300,
+        "image": "42DD1324-C9D2-391F-B0E3-4357A64776FD",
+        "anisotropy": 1,
+        "wrap": [1000,1000],
+        "name": "brickwork_texture_jpg",
+        "uuid": "D29D70BF-AA95-371E-BBEF-E5E1089954D3"
+    },{
+        "repeat": [1,1],
+        "magFilter": 1006,
+        "minFilter": 1008,
+        "mapping": 300,
+        "image": "98C78303-52E7-38ED-85AF-29F06978E3BD",
+        "anisotropy": 1,
+        "wrap": [1000,1000],
+        "name": "brickwork_bump_map_jpg",
+        "uuid": "A687DC82-A213-3FA2-B536-27B78ADF9BD5"
+    }],
+    "materials": [{
+        "depthTest": true,
+        "type": "MeshPhongMaterial",
+        "blending": "NormalBlending",
+        "ambient": 16777215,
+        "side": 2,
+        "uuid": "0D6585B5-3BE2-3A51-B82F-E1C487AA992D",
+        "map": "D29D70BF-AA95-371E-BBEF-E5E1089954D3",
+        "shininess": 50,
+        "emissive": 0,
+        "depthWrite": true,
+        "color": 16777215,
+        "bumpMap": "A687DC82-A213-3FA2-B536-27B78ADF9BD5",
+        "vertexColors": false,
+        "specular": 8355711,
+        "bumpScale": 10,
+        "name": "phong1"
+    }],
+    "geometries": [{
+        "data": {
+            "vertices": [-2,-2,-0,2,-2,-0,-2,2,0,2,2,0],
+            "faces": [43,0,1,3,2,0,0,1,2,3,0,0,0,0],
+            "influencesPerVertex": 2,
+            "uvs": [[0,0,1,0,1,1,0,1]],
+            "metadata": {
+                "vertices": 4,
+                "generator": "io_three",
+                "materials": 1,
+                "version": 3,
+                "uvs": 1,
+                "morphTargets": 0,
+                "faces": 1,
+                "normals": 1,
+                "bones": 0
+            },
+            "animations": [],
+            "skinWeights": [],
+            "morphTargets": [],
+            "name": "pPlane1Geometry",
+            "bones": [],
+            "normals": [0,0,1],
+            "skinIndices": []
+        },
+        "type": "Geometry",
+        "materials": [{
+            "mapDiffuseWrap": ["RepeatWrapping","RepeatWrapping"],
+            "blending": "NormalBlending",
+            "wireframe": false,
+            "mapBumpWrap": ["RepeatWrapping","RepeatWrapping"],
+            "doubleSided": true,
+            "DbgColor": 15658734,
+            "depthWrite": true,
+            "colorAmbient": [1,1,1],
+            "transparent": false,
+            "mapBumpScale": 10,
+            "mapBumpRepeat": [1,1],
+            "DbgName": "phong1",
+            "shading": "phong",
+            "mapDiffuseAnisotropy": 1,
+            "mapDiffuse": "brickwork-texture.jpg",
+            "specularCoef": 50,
+            "colorSpecular": [0.5,0.5,0.5],
+            "visible": true,
+            "colorEmissive": [0,0,0],
+            "mapBump": "brickwork-bump-map.jpg",
+            "depthTest": true,
+            "mapDiffuseRepeat": [1,1],
+            "opacity": 1,
+            "DbgIndex": 0,
+            "mapBumpAnisotropy": 1,
+            "colorDiffuse": [1,1,1]
+        }],
+        "uuid": "D288C55B-8054-3272-AF46-EE3D7C32836C"
+    }],
+    "object": {
+        "children": [{
+            "name": "brickwork",
+            "uuid": "942DA7CA-1187-3C2D-A4A1-F49FA0F5188E",
+            "matrix": [-1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1],
+            "visible": true,
+            "type": "Object",
+            "children": [{
+                "name": "pPlane1",
+                "uuid": "53F01D8A-EA48-3FA3-88E6-E3B067CDF6AF",
+                "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+                "visible": true,
+                "type": "Mesh",
+                "material": "0D6585B5-3BE2-3A51-B82F-E1C487AA992D",
+                "castShadow": true,
+                "receiveShadow": true,
+                "geometry": "D288C55B-8054-3272-AF46-EE3D7C32836C"
+            }]
+        }],
+        "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+        "type": "Scene",
+        "uuid": "1DA297D6-F363-4268-965B-88C1F5F07549"
+    }
+}

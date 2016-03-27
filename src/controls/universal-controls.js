@@ -14,7 +14,7 @@ module.exports = {
    * Schema
    */
 
-  dependencies: ['velocity'],
+  dependencies: ['velocity', 'rotation'],
 
   schema: {
     enabled:              { default: true },
