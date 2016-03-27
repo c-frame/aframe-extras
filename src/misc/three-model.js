@@ -29,15 +29,15 @@ module.exports = {
     this.remove();
 
     if (data.loader === 'object') {
-      this.objectLoader.load(data.src, this.onLoad.bind(this));
+      this.objectLoader.load(data.src, this.load.bind(this));
     } else if (data.loader === 'json') {
-      this.jsonLoader.load(data.src, this.onLoad.bind(this));
+      this.jsonLoader.load(data.src, this.load.bind(this));
     } else {
       throw new Error('[three-model] Invalid mode "%s".', data.mode);
     }
   },
 
-  onLoad(jsonModel) {
+  load: function (jsonModel) {
     this.model = jsonModel;
     this.el.setObject3D('mesh', jsonModel);
     this.el.emit('model-loaded', {format: 'three', model: jsonModel});
