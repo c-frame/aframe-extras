@@ -31,13 +31,15 @@ src
 │   ├── mouse-controls.js
 │   ├── touch-controls.js
 │   └── universal-controls.js
+├── loaders
+│   ├── fbx-model.js
+│   └── three-model.js
 ├── math
 │   ├── quaternion.js
 │   └── velocity.js
 ├── misc
 │   ├── jump-ability.js
 │   ├── jump-ability-lite.js
-│   ├── three-model.js
 │   └── toggle-velocity.js
 ├── physics
 │   ├── dynamic-body.js

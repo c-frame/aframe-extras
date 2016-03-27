@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Scythian</title>
+    <script src="https://aframe.io/releases/0.2.0/aframe.js"></script>
+    <script src="../aframe-extras.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Player -->
+      <a-entity camera
+                universal-controls
+                gamepad-controls keyboard-controls touch-controls
+                hmd-controls gamepad-controls mouse-controls
+                velocity="0 0 0"
+                position="0 1.764 4">
+      </a-entity>
+
+      <!-- Animation
+           See: http://threejs.org/examples/#webgl_animation_scene
+      -->
+      <a-entity scale="0.1 0.1 0.1"
+                fbx-model="src: url(../../assets/scythian/scythian.fbx);">
+      </a-entity>
+
+      <!-- Terrain -->
+      <a-entity geometry="primitive: plane"
+                rotation="-90 0 0"
+                scale="64 64 1"
+                material="src: url(../../assets/grid.png);
+                          repeat: 64 64;">
+      </a-entity>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#bbb"></a-light>
+      <a-light color="#ccc" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ccc" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
+    </a-scene>
+  </body>
+</html>
