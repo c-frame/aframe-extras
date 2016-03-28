@@ -30,7 +30,7 @@
     "postpublish": "npm run dist",
     "test": "echo \"Warning: no tests found\"",
     "preversion": "npm run test",
-    "version": "echo \"Warning: skipping 'npm run dist && git add -A dist'\"",
+    "version": "npm run dist && git add -A dist",
     "postversion": "git push && git push --tags && npm publish"
   },
   "keywords": [
