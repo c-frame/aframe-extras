@@ -1,7 +1,7 @@
 /**
  * Flat grid.
  *
- * Defaults to 9x9.
+ * Defaults to 75x75.
  */
 module.exports = {
   defaultAttributes: {
