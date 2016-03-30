@@ -3,23 +3,25 @@ require('./').registerAll();
 
 },{"./":2}],2:[function(require,module,exports){
 module.exports = {
-  controls: require('./src/controls'),
-  loaders:     require('./src/loaders'),
-  math:     require('./src/math'),
-  misc:     require('./src/misc'),
-  physics:  require('./src/physics'),
-  shadows:  require('./src/shadows'),
+  controls:   require('./src/controls'),
+  loaders:    require('./src/loaders'),
+  math:       require('./src/math'),
+  misc:       require('./src/misc'),
+  physics:    require('./src/physics'),
+  primitives: require('./src/primitives'),
+  shadows:    require('./src/shadows'),
   registerAll: function () {
     this.controls.registerAll();
     this.loaders.registerAll();
     this.math.registerAll();
     this.misc.registerAll();
     this.physics.registerAll();
+    this.primitives.registerAll();
     this.shadows.registerAll();
   }
 };
 
-},{"./src/controls":11,"./src/loaders":17,"./src/math":19,"./src/misc":22,"./src/physics":26,"./src/shadows":30}],3:[function(require,module,exports){
+},{"./src/controls":11,"./src/loaders":17,"./src/math":19,"./src/misc":22,"./src/physics":26,"./src/primitives":31,"./src/shadows":32}],3:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -18977,6 +18979,11 @@ module.exports = {
         data = this.data,
         pos = el.getAttribute('position');
 
+    if (!pos) {
+      pos = {x: 0, y: 0, z: 0};
+      el.setAttribute('position', pos);
+    }
+
     var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
     this.body = new CANNON.Body({
       mass: 0,
@@ -19041,6 +19048,41 @@ module.exports = {
 };
 
 },{"../../lib/CANNON-shape2mesh":3,"cannon":8}],30:[function(require,module,exports){
+/**
+ * Flat grid.
+ *
+ * Defaults to 9x9.
+ */
+module.exports = {
+  defaultAttributes: {
+    geometry: {
+      primitive: 'plane'
+    },
+    rotation: {x: -90, y: 0, z: 0},
+    scale: {x: 75, y: 75, z: 1},
+    material: {
+      src: 'url(../../assets/grid.png)',
+      repeat: '75 75'
+    }
+  },
+  mappings: {
+    width: 'scale.x',
+    depth: 'scale.y',
+    src: 'material.src'
+  }
+};
+
+},{}],31:[function(require,module,exports){
+module.exports = {
+  'a-grid':        require('./a-grid'),
+  registerAll: function (AFRAME) {
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME = AFRAME.aframeCore || AFRAME;
+    AFRAME.registerPrimitive('a-grid', this['a-grid']);
+  }
+};
+
+},{"./a-grid":30}],32:[function(require,module,exports){
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
@@ -19052,7 +19094,7 @@ module.exports = {
   }
 };
 
-},{"./shadow":32,"./shadow-light":31}],31:[function(require,module,exports){
+},{"./shadow":34,"./shadow-light":33}],33:[function(require,module,exports){
 /**
  * Light component.
  *
@@ -19193,7 +19235,7 @@ module.exports = {
   }
 };
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /**
  * Shadow component.
  *
