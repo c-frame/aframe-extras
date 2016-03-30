@@ -20,37 +20,25 @@
       </a-entity>
 
       <!-- Ground -->
-      <a-entity id="ground"
-                geometry="primitive: plane;
-                          width: 64;
-                          height: 64;
-                          depth: 64;"
-                rotation="-90 0 0"
-                position="0 0 0"
-                static-body="width: 64;
-                             height: 64;
-                             depth: 0.5;"
-                material="src: url(../../assets/grid.png);
-                          repeat: 64 64;">
-      </a-entity>
+      <a-grid static-body="width: 64; height: 64; depth: 0.5;"></a-grid>
 
       <!-- Obstacles -->
       <a-cube color="#39BB82"
-              width="10"
+              width="15"
               height="5"
-              depth="2"
-              position="3 2.5 -5"
-              static-body="width: 10;
+              depth="3"
+              position="8 2.5 -5"
+              static-body="width: 15;
                            height: 5;
-                           depth: 2;"></a-cube>
+                           depth: 3;"></a-cube>
       <a-cube color="#39BB82"
-              width="10"
+              width="15"
               height="5"
-              depth="2"
-              position="3 2.5 5"
-              static-body="width: 10;
+              depth="3"
+              position="8 2.5 5"
+              static-body="width: 15;
                            height: 5;
-                           depth: 2;"></a-cube>
+                           depth: 3;"></a-cube>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#bbb"></a-light>

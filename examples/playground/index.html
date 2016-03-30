@@ -21,16 +21,7 @@
                 position="10 1.764 0"></a-entity>
 
       <!-- Ground -->
-      <a-entity id="ground"
-                geometry="primitive: plane;
-                          width: 64;
-                          height: 64;
-                          depth: 64;"
-                rotation="-90 0 0"
-                position="0 0 0"
-                static-body="width: 64; height: 64; depth: 0.1;"
-                material="src: url(../../assets/grid.png);
-                          repeat: 64 64;"></a-entity>
+      <a-grid static-body="width: 64; height: 64; depth: 0.1;"></a-grid>
 
       <!-- Tower -->
       <a-cube id="tower"

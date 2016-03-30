@@ -37,6 +37,11 @@ module.exports = {
         data = this.data,
         pos = el.getAttribute('position');
 
+    if (!pos) {
+      pos = {x: 0, y: 0, z: 0};
+      el.setAttribute('position', pos);
+    }
+
     var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
     this.body = new CANNON.Body({
       mass: 0,
