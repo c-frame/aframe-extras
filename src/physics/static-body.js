@@ -25,13 +25,7 @@ module.exports = {
    */
 
   init: function () {
-    var sceneEl = this.el.sceneEl,
-        physics = sceneEl.components && sceneEl.components.physics;
-
-    if (!physics) {
-      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
-      return;
-    }
+    this.system = this.el.sceneEl.systems.physics;
 
     var el = this.el,
         data = this.data,
@@ -46,7 +40,7 @@ module.exports = {
     this.body = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(halfExtents),
-      material: physics.material,
+      material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
@@ -62,7 +56,7 @@ module.exports = {
     ).normalize();
 
     // Show wireframe
-    if (physics.data.debug) {
+    if (this.system.options.debug) {
       var mesh = CANNON.shape2mesh(this.body).children[0];
       this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
       this.syncWireframe();
@@ -70,13 +64,12 @@ module.exports = {
     }
 
     this.body.el = this.el;
-    physics.addBody(this.body);
+    this.system.addBody(this.body);
     console.info('[static-body] loaded');
   },
 
   remove: function () {
-    var physics = this.el.sceneEl.components.physics;
-    if (physics) physics.removeBody(this.body);
+    this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
@@ -85,13 +78,9 @@ module.exports = {
    */
 
   tick: function () {
-    if (!this.body) return;
-
-    var physics = this.el.sceneEl.components.physics;
-
     if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
     if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
-    if (physics.data.debug) this.syncWireframe();
+    if (this.system.options.debug) this.syncWireframe();
   },
 
   /*******************************************************************

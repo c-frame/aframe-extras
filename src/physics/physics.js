@@ -1,4 +1,4 @@
-var CANNON = require('cannon');
+
 
 module.exports = {
   schema: {
@@ -14,55 +14,13 @@ module.exports = {
     // If true, show wireframes around physics bodies.
     debug:        { default: false }
   },
-  init: function () {
-    this.validate();
 
-    this.world = new CANNON.World();
-    this.world.quatNormalizeSkip = 0;
-    this.world.quatNormalizeFast = false;
-    // this.world.solver.setSpookParams(300,10);
-    this.world.solver.iterations = this.data.iterations;
-    this.world.gravity.set(0, this.data.gravity, 0);
-    this.world.broadphase = new CANNON.NaiveBroadphase();
-
-    this.material = new CANNON.Material('slipperyMaterial');
-    this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
-        friction: this.data.friction,
-        restitution: this.data.restitution
-    });
-    this.world.addContactMaterial(this.contactMaterial);
-
-    if (this.el.addBehavior) this.el.addBehavior(this);
-
-    // Delayed, in the hope that A-Frame will mount the component before the
-    // event is emitted.
-    setTimeout(function () { this.el.emit('physics-loaded'); }.bind(this), 0);
-  },
-  validate: function () {
-    if (this.el.tagName !== 'A-SCENE') {
-      throw new Error('Physics must be attached to a scene instance.');
+  update: function (previousData) {
+    var data = this.data;
+    for (var opt in data) {
+      if (!previousData || data[opt] !== previousData[opt]) {
+        this.system.setOption(opt, data[opt]);
+      }
     }
-  },
-  update: function () {
-    var t1 = Date.now();
-    if (this.t0) this.tick(t1, t1 - this.t0);
-    this.t0 = t1;
-  },
-  tick: function (t, dt) {
-    this.world.step(Math.min(dt / 1000, this.data.maxInterval));
-  },
-  remove: function () {},
-
-  /*******************************************************************
-   * Interface
-   */
-
-  addBody: function (body) {
-    this.world.addBody(body);
-  },
-
-  removeBody: function (body) {
-    this.world.removeBody(body);
   }
-
 };

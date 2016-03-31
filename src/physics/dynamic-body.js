@@ -27,13 +27,7 @@ module.exports = {
    */
 
   init: function () {
-    var sceneEl = this.el.sceneEl,
-        physics = sceneEl.components && sceneEl.components.physics;
-
-    if (!physics) {
-      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
-      return;
-    }
+    this.system = this.el.sceneEl.systems.physics;
 
     var el = this.el,
         data = this.data,
@@ -44,7 +38,7 @@ module.exports = {
     var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
     this.body = new CANNON.Body({
       shape: new CANNON.Box(halfExtents),
-      material: physics.material,
+      material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
       mass: data.mass,
       linearDamping: data.linearDamping,
@@ -57,20 +51,19 @@ module.exports = {
     }
 
     // Show wireframe
-    if (physics.data.debug) {
+    if (this.system.options.debug) {
       var mesh = CANNON.shape2mesh(this.body).children[0];
       this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
       this.el.sceneEl.object3D.add(this.wireframe);
     }
 
     this.body.el = this.el;
-    physics.addBody(this.body);
+    this.system.addBody(this.body);
     console.info('[dynamic-body] loaded');
   },
 
   remove: function () {
-    var physics = this.el.sceneEl.components.physics;
-    if (physics) physics.removeBody(this.body);
+    this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
@@ -80,14 +73,11 @@ module.exports = {
    */
 
   tick: function () {
-    if (!this.body) return;
-
     this.el.setAttribute('quaternion', this.body.quaternion);
     this.el.setAttribute('position', this.body.position);
 
     // Update wireframe
-    var physics = this.el.sceneEl.components.physics;
-    if (physics.data.debug) {
+    if (this.system.options.debug) {
       this.wireframe.quaternion.copy(this.body.quaternion);
       this.wireframe.position.copy(this.body.position);
       this.wireframe.updateMatrix();

@@ -35,13 +35,7 @@ module.exports = {
    */
 
   init: function () {
-    var sceneEl = this.el.sceneEl,
-        physics = sceneEl.components && sceneEl.components.physics;
-
-    if (!physics) {
-      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
-      return;
-    }
+    this.system = this.el.sceneEl.systems.physics;
 
     var el = this.el,
         data = this.data,
@@ -49,7 +43,7 @@ module.exports = {
 
     this.body = new CANNON.Body({
       shape: new CANNON.Sphere(data.radius),
-      material: physics.material,
+      material: this.system.material,
       position: position,
       mass: data.mass,
       linearDamping: data.linearDamping,
@@ -57,13 +51,12 @@ module.exports = {
     });
     this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
 
-    physics.addBody(this.body);
+    this.system.addBody(this.body);
     console.info('[kinematic-body] loaded');
   },
 
   remove: function () {
-    var physics = this.el.sceneEl.components.physics;
-    if (physics) physics.removeBody(this.body);
+    this.system.removeBody(this.body);
   },
 
   /*******************************************************************
@@ -86,22 +79,21 @@ module.exports = {
         groundNormal = new THREE.Vector3();
 
     return function (t, dt) {
-      if (!this.body || isNaN(dt)) return;
+      if (isNaN(dt)) return;
 
       var body = this.body,
           data = this.data,
-          physics = this.el.sceneEl.components.physics,
           didCollideWithGround = false,
           groundBody;
 
-      dt = Math.min(dt, physics.data.maxInterval * 1000);
+      dt = Math.min(dt, this.system.options.maxInterval * 1000);
 
       groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));
       body.velocity.copy(velocity);
       body.position.copy(this.el.getAttribute('position'));
 
-      for (var i = 0, contact; (contact = physics.world.contacts[i]); i++) {
+      for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
         // 1. Find any collisions involving this element. Get the contact
         // normal, and make sure it's oriented _out_ of the other object.
         if (body.id === contact.bi.id) {
@@ -142,7 +134,7 @@ module.exports = {
       } else if (!didCollideWithGround) {
         // 6. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
-        velocity.add(physics.world.gravity.scale(dt * 4.0 / 1000));
+        velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
       }
 
       // 7. If the ground surface has a velocity, apply it directly to current
