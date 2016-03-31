@@ -86,7 +86,7 @@ module.exports = {
         groundNormal = new THREE.Vector3();
 
     return function (t, dt) {
-      if (!this.body) return;
+      if (!this.body || isNaN(dt)) return;
 
       var body = this.body,
           data = this.data,
