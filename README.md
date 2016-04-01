@@ -38,14 +38,16 @@ src
 │   ├── quaternion.js
 │   └── velocity.js
 ├── misc
-│   ├── jump-ability.js
 │   ├── jump-ability-lite.js
+│   ├── jump-ability.js
 │   └── toggle-velocity.js
 ├── physics
 │   ├── dynamic-body.js
 │   ├── kinematic-body.js
 │   ├── physics.js
-│   └── static-body.js
+│   ├── static-body.js
+│   └── system
+│       └── physics.js
 ├── primitives
 │   └── a-grid.js
 └── shadows
