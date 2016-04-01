@@ -21,7 +21,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":11,"./src/loaders":17,"./src/math":19,"./src/misc":22,"./src/physics":26,"./src/primitives":31,"./src/shadows":32}],3:[function(require,module,exports){
+},{"./src/controls":11,"./src/loaders":17,"./src/math":19,"./src/misc":22,"./src/physics":26,"./src/primitives":32,"./src/shadows":33}],3:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -18645,13 +18645,7 @@ module.exports = {
    */
 
   init: function () {
-    var sceneEl = this.el.sceneEl,
-        physics = sceneEl.components && sceneEl.components.physics;
-
-    if (!physics) {
-      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
-      return;
-    }
+    this.system = this.el.sceneEl.systems.physics;
 
     var el = this.el,
         data = this.data,
@@ -18662,7 +18656,7 @@ module.exports = {
     var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
     this.body = new CANNON.Body({
       shape: new CANNON.Box(halfExtents),
-      material: physics.material,
+      material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
       mass: data.mass,
       linearDamping: data.linearDamping,
@@ -18675,20 +18669,19 @@ module.exports = {
     }
 
     // Show wireframe
-    if (physics.data.debug) {
+    if (this.system.options.debug) {
       var mesh = CANNON.shape2mesh(this.body).children[0];
       this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
       this.el.sceneEl.object3D.add(this.wireframe);
     }
 
     this.body.el = this.el;
-    physics.addBody(this.body);
+    this.system.addBody(this.body);
     console.info('[dynamic-body] loaded');
   },
 
   remove: function () {
-    var physics = this.el.sceneEl.components.physics;
-    if (physics) physics.removeBody(this.body);
+    this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
@@ -18698,14 +18691,11 @@ module.exports = {
    */
 
   tick: function () {
-    if (!this.body) return;
-
     this.el.setAttribute('quaternion', this.body.quaternion);
     this.el.setAttribute('position', this.body.position);
 
     // Update wireframe
-    var physics = this.el.sceneEl.components.physics;
-    if (physics.data.debug) {
+    if (this.system.options.debug) {
       this.wireframe.quaternion.copy(this.body.quaternion);
       this.wireframe.position.copy(this.body.position);
       this.wireframe.updateMatrix();
@@ -18719,17 +18709,23 @@ module.exports = {
   'dynamic-body':   require('./dynamic-body'),
   'kinematic-body': require('./kinematic-body'),
   'static-body':     require('./static-body'),
+  'system': {
+    'physics': require('./system/physics')
+  },
   registerAll: function (AFRAME) {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('physics',         this['physics']);
-    AFRAME.registerComponent('dynamic-body',    this['dynamic-body']);
-    AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
-    AFRAME.registerComponent('static-body',      this['static-body']);
+
+    AFRAME.registerSystem('physics', this.system.physics);
+
+    AFRAME.registerComponent('physics',        this['physics']);
+    AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
+    AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
+    AFRAME.registerComponent('static-body',    this['static-body']);
   }
 };
 
-},{"./dynamic-body":25,"./kinematic-body":27,"./physics":28,"./static-body":29}],27:[function(require,module,exports){
+},{"./dynamic-body":25,"./kinematic-body":27,"./physics":28,"./static-body":29,"./system/physics":30}],27:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -18767,13 +18763,7 @@ module.exports = {
    */
 
   init: function () {
-    var sceneEl = this.el.sceneEl,
-        physics = sceneEl.components && sceneEl.components.physics;
-
-    if (!physics) {
-      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
-      return;
-    }
+    this.system = this.el.sceneEl.systems.physics;
 
     var el = this.el,
         data = this.data,
@@ -18781,7 +18771,7 @@ module.exports = {
 
     this.body = new CANNON.Body({
       shape: new CANNON.Sphere(data.radius),
-      material: physics.material,
+      material: this.system.material,
       position: position,
       mass: data.mass,
       linearDamping: data.linearDamping,
@@ -18789,13 +18779,12 @@ module.exports = {
     });
     this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
 
-    physics.addBody(this.body);
+    this.system.addBody(this.body);
     console.info('[kinematic-body] loaded');
   },
 
   remove: function () {
-    var physics = this.el.sceneEl.components.physics;
-    if (physics) physics.removeBody(this.body);
+    this.system.removeBody(this.body);
   },
 
   /*******************************************************************
@@ -18818,22 +18807,21 @@ module.exports = {
         groundNormal = new THREE.Vector3();
 
     return function (t, dt) {
-      if (!this.body || isNaN(dt)) return;
+      if (isNaN(dt)) return;
 
       var body = this.body,
           data = this.data,
-          physics = this.el.sceneEl.components.physics,
           didCollideWithGround = false,
           groundBody;
 
-      dt = Math.min(dt, physics.data.maxInterval * 1000);
+      dt = Math.min(dt, this.system.options.maxInterval * 1000);
 
       groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));
       body.velocity.copy(velocity);
       body.position.copy(this.el.getAttribute('position'));
 
-      for (var i = 0, contact; (contact = physics.world.contacts[i]); i++) {
+      for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
         // 1. Find any collisions involving this element. Get the contact
         // normal, and make sure it's oriented _out_ of the other object.
         if (body.id === contact.bi.id) {
@@ -18874,7 +18862,7 @@ module.exports = {
       } else if (!didCollideWithGround) {
         // 6. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
-        velocity.add(physics.world.gravity.scale(dt * 4.0 / 1000));
+        velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
       }
 
       // 7. If the ground surface has a velocity, apply it directly to current
@@ -18897,7 +18885,7 @@ module.exports = {
 };
 
 },{"cannon":8}],28:[function(require,module,exports){
-var CANNON = require('cannon');
+
 
 module.exports = {
   schema: {
@@ -18913,60 +18901,18 @@ module.exports = {
     // If true, show wireframes around physics bodies.
     debug:        { default: false }
   },
-  init: function () {
-    this.validate();
 
-    this.world = new CANNON.World();
-    this.world.quatNormalizeSkip = 0;
-    this.world.quatNormalizeFast = false;
-    // this.world.solver.setSpookParams(300,10);
-    this.world.solver.iterations = this.data.iterations;
-    this.world.gravity.set(0, this.data.gravity, 0);
-    this.world.broadphase = new CANNON.NaiveBroadphase();
-
-    this.material = new CANNON.Material('slipperyMaterial');
-    this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
-        friction: this.data.friction,
-        restitution: this.data.restitution
-    });
-    this.world.addContactMaterial(this.contactMaterial);
-
-    if (this.el.addBehavior) this.el.addBehavior(this);
-
-    // Delayed, in the hope that A-Frame will mount the component before the
-    // event is emitted.
-    setTimeout(function () { this.el.emit('physics-loaded'); }.bind(this), 0);
-  },
-  validate: function () {
-    if (this.el.tagName !== 'A-SCENE') {
-      throw new Error('Physics must be attached to a scene instance.');
+  update: function (previousData) {
+    var data = this.data;
+    for (var opt in data) {
+      if (!previousData || data[opt] !== previousData[opt]) {
+        this.system.setOption(opt, data[opt]);
+      }
     }
-  },
-  update: function () {
-    var t1 = Date.now();
-    if (this.t0) this.tick(t1, t1 - this.t0);
-    this.t0 = t1;
-  },
-  tick: function (t, dt) {
-    this.world.step(Math.min(dt / 1000, this.data.maxInterval));
-  },
-  remove: function () {},
-
-  /*******************************************************************
-   * Interface
-   */
-
-  addBody: function (body) {
-    this.world.addBody(body);
-  },
-
-  removeBody: function (body) {
-    this.world.removeBody(body);
   }
-
 };
 
-},{"cannon":8}],29:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * Static body.
  *
@@ -18994,13 +18940,7 @@ module.exports = {
    */
 
   init: function () {
-    var sceneEl = this.el.sceneEl,
-        physics = sceneEl.components && sceneEl.components.physics;
-
-    if (!physics) {
-      sceneEl.addEventListener('physics-loaded', this.init.bind(this));
-      return;
-    }
+    this.system = this.el.sceneEl.systems.physics;
 
     var el = this.el,
         data = this.data,
@@ -19015,7 +18955,7 @@ module.exports = {
     this.body = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(halfExtents),
-      material: physics.material,
+      material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
@@ -19031,7 +18971,7 @@ module.exports = {
     ).normalize();
 
     // Show wireframe
-    if (physics.data.debug) {
+    if (this.system.options.debug) {
       var mesh = CANNON.shape2mesh(this.body).children[0];
       this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
       this.syncWireframe();
@@ -19039,13 +18979,12 @@ module.exports = {
     }
 
     this.body.el = this.el;
-    physics.addBody(this.body);
+    this.system.addBody(this.body);
     console.info('[static-body] loaded');
   },
 
   remove: function () {
-    var physics = this.el.sceneEl.components.physics;
-    if (physics) physics.removeBody(this.body);
+    this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
@@ -19054,13 +18993,9 @@ module.exports = {
    */
 
   tick: function () {
-    if (!this.body) return;
-
-    var physics = this.el.sceneEl.components.physics;
-
     if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
     if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
-    if (physics.data.debug) this.syncWireframe();
+    if (this.system.options.debug) this.syncWireframe();
   },
 
   /*******************************************************************
@@ -19075,6 +19010,78 @@ module.exports = {
 };
 
 },{"../../lib/CANNON-shape2mesh":3,"cannon":8}],30:[function(require,module,exports){
+var CANNON = require('cannon');
+
+var OPTIONS = {
+  friction:     0.01,
+  restitution:  0.3,
+  iterations:   5,
+  gravity:      -9.8,
+
+  // Never step more than four frames at once. Effectively pauses the scene
+  // when out of focus, and prevents weird "jumps" when focus returns.
+  maxInterval:  4 / 60,
+
+  // If true, show wireframes around physics bodies.
+  debug:        false
+};
+
+/**
+ * Physics system.
+ */
+module.exports = {
+  init: function () {
+    this.options = AFRAME.utils.extend({}, OPTIONS);
+
+    this.world = new CANNON.World();
+    this.world.quatNormalizeSkip = 0;
+    this.world.quatNormalizeFast = false;
+    // this.world.solver.setSpookParams(300,10);
+    this.world.solver.iterations = this.options.iterations;
+    this.world.gravity.set(0, this.options.gravity, 0);
+    this.world.broadphase = new CANNON.NaiveBroadphase();
+
+    this.material = new CANNON.Material('slipperyMaterial');
+    this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
+        friction: this.options.friction,
+        restitution: this.options.restitution
+    });
+    this.world.addContactMaterial(this.contactMaterial);
+  },
+
+  setOption: function (opt, value) {
+    this.options[opt] = value;
+    switch (opt) {
+      case 'maxInterval':
+        break; // no-op
+      case 'friction':
+      case 'restitution':
+      case 'iterations':
+      case 'gravity':
+      case 'debug':
+        console.warn('Option "%s" cannot yet be dynamically updated.', opt);
+        break;
+      default:
+        console.error('Option "%s" not recognized.', opt);
+    }
+  },
+
+  tick: function (t, dt) {
+    if (isNaN(dt)) return;
+    this.world.step(Math.min(dt / 1000, this.options.maxInterval));
+  },
+
+  addBody: function (body) {
+    this.world.addBody(body);
+  },
+
+  removeBody: function (body) {
+    this.world.removeBody(body);
+  }
+
+};
+
+},{"cannon":8}],31:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -19099,7 +19106,7 @@ module.exports = {
   }
 };
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
   registerAll: function (AFRAME) {
@@ -19109,7 +19116,7 @@ module.exports = {
   }
 };
 
-},{"./a-grid":30}],32:[function(require,module,exports){
+},{"./a-grid":31}],33:[function(require,module,exports){
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
@@ -19121,7 +19128,7 @@ module.exports = {
   }
 };
 
-},{"./shadow":34,"./shadow-light":33}],33:[function(require,module,exports){
+},{"./shadow":35,"./shadow-light":34}],34:[function(require,module,exports){
 /**
  * Light component.
  *
@@ -19262,7 +19269,7 @@ module.exports = {
   }
 };
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /**
  * Shadow component.
  *
