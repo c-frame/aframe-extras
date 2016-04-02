@@ -8,13 +8,12 @@
     <script src="../aframe-extras.js"></script>
   </head>
   <body>
-    <a-scene physics stats="true" fog="type: exponential; color: #FFF; density: 0.04;">
+    <a-scene physics fog="type: exponential; color: #FFF; density: 0.04;">
       <!-- Player -->
       <a-entity id="player"
                 camera
                 universal-controls
                 kinematic-body
-                velocity="0 0 0"
                 position="15 1.764 10"
                 jump-ability="enableDoubleJump: true;
                               distance: 10;">
@@ -27,7 +26,7 @@
       <a-entity id="platforms"></a-entity>
 
       <!-- Ground -->
-      <a-grid static-body="width: 75; height: 75; depth: 0.1;"></a-grid>
+      <a-grid static-body></a-grid>
 
       <!-- Sky -->
       <a-sky id="sky" color="#AADDF0"></a-sky>
@@ -61,13 +60,13 @@ document.querySelector('a-scene').addEventListener('render-target-loaded', funct
       y: (Math.floor(Math.random() * MAP_SIZE)                ) * PLATFORM_SIZE + PLATFORM_SIZE / 2,
       z: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE
     };
-    box = document.createElement('a-cube');
+    box = document.createElement('a-box');
     box.setAttribute('color', '#39BB82');
     box.setAttribute('width', PLATFORM_SIZE);
     box.setAttribute('height', PLATFORM_SIZE);
     box.setAttribute('depth', PLATFORM_SIZE);
-    box.setAttribute('static-body', dims);
     box.setAttribute('position', v.x + ' ' + v.y + ' ' + v.z);
+    box.setAttribute('static-body');
     platformsEl.appendChild(box);
   }
 

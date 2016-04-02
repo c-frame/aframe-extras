@@ -18,6 +18,7 @@ var CANNON = require('cannon');
 var EPS = 0.000001;
 
 module.exports = {
+  dependencies: ['velocity'],
 
   /*******************************************************************
    * Schema

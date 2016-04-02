@@ -8,76 +8,64 @@
     <script src="../aframe-extras.js"></script>
   </head>
   <body>
-    <a-scene physics
-             proxy-controls>
+    <a-scene physics>
       <!-- Player -->
       <a-entity camera
                 universal-controls
                 kinematic-body
                 jump-ability
-                velocity="0 0 0"
                 position="10 1.764 0"></a-entity>
 
       <!-- Ground -->
-      <a-grid static-body="width: 75; height: 75; depth: 0.1;"></a-grid>
+      <a-grid static-body></a-grid>
 
       <!-- Tower -->
-      <a-cube id="tower"
+      <a-box id="tower"
               color="#39BB82"
-              width="10"
-              height="5"
-              depth="6"
+              width="10" height="5" depth="6"
               position="0 2.5 -15"
-              static-body="width: 10; height: 5; depth: 6;"></a-cube>
+              static-body></a-box>
 
       <!-- Ramp -->
-      <a-cube id="ramp"
-              color="#39BB82"
-              width="1"
-              height="10"
-              depth="18.86796"
-              position="0 -4.04 -6.33"
-              rotation="30 0 0"
-              static-body="width: 1; height: 10; depth: 18.86796;"></a-cube>
+      <a-box id="ramp"
+             color="#39BB82"
+             width="1" height="10" depth="18.86796"
+             position="0 -4.04 -6.33"
+             rotation="30 0 0"
+             static-body></a-box>
 
       <!-- Moving platforms -->
-      <a-cube id="platform1"
-              color="#39BB82"
-              width="4"
-              height="0.25"
-              depth="4"
-              position="7 0.125 -15"
-              velocity="0 0 0"
-              toggle-velocity="axis: z; min: -5; max: 5;"
-              static-body="width: 4; height: 0.25; depth: 4;"></a-cube>
-      <a-cube id="platform2"
-              color="#39BB82"
-              width="4"
-              height="0.25"
-              depth="4"
-              position="-7 0.125 -15"
-              velocity="0 0 0"
-              toggle-velocity="axis: y; min: 0.125; max: 5;"
-              static-body="width: 4; height: 0.25; depth: 4;"></a-cube>
-
+      <a-box id="platform1"
+             color="#39BB82"
+             width="4" height="0.25" depth="4"
+             position="7 0.125 -15"
+             velocity="0 0 0"
+             toggle-velocity="axis: z; min: -5; max: 5;"
+             static-body></a-box>
+      <a-box id="platform2"
+             color="#39BB82"
+             width="4" height="0.25" depth="4"
+             position="-7 0.125 -15"
+             velocity="0 0 0"
+             toggle-velocity="axis: y; min: 0.125; max: 5;"
+             static-body></a-box>
 
       <!-- Blocks -->
-      <a-cube color="#39BB82"
-              width="1" height="1" depth="1"
-              position="15 2 0.6"
-              quaternion="0 0 0 0"
-              dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-cube>
-      <a-cube color="#39BB82"
-              width="1" height="1" depth="1"
-              position="15 2 -0.6"
-              quaternion="0 0 0 0"
-              dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-cube>
-      <a-cube color="#39BB82"
-              width="1" height="1" depth="1"
-              position="15 4 0"
-              quaternion="0 0 0 0"
-              dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-cube>
-
+      <a-box color="#39BB82"
+             width="1" height="1" depth="1"
+             position="15 2 0.6"
+             quaternion="0 0 0 0"
+             dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-box>
+      <a-box color="#39BB82"
+             width="1" height="1" depth="1"
+             position="15 2 -0.6"
+             quaternion="0 0 0 0"
+             dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-box>
+      <a-box color="#39BB82"
+             width="1" height="1" depth="1"
+             position="15 4 0"
+             quaternion="0 0 0 0"
+             dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-box>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#bbb"></a-light>

@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Monument</title>
     <script src="https://aframe.io/releases/0.2.0/aframe.js"></script>
-    <script src="https://cdn.rawgit.com/donmccurdy/aframe-obj-loader-component/v0.1.0/dist/aframe-obj-loader-component.min.js"></script>
     <script src="../aframe-extras.js"></script>
-    <script src="index.js"></script>
     <style>
       #audio {
         position: absolute;
@@ -43,55 +41,26 @@
     </style>
   </head>
   <body>
-    <a-scene proxy-controls
-             terrain="#terrain [geometry], #scene"
-             stats="false">
-      <!-- Player -->
+    <a-scene physics>
       <a-entity id="player"
                 camera
-                position="15 1.764 10"
-                look-controls
-                keyboard-controls="acceleration: 100"
-                gamepad-controls="acceleration: 100"
-                jump-ability="enableDoubleJump: true;
-                              debug: true;
-                              soundJump: #sound-jump;
-                              soundLand: #sound-land;">
-        <a-entity id="sound-jump"
-                  sound="src: https://sandbox.donmccurdy.com/assets/sound/grunt-male.mp3;
-                         on: fire;">
-        </a-entity>
-        <a-entity id="sound-land"
-                  sound="src: https://sandbox.donmccurdy.com/assets/sound/footfall.mp3;
-                         on: fire;
-                         volume: 2;">
-        </a-entity>
+                universal-controls
+                kinematic-body
+                position="15 2.764 10"
+                jump-ability="enableDoubleJump: true;">
       </a-entity>
 
-      <!-- Scene -->
       <a-entity id="scene"
                 scale="0.5 0.5 0.5"
-                obj-loader="src: url(/assets/monu9/monu9.obj);
-                            mtl: url(/assets/monu9/monu9.mtl);">
+                static-body
+                obj-model="obj: url(/assets/monu9/monu9.obj);
+                           mtl: url(/assets/monu9/monu9.mtl);">
       </a-entity>
 
-      <!--
-        Terrain
-        a-plane would be ideal here, but for some reason it doesn't seem to be
-        working with THREE.Raycaster.
-      -->
-      <a-cube id="terrain"
-              height="1"
-              width="1000"
-              depth="1000"
-              position="0 -0.5 0"
-              color="#BCDFFF">
-      </a-cube>
+      <a-grid static-body></a-grid>
 
-      <!-- Sky -->
       <a-sky id="sky" color="#AADDF0"></a-sky>
 
-      <!-- Lighting -->
       <a-light type="ambient" color="#ccc"></a-light>
       <a-light color="#ddf" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
       <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
@@ -101,7 +70,7 @@
     <div id="audio-close">×</div>
     <script>
 var audio = document.querySelector('#audio'),
-    audioClose = document.querySelector('#audio-close')
+    audioClose = document.querySelector('#audio-close');
 audioClose.addEventListener('click', function () {
   audio.remove();
   audioClose.remove();

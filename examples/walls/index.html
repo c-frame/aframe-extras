@@ -13,7 +13,6 @@
       <a-entity camera
                 universal-controls
                 kinematic-body
-                velocity="0 0 0"
                 position="0 1.764 0">
       </a-entity>
 
@@ -21,22 +20,14 @@
       <a-grid static-body="width: 75; height: 75; depth: 0.5;"></a-grid>
 
       <!-- Obstacles -->
-      <a-cube color="#39BB82"
-              width="15"
-              height="5"
-              depth="3"
-              position="8 2.5 -5"
-              static-body="width: 15;
-                           height: 5;
-                           depth: 3;"></a-cube>
-      <a-cube color="#39BB82"
-              width="15"
-              height="5"
-              depth="3"
-              position="8 2.5 5"
-              static-body="width: 15;
-                           height: 5;
-                           depth: 3;"></a-cube>
+      <a-box color="#39BB82"
+             width="15" height="5" depth="3"
+             position="8 2.5 -5"
+             static-body></a-box>
+      <a-box color="#39BB82"
+             width="15" height="5" depth="3"
+             position="8 2.5 5"
+             static-body></a-box>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#bbb"></a-light>

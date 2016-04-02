@@ -6,18 +6,19 @@
 module.exports = {
   defaultAttributes: {
     geometry: {
-      primitive: 'plane'
+      primitive: 'plane',
+      width: 75,
+      height: 75
     },
     rotation: {x: -90, y: 0, z: 0},
-    scale: {x: 75, y: 75, z: 1},
     material: {
       src: 'url(../../assets/grid.png)',
       repeat: '75 75'
     }
   },
   mappings: {
-    width: 'scale.x',
-    depth: 'scale.y',
+    width: 'geometry.width',
+    depth: 'geometry.depth',
     src: 'material.src'
   }
 };

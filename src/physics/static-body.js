@@ -5,7 +5,9 @@
  * other objects may collide with it.
  */
 
-var CANNON = require('cannon');
+var CANNON = require('cannon'),
+    object2shape = require('../../lib/object2shape');
+
 require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
@@ -27,6 +29,19 @@ module.exports = {
   init: function () {
     this.system = this.el.sceneEl.systems.physics;
 
+    var shape = object2shape(this.el.object3D);
+    if (shape && this.el.sceneEl.hasLoaded) {
+      this.initBody(shape);
+    } else if (shape) {
+      this.el.sceneEl.addEventListener('loaded', this.initBody.bind(this, shape));
+    } else {
+      this.el.addEventListener('model-loaded', function (e) {
+        this.initBody(object2shape(e.detail.model));
+      }.bind(this));
+    }
+  },
+
+  initBody: function (shape) {
     var el = this.el,
         data = this.data,
         pos = el.getAttribute('position');
@@ -36,10 +51,18 @@ module.exports = {
       el.setAttribute('position', pos);
     }
 
-    var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
+    // Apply scaling
+    if (this.el.hasAttribute('scale')) {
+      if (shape.setScale) {
+        shape.setScale(this.el.getAttribute('scale'));
+      } else {
+        console.warn('Physics body scaling could not be applied.');
+      }
+    }
+
     this.body = new CANNON.Body({
       mass: 0,
-      shape: new CANNON.Box(halfExtents),
+      shape: shape,
       material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
       linearDamping: data.linearDamping,
@@ -69,7 +92,7 @@ module.exports = {
   },
 
   remove: function () {
-    this.system.removeBody(this.body);
+    if (this.body) this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
@@ -78,9 +101,10 @@ module.exports = {
    */
 
   tick: function () {
+    if (!this.body) return;
     if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
     if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
-    if (this.system.options.debug) this.syncWireframe();
+    if (this.wireframe) this.syncWireframe();
   },
 
   /*******************************************************************
