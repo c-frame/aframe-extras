@@ -20,19 +20,11 @@ module.exports = {
     this.euler = new THREE.Euler();
     this.controls = new THREE.VRControls(this.dolly);
     this.zeroQuaternion = new THREE.Quaternion();
-
-    if (this.el.sceneEl.addBehavior) {
-      this.el.sceneEl.addBehavior(this);
-    }
   },
-
-  remove: function () {},
 
   /*******************************************************************
    * Tick
    */
-
-  update: function () { this.tick(); },
 
   tick: function (t) {
     t = t || Date.now();

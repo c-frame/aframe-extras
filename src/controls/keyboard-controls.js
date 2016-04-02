@@ -31,21 +31,12 @@ module.exports = {
       keyup: this.onKeyUp.bind(this),
       blur: this.onBlur.bind(this)
     };
-
-    var sceneEl = this.el.sceneEl;
-    if (sceneEl.addBehavior) {
-      sceneEl.addBehavior(this);
-      this.attachEventListeners();
-    }
+    this.attachEventListeners();
   },
 
   /*******************************************************************
   * Movement
   */
-
-  tick: function () {
-    this.updateButtonState();
-  },
 
   isVelocityActive: function () { return !!Object.keys(this.getKeys()).length; },
 
@@ -74,10 +65,6 @@ module.exports = {
 
   pause: function () {
     this.removeEventListeners();
-  },
-
-  tick: function (t) { // jshint ignore:line
-    this.update();
   },
 
   remove: function () {

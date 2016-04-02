@@ -2,7 +2,7 @@ module.exports = {
   'physics':        require('./physics'),
   'dynamic-body':   require('./dynamic-body'),
   'kinematic-body': require('./kinematic-body'),
-  'static-body':     require('./static-body'),
+  'static-body':    require('./static-body'),
   'system': {
     'physics': require('./system/physics')
   },
