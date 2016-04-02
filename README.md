@@ -38,10 +38,10 @@ src
 │   ├── quaternion.js
 │   └── velocity.js
 ├── misc
-│   ├── jump-ability-lite.js
 │   ├── jump-ability.js
 │   └── toggle-velocity.js
 ├── physics
+│   ├── body.js
 │   ├── dynamic-body.js
 │   ├── kinematic-body.js
 │   ├── physics.js

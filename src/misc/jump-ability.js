@@ -2,9 +2,7 @@ var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
 /**
- * Adds jump ability on component.
- *
- * Depends on physics components - for standalone version, see jump-ability-lite.
+ * Jump ability.
  */
 module.exports = {
   dependencies: ['position'],
