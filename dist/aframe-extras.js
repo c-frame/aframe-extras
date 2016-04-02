@@ -21,7 +21,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":11,"./src/loaders":17,"./src/math":19,"./src/misc":22,"./src/physics":26,"./src/primitives":32,"./src/shadows":33}],3:[function(require,module,exports){
+},{"./src/controls":12,"./src/loaders":18,"./src/math":20,"./src/misc":23,"./src/physics":28,"./src/primitives":34,"./src/shadows":35}],3:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -181,7 +181,7 @@ CANNON.shape2mesh = function(body){
 
 module.exports = CANNON.shape2mesh;
 
-},{"cannon":8}],4:[function(require,module,exports){
+},{"cannon":9}],4:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  *
@@ -3712,6 +3712,68 @@ module.exports = GamepadButtonEvent;
 } (window));
 
 },{}],8:[function(require,module,exports){
+var CANNON = require('cannon');
+
+/**
+ * Given a THREE.Object3D instance, creates a corresponding CANNON shape.
+ * @param  {THREE.Object3D} object
+ * @return {CANNON.Shape}
+ */
+module.exports = function (object) {
+  var mesh, meshes = [];
+  object.traverse(function (object) {
+    if (object.type === 'Mesh') {
+      meshes.push(object);
+    }
+  });
+
+  mesh = meshes[0];
+  if (meshes.length > 1) {
+    console.warn('[object2shape] Found too many objects - returning shape for first first');
+  } else if (meshes.length === 0) {
+    return null;
+  }
+
+  switch (mesh.geometry.type) {
+    case 'BoxGeometry':
+      return createBoxShape(mesh.geometry);
+    case 'PlaneBufferGeometry':
+      return createPlaneShape(mesh.geometry);
+    case 'BufferGeometry':
+      return createTrimeshShape(mesh.geometry);
+    default:
+      console.warn('Unrecognized geometry: "%s". Using bounding box as shape.', mesh.geometry.type);
+      return createBoxShape(mesh.geometry);
+  }
+};
+
+function createPlaneShape (geometry) {
+  geometry.computeBoundingBox();
+  var box = geometry.boundingBox;
+  return new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2 || 0.1,
+    (box.max.y - box.min.y) / 2 || 0.1,
+    (box.max.z - box.min.z) / 2 || 0.1
+  ));
+}
+
+function createBoxShape (geometry) {
+  geometry.computeBoundingBox();
+  var box = geometry.boundingBox;
+  return new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2,
+    (box.max.y - box.min.y) / 2,
+    (box.max.z - box.min.z) / 2
+  ));
+}
+
+function createTrimeshShape (geometry) {
+  var vertices = geometry.attributes.position.array;
+  var indices = Object.keys(vertices).map(Number);
+  return new CANNON.Trimesh(vertices, indices);
+}
+
+},{"cannon":9}],9:[function(require,module,exports){
 (function (global){
 /*
  * Copyright (c) 2015 cannon.js Authors
@@ -17401,7 +17463,7 @@ World.prototype.clearForces = function(){
 (2)
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /**
  * Gamepad controls for A-Frame.
  *
@@ -17657,7 +17719,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":5,"../../lib/GamepadButtonEvent":6}],10:[function(require,module,exports){
+},{"../../lib/GamepadButton":5,"../../lib/GamepadButtonEvent":6}],11:[function(require,module,exports){
 var TICK_DEBOUNCE = 4; // ms
 
 module.exports = {
@@ -17752,7 +17814,7 @@ module.exports = {
   }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = {
   'gamepad-controls':   require('./gamepad-controls'),
   'hmd-controls':       require('./hmd-controls'),
@@ -17772,7 +17834,7 @@ module.exports = {
   }
 };
 
-},{"./gamepad-controls":9,"./hmd-controls":10,"./keyboard-controls":12,"./mouse-controls":13,"./touch-controls":14,"./universal-controls":15}],12:[function(require,module,exports){
+},{"./gamepad-controls":10,"./hmd-controls":11,"./keyboard-controls":13,"./mouse-controls":14,"./touch-controls":15,"./universal-controls":16}],13:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -17926,7 +17988,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":7}],13:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":7}],14:[function(require,module,exports){
 /**
  * Mouse + Pointerlock controls.
  *
@@ -18066,7 +18128,7 @@ module.exports = {
   }
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = {
   schema: {
     enabled: { default: true }
@@ -18136,7 +18198,7 @@ module.exports = {
   }
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /**
  * Universal Controls
  *
@@ -18322,7 +18384,7 @@ module.exports = {
   }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * three-model
  *
@@ -18371,7 +18433,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/FBXLoader":4}],17:[function(require,module,exports){
+},{"../../lib/FBXLoader":4}],18:[function(require,module,exports){
 module.exports = {
   'fbx-model':   require('./fbx-model'),
   'three-model': require('./three-model'),
@@ -18383,7 +18445,7 @@ module.exports = {
   }
 };
 
-},{"./fbx-model":16,"./three-model":18}],18:[function(require,module,exports){
+},{"./fbx-model":17,"./three-model":19}],19:[function(require,module,exports){
 /**
  * three-model
  *
@@ -18455,7 +18517,7 @@ module.exports = {
   }
 };
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
@@ -18467,7 +18529,7 @@ module.exports = {
   }
 };
 
-},{"./quaternion":20,"./velocity":21}],20:[function(require,module,exports){
+},{"./quaternion":21,"./velocity":22}],21:[function(require,module,exports){
 /**
  * Quaternion.
  *
@@ -18484,7 +18546,7 @@ module.exports = {
   }
 };
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /**
  * Velocity, in m/s.
  */
@@ -18507,7 +18569,7 @@ module.exports = {
   },
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = {
   'jump-ability':      require('./jump-ability'),
   'toggle-velocity':   require('./toggle-velocity'),
@@ -18519,7 +18581,7 @@ module.exports = {
   }
 };
 
-},{"./jump-ability":23,"./toggle-velocity":24}],23:[function(require,module,exports){
+},{"./jump-ability":24,"./toggle-velocity":25}],24:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -18578,7 +18640,7 @@ module.exports = {
   }
 };
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -18615,95 +18677,123 @@ module.exports = {
   },
 };
 
-},{}],25:[function(require,module,exports){
-/**
- * Dynamic body.
- *
- * Moves according to physics simulation, and may collide with other objects.
- */
-var CANNON = require('cannon');
+},{}],26:[function(require,module,exports){
+var CANNON = require('cannon'),
+    object2shape = require('../../lib/object2shape');
+
 require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    width:          { default: 1 },
-    height:         { default: 1 },
-    depth:          { default: 1 },
-
-    mass:           { default: 5 },
-    linearDamping:  { default: 0.01 },
-    angularDamping: { default: 0.01 }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
+  dependencies: ['position'],
 
   init: function () {
+    this.initBody();
+  },
+
+  initBody: function () {
     this.system = this.el.sceneEl.systems.physics;
 
+    var shape = object2shape(this.el.object3D);
+    if (shape && this.el.sceneEl.hasLoaded) {
+      this.initBody_(shape);
+    } else if (shape && !this.el.sceneEl.hasLoaded) {
+      this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
+    } else {
+      this.el.addEventListener('model-loaded', function (e) {
+        this.initBody_(object2shape(e.detail.model));
+      }.bind(this));
+    }
+  },
+
+  initBody_: function (shape) {
     var el = this.el,
         data = this.data,
         pos = el.getAttribute('position');
 
-    this.euler = new THREE.Euler();
+    if (!pos) {
+      pos = {x: 0, y: 0, z: 0};
+      el.setAttribute('position', pos);
+    }
 
-    var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
+    // Apply scaling
+    if (this.el.hasAttribute('scale')) {
+      if (shape.setScale) {
+        shape.setScale(this.el.getAttribute('scale'));
+      } else {
+        console.warn('Physics body scaling could not be applied.');
+      }
+    }
+
     this.body = new CANNON.Body({
-      shape: new CANNON.Box(halfExtents),
+      shape: shape,
+      mass: data.mass || 0,
       material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
-      mass: data.mass,
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
 
-    if (el.getAttribute('rotation')) {
-      // Gimbal lock with Euler rotation is problematic.
-      throw new Error('[dynamic-body] Preset rotation not yet supported.');
-    }
+    // Apply rotation
+    var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
+    this.body.quaternion.setFromEuler(
+      THREE.Math.degToRad(rot.x),
+      THREE.Math.degToRad(rot.y),
+      THREE.Math.degToRad(rot.z),
+      'XYZ'
+    ).normalize();
 
     // Show wireframe
     if (this.system.options.debug) {
       var mesh = CANNON.shape2mesh(this.body).children[0];
       this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
+      this.syncWireframe();
       this.el.sceneEl.object3D.add(this.wireframe);
     }
 
     this.body.el = this.el;
     this.system.addBody(this.body);
-    console.info('[dynamic-body] loaded');
+    console.info('[%s] loaded', this.name);
   },
 
   remove: function () {
-    this.system.removeBody(this.body);
+    if (this.body) this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
-
-  /*******************************************************************
-   * Tick
-   */
-
-  tick: function () {
-    this.el.setAttribute('quaternion', this.body.quaternion);
-    this.el.setAttribute('position', this.body.position);
-
-    // Update wireframe
-    if (this.system.options.debug) {
-      this.wireframe.quaternion.copy(this.body.quaternion);
-      this.wireframe.position.copy(this.body.position);
-      this.wireframe.updateMatrix();
-    }
+  syncWireframe: function () {
+    if (!this.wireframe) return;
+    this.wireframe.quaternion.copy(this.body.quaternion);
+    this.wireframe.position.copy(this.body.position);
+    this.wireframe.updateMatrix();
   }
 };
 
-},{"../../lib/CANNON-shape2mesh":3,"cannon":8}],26:[function(require,module,exports){
+},{"../../lib/CANNON-shape2mesh":3,"../../lib/object2shape":8,"cannon":9}],27:[function(require,module,exports){
+var Body = require('./body');
+
+/**
+ * Dynamic body.
+ *
+ * Moves according to physics simulation, and may collide with other objects.
+ */
+module.exports = AFRAME.utils.extend({}, Body, {
+  dependencies: ['position', 'quaternion', 'velocity'],
+
+  schema: {
+    mass:           { default: 5 },
+    linearDamping:  { default: 0.01 },
+    angularDamping: { default: 0.01 }
+  },
+
+  tick: function () {
+    if (!this.body) return;
+    this.el.setAttribute('quaternion', this.body.quaternion);
+    this.el.setAttribute('position', this.body.position);
+    if (this.wireframe) this.syncWireframe();
+  }
+});
+
+},{"./body":26}],28:[function(require,module,exports){
 module.exports = {
   'physics':        require('./physics'),
   'dynamic-body':   require('./dynamic-body'),
@@ -18725,7 +18815,7 @@ module.exports = {
   }
 };
 
-},{"./dynamic-body":25,"./kinematic-body":27,"./physics":28,"./static-body":29,"./system/physics":30}],27:[function(require,module,exports){
+},{"./dynamic-body":27,"./kinematic-body":29,"./physics":30,"./static-body":31,"./system/physics":32}],29:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -18746,6 +18836,7 @@ var CANNON = require('cannon');
 var EPS = 0.000001;
 
 module.exports = {
+  dependencies: ['velocity'],
 
   /*******************************************************************
    * Schema
@@ -18884,7 +18975,7 @@ module.exports = {
   }())
 };
 
-},{"cannon":8}],28:[function(require,module,exports){
+},{"cannon":9}],30:[function(require,module,exports){
 
 
 module.exports = {
@@ -18912,104 +19003,25 @@ module.exports = {
   }
 };
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
+var Body = require('./body');
+
 /**
  * Static body.
  *
  * Solid body with a fixed position. Unaffected by gravity and collisions, but
  * other objects may collide with it.
  */
-
-var CANNON = require('cannon');
-require('../../lib/CANNON-shape2mesh');
-
-module.exports = {
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    width:  { default: 1 },
-    height: { default: 1 },
-    depth:  { default: 1 }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function () {
-    this.system = this.el.sceneEl.systems.physics;
-
-    var el = this.el,
-        data = this.data,
-        pos = el.getAttribute('position');
-
-    if (!pos) {
-      pos = {x: 0, y: 0, z: 0};
-      el.setAttribute('position', pos);
-    }
-
-    var halfExtents = new CANNON.Vec3(data.width / 2, data.height / 2, data.depth / 2);
-    this.body = new CANNON.Body({
-      mass: 0,
-      shape: new CANNON.Box(halfExtents),
-      material: this.system.material,
-      position: new CANNON.Vec3(pos.x, pos.y, pos.z),
-      linearDamping: data.linearDamping,
-      angularDamping: data.angularDamping
-    });
-
-    // Apply rotation
-    var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
-    this.body.quaternion.setFromEuler(
-      THREE.Math.degToRad(rot.x),
-      THREE.Math.degToRad(rot.y),
-      THREE.Math.degToRad(rot.z),
-      'XYZ'
-    ).normalize();
-
-    // Show wireframe
-    if (this.system.options.debug) {
-      var mesh = CANNON.shape2mesh(this.body).children[0];
-      this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
-      this.syncWireframe();
-      this.el.sceneEl.object3D.add(this.wireframe);
-    }
-
-    this.body.el = this.el;
-    this.system.addBody(this.body);
-    console.info('[static-body] loaded');
-  },
-
-  remove: function () {
-    this.system.removeBody(this.body);
-    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
-  },
-
-  /*******************************************************************
-   * Tick
-   */
-
+module.exports = AFRAME.utils.extend({}, Body, {
   tick: function () {
+    if (!this.body) return;
     if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
     if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
-    if (this.system.options.debug) this.syncWireframe();
-  },
-
-  /*******************************************************************
-   * Debugging
-   */
-
-  syncWireframe: function () {
-    this.wireframe.quaternion.copy(this.body.quaternion);
-    this.wireframe.position.copy(this.body.position);
-    this.wireframe.updateMatrix();
+    if (this.wireframe) this.syncWireframe();
   }
-};
+});
 
-},{"../../lib/CANNON-shape2mesh":3,"cannon":8}],30:[function(require,module,exports){
+},{"./body":26}],32:[function(require,module,exports){
 var CANNON = require('cannon');
 
 var OPTIONS = {
@@ -19081,7 +19093,7 @@ module.exports = {
 
 };
 
-},{"cannon":8}],31:[function(require,module,exports){
+},{"cannon":9}],33:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -19090,23 +19102,24 @@ module.exports = {
 module.exports = {
   defaultAttributes: {
     geometry: {
-      primitive: 'plane'
+      primitive: 'plane',
+      width: 75,
+      height: 75
     },
     rotation: {x: -90, y: 0, z: 0},
-    scale: {x: 75, y: 75, z: 1},
     material: {
       src: 'url(../../assets/grid.png)',
       repeat: '75 75'
     }
   },
   mappings: {
-    width: 'scale.x',
-    depth: 'scale.y',
+    width: 'geometry.width',
+    depth: 'geometry.depth',
     src: 'material.src'
   }
 };
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
   registerAll: function (AFRAME) {
@@ -19116,7 +19129,7 @@ module.exports = {
   }
 };
 
-},{"./a-grid":31}],33:[function(require,module,exports){
+},{"./a-grid":33}],35:[function(require,module,exports){
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
@@ -19128,7 +19141,7 @@ module.exports = {
   }
 };
 
-},{"./shadow":35,"./shadow-light":34}],34:[function(require,module,exports){
+},{"./shadow":37,"./shadow-light":36}],36:[function(require,module,exports){
 /**
  * Light component.
  *
@@ -19269,7 +19282,7 @@ module.exports = {
   }
 };
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * Shadow component.
  *
