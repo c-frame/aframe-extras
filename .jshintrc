@@ -1,0 +1,31 @@
+{
+  "globals": {
+    "THREE": false,
+    "AFRAME": false,
+    "window": false,
+    "document": false,
+    "require": false,
+    "console": false,
+    "module": false
+  },
+  "bitwise": false,
+  "browser": true,
+  "eqeqeq": true,
+  "esnext": true,
+  "expr": true,
+  "forin": true,
+  "immed": true,
+  "latedef": "nofunc",
+  "laxbreak": true,
+  "maxlen": 100,
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "noyield": true,
+  "quotmark": "single",
+  "smarttabs": false,
+  "trailing": true,
+  "undef": true,
+  "unused": true,
+  "white": false
+}
