@@ -8,7 +8,7 @@
     <script src="../aframe-extras.js"></script>
   </head>
   <body>
-    <a-scene physics>
+    <a-scene>
       <!-- Player -->
       <a-entity camera
                 universal-controls
@@ -54,18 +54,15 @@
       <a-box color="#39BB82"
              width="1" height="1" depth="1"
              position="15 2 0.6"
-             quaternion="0 0 0 0"
-             dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-box>
+             dynamic-body></a-box>
       <a-box color="#39BB82"
              width="1" height="1" depth="1"
              position="15 2 -0.6"
-             quaternion="0 0 0 0"
-             dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-box>
+             dynamic-body></a-box>
       <a-box color="#39BB82"
              width="1" height="1" depth="1"
              position="15 4 0"
-             quaternion="0 0 0 0"
-             dynamic-body="width: 1; height: 1; depth: 1; mass: 2;"></a-box>
+             dynamic-body></a-box>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#bbb"></a-light>
