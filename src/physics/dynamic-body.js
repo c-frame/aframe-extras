@@ -14,7 +14,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
     angularDamping: { default: 0.01 }
   },
 
-  tick: function () {
+  step: function () {
     if (!this.body) return;
     this.el.setAttribute('quaternion', this.body.quaternion);
     this.el.setAttribute('position', this.body.position);

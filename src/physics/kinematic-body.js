@@ -37,6 +37,8 @@ module.exports = {
 
   init: function () {
     this.system = this.el.sceneEl.systems.physics;
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
+
 
     var el = this.el,
         data = this.data,
@@ -58,6 +60,7 @@ module.exports = {
 
   remove: function () {
     this.system.removeBody(this.body);
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
   },
 
   /*******************************************************************
@@ -74,7 +77,7 @@ module.exports = {
    *     If in contact with two ground surfaces (e.g. ground + ramp), choose
    *     the one that collides with current velocity, if any.
    */
-  tick: (function () {
+  step: (function () {
     var velocity = new THREE.Vector3(),
         currentSurfaceNormal = new THREE.Vector3(),
         groundNormal = new THREE.Vector3();

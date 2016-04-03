@@ -12,6 +12,7 @@ module.exports = {
 
   initBody: function () {
     this.system = this.el.sceneEl.systems.physics;
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
     var shape = object2shape(this.el.object3D);
     if (shape && this.el.sceneEl.hasLoaded) {
@@ -76,6 +77,7 @@ module.exports = {
   },
 
   remove: function () {
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
     if (this.body) this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
