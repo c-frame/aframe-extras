@@ -17742,19 +17742,11 @@ module.exports = {
     this.euler = new THREE.Euler();
     this.controls = new THREE.VRControls(this.dolly);
     this.zeroQuaternion = new THREE.Quaternion();
-
-    if (this.el.sceneEl.addBehavior) {
-      this.el.sceneEl.addBehavior(this);
-    }
   },
-
-  remove: function () {},
 
   /*******************************************************************
    * Tick
    */
-
-  update: function () { this.tick(); },
 
   tick: function (t) {
     t = t || Date.now();
@@ -17868,21 +17860,12 @@ module.exports = {
       keyup: this.onKeyUp.bind(this),
       blur: this.onBlur.bind(this)
     };
-
-    var sceneEl = this.el.sceneEl;
-    if (sceneEl.addBehavior) {
-      sceneEl.addBehavior(this);
-      this.attachEventListeners();
-    }
+    this.attachEventListeners();
   },
 
   /*******************************************************************
   * Movement
   */
-
-  tick: function () {
-    this.updateButtonState();
-  },
 
   isVelocityActive: function () { return !!Object.keys(this.getKeys()).length; },
 
@@ -17911,10 +17894,6 @@ module.exports = {
 
   pause: function () {
     this.removeEventListeners();
-  },
-
-  tick: function (t) { // jshint ignore:line
-    this.update();
   },
 
   remove: function () {
@@ -18552,21 +18531,42 @@ module.exports = {
  */
 module.exports = {
   schema: {type: 'vec3'},
-  tick: function (t, dt) {
-    if (isNaN(dt)) { return; }
 
-    var physics = this.el.sceneEl.components.physics || {data:{maxInterval: 1 / 60}},
+  init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+
+    if (this.system) {
+      this.system.addBehavior(this, this.system.Phase.RENDER);
+    }
+  },
+
+  remove: function () {
+    if (this.system) {
+      this.system.removeBehavior(this, this.system.Phase.RENDER);
+    }
+  },
+
+  tick: function (t, dt) {
+    if (isNaN(dt)) return;
+    if (this.system) return;
+    this.step(t, dt);
+  },
+
+  step: function (t, dt) {
+    if (isNaN(dt)) return;
+
+    var physics = this.el.sceneEl.systems.physics || {options:{maxInterval: 1 / 60}},
         velocity = this.el.getAttribute('velocity'), // TODO - why not this.el.data?
         position = this.el.getAttribute('position');
 
-    dt = Math.min(dt, physics.data.maxInterval * 1000);
+    dt = Math.min(dt, physics.options.maxInterval * 1000);
 
     this.el.setAttribute('position', {
       x: position.x + velocity.x * dt / 1000,
       y: position.y + velocity.y * dt / 1000,
       z: position.z + velocity.z * dt / 1000
     });
-  },
+  }
 };
 
 },{}],23:[function(require,module,exports){
@@ -18586,9 +18586,7 @@ var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
 /**
- * Adds jump ability on component.
- *
- * Depends on physics components - for standalone version, see jump-ability-lite.
+ * Jump ability.
  */
 module.exports = {
   dependencies: ['position'],
@@ -18692,6 +18690,7 @@ module.exports = {
 
   initBody: function () {
     this.system = this.el.sceneEl.systems.physics;
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
     var shape = object2shape(this.el.object3D);
     if (shape && this.el.sceneEl.hasLoaded) {
@@ -18756,6 +18755,7 @@ module.exports = {
   },
 
   remove: function () {
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
     if (this.body) this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
@@ -18785,7 +18785,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
     angularDamping: { default: 0.01 }
   },
 
-  tick: function () {
+  step: function () {
     if (!this.body) return;
     this.el.setAttribute('quaternion', this.body.quaternion);
     this.el.setAttribute('position', this.body.position);
@@ -18798,7 +18798,7 @@ module.exports = {
   'physics':        require('./physics'),
   'dynamic-body':   require('./dynamic-body'),
   'kinematic-body': require('./kinematic-body'),
-  'static-body':     require('./static-body'),
+  'static-body':    require('./static-body'),
   'system': {
     'physics': require('./system/physics')
   },
@@ -18855,6 +18855,7 @@ module.exports = {
 
   init: function () {
     this.system = this.el.sceneEl.systems.physics;
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
     var el = this.el,
         data = this.data,
@@ -18876,6 +18877,7 @@ module.exports = {
 
   remove: function () {
     this.system.removeBody(this.body);
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
   },
 
   /*******************************************************************
@@ -18892,8 +18894,9 @@ module.exports = {
    *     If in contact with two ground surfaces (e.g. ground + ramp), choose
    *     the one that collides with current velocity, if any.
    */
-  tick: (function () {
+  step: (function () {
     var velocity = new THREE.Vector3(),
+        normalizedVelocity = new THREE.Vector3(),
         currentSurfaceNormal = new THREE.Vector3(),
         groundNormal = new THREE.Vector3();
 
@@ -18902,7 +18905,8 @@ module.exports = {
 
       var body = this.body,
           data = this.data,
-          didCollideWithGround = false,
+          didCollide = false,
+          height, groundHeight = -Infinity,
           groundBody;
 
       dt = Math.min(dt, this.system.options.maxInterval * 1000);
@@ -18923,40 +18927,39 @@ module.exports = {
           continue;
         }
 
-        if (body.velocity.dot(currentSurfaceNormal) < -EPS) {
+        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
+        if (didCollide && currentSurfaceNormal.y <= 0.5) {
           // 2. If current trajectory attempts to move _through_ another
           // object, project the velocity against the collision plane to
           // prevent passing through.
           velocity = velocity.projectOnPlane(currentSurfaceNormal);
-
-          // 3.If colliding with something roughly horizontal (+/- 45º), then
-          // consider that the current 'ground.'
-          if (currentSurfaceNormal.y > 0.5) {
-            didCollideWithGround = true;
+        } else if (currentSurfaceNormal.y > 0.5) {
+          // 3. If in contact with something roughly horizontal (+/- 45º) then
+          // consider that the current ground. Only the highest qualifying
+          // ground is retained.
+          height = body.id === contact.bi.id
+            ? Math.abs(contact.rj.y + contact.bj.position.y)
+            : Math.abs(contact.ri.y + contact.bi.position.y);
+          if (height > groundHeight) {
+            groundHeight = height;
             groundNormal.copy(currentSurfaceNormal);
             groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
           }
-        } else if (currentSurfaceNormal.y > 0.5 && !groundBody) {
-          // 4. If in contact with something but not trying to pass through it,
-          // and that something is horizontal, +/- 45º, then store it in case
-          // there's no other 'ground' available.
-          groundNormal.copy(currentSurfaceNormal);
-          groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
         }
       }
 
-      if (!didCollideWithGround && groundNormal.y && velocity.y < EPS) {
-        // 5. If not colliding with anything horizontal, but still in contact
-        // with a horizontal surface, pretend it's a collision. Ignore this if
-        // vertical velocity is > 0, to allow jumping.
+      normalizedVelocity.copy(velocity).normalize();
+      if (groundBody && normalizedVelocity.y < 0.5) {
+        // 4. Project trajectory onto the top-most ground object, unless
+        // trajectory is > 45º.
         velocity = velocity.projectOnPlane(groundNormal);
-      } else if (!didCollideWithGround) {
-        // 6. If not in contact with anything horizontal, apply world gravity.
+      } else {
+        // 5. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
         velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
       }
 
-      // 7. If the ground surface has a velocity, apply it directly to current
+      // 6. If the ground surface has a velocity, apply it directly to current
       // position, not velocity, to preserve relative velocity.
       if (groundBody && groundBody.el && groundBody.el.components.velocity) {
         var groundVelocity = groundBody.el.getAttribute('velocity');
@@ -19013,7 +19016,7 @@ var Body = require('./body');
  * other objects may collide with it.
  */
 module.exports = AFRAME.utils.extend({}, Body, {
-  tick: function () {
+  step: function () {
     if (!this.body) return;
     if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
     if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
@@ -19042,8 +19045,21 @@ var OPTIONS = {
  * Physics system.
  */
 module.exports = {
+  /**
+   * Update phases, used to separate physics simulation from updates to A-Frame scene.
+   * @enum {string}
+   */
+  Phase: {
+    SIMULATE: 'sim',
+    RENDER:   'render'
+  },
+
   init: function () {
     this.options = AFRAME.utils.extend({}, OPTIONS);
+
+    this.children = {};
+    this.children[this.Phase.SIMULATE] = [];
+    this.children[this.Phase.RENDER] = [];
 
     this.world = new CANNON.World();
     this.world.quatNormalizeSkip = 0;
@@ -19080,7 +19096,17 @@ module.exports = {
 
   tick: function (t, dt) {
     if (isNaN(dt)) return;
+
     this.world.step(Math.min(dt / 1000, this.options.maxInterval));
+
+    var i;
+    for (i = 0; i < this.children[this.Phase.SIMULATE].length; i++) {
+      this.children[this.Phase.SIMULATE][i].step(t, dt);
+    }
+
+    for (i = 0; i < this.children[this.Phase.RENDER].length; i++) {
+      this.children[this.Phase.RENDER][i].step(t, dt);
+    }
   },
 
   addBody: function (body) {
@@ -19089,8 +19115,15 @@ module.exports = {
 
   removeBody: function (body) {
     this.world.removeBody(body);
-  }
+  },
 
+  addBehavior: function (component, phase) {
+    this.children[phase].push(component);
+  },
+
+  removeBehavior: function (component, phase) {
+    this.children[phase].splice(this.children[phase].indexOf(component), 1);
+  }
 };
 
 },{"cannon":9}],33:[function(require,module,exports){
