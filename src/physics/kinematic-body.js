@@ -39,7 +39,6 @@ module.exports = {
     this.system = this.el.sceneEl.systems.physics;
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
-
     var el = this.el,
         data = this.data,
         position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
@@ -79,6 +78,7 @@ module.exports = {
    */
   step: (function () {
     var velocity = new THREE.Vector3(),
+        normalizedVelocity = new THREE.Vector3(),
         currentSurfaceNormal = new THREE.Vector3(),
         groundNormal = new THREE.Vector3();
 
@@ -87,7 +87,8 @@ module.exports = {
 
       var body = this.body,
           data = this.data,
-          didCollideWithGround = false,
+          didCollide = false,
+          height, groundHeight = -Infinity,
           groundBody;
 
       dt = Math.min(dt, this.system.options.maxInterval * 1000);
@@ -108,40 +109,39 @@ module.exports = {
           continue;
         }
 
-        if (body.velocity.dot(currentSurfaceNormal) < -EPS) {
+        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
+        if (didCollide && currentSurfaceNormal.y <= 0.5) {
           // 2. If current trajectory attempts to move _through_ another
           // object, project the velocity against the collision plane to
           // prevent passing through.
           velocity = velocity.projectOnPlane(currentSurfaceNormal);
-
-          // 3.If colliding with something roughly horizontal (+/- 45º), then
-          // consider that the current 'ground.'
-          if (currentSurfaceNormal.y > 0.5) {
-            didCollideWithGround = true;
+        } else if (currentSurfaceNormal.y > 0.5) {
+          // 3. If in contact with something roughly horizontal (+/- 45º) then
+          // consider that the current ground. Only the highest qualifying
+          // ground is retained.
+          height = body.id === contact.bi.id
+            ? Math.abs(contact.rj.y + contact.bj.position.y)
+            : Math.abs(contact.ri.y + contact.bi.position.y);
+          if (height > groundHeight) {
+            groundHeight = height;
             groundNormal.copy(currentSurfaceNormal);
             groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
           }
-        } else if (currentSurfaceNormal.y > 0.5 && !groundBody) {
-          // 4. If in contact with something but not trying to pass through it,
-          // and that something is horizontal, +/- 45º, then store it in case
-          // there's no other 'ground' available.
-          groundNormal.copy(currentSurfaceNormal);
-          groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
         }
       }
 
-      if (!didCollideWithGround && groundNormal.y && velocity.y < EPS) {
-        // 5. If not colliding with anything horizontal, but still in contact
-        // with a horizontal surface, pretend it's a collision. Ignore this if
-        // vertical velocity is > 0, to allow jumping.
+      normalizedVelocity.copy(velocity).normalize();
+      if (groundBody && normalizedVelocity.y < 0.5) {
+        // 4. Project trajectory onto the top-most ground object, unless
+        // trajectory is > 45º.
         velocity = velocity.projectOnPlane(groundNormal);
-      } else if (!didCollideWithGround) {
-        // 6. If not in contact with anything horizontal, apply world gravity.
+      } else {
+        // 5. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
         velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
       }
 
-      // 7. If the ground surface has a velocity, apply it directly to current
+      // 6. If the ground surface has a velocity, apply it directly to current
       // position, not velocity, to preserve relative velocity.
       if (groundBody && groundBody.el && groundBody.el.components.velocity) {
         var groundVelocity = groundBody.el.getAttribute('velocity');
