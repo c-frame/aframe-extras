@@ -2,24 +2,31 @@
 require('./').registerAll();
 
 },{"./":2}],2:[function(require,module,exports){
-module.exports = {
+var extras = {
   controls:   require('./src/controls'),
   loaders:    require('./src/loaders'),
   math:       require('./src/math'),
   misc:       require('./src/misc'),
   physics:    require('./src/physics'),
   primitives: require('./src/primitives'),
-  shadows:    require('./src/shadows'),
-  registerAll: function () {
-    this.controls.registerAll();
-    this.loaders.registerAll();
-    this.math.registerAll();
-    this.misc.registerAll();
-    this.physics.registerAll();
-    this.primitives.registerAll();
-    this.shadows.registerAll();
-  }
+  shadows:    require('./src/shadows')
 };
+
+Object.keys(extras).forEach(function (name) {
+  extras[name].extras = extras;
+});
+
+extras.registerAll = function () {
+  this.controls.registerAll();
+  this.loaders.registerAll();
+  this.math.registerAll();
+  this.misc.registerAll();
+  this.physics.registerAll();
+  this.primitives.registerAll();
+  this.shadows.registerAll();
+};
+
+module.exports = extras;
 
 },{"./src/controls":12,"./src/loaders":18,"./src/math":20,"./src/misc":23,"./src/physics":28,"./src/primitives":34,"./src/shadows":35}],3:[function(require,module,exports){
 /**
@@ -17815,14 +17822,20 @@ module.exports = {
   'touch-controls':     require('./touch-controls'),
   'universal-controls': require('./universal-controls'),
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
+
+    this.extras.math.registerAll();
     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
     AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
     AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
     AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
     AFRAME.registerComponent('touch-controls',      this['touch-controls']);
     AFRAME.registerComponent('universal-controls',  this['universal-controls']);
+
+    this._registered = true;
   }
 };
 
@@ -18417,10 +18430,14 @@ module.exports = {
   'fbx-model':   require('./fbx-model'),
   'three-model': require('./three-model'),
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
     AFRAME.registerComponent('fbx-model',   this['fbx-model']);
     AFRAME.registerComponent('three-model', this['three-model']);
+
+    this._registered = true;
   }
 };
 
@@ -18501,10 +18518,14 @@ module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('velocity',   this['velocity']);
-    AFRAME.registerComponent('quaternion', this['quaternion']);
+    AFRAME.registerComponent('velocity',   this.velocity);
+    AFRAME.registerComponent('quaternion', this.quaternion);
+
+    this._registered = true;
   }
 };
 
@@ -18574,10 +18595,17 @@ module.exports = {
   'jump-ability':      require('./jump-ability'),
   'toggle-velocity':   require('./toggle-velocity'),
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
+
+    this.extras.math.registerAll();
+    this.extras.physics.registerAll();
     AFRAME.registerComponent('jump-ability',      this['jump-ability']);
     AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
+
+    this._registered = true;
   }
 };
 
@@ -18589,7 +18617,7 @@ var ACCEL_G = -9.8, // m/s^2
  * Jump ability.
  */
 module.exports = {
-  dependencies: ['position'],
+  dependencies: ['velocity'],
 
   /* Schema
   ——————————————————————————————————————————————*/
@@ -18803,15 +18831,19 @@ module.exports = {
     'physics': require('./system/physics')
   },
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
+    this.extras.math.registerAll();
     AFRAME.registerSystem('physics', this.system.physics);
-
     AFRAME.registerComponent('physics',        this['physics']);
     AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
     AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
     AFRAME.registerComponent('static-body',    this['static-body']);
+
+    this._registered = true;
   }
 };
 
@@ -18830,6 +18862,7 @@ module.exports = {
  * translate nicely to rigid body physics.
  *
  * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
+ * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
  */
 var CANNON = require('cannon');
 
@@ -19156,9 +19189,13 @@ module.exports = {
 module.exports = {
   'a-grid':        require('./a-grid'),
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
     AFRAME.registerPrimitive('a-grid', this['a-grid']);
+
+    this._registered = true;
   }
 };
 
@@ -19167,10 +19204,14 @@ module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
     AFRAME.registerComponent('shadow',        this['shadow']);
     AFRAME.registerComponent('shadow-light',  this['shadow-light']);
+
+    this._registered = true;
   }
 };
 
