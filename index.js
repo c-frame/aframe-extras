@@ -1,11 +1,11 @@
 var extras = {
-  controls: require('./src/controls'),
-  loaders: require('./src/loaders'),
-  math: require('./src/math'),
-  misc: require('./src/misc'),
-  physics: require('./src/physics'),
+  controls:   require('./src/controls'),
+  loaders:    require('./src/loaders'),
+  math:       require('./src/math'),
+  misc:       require('./src/misc'),
+  physics:    require('./src/physics'),
   primitives: require('./src/primitives'),
-  shadows: require('./src/shadows')
+  shadows:    require('./src/shadows')
 };
 
 Object.keys(extras).forEach(function (name) {
