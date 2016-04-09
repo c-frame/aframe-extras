@@ -5,7 +5,7 @@ var ACCEL_G = -9.8, // m/s^2
  * Jump ability.
  */
 module.exports = {
-  dependencies: ['position'],
+  dependencies: ['velocity'],
 
   /* Schema
   ——————————————————————————————————————————————*/

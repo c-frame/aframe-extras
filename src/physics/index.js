@@ -7,14 +7,18 @@ module.exports = {
     'physics': require('./system/physics')
   },
   registerAll: function (AFRAME) {
+    if (this._registered) return;
+
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
+    this.extras.math.registerAll();
     AFRAME.registerSystem('physics', this.system.physics);
-
     AFRAME.registerComponent('physics',        this['physics']);
     AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
     AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
     AFRAME.registerComponent('static-body',    this['static-body']);
+
+    this._registered = true;
   }
 };
