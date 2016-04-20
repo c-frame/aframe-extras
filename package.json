@@ -11,10 +11,6 @@
   },
   "dependencies": {
     "aframe": "^0.2.0",
-    "aframe-gamepad-controls": "^0.3.5",
-    "aframe-keyboard-controls": "^0.2.2",
-    "aframe-obj-loader-component": "^0.1.0",
-    "aframe-proxy-controls": "^0.6.0",
     "cannon": "^0.6.2"
   },
   "devDependencies": {
