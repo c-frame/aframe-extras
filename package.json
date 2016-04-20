@@ -10,7 +10,6 @@
     "url": "git+https://github.com/donmccurdy/aframe-extras.git"
   },
   "dependencies": {
-    "aframe": "^0.2.0",
     "cannon": "^0.6.2"
   },
   "devDependencies": {
