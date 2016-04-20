@@ -9,6 +9,9 @@
     "type": "git",
     "url": "git+https://github.com/donmccurdy/aframe-extras.git"
   },
+  "peerDependencies": {
+    "aframe": "^0.2.0"
+  },
   "dependencies": {
     "cannon": "^0.6.2"
   },
