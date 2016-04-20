@@ -4,7 +4,7 @@ Add-ons and helpers for A-Frame VR.
 
 ## Usage (Scripts)
 
-In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/assets) folder, download any package(s) you need. Include the scripts on your page:
+In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page:
 
 ```html
 <script src="./aframe-extras.min.js"></script>
