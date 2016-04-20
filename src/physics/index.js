@@ -12,12 +12,12 @@ module.exports = {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    this.extras.math.registerAll();
-    AFRAME.registerSystem('physics', this.system.physics);
-    AFRAME.registerComponent('physics',        this['physics']);
-    AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
-    AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
-    AFRAME.registerComponent('static-body',    this['static-body']);
+    if (this.extras) this.extras.math.registerAll();
+    if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics', this.system.physics);
+    if (!AFRAME.components['physics'])        AFRAME.registerComponent('physics',        this['physics']);
+    if (!AFRAME.components['dynamic-body'])   AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
+    if (!AFRAME.components['kinematic-body']) AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
+    if (!AFRAME.components['static-body'])    AFRAME.registerComponent('static-body',    this['static-body']);
 
     this._registered = true;
   }

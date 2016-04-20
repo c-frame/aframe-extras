@@ -6,8 +6,8 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('shadow',        this['shadow']);
-    AFRAME.registerComponent('shadow-light',  this['shadow-light']);
+    if (!AFRAME.components['shadow'])       AFRAME.registerComponent('shadow',        this['shadow']);
+    if (!AFRAME.components['shadow-light']) AFRAME.registerComponent('shadow-light',  this['shadow-light']);
 
     this._registered = true;
   }

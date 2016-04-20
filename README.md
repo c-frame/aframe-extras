@@ -2,6 +2,16 @@
 
 Add-ons and helpers for A-Frame VR.
 
+## Usage (Scripts)
+
+In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/assets) folder, download any package(s) you need. Include the scripts on your page:
+
+```html
+<script src="./aframe-extras.min.js"></script>
+```
+
+Each package's components are automatically registered for you.
+
 ## Usage (NPM)
 
 ```
@@ -9,15 +19,22 @@ npm install --save aframe-extras
 ```
 
 ```javascript
+// custom-extras.js
+
 var extras = require('aframe-extras');
 AFRAME.registerComponent('velocity', extras.math.velocity); // Register a single component.
-extras.physics.registerAll();                               // Register a particular package.
+extras.physics.registerAll();                               // Register a particular package, and its dependencies.
 extras.registerAll();                                       // Register everything.
 ```
 
-## Usage (Global)
+Once installed, you'll need to compile your JavaScript using something like [Browserify](http://browserify.org/) or [Webpack](http://webpack.github.io/). Example:
 
-*Coming soon*.
+```bash
+npm install -g browserify
+browserify custom-extras.js -o bundle.js
+```
+
+`bundle.js` may then be included in your page. See [here](http://browserify.org/#middle-section) for a better introduction to Browserify.
 
 ## Add-ons
 

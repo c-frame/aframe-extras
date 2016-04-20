@@ -7,10 +7,10 @@ module.exports = {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    this.extras.math.registerAll();
-    this.extras.physics.registerAll();
-    AFRAME.registerComponent('jump-ability',      this['jump-ability']);
-    AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
+    if (this.extras) this.extras.math.registerAll();
+    if (this.extras) this.extras.physics.registerAll();
+    if (!AFRAME.components['jump-ability'])     AFRAME.registerComponent('jump-ability',      this['jump-ability']);
+    if (!AFRAME.components['toggle-velocity'])  AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
 
     this._registered = true;
   }

@@ -11,13 +11,13 @@ module.exports = {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    this.extras.math.registerAll();
-    AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
-    AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
-    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
-    AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
-    AFRAME.registerComponent('touch-controls',      this['touch-controls']);
-    AFRAME.registerComponent('universal-controls',  this['universal-controls']);
+    if (this.extras) this.extras.math.registerAll();
+    if (!AFRAME.components['gamepad-controls'])   AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
+    if (!AFRAME.components['hmd-controls'])       AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
+    if (!AFRAME.components['keyboard-controls'])  AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
+    if (!AFRAME.components['mouse-controls'])     AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
+    if (!AFRAME.components['touch-controls'])     AFRAME.registerComponent('touch-controls',      this['touch-controls']);
+    if (!AFRAME.components['universal-controls']) AFRAME.registerComponent('universal-controls',  this['universal-controls']);
 
     this._registered = true;
   }

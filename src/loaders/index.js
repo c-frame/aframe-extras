@@ -6,8 +6,8 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('fbx-model',   this['fbx-model']);
-    AFRAME.registerComponent('three-model', this['three-model']);
+    if (!AFRAME.components['fbx-model'])    AFRAME.registerComponent('fbx-model',   this['fbx-model']);
+    if (!AFRAME.components['three-model'])  AFRAME.registerComponent('three-model', this['three-model']);
 
     this._registered = true;
   }

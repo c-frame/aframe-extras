@@ -6,8 +6,8 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('velocity',   this.velocity);
-    AFRAME.registerComponent('quaternion', this.quaternion);
+    if (!AFRAME.components['velocity'])    AFRAME.registerComponent('velocity',   this.velocity);
+    if (!AFRAME.components['quaternion'])  AFRAME.registerComponent('quaternion', this.quaternion);
 
     this._registered = true;
   }
