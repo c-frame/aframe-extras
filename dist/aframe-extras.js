@@ -1,6 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./').registerAll();
-
 },{"./":2}],2:[function(require,module,exports){
 var extras = {
   controls:   require('./src/controls'),
@@ -17827,13 +17826,13 @@ module.exports = {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    this.extras.math.registerAll();
-    AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
-    AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
-    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
-    AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
-    AFRAME.registerComponent('touch-controls',      this['touch-controls']);
-    AFRAME.registerComponent('universal-controls',  this['universal-controls']);
+    if (this.extras) this.extras.math.registerAll();
+    if (!AFRAME.components['gamepad-controls'])   AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
+    if (!AFRAME.components['hmd-controls'])       AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
+    if (!AFRAME.components['keyboard-controls'])  AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
+    if (!AFRAME.components['mouse-controls'])     AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
+    if (!AFRAME.components['touch-controls'])     AFRAME.registerComponent('touch-controls',      this['touch-controls']);
+    if (!AFRAME.components['universal-controls']) AFRAME.registerComponent('universal-controls',  this['universal-controls']);
 
     this._registered = true;
   }
@@ -18434,8 +18433,8 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('fbx-model',   this['fbx-model']);
-    AFRAME.registerComponent('three-model', this['three-model']);
+    if (!AFRAME.components['fbx-model'])    AFRAME.registerComponent('fbx-model',   this['fbx-model']);
+    if (!AFRAME.components['three-model'])  AFRAME.registerComponent('three-model', this['three-model']);
 
     this._registered = true;
   }
@@ -18522,8 +18521,8 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('velocity',   this.velocity);
-    AFRAME.registerComponent('quaternion', this.quaternion);
+    if (!AFRAME.components['velocity'])    AFRAME.registerComponent('velocity',   this.velocity);
+    if (!AFRAME.components['quaternion'])  AFRAME.registerComponent('quaternion', this.quaternion);
 
     this._registered = true;
   }
@@ -18600,10 +18599,10 @@ module.exports = {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    this.extras.math.registerAll();
-    this.extras.physics.registerAll();
-    AFRAME.registerComponent('jump-ability',      this['jump-ability']);
-    AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
+    if (this.extras) this.extras.math.registerAll();
+    if (this.extras) this.extras.physics.registerAll();
+    if (!AFRAME.components['jump-ability'])     AFRAME.registerComponent('jump-ability',      this['jump-ability']);
+    if (!AFRAME.components['toggle-velocity'])  AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
 
     this._registered = true;
   }
@@ -18836,12 +18835,12 @@ module.exports = {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    this.extras.math.registerAll();
-    AFRAME.registerSystem('physics', this.system.physics);
-    AFRAME.registerComponent('physics',        this['physics']);
-    AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
-    AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
-    AFRAME.registerComponent('static-body',    this['static-body']);
+    if (this.extras) this.extras.math.registerAll();
+    if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics', this.system.physics);
+    if (!AFRAME.components['physics'])        AFRAME.registerComponent('physics',        this['physics']);
+    if (!AFRAME.components['dynamic-body'])   AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
+    if (!AFRAME.components['kinematic-body']) AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
+    if (!AFRAME.components['static-body'])    AFRAME.registerComponent('static-body',    this['static-body']);
 
     this._registered = true;
   }
@@ -19208,8 +19207,8 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    AFRAME.registerComponent('shadow',        this['shadow']);
-    AFRAME.registerComponent('shadow-light',  this['shadow-light']);
+    if (!AFRAME.components['shadow'])       AFRAME.registerComponent('shadow',        this['shadow']);
+    if (!AFRAME.components['shadow-light']) AFRAME.registerComponent('shadow-light',  this['shadow-light']);
 
     this._registered = true;
   }
