@@ -1,6 +1,7 @@
 module.exports = {
   'fbx-model':   require('./fbx-model'),
   'three-model': require('./three-model'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 

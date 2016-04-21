@@ -1,6 +1,7 @@
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 

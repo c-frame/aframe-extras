@@ -1,6 +1,7 @@
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 

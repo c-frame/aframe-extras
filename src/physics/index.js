@@ -1,3 +1,5 @@
+var math = require('../math');
+
 module.exports = {
   'physics':        require('./physics'),
   'dynamic-body':   require('./dynamic-body'),
@@ -6,13 +8,14 @@ module.exports = {
   'system': {
     'physics': require('./system/physics')
   },
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    if (this.extras) this.extras.math.registerAll();
+    math.registerAll();
     if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics', this.system.physics);
     if (!AFRAME.components['physics'])        AFRAME.registerComponent('physics',        this['physics']);
     if (!AFRAME.components['dynamic-body'])   AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);

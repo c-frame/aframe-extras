@@ -8,15 +8,7 @@ var chalk = require('chalk'),
     Readable = require('stream').Readable;
 
 var DIST_DIR = 'dist',
-    PACKAGES = {
-      controls: ['math'],
-      loaders: [],
-      math: [],
-      misc: ['math', 'physics'],
-      physics: ['math'],
-      primitives: [],
-      shadows: []
-    };
+    PACKAGES = ['controls', 'loaders', 'math', 'misc', 'physics', 'primitives', 'shadows'];
 
 var streams = {};
 
@@ -27,15 +19,11 @@ stream.push(null);
 streams['aframe-extras.js'] = stream;
 
 // Individual packages.
-Object.keys(PACKAGES).forEach((name) => {
-  var stream = new Readable(),
-      fileName = `aframe-extras.${name}.js`;
+PACKAGES.forEach((name) => {
+  var stream = new Readable();
   stream.push(`require('./src/${name}').registerAll();`);
-  PACKAGES[name].forEach((dep) => {
-    stream.push(`require('./src/${dep}').registerAll();`);
-  });
   stream.push(null);
-  streams[fileName] = stream;
+  streams[`aframe-extras.${name}.js`] = stream;
 });
 
 // Browserify.
