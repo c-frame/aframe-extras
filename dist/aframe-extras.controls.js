@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-require('./src/controls').registerAll();require('./src/math').registerAll();
-},{"./src/controls":7,"./src/math":12}],2:[function(require,module,exports){
+require('./src/controls').registerAll();
+},{"./src/controls":7}],2:[function(require,module,exports){
 module.exports = Object.assign(function GamepadButton () {}, {
 	FACE_1: 0,
 	FACE_2: 1,
@@ -1110,6 +1110,8 @@ module.exports = {
 };
 
 },{}],7:[function(require,module,exports){
+var math = require('../math');
+
 module.exports = {
   'gamepad-controls':   require('./gamepad-controls'),
   'hmd-controls':       require('./hmd-controls'),
@@ -1117,13 +1119,14 @@ module.exports = {
   'mouse-controls':     require('./mouse-controls'),
   'touch-controls':     require('./touch-controls'),
   'universal-controls': require('./universal-controls'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    if (this.extras) this.extras.math.registerAll();
+    math.registerAll();
     if (!AFRAME.components['gamepad-controls'])   AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
     if (!AFRAME.components['hmd-controls'])       AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
     if (!AFRAME.components['keyboard-controls'])  AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
@@ -1135,7 +1138,7 @@ module.exports = {
   }
 };
 
-},{"./gamepad-controls":5,"./hmd-controls":6,"./keyboard-controls":8,"./mouse-controls":9,"./touch-controls":10,"./universal-controls":11}],8:[function(require,module,exports){
+},{"../math":12,"./gamepad-controls":5,"./hmd-controls":6,"./keyboard-controls":8,"./mouse-controls":9,"./touch-controls":10,"./universal-controls":11}],8:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -1676,6 +1679,7 @@ module.exports = {
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 

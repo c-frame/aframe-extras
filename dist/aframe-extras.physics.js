@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-require('./src/physics').registerAll();require('./src/math').registerAll();
-},{"./src/math":5,"./src/physics":10}],2:[function(require,module,exports){
+require('./src/physics').registerAll();
+},{"./src/physics":10}],2:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -13916,6 +13916,7 @@ World.prototype.clearForces = function(){
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
@@ -14108,6 +14109,8 @@ module.exports = AFRAME.utils.extend({}, Body, {
 });
 
 },{"./body":8}],10:[function(require,module,exports){
+var math = require('../math');
+
 module.exports = {
   'physics':        require('./physics'),
   'dynamic-body':   require('./dynamic-body'),
@@ -14116,13 +14119,14 @@ module.exports = {
   'system': {
     'physics': require('./system/physics')
   },
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    if (this.extras) this.extras.math.registerAll();
+    math.registerAll();
     if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics', this.system.physics);
     if (!AFRAME.components['physics'])        AFRAME.registerComponent('physics',        this['physics']);
     if (!AFRAME.components['dynamic-body'])   AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
@@ -14133,7 +14137,7 @@ module.exports = {
   }
 };
 
-},{"./dynamic-body":9,"./kinematic-body":11,"./physics":12,"./static-body":13,"./system/physics":14}],11:[function(require,module,exports){
+},{"../math":5,"./dynamic-body":9,"./kinematic-body":11,"./physics":12,"./static-body":13,"./system/physics":14}],11:[function(require,module,exports){
 /**
  * Kinematic body.
  *

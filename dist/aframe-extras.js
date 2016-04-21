@@ -1,31 +1,25 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./').registerAll();
 },{"./":2}],2:[function(require,module,exports){
-var extras = {
+module.exports = {
   controls:   require('./src/controls'),
   loaders:    require('./src/loaders'),
   math:       require('./src/math'),
   misc:       require('./src/misc'),
   physics:    require('./src/physics'),
   primitives: require('./src/primitives'),
-  shadows:    require('./src/shadows')
+  shadows:    require('./src/shadows'),
+
+  registerAll: function () {
+    this.controls.registerAll();
+    this.loaders.registerAll();
+    this.math.registerAll();
+    this.misc.registerAll();
+    this.physics.registerAll();
+    this.primitives.registerAll();
+    this.shadows.registerAll();
+  }
 };
-
-Object.keys(extras).forEach(function (name) {
-  extras[name].extras = extras;
-});
-
-extras.registerAll = function () {
-  this.controls.registerAll();
-  this.loaders.registerAll();
-  this.math.registerAll();
-  this.misc.registerAll();
-  this.physics.registerAll();
-  this.primitives.registerAll();
-  this.shadows.registerAll();
-};
-
-module.exports = extras;
 
 },{"./src/controls":12,"./src/loaders":18,"./src/math":20,"./src/misc":23,"./src/physics":28,"./src/primitives":34,"./src/shadows":35}],3:[function(require,module,exports){
 /**
@@ -17813,6 +17807,8 @@ module.exports = {
 };
 
 },{}],12:[function(require,module,exports){
+var math = require('../math');
+
 module.exports = {
   'gamepad-controls':   require('./gamepad-controls'),
   'hmd-controls':       require('./hmd-controls'),
@@ -17820,13 +17816,14 @@ module.exports = {
   'mouse-controls':     require('./mouse-controls'),
   'touch-controls':     require('./touch-controls'),
   'universal-controls': require('./universal-controls'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    if (this.extras) this.extras.math.registerAll();
+    math.registerAll();
     if (!AFRAME.components['gamepad-controls'])   AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
     if (!AFRAME.components['hmd-controls'])       AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
     if (!AFRAME.components['keyboard-controls'])  AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
@@ -17838,7 +17835,7 @@ module.exports = {
   }
 };
 
-},{"./gamepad-controls":10,"./hmd-controls":11,"./keyboard-controls":13,"./mouse-controls":14,"./touch-controls":15,"./universal-controls":16}],13:[function(require,module,exports){
+},{"../math":20,"./gamepad-controls":10,"./hmd-controls":11,"./keyboard-controls":13,"./mouse-controls":14,"./touch-controls":15,"./universal-controls":16}],13:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -18428,6 +18425,7 @@ module.exports = {
 module.exports = {
   'fbx-model':   require('./fbx-model'),
   'three-model': require('./three-model'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
@@ -18516,6 +18514,7 @@ module.exports = {
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
@@ -18590,17 +18589,21 @@ module.exports = {
 };
 
 },{}],23:[function(require,module,exports){
+var math = require('../math'),
+    physics = require('../physics');
+
 module.exports = {
   'jump-ability':      require('./jump-ability'),
   'toggle-velocity':   require('./toggle-velocity'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    if (this.extras) this.extras.math.registerAll();
-    if (this.extras) this.extras.physics.registerAll();
+    math.registerAll();
+    physics.registerAll();
     if (!AFRAME.components['jump-ability'])     AFRAME.registerComponent('jump-ability',      this['jump-ability']);
     if (!AFRAME.components['toggle-velocity'])  AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
 
@@ -18608,7 +18611,7 @@ module.exports = {
   }
 };
 
-},{"./jump-ability":24,"./toggle-velocity":25}],24:[function(require,module,exports){
+},{"../math":20,"../physics":28,"./jump-ability":24,"./toggle-velocity":25}],24:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -18821,6 +18824,8 @@ module.exports = AFRAME.utils.extend({}, Body, {
 });
 
 },{"./body":26}],28:[function(require,module,exports){
+var math = require('../math');
+
 module.exports = {
   'physics':        require('./physics'),
   'dynamic-body':   require('./dynamic-body'),
@@ -18829,13 +18834,14 @@ module.exports = {
   'system': {
     'physics': require('./system/physics')
   },
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
 
-    if (this.extras) this.extras.math.registerAll();
+    math.registerAll();
     if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics', this.system.physics);
     if (!AFRAME.components['physics'])        AFRAME.registerComponent('physics',        this['physics']);
     if (!AFRAME.components['dynamic-body'])   AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
@@ -18846,7 +18852,7 @@ module.exports = {
   }
 };
 
-},{"./dynamic-body":27,"./kinematic-body":29,"./physics":30,"./static-body":31,"./system/physics":32}],29:[function(require,module,exports){
+},{"../math":20,"./dynamic-body":27,"./kinematic-body":29,"./physics":30,"./static-body":31,"./system/physics":32}],29:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -19187,6 +19193,7 @@ module.exports = {
 },{}],34:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
@@ -19202,6 +19209,7 @@ module.exports = {
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 

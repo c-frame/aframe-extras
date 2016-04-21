@@ -29,6 +29,7 @@ module.exports = {
 },{}],3:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
+
   registerAll: function (AFRAME) {
     if (this._registered) return;
 
