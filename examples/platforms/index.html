@@ -48,11 +48,6 @@ document.querySelector('a-scene').addEventListener('render-target-loaded', funct
 
   var platformsEl = document.querySelector('#platforms');
 
-  var dims = ''
-    + 'width: ' + PLATFORM_SIZE + '; '
-    + 'height: ' + PLATFORM_SIZE + '; '
-    + 'depth: ' + PLATFORM_SIZE + ';';
-
   var v, box;
   for (var i = 0;  i < NUM_PLATFORMS; i++) {
     v = {
