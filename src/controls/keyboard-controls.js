@@ -38,7 +38,9 @@ module.exports = {
   * Movement
   */
 
-  isVelocityActive: function () { return !!Object.keys(this.getKeys()).length; },
+  isVelocityActive: function () {
+    return this.data.enabled && !!Object.keys(this.getKeys()).length;
+  },
 
   getVelocityDelta: function () {
     var data = this.data,
