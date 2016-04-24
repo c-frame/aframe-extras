@@ -21,7 +21,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":12,"./src/loaders":18,"./src/math":20,"./src/misc":23,"./src/physics":28,"./src/primitives":34,"./src/shadows":35}],3:[function(require,module,exports){
+},{"./src/controls":13,"./src/loaders":19,"./src/math":21,"./src/misc":25,"./src/physics":30,"./src/primitives":36,"./src/shadows":37}],3:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -17464,6 +17464,72 @@ World.prototype.clearForces = function(){
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],10:[function(require,module,exports){
+var EPS = 0.1;
+
+module.exports = {
+  schema: {
+    enabled: {default: true},
+    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
+    animateSpeed: {default: 3.0}
+  },
+
+  init: function () {
+    this.active = true;
+    this.checkpoint = null;
+
+    this.offset = new THREE.Vector3();
+    this.position = new THREE.Vector3();
+    this.targetPosition = new THREE.Vector3();
+  },
+
+  play: function () { this.active = true; },
+  pause: function () { this.active = false; },
+
+  setCheckpoint: function (checkpoint) {
+    if (!this.active) return;
+
+    this.checkpoint = checkpoint;
+    if (this.data.mode === 'teleport') {
+      this.sync();
+      this.el.setAttribute('position', this.targetPosition);
+    }
+  },
+
+  isVelocityActive: function () {
+    return !!(this.active && this.checkpoint);
+  },
+
+  getVelocity: function () {
+    if (!this.active) return;
+
+    var data = this.data,
+        offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition;
+
+    this.sync();
+    if (position.distanceTo(targetPosition) < EPS) {
+      this.checkpoint = null;
+      return offset.set(0, 0, 0);
+    }
+    offset.setLength(data.animateSpeed);
+    return offset;
+  },
+
+  sync: function () {
+    var offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition;
+
+    position.copy(this.el.getComputedAttribute('position'));
+    targetPosition.copy(this.checkpoint.getComputedAttribute('position'));
+    // TODO - Cleverer ways around this?
+    targetPosition.y = position.y;
+    offset.copy(targetPosition).sub(position);
+  }
+};
+
+},{}],11:[function(require,module,exports){
 /**
  * Gamepad controls for A-Frame.
  *
@@ -17719,7 +17785,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":5,"../../lib/GamepadButtonEvent":6}],11:[function(require,module,exports){
+},{"../../lib/GamepadButton":5,"../../lib/GamepadButtonEvent":6}],12:[function(require,module,exports){
 var TICK_DEBOUNCE = 4; // ms
 
 module.exports = {
@@ -17806,16 +17872,17 @@ module.exports = {
   }
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var math = require('../math');
 
 module.exports = {
-  'gamepad-controls':   require('./gamepad-controls'),
-  'hmd-controls':       require('./hmd-controls'),
-  'keyboard-controls':  require('./keyboard-controls'),
-  'mouse-controls':     require('./mouse-controls'),
-  'touch-controls':     require('./touch-controls'),
-  'universal-controls': require('./universal-controls'),
+  'checkpoint-controls': require('./checkpoint-controls'),
+  'gamepad-controls':    require('./gamepad-controls'),
+  'hmd-controls':        require('./hmd-controls'),
+  'keyboard-controls':   require('./keyboard-controls'),
+  'mouse-controls':      require('./mouse-controls'),
+  'touch-controls':      require('./touch-controls'),
+  'universal-controls':  require('./universal-controls'),
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
@@ -17824,18 +17891,19 @@ module.exports = {
     AFRAME = AFRAME.aframeCore || AFRAME;
 
     math.registerAll();
-    if (!AFRAME.components['gamepad-controls'])   AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
-    if (!AFRAME.components['hmd-controls'])       AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
-    if (!AFRAME.components['keyboard-controls'])  AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
-    if (!AFRAME.components['mouse-controls'])     AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
-    if (!AFRAME.components['touch-controls'])     AFRAME.registerComponent('touch-controls',      this['touch-controls']);
-    if (!AFRAME.components['universal-controls']) AFRAME.registerComponent('universal-controls',  this['universal-controls']);
+    if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
+    if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
+    if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
+    if (!AFRAME.components['keyboard-controls'])    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
+    if (!AFRAME.components['mouse-controls'])       AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
+    if (!AFRAME.components['touch-controls'])       AFRAME.registerComponent('touch-controls',      this['touch-controls']);
+    if (!AFRAME.components['universal-controls'])   AFRAME.registerComponent('universal-controls',  this['universal-controls']);
 
     this._registered = true;
   }
 };
 
-},{"../math":20,"./gamepad-controls":10,"./hmd-controls":11,"./keyboard-controls":13,"./mouse-controls":14,"./touch-controls":15,"./universal-controls":16}],13:[function(require,module,exports){
+},{"../math":21,"./checkpoint-controls":10,"./gamepad-controls":11,"./hmd-controls":12,"./keyboard-controls":14,"./mouse-controls":15,"./touch-controls":16,"./universal-controls":17}],14:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -17849,6 +17917,14 @@ var KeyboardEvent = window.KeyboardEvent;
  * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
  *
  * Bind keyboard events to components, or control your entities with the WASD keys.
+ *
+ * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
+ * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
+ * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
+ * when you care about which physical key was pressed, rather thanwhich character it corresponds
+ * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
+ * player in different directions, and that mapping should ideally be independent of keyboard
+ * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
  *
  * @namespace wasd-controls
  * keys the entity moves and if you release it will stop. Easing simulates friction.
@@ -17876,7 +17952,9 @@ module.exports = {
   * Movement
   */
 
-  isVelocityActive: function () { return !!Object.keys(this.getKeys()).length; },
+  isVelocityActive: function () {
+    return this.data.enabled && !!Object.keys(this.getKeys()).length;
+  },
 
   getVelocityDelta: function () {
     var data = this.data,
@@ -17976,7 +18054,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":7}],14:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":7}],15:[function(require,module,exports){
 /**
  * Mouse + Pointerlock controls.
  *
@@ -18116,7 +18194,7 @@ module.exports = {
   }
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = {
   schema: {
     enabled: { default: true }
@@ -18186,7 +18264,7 @@ module.exports = {
   }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Universal Controls
  *
@@ -18329,7 +18407,8 @@ module.exports = {
         if (control.getVelocityDelta) {
           dVelocity = control.getVelocityDelta(dt);
         } else if (control.getVelocity) {
-          throw new Error('getVelocity() not currently supported, use getVelocityDelta()');
+          this.el.setAttribute('velocity', control.getVelocity());
+          return;
         } else {
           throw new Error('Incompatible movement controls: ', data.movementControls[i]);
         }
@@ -18372,7 +18451,7 @@ module.exports = {
   }
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * three-model
  *
@@ -18421,7 +18500,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/FBXLoader":4}],18:[function(require,module,exports){
+},{"../../lib/FBXLoader":4}],19:[function(require,module,exports){
 module.exports = {
   'fbx-model':   require('./fbx-model'),
   'three-model': require('./three-model'),
@@ -18438,7 +18517,7 @@ module.exports = {
   }
 };
 
-},{"./fbx-model":17,"./three-model":19}],19:[function(require,module,exports){
+},{"./fbx-model":18,"./three-model":20}],20:[function(require,module,exports){
 /**
  * three-model
  *
@@ -18510,7 +18589,7 @@ module.exports = {
   }
 };
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
@@ -18527,7 +18606,7 @@ module.exports = {
   }
 };
 
-},{"./quaternion":21,"./velocity":22}],21:[function(require,module,exports){
+},{"./quaternion":22,"./velocity":23}],22:[function(require,module,exports){
 /**
  * Quaternion.
  *
@@ -18544,7 +18623,7 @@ module.exports = {
   }
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * Velocity, in m/s.
  */
@@ -18588,11 +18667,38 @@ module.exports = {
   }
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
+module.exports = {
+  schema: {
+    defaultRotation: {type: 'vec3'},
+    enableDefaultRotation: {default: false}
+  },
+
+  init: function () {
+    this.active = false;
+    this.targetEl = null;
+    this.fire = this.fire.bind(this);
+  },
+
+  play: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.addEventListener('click', this.fire); },
+  remove: function () { this.pause(); },
+
+  fire: function () {
+    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+    if (!targetEl) {
+      throw new Error('No `checkpoint-controls` component found.');
+    }
+    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
+  }
+};
+
+},{}],25:[function(require,module,exports){
 var math = require('../math'),
     physics = require('../physics');
 
 module.exports = {
+  'checkpoint':      require('./checkpoint'),
   'jump-ability':      require('./jump-ability'),
   'toggle-velocity':   require('./toggle-velocity'),
 
@@ -18604,6 +18710,7 @@ module.exports = {
 
     math.registerAll();
     physics.registerAll();
+    if (!AFRAME.components['checkpoint'])       AFRAME.registerComponent('checkpoint',        this['checkpoint']);
     if (!AFRAME.components['jump-ability'])     AFRAME.registerComponent('jump-ability',      this['jump-ability']);
     if (!AFRAME.components['toggle-velocity'])  AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
 
@@ -18611,7 +18718,7 @@ module.exports = {
   }
 };
 
-},{"../math":20,"../physics":28,"./jump-ability":24,"./toggle-velocity":25}],24:[function(require,module,exports){
+},{"../math":21,"../physics":30,"./checkpoint":24,"./jump-ability":26,"./toggle-velocity":27}],26:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -18668,7 +18775,7 @@ module.exports = {
   }
 };
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -18705,7 +18812,7 @@ module.exports = {
   },
 };
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 var CANNON = require('cannon'),
     object2shape = require('../../lib/object2shape');
 
@@ -18798,7 +18905,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/CANNON-shape2mesh":3,"../../lib/object2shape":8,"cannon":9}],27:[function(require,module,exports){
+},{"../../lib/CANNON-shape2mesh":3,"../../lib/object2shape":8,"cannon":9}],29:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -18823,7 +18930,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":26}],28:[function(require,module,exports){
+},{"./body":28}],30:[function(require,module,exports){
 var math = require('../math');
 
 module.exports = {
@@ -18852,7 +18959,7 @@ module.exports = {
   }
 };
 
-},{"../math":20,"./dynamic-body":27,"./kinematic-body":29,"./physics":30,"./static-body":31,"./system/physics":32}],29:[function(require,module,exports){
+},{"../math":21,"./dynamic-body":29,"./kinematic-body":31,"./physics":32,"./static-body":33,"./system/physics":34}],31:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -19016,7 +19123,7 @@ module.exports = {
   }())
 };
 
-},{"cannon":9}],30:[function(require,module,exports){
+},{"cannon":9}],32:[function(require,module,exports){
 
 
 module.exports = {
@@ -19044,7 +19151,7 @@ module.exports = {
   }
 };
 
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -19062,7 +19169,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":26}],32:[function(require,module,exports){
+},{"./body":28}],34:[function(require,module,exports){
 var CANNON = require('cannon');
 
 var OPTIONS = {
@@ -19164,7 +19271,7 @@ module.exports = {
   }
 };
 
-},{"cannon":9}],33:[function(require,module,exports){
+},{"cannon":9}],35:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -19190,7 +19297,7 @@ module.exports = {
   }
 };
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
 
@@ -19205,7 +19312,7 @@ module.exports = {
   }
 };
 
-},{"./a-grid":33}],35:[function(require,module,exports){
+},{"./a-grid":35}],37:[function(require,module,exports){
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
@@ -19222,7 +19329,7 @@ module.exports = {
   }
 };
 
-},{"./shadow":37,"./shadow-light":36}],36:[function(require,module,exports){
+},{"./shadow":39,"./shadow-light":38}],38:[function(require,module,exports){
 /**
  * Light component.
  *
@@ -19363,7 +19470,7 @@ module.exports = {
   }
 };
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 /**
  * Shadow component.
  *

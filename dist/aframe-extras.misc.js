@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/misc').registerAll();
-},{"./src/misc":8}],2:[function(require,module,exports){
+},{"./src/misc":9}],2:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -13991,10 +13991,37 @@ module.exports = {
 };
 
 },{}],8:[function(require,module,exports){
+module.exports = {
+  schema: {
+    defaultRotation: {type: 'vec3'},
+    enableDefaultRotation: {default: false}
+  },
+
+  init: function () {
+    this.active = false;
+    this.targetEl = null;
+    this.fire = this.fire.bind(this);
+  },
+
+  play: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.addEventListener('click', this.fire); },
+  remove: function () { this.pause(); },
+
+  fire: function () {
+    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+    if (!targetEl) {
+      throw new Error('No `checkpoint-controls` component found.');
+    }
+    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
+  }
+};
+
+},{}],9:[function(require,module,exports){
 var math = require('../math'),
     physics = require('../physics');
 
 module.exports = {
+  'checkpoint':      require('./checkpoint'),
   'jump-ability':      require('./jump-ability'),
   'toggle-velocity':   require('./toggle-velocity'),
 
@@ -14006,6 +14033,7 @@ module.exports = {
 
     math.registerAll();
     physics.registerAll();
+    if (!AFRAME.components['checkpoint'])       AFRAME.registerComponent('checkpoint',        this['checkpoint']);
     if (!AFRAME.components['jump-ability'])     AFRAME.registerComponent('jump-ability',      this['jump-ability']);
     if (!AFRAME.components['toggle-velocity'])  AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
 
@@ -14013,7 +14041,7 @@ module.exports = {
   }
 };
 
-},{"../math":5,"../physics":13,"./jump-ability":9,"./toggle-velocity":10}],9:[function(require,module,exports){
+},{"../math":5,"../physics":14,"./checkpoint":8,"./jump-ability":10,"./toggle-velocity":11}],10:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -14070,7 +14098,7 @@ module.exports = {
   }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -14107,7 +14135,7 @@ module.exports = {
   },
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var CANNON = require('cannon'),
     object2shape = require('../../lib/object2shape');
 
@@ -14200,7 +14228,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/CANNON-shape2mesh":2,"../../lib/object2shape":3,"cannon":4}],12:[function(require,module,exports){
+},{"../../lib/CANNON-shape2mesh":2,"../../lib/object2shape":3,"cannon":4}],13:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -14225,7 +14253,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":11}],13:[function(require,module,exports){
+},{"./body":12}],14:[function(require,module,exports){
 var math = require('../math');
 
 module.exports = {
@@ -14254,7 +14282,7 @@ module.exports = {
   }
 };
 
-},{"../math":5,"./dynamic-body":12,"./kinematic-body":14,"./physics":15,"./static-body":16,"./system/physics":17}],14:[function(require,module,exports){
+},{"../math":5,"./dynamic-body":13,"./kinematic-body":15,"./physics":16,"./static-body":17,"./system/physics":18}],15:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -14418,7 +14446,7 @@ module.exports = {
   }())
 };
 
-},{"cannon":4}],15:[function(require,module,exports){
+},{"cannon":4}],16:[function(require,module,exports){
 
 
 module.exports = {
@@ -14446,7 +14474,7 @@ module.exports = {
   }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -14464,7 +14492,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":11}],17:[function(require,module,exports){
+},{"./body":12}],18:[function(require,module,exports){
 var CANNON = require('cannon');
 
 var OPTIONS = {

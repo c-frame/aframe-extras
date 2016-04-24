@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/controls').registerAll();
-},{"./src/controls":7}],2:[function(require,module,exports){
+},{"./src/controls":8}],2:[function(require,module,exports){
 module.exports = Object.assign(function GamepadButton () {}, {
 	FACE_1: 0,
 	FACE_2: 1,
@@ -767,6 +767,72 @@ module.exports = GamepadButtonEvent;
 } (window));
 
 },{}],5:[function(require,module,exports){
+var EPS = 0.1;
+
+module.exports = {
+  schema: {
+    enabled: {default: true},
+    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
+    animateSpeed: {default: 3.0}
+  },
+
+  init: function () {
+    this.active = true;
+    this.checkpoint = null;
+
+    this.offset = new THREE.Vector3();
+    this.position = new THREE.Vector3();
+    this.targetPosition = new THREE.Vector3();
+  },
+
+  play: function () { this.active = true; },
+  pause: function () { this.active = false; },
+
+  setCheckpoint: function (checkpoint) {
+    if (!this.active) return;
+
+    this.checkpoint = checkpoint;
+    if (this.data.mode === 'teleport') {
+      this.sync();
+      this.el.setAttribute('position', this.targetPosition);
+    }
+  },
+
+  isVelocityActive: function () {
+    return !!(this.active && this.checkpoint);
+  },
+
+  getVelocity: function () {
+    if (!this.active) return;
+
+    var data = this.data,
+        offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition;
+
+    this.sync();
+    if (position.distanceTo(targetPosition) < EPS) {
+      this.checkpoint = null;
+      return offset.set(0, 0, 0);
+    }
+    offset.setLength(data.animateSpeed);
+    return offset;
+  },
+
+  sync: function () {
+    var offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition;
+
+    position.copy(this.el.getComputedAttribute('position'));
+    targetPosition.copy(this.checkpoint.getComputedAttribute('position'));
+    // TODO - Cleverer ways around this?
+    targetPosition.y = position.y;
+    offset.copy(targetPosition).sub(position);
+  }
+};
+
+},{}],6:[function(require,module,exports){
 /**
  * Gamepad controls for A-Frame.
  *
@@ -1022,7 +1088,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":2,"../../lib/GamepadButtonEvent":3}],6:[function(require,module,exports){
+},{"../../lib/GamepadButton":2,"../../lib/GamepadButtonEvent":3}],7:[function(require,module,exports){
 var TICK_DEBOUNCE = 4; // ms
 
 module.exports = {
@@ -1109,16 +1175,17 @@ module.exports = {
   }
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var math = require('../math');
 
 module.exports = {
-  'gamepad-controls':   require('./gamepad-controls'),
-  'hmd-controls':       require('./hmd-controls'),
-  'keyboard-controls':  require('./keyboard-controls'),
-  'mouse-controls':     require('./mouse-controls'),
-  'touch-controls':     require('./touch-controls'),
-  'universal-controls': require('./universal-controls'),
+  'checkpoint-controls': require('./checkpoint-controls'),
+  'gamepad-controls':    require('./gamepad-controls'),
+  'hmd-controls':        require('./hmd-controls'),
+  'keyboard-controls':   require('./keyboard-controls'),
+  'mouse-controls':      require('./mouse-controls'),
+  'touch-controls':      require('./touch-controls'),
+  'universal-controls':  require('./universal-controls'),
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
@@ -1127,18 +1194,19 @@ module.exports = {
     AFRAME = AFRAME.aframeCore || AFRAME;
 
     math.registerAll();
-    if (!AFRAME.components['gamepad-controls'])   AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
-    if (!AFRAME.components['hmd-controls'])       AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
-    if (!AFRAME.components['keyboard-controls'])  AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
-    if (!AFRAME.components['mouse-controls'])     AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
-    if (!AFRAME.components['touch-controls'])     AFRAME.registerComponent('touch-controls',      this['touch-controls']);
-    if (!AFRAME.components['universal-controls']) AFRAME.registerComponent('universal-controls',  this['universal-controls']);
+    if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
+    if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
+    if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
+    if (!AFRAME.components['keyboard-controls'])    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
+    if (!AFRAME.components['mouse-controls'])       AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
+    if (!AFRAME.components['touch-controls'])       AFRAME.registerComponent('touch-controls',      this['touch-controls']);
+    if (!AFRAME.components['universal-controls'])   AFRAME.registerComponent('universal-controls',  this['universal-controls']);
 
     this._registered = true;
   }
 };
 
-},{"../math":12,"./gamepad-controls":5,"./hmd-controls":6,"./keyboard-controls":8,"./mouse-controls":9,"./touch-controls":10,"./universal-controls":11}],8:[function(require,module,exports){
+},{"../math":13,"./checkpoint-controls":5,"./gamepad-controls":6,"./hmd-controls":7,"./keyboard-controls":9,"./mouse-controls":10,"./touch-controls":11,"./universal-controls":12}],9:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -1152,6 +1220,14 @@ var KeyboardEvent = window.KeyboardEvent;
  * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
  *
  * Bind keyboard events to components, or control your entities with the WASD keys.
+ *
+ * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
+ * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
+ * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
+ * when you care about which physical key was pressed, rather thanwhich character it corresponds
+ * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
+ * player in different directions, and that mapping should ideally be independent of keyboard
+ * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
  *
  * @namespace wasd-controls
  * keys the entity moves and if you release it will stop. Easing simulates friction.
@@ -1179,7 +1255,9 @@ module.exports = {
   * Movement
   */
 
-  isVelocityActive: function () { return !!Object.keys(this.getKeys()).length; },
+  isVelocityActive: function () {
+    return this.data.enabled && !!Object.keys(this.getKeys()).length;
+  },
 
   getVelocityDelta: function () {
     var data = this.data,
@@ -1279,7 +1357,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":4}],9:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":4}],10:[function(require,module,exports){
 /**
  * Mouse + Pointerlock controls.
  *
@@ -1419,7 +1497,7 @@ module.exports = {
   }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = {
   schema: {
     enabled: { default: true }
@@ -1489,7 +1567,7 @@ module.exports = {
   }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  * Universal Controls
  *
@@ -1632,7 +1710,8 @@ module.exports = {
         if (control.getVelocityDelta) {
           dVelocity = control.getVelocityDelta(dt);
         } else if (control.getVelocity) {
-          throw new Error('getVelocity() not currently supported, use getVelocityDelta()');
+          this.el.setAttribute('velocity', control.getVelocity());
+          return;
         } else {
           throw new Error('Incompatible movement controls: ', data.movementControls[i]);
         }
@@ -1675,7 +1754,7 @@ module.exports = {
   }
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
@@ -1692,7 +1771,7 @@ module.exports = {
   }
 };
 
-},{"./quaternion":13,"./velocity":14}],13:[function(require,module,exports){
+},{"./quaternion":14,"./velocity":15}],14:[function(require,module,exports){
 /**
  * Quaternion.
  *
@@ -1709,7 +1788,7 @@ module.exports = {
   }
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /**
  * Velocity, in m/s.
  */
