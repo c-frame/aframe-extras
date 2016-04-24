@@ -42,6 +42,7 @@ browserify custom-extras.js -o bundle.js
 ```
 src
 ├── controls
+│   ├── checkpoint-controls.js
 │   ├── gamepad-controls.js
 │   ├── hmd-controls.js
 │   ├── keyboard-controls.js
@@ -55,6 +56,7 @@ src
 │   ├── quaternion.js
 │   └── velocity.js
 ├── misc
+│   ├── checkpoint.js
 │   ├── jump-ability.js
 │   └── toggle-velocity.js
 ├── physics
@@ -80,7 +82,7 @@ Extensible movement/rotation/hotkey controls, with support for a variety of inpu
 
 #### Input devices:
 
-`gamepad-controls`, `hmd-controls`, `keybard-controls`, `mouse-controls`, and `touch-controls`.
+'checkpoint-controls', `gamepad-controls`, `hmd-controls`, `keybard-controls`, `mouse-controls`, and `touch-controls`.
 
 #### Other Controls
 

@@ -2,6 +2,7 @@ var math = require('../math'),
     physics = require('../physics');
 
 module.exports = {
+  'checkpoint':      require('./checkpoint'),
   'jump-ability':      require('./jump-ability'),
   'toggle-velocity':   require('./toggle-velocity'),
 
@@ -13,6 +14,7 @@ module.exports = {
 
     math.registerAll();
     physics.registerAll();
+    if (!AFRAME.components['checkpoint'])       AFRAME.registerComponent('checkpoint',        this['checkpoint']);
     if (!AFRAME.components['jump-ability'])     AFRAME.registerComponent('jump-ability',      this['jump-ability']);
     if (!AFRAME.components['toggle-velocity'])  AFRAME.registerComponent('toggle-velocity',   this['toggle-velocity']);
 

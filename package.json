@@ -43,7 +43,7 @@
     "test": "karma start ./tests/karma.conf.js",
     "test:firefox": "karma start ./tests/karma.conf.js --browsers FirefoxNightly",
     "test:chrome": "karma start ./tests/karma.conf.js --browsers Chrome",
-    "preversion": "npm run test",
+    "preversion": "npm run test -- --single-run",
     "version": "npm run dist && git add -A dist",
     "postversion": "git push && git push --tags && npm publish"
   },

@@ -140,7 +140,8 @@ module.exports = {
         if (control.getVelocityDelta) {
           dVelocity = control.getVelocityDelta(dt);
         } else if (control.getVelocity) {
-          throw new Error('getVelocity() not currently supported, use getVelocityDelta()');
+          this.el.setAttribute('velocity', control.getVelocity());
+          return;
         } else {
           throw new Error('Incompatible movement controls: ', data.movementControls[i]);
         }
