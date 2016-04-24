@@ -12,6 +12,14 @@ var KeyboardEvent = window.KeyboardEvent;
  *
  * Bind keyboard events to components, or control your entities with the WASD keys.
  *
+ * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
+ * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
+ * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
+ * when you care about which physical key was pressed, rather thanwhich character it corresponds
+ * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
+ * player in different directions, and that mapping should ideally be independent of keyboard
+ * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
+ *
  * @namespace wasd-controls
  * keys the entity moves and if you release it will stop. Easing simulates friction.
  * to the entity when pressing the keys.
