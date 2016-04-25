@@ -82,7 +82,7 @@ Extensible movement/rotation/hotkey controls, with support for a variety of inpu
 
 #### Input devices:
 
-'checkpoint-controls', `gamepad-controls`, `hmd-controls`, `keybard-controls`, `mouse-controls`, and `touch-controls`.
+`checkpoint-controls`, `gamepad-controls`, `hmd-controls`, `keybard-controls`, `mouse-controls`, and `touch-controls`.
 
 #### Other Controls
 
