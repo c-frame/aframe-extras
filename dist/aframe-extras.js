@@ -18356,7 +18356,7 @@ module.exports = {
     if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
       this.velocity.set(0, 0, 0);
       this.el.setAttribute('velocity', this.velocity);
-    } else if (this.data.movementEnabled) {
+    } else {
       this.updateVelocity(dt);
     }
   },
@@ -18401,18 +18401,20 @@ module.exports = {
     var control, velocity, dVelocity,
         data = this.data;
 
-    for (var i = 0, l = data.movementControls.length; i < l; i++) {
-      control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
-      if (control && control.isVelocityActive()) {
-        if (control.getVelocityDelta) {
-          dVelocity = control.getVelocityDelta(dt);
-        } else if (control.getVelocity) {
-          this.el.setAttribute('velocity', control.getVelocity());
-          return;
-        } else {
-          throw new Error('Incompatible movement controls: ', data.movementControls[i]);
+    if (data.movementEnabled) {
+      for (var i = 0, l = data.movementControls.length; i < l; i++) {
+        control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
+        if (control && control.isVelocityActive()) {
+          if (control.getVelocityDelta) {
+            dVelocity = control.getVelocityDelta(dt);
+          } else if (control.getVelocity) {
+            this.el.setAttribute('velocity', control.getVelocity());
+            return;
+          } else {
+            throw new Error('Incompatible movement controls: ', data.movementControls[i]);
+          }
+          break;
         }
-        break;
       }
     }
 
@@ -18421,7 +18423,7 @@ module.exports = {
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
 
-    if (dVelocity) {
+    if (dVelocity && data.movementEnabled) {
       // Set acceleration
       if (dVelocity.length() > 1) {
         dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
