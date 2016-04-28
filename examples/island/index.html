@@ -9,33 +9,19 @@
   </head>
   <body>
     <a-scene>
-      <!--
-        Camera + Gamepad controls
-        Button 0 is "A" on an Xbox controller.
-      -->
-      <a-entity camera
-                universal-controls
-                position="3 5 -10">
-      </a-entity>
+      <!-- Camera -->
+      <a-entity camera universal-controls position="3 5 -10"></a-entity>
 
-      <!--
-        Example scene
-        Made in MagicaVoxel.
-      -->
-      <a-entity position="0 0 0"
-                scale="0.3 0.3 0.3"
-                material="color: blue"
-                obj-model="obj: url(../../assets/island-hut/island-hut.obj);
-                           mtl: url(../../assets/island-hut/island-hut.mtl);"></a-entity>
+      <!-- Island - Made in MagicaVoxel. -->
+      <a-entity rotation="-90 0 0" scale="0.3 0.3 0.3" ply-model="src: url(../../assets/island-hut/island-hut.bake.ply);"></a-entity>
 
-      <!--
-        Sky
-      -->
+      <!-- Ocean -->
+      <a-ocean width="50" depth="50" density="40" opacity="1" position="0 3 0"></a-ocean>
+
+      <!-- Sky -->
       <a-sky color="#AADDF0"></a-sky>
 
-      <!--
-        Lighting
-      -->
+      <!-- Lighting -->
       <a-light type="ambient" color="#ccc"></a-light>
       <a-light color="#ddf" distance="100" intensity="0.4" type="point"></a-light>
       <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
