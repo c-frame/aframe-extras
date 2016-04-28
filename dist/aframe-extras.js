@@ -21,7 +21,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":13,"./src/loaders":19,"./src/math":21,"./src/misc":25,"./src/physics":30,"./src/primitives":37,"./src/shadows":38}],3:[function(require,module,exports){
+},{"./src/controls":14,"./src/loaders":20,"./src/math":23,"./src/misc":27,"./src/physics":32,"./src/primitives":39,"./src/shadows":40}],3:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -181,7 +181,7 @@ CANNON.shape2mesh = function(body){
 
 module.exports = CANNON.shape2mesh;
 
-},{"cannon":9}],4:[function(require,module,exports){
+},{"cannon":10}],4:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  *
@@ -2980,6 +2980,486 @@ module.exports = GamepadButtonEvent;
 
 },{}],7:[function(require,module,exports){
 /**
+ * @author Wei Meng / http://about.me/menway
+ *
+ * Description: A THREE loader for PLY ASCII files (known as the Polygon File Format or the Stanford Triangle Format).
+ *
+ *
+ * Limitations: ASCII decoding assumes file is UTF-8.
+ *
+ * Usage:
+ *  var loader = new THREE.PLYLoader();
+ *  loader.load('./models/ply/ascii/dolphins.ply', function (geometry) {
+ *
+ *    scene.add( new THREE.Mesh( geometry ) );
+ *
+ *  } );
+ *
+ * If the PLY file uses non standard property names, they can be mapped while
+ * loading. For example, the following maps the properties
+ * “diffuse_(red|green|blue)” in the file to standard color names.
+ *
+ * loader.setPropertyNameMapping( {
+ *  diffuse_red: 'red',
+ *  diffuse_green: 'green',
+ *  diffuse_blue: 'blue'
+ * } );
+ *
+ */
+
+module.exports = THREE.PLYLoader = function ( manager ) {
+
+  this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+
+  this.propertyNameMapping = {};
+
+};
+
+THREE.PLYLoader.prototype = {
+
+  constructor: THREE.PLYLoader,
+
+  load: function ( url, onLoad, onProgress, onError ) {
+
+    var scope = this;
+
+    var loader = new THREE.XHRLoader( this.manager );
+    loader.setResponseType( 'arraybuffer' );
+    loader.load( url, function ( text ) {
+
+      onLoad( scope.parse( text ) );
+
+    }, onProgress, onError );
+
+  },
+
+  setPropertyNameMapping: function ( mapping ) {
+
+    this.propertyNameMapping = mapping;
+
+  },
+
+  bin2str: function ( buf ) {
+
+    var array_buffer = new Uint8Array( buf );
+    var str = '';
+    for ( var i = 0; i < buf.byteLength; i ++ ) {
+
+      str += String.fromCharCode( array_buffer[ i ] ); // implicitly assumes little-endian
+
+    }
+
+    return str;
+
+  },
+
+  isASCII: function( data ) {
+
+    var header = this.parseHeader( this.bin2str( data ) );
+
+    return header.format === "ascii";
+
+  },
+
+  parse: function ( data ) {
+
+    if ( data instanceof ArrayBuffer ) {
+
+      return this.isASCII( data )
+        ? this.parseASCII( this.bin2str( data ) )
+        : this.parseBinary( data );
+
+    } else {
+
+      return this.parseASCII( data );
+
+    }
+
+  },
+
+  parseHeader: function ( data ) {
+
+    var patternHeader = /ply([\s\S]*)end_header\s/;
+    var headerText = "";
+    var headerLength = 0;
+    var result = patternHeader.exec( data );
+    if ( result !== null ) {
+
+      headerText = result [ 1 ];
+      headerLength = result[ 0 ].length;
+
+    }
+
+    var header = {
+      comments: [],
+      elements: [],
+      headerLength: headerLength
+    };
+
+    var lines = headerText.split( '\n' );
+    var currentElement = undefined;
+    var lineType, lineValues;
+
+    function make_ply_element_property( propertValues, propertyNameMapping ) {
+
+      var property = {
+        type: propertValues[ 0 ]
+      };
+
+      if ( property.type === 'list' ) {
+
+        property.name = propertValues[ 3 ];
+        property.countType = propertValues[ 1 ];
+        property.itemType = propertValues[ 2 ];
+
+      } else {
+
+        property.name = propertValues[ 1 ];
+
+      }
+
+      if ( property.name in propertyNameMapping ) {
+
+        property.name = propertyNameMapping[ property.name ];
+
+      }
+
+      return property;
+
+    }
+
+    for ( var i = 0; i < lines.length; i ++ ) {
+
+      var line = lines[ i ];
+      line = line.trim();
+      if ( line === "" ) {
+
+        continue;
+
+      }
+      lineValues = line.split( /\s+/ );
+      lineType = lineValues.shift();
+      line = lineValues.join( " " );
+
+      switch ( lineType ) {
+
+      case "format":
+
+        header.format = lineValues[ 0 ];
+        header.version = lineValues[ 1 ];
+
+        break;
+
+      case "comment":
+
+        header.comments.push( line );
+
+        break;
+
+      case "element":
+
+        if ( ! ( currentElement === undefined ) ) {
+
+          header.elements.push( currentElement );
+
+        }
+
+        currentElement = Object();
+        currentElement.name = lineValues[ 0 ];
+        currentElement.count = parseInt( lineValues[ 1 ] );
+        currentElement.properties = [];
+
+        break;
+
+      case "property":
+
+        currentElement.properties.push( make_ply_element_property( lineValues, this.propertyNameMapping ) );
+
+        break;
+
+
+      default:
+
+        console.log( "unhandled", lineType, lineValues );
+
+      }
+
+    }
+
+    if ( ! ( currentElement === undefined ) ) {
+
+      header.elements.push( currentElement );
+
+    }
+
+    return header;
+
+  },
+
+  parseASCIINumber: function ( n, type ) {
+
+    switch ( type ) {
+
+    case 'char': case 'uchar': case 'short': case 'ushort': case 'int': case 'uint':
+    case 'int8': case 'uint8': case 'int16': case 'uint16': case 'int32': case 'uint32':
+
+      return parseInt( n );
+
+    case 'float': case 'double': case 'float32': case 'float64':
+
+      return parseFloat( n );
+
+    }
+
+  },
+
+  parseASCIIElement: function ( properties, line ) {
+
+    var values = line.split( /\s+/ );
+
+    var element = Object();
+
+    for ( var i = 0; i < properties.length; i ++ ) {
+
+      if ( properties[ i ].type === "list" ) {
+
+        var list = [];
+        var n = this.parseASCIINumber( values.shift(), properties[ i ].countType );
+
+        for ( var j = 0; j < n; j ++ ) {
+
+          list.push( this.parseASCIINumber( values.shift(), properties[ i ].itemType ) );
+
+        }
+
+        element[ properties[ i ].name ] = list;
+
+      } else {
+
+        element[ properties[ i ].name ] = this.parseASCIINumber( values.shift(), properties[ i ].type );
+
+      }
+
+    }
+
+    return element;
+
+  },
+
+  parseASCII: function ( data ) {
+
+    // PLY ascii format specification, as per http://en.wikipedia.org/wiki/PLY_(file_format)
+
+    var geometry = new THREE.Geometry();
+
+    var result;
+
+    var header = this.parseHeader( data );
+
+    var patternBody = /end_header\s([\s\S]*)$/;
+    var body = "";
+    if ( ( result = patternBody.exec( data ) ) !== null ) {
+
+      body = result [ 1 ];
+
+    }
+
+    var lines = body.split( '\n' );
+    var currentElement = 0;
+    var currentElementCount = 0;
+    geometry.useColor = false;
+
+    for ( var i = 0; i < lines.length; i ++ ) {
+
+      var line = lines[ i ];
+      line = line.trim();
+      if ( line === "" ) {
+
+        continue;
+
+      }
+
+      if ( currentElementCount >= header.elements[ currentElement ].count ) {
+
+        currentElement ++;
+        currentElementCount = 0;
+
+      }
+
+      var element = this.parseASCIIElement( header.elements[ currentElement ].properties, line );
+
+      this.handleElement( geometry, header.elements[ currentElement ].name, element );
+
+      currentElementCount ++;
+
+    }
+
+    return this.postProcess( geometry );
+
+  },
+
+  postProcess: function ( geometry ) {
+
+    if ( geometry.useColor ) {
+
+      for ( var i = 0; i < geometry.faces.length; i ++ ) {
+
+        geometry.faces[ i ].vertexColors = [
+          geometry.colors[ geometry.faces[ i ].a ],
+          geometry.colors[ geometry.faces[ i ].b ],
+          geometry.colors[ geometry.faces[ i ].c ]
+        ];
+
+      }
+
+      geometry.elementsNeedUpdate = true;
+
+    }
+
+    geometry.computeBoundingSphere();
+
+    return geometry;
+
+  },
+
+  handleElement: function ( geometry, elementName, element ) {
+
+    if ( elementName === "vertex" ) {
+
+      geometry.vertices.push(
+        new THREE.Vector3( element.x, element.y, element.z )
+      );
+
+      if ( 'red' in element && 'green' in element && 'blue' in element ) {
+
+        geometry.useColor = true;
+
+        var color = new THREE.Color();
+        color.setRGB( element.red / 255.0, element.green / 255.0, element.blue / 255.0 );
+        geometry.colors.push( color );
+
+      }
+
+    } else if ( elementName === "face" ) {
+
+      // BEGIN: Edits by donmccurdy.
+      var vertex_indices = element.vertex_indices || element.vertex_index;
+      // END: Edits by donmccurdy.
+
+      if ( vertex_indices.length === 3 ) {
+
+        geometry.faces.push(
+          new THREE.Face3( vertex_indices[ 0 ], vertex_indices[ 1 ], vertex_indices[ 2 ] )
+        );
+
+      } else if ( vertex_indices.length === 4 ) {
+
+        geometry.faces.push(
+          new THREE.Face3( vertex_indices[ 0 ], vertex_indices[ 1 ], vertex_indices[ 3 ] ),
+          new THREE.Face3( vertex_indices[ 1 ], vertex_indices[ 2 ], vertex_indices[ 3 ] )
+        );
+
+      }
+
+    }
+
+  },
+
+  binaryRead: function ( dataview, at, type, little_endian ) {
+
+    switch ( type ) {
+
+      // corespondences for non-specific length types here match rply:
+    case 'int8':    case 'char':   return [ dataview.getInt8( at ), 1 ];
+
+    case 'uint8':   case 'uchar':  return [ dataview.getUint8( at ), 1 ];
+
+    case 'int16':   case 'short':  return [ dataview.getInt16( at, little_endian ), 2 ];
+
+    case 'uint16':  case 'ushort': return [ dataview.getUint16( at, little_endian ), 2 ];
+
+    case 'int32':   case 'int':    return [ dataview.getInt32( at, little_endian ), 4 ];
+
+    case 'uint32':  case 'uint':   return [ dataview.getUint32( at, little_endian ), 4 ];
+
+    case 'float32': case 'float':  return [ dataview.getFloat32( at, little_endian ), 4 ];
+
+    case 'float64': case 'double': return [ dataview.getFloat64( at, little_endian ), 8 ];
+
+    }
+
+  },
+
+  binaryReadElement: function ( dataview, at, properties, little_endian ) {
+
+    var element = Object();
+    var result, read = 0;
+
+    for ( var i = 0; i < properties.length; i ++ ) {
+
+      if ( properties[ i ].type === "list" ) {
+
+        var list = [];
+
+        result = this.binaryRead( dataview, at + read, properties[ i ].countType, little_endian );
+        var n = result[ 0 ];
+        read += result[ 1 ];
+
+        for ( var j = 0; j < n; j ++ ) {
+
+          result = this.binaryRead( dataview, at + read, properties[ i ].itemType, little_endian );
+          list.push( result[ 0 ] );
+          read += result[ 1 ];
+
+        }
+
+        element[ properties[ i ].name ] = list;
+
+      } else {
+
+        result = this.binaryRead( dataview, at + read, properties[ i ].type, little_endian );
+        element[ properties[ i ].name ] = result[ 0 ];
+        read += result[ 1 ];
+
+      }
+
+    }
+
+    return [ element, read ];
+
+  },
+
+  parseBinary: function ( data ) {
+
+    var geometry = new THREE.Geometry();
+
+    var header = this.parseHeader( this.bin2str( data ) );
+    var little_endian = ( header.format === "binary_little_endian" );
+    var body = new DataView( data, header.headerLength );
+    var result, loc = 0;
+
+    for ( var currentElement = 0; currentElement < header.elements.length; currentElement ++ ) {
+
+      for ( var currentElementCount = 0; currentElementCount < header.elements[ currentElement ].count; currentElementCount ++ ) {
+
+        result = this.binaryReadElement( body, loc, header.elements[ currentElement ].properties, little_endian );
+        loc += result[ 1 ];
+        var element = result[ 0 ];
+
+        this.handleElement( geometry, header.elements[ currentElement ].name, element );
+
+      }
+
+    }
+
+    return this.postProcess( geometry );
+
+  }
+
+};
+
+},{}],8:[function(require,module,exports){
+/**
  * Polyfill for the additional KeyboardEvent properties defined in the D3E and
  * D4E draft specifications, by @inexorabletash.
  *
@@ -3711,7 +4191,7 @@ module.exports = GamepadButtonEvent;
 
 } (window));
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var CANNON = require('cannon');
 
 /**
@@ -3773,7 +4253,7 @@ function createTrimeshShape (geometry) {
   return new CANNON.Trimesh(vertices, indices);
 }
 
-},{"cannon":9}],9:[function(require,module,exports){
+},{"cannon":10}],10:[function(require,module,exports){
 (function (global){
 /*
  * Copyright (c) 2015 cannon.js Authors
@@ -17463,7 +17943,7 @@ World.prototype.clearForces = function(){
 (2)
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var EPS = 0.1;
 
 module.exports = {
@@ -17529,7 +18009,7 @@ module.exports = {
   }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  * Gamepad controls for A-Frame.
  *
@@ -17785,7 +18265,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":5,"../../lib/GamepadButtonEvent":6}],12:[function(require,module,exports){
+},{"../../lib/GamepadButton":5,"../../lib/GamepadButtonEvent":6}],13:[function(require,module,exports){
 var TICK_DEBOUNCE = 4; // ms
 
 module.exports = {
@@ -17872,7 +18352,7 @@ module.exports = {
   }
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var math = require('../math');
 
 module.exports = {
@@ -17903,7 +18383,7 @@ module.exports = {
   }
 };
 
-},{"../math":21,"./checkpoint-controls":10,"./gamepad-controls":11,"./hmd-controls":12,"./keyboard-controls":14,"./mouse-controls":15,"./touch-controls":16,"./universal-controls":17}],14:[function(require,module,exports){
+},{"../math":23,"./checkpoint-controls":11,"./gamepad-controls":12,"./hmd-controls":13,"./keyboard-controls":15,"./mouse-controls":16,"./touch-controls":17,"./universal-controls":18}],15:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -18054,7 +18534,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":7}],15:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":8}],16:[function(require,module,exports){
 /**
  * Mouse + Pointerlock controls.
  *
@@ -18194,7 +18674,7 @@ module.exports = {
   }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = {
   schema: {
     enabled: { default: true }
@@ -18264,7 +18744,7 @@ module.exports = {
   }
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * Universal Controls
  *
@@ -18453,7 +18933,7 @@ module.exports = {
   }
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * three-model
  *
@@ -18502,9 +18982,10 @@ module.exports = {
   }
 };
 
-},{"../../lib/FBXLoader":4}],19:[function(require,module,exports){
+},{"../../lib/FBXLoader":4}],20:[function(require,module,exports){
 module.exports = {
   'fbx-model':   require('./fbx-model'),
+  'ply-model': require('./ply-model'),
   'three-model': require('./three-model'),
 
   registerAll: function (AFRAME) {
@@ -18513,13 +18994,56 @@ module.exports = {
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
     if (!AFRAME.components['fbx-model'])    AFRAME.registerComponent('fbx-model',   this['fbx-model']);
+    if (!AFRAME.components['ply-model'])    AFRAME.registerComponent('ply-model',   this['ply-model']);
     if (!AFRAME.components['three-model'])  AFRAME.registerComponent('three-model', this['three-model']);
 
     this._registered = true;
   }
 };
 
-},{"./fbx-model":18,"./three-model":20}],20:[function(require,module,exports){
+},{"./fbx-model":19,"./ply-model":21,"./three-model":22}],21:[function(require,module,exports){
+/**
+ * ply-model
+ *
+ * Wraps THREE.PLYLoader.
+ */
+THREE.PLYLoader = require('../../lib/PLYLoader');
+
+module.exports = {
+  schema: {src: { type: 'src' }},
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    var loader,
+        data = this.data;
+
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.PLYLoader();
+    loader.load(data.src, this.load.bind(this));
+  },
+
+  load: function (geometry) {
+    this.model = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+      color: 0xFFFFFF,
+      shading: THREE.FlatShading,
+      vertexColors: THREE.VertexColors,
+      shininess: 0
+    }));
+    this.el.setObject3D('mesh', this.model);
+    this.el.emit('model-loaded', {format: 'ply', model: this.model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+};
+
+},{"../../lib/PLYLoader":7}],22:[function(require,module,exports){
 /**
  * three-model
  *
@@ -18591,7 +19115,7 @@ module.exports = {
   }
 };
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
@@ -18608,7 +19132,7 @@ module.exports = {
   }
 };
 
-},{"./quaternion":22,"./velocity":23}],22:[function(require,module,exports){
+},{"./quaternion":24,"./velocity":25}],24:[function(require,module,exports){
 /**
  * Quaternion.
  *
@@ -18625,7 +19149,7 @@ module.exports = {
   }
 };
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /**
  * Velocity, in m/s.
  */
@@ -18669,7 +19193,7 @@ module.exports = {
   }
 };
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = {
   schema: {
     defaultRotation: {type: 'vec3'},
@@ -18695,7 +19219,7 @@ module.exports = {
   }
 };
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var math = require('../math'),
     physics = require('../physics');
 
@@ -18720,7 +19244,7 @@ module.exports = {
   }
 };
 
-},{"../math":21,"../physics":30,"./checkpoint":24,"./jump-ability":26,"./toggle-velocity":27}],26:[function(require,module,exports){
+},{"../math":23,"../physics":32,"./checkpoint":26,"./jump-ability":28,"./toggle-velocity":29}],28:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -18777,7 +19301,7 @@ module.exports = {
   }
 };
 
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -18814,7 +19338,7 @@ module.exports = {
   },
 };
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var CANNON = require('cannon'),
     object2shape = require('../../lib/object2shape');
 
@@ -18907,7 +19431,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/CANNON-shape2mesh":3,"../../lib/object2shape":8,"cannon":9}],29:[function(require,module,exports){
+},{"../../lib/CANNON-shape2mesh":3,"../../lib/object2shape":9,"cannon":10}],31:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -18932,7 +19456,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":28}],30:[function(require,module,exports){
+},{"./body":30}],32:[function(require,module,exports){
 var math = require('../math');
 
 module.exports = {
@@ -18961,7 +19485,7 @@ module.exports = {
   }
 };
 
-},{"../math":21,"./dynamic-body":29,"./kinematic-body":31,"./physics":32,"./static-body":33,"./system/physics":34}],31:[function(require,module,exports){
+},{"../math":23,"./dynamic-body":31,"./kinematic-body":33,"./physics":34,"./static-body":35,"./system/physics":36}],33:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -19125,7 +19649,7 @@ module.exports = {
   }())
 };
 
-},{"cannon":9}],32:[function(require,module,exports){
+},{"cannon":10}],34:[function(require,module,exports){
 
 
 module.exports = {
@@ -19153,7 +19677,7 @@ module.exports = {
   }
 };
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -19171,7 +19695,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":28}],34:[function(require,module,exports){
+},{"./body":30}],36:[function(require,module,exports){
 var CANNON = require('cannon');
 
 var OPTIONS = {
@@ -19273,7 +19797,7 @@ module.exports = {
   }
 };
 
-},{"cannon":9}],35:[function(require,module,exports){
+},{"cannon":10}],37:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -19299,7 +19823,7 @@ module.exports = {
   }
 };
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /**
  * Flat-shaded ocean primitive.
  *
@@ -19385,7 +19909,7 @@ module.exports.Component = {
   }
 };
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
   'a-ocean':        require('./a-ocean'),
@@ -19405,7 +19929,7 @@ module.exports = {
   }
 };
 
-},{"./a-grid":35,"./a-ocean":36}],38:[function(require,module,exports){
+},{"./a-grid":37,"./a-ocean":38}],40:[function(require,module,exports){
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
@@ -19422,7 +19946,7 @@ module.exports = {
   }
 };
 
-},{"./shadow":40,"./shadow-light":39}],39:[function(require,module,exports){
+},{"./shadow":42,"./shadow-light":41}],41:[function(require,module,exports){
 /**
  * Light component.
  *
@@ -19563,7 +20087,7 @@ module.exports = {
   }
 };
 
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 /**
  * Shadow component.
  *
