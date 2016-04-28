@@ -10,17 +10,11 @@
   <body>
     <a-scene>
       <!-- Player -->
-      <a-entity camera
-                universal-controls
-                position="0 1.764 4">
-      </a-entity>
+      <a-entity camera universal-controls position="0 1.764 4"></a-entity>
 
-      <!-- Animation
-           See: http://threejs.org/examples/#webgl_animation_scene
-      -->
-      <a-entity scale="0.1 0.1 0.1"
-                fbx-model="src: url(../../assets/scythian/scythian.fbx);">
-      </a-entity>
+      <a-entity rotation="-90 0 0"
+                scale="0.1 0.1 0.1"
+                ply-model="src: url(../../assets/scythian/scythian.bake.ply);"></a-entity>
 
       <!-- Terrain -->
       <a-grid></a-grid>

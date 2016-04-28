@@ -51,6 +51,7 @@ src
 │   └── universal-controls.js
 ├── loaders
 │   ├── fbx-model.js
+│   ├── ply-model.js
 │   └── three-model.js
 ├── math
 │   ├── quaternion.js
