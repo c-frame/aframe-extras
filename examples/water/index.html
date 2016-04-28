@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Water</title>
+    <script src="https://aframe.io/releases/0.2.0/aframe.js"></script>
+    <script src="../aframe-extras.js"></script>
+  </head>
+  <body>
+    <a-scene fog="type: exponential; color: #FFF; density: 0.06;">
+      <!-- Camera -->
+      <a-entity camera universal-controls="movementEnabled: false" position="0 1.764 0"></a-entity>
+
+      <!-- Ocean -->
+      <a-ocean width="50" depth="50" density="40"></a-ocean>
+
+      <!-- Pedestals -->
+      <a-cylinder radius="1" height="50" color="#39BB82" position="0 -24.5 0"></a-cylinder>
+      <a-cylinder radius="1" height="50" color="#39BB82" position="5 -24.5 0"></a-cylinder>
+      <a-cylinder radius="1" height="50" color="#39BB82" position="-5 -24.5 0"></a-cylinder>
+
+      <!-- Lighting -->
+      <a-entity light="type: hemisphere; color: #AAA; groundColor: #000000; intensity: 0.9;"></a-entity>
+      <a-entity light="type: ambient; color: #DC8874; intensity: 0.5;"></a-entity>
+    </a-scene>
+  </body>
+</html>
