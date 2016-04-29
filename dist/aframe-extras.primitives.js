@@ -41,7 +41,9 @@ module.exports.Primitive = {
   mappings: {
     width: 'ocean.width',
     depth: 'ocean.depth',
-    density: 'ocean.density'
+    density: 'ocean.density',
+    color: 'ocean.color',
+    opacity: 'ocean.opacity'
   }
 };
 
@@ -60,7 +62,11 @@ module.exports.Component = {
 
     // Wave speed and variance.
     speed: {default: 1},
-    speedVariance: {default: 2}
+    speedVariance: {default: 2},
+
+    // Material.
+    color: {default: 0x7AD2F7},
+    opacity: {default: 0.8}
   },
 
   init: function () {
@@ -84,9 +90,9 @@ module.exports.Component = {
     if (!material) {
       material = {};
       material.material = new THREE.MeshPhongMaterial({
-        color: 0x7AD2F7,
-        transparent:true,
-        opacity: 0.8,
+        color: data.color,
+        transparent: data.opacity < 1,
+        opacity: data.opacity,
         shading: THREE.FlatShading,
       });
     }
