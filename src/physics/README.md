@@ -4,9 +4,9 @@ Components for A-Frame physics integration, built on [CANNON.js](http://schteppe
 
 ## Scene Physics
 
-- `physics`: Added to the `<a-scene/>` element, and manages global physics World
+- `physics`: Added to the `<a-scene/>` element, and manages world physics
 
-## Object Types
+## Components
 
 - `dynamic-body`: Object that moves only according to physics simulation, which has mass and may collide with other objects.
 - `static-body`: Static body with a fixed position. Unaffected by gravity and collisions, but other objects may collide with it.
@@ -28,8 +28,6 @@ Components for A-Frame physics integration, built on [CANNON.js](http://schteppe
 
   <!-- Dynamic box -->
   <a-box dynamic-body position="5 0.5 0" width="1" height="1" depth="1"></a-box>
-
-  <!-- ... -->
 
 </a-scene>
 ```
