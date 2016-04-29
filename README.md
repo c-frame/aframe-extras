@@ -58,7 +58,7 @@ src
 │   └── velocity.js
 ├── <a href="/src/misc">misc/</a>
 │   ├── checkpoint.js
-│   ├── jump-ability.js
+│   ├── jump-ability.js         <i>(not VR-friendly)</i>
 │   └── toggle-velocity.js
 ├── <a href="/src/physics">physics/</a>
 │   ├── body.js
