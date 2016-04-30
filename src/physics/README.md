@@ -57,7 +57,7 @@ CANNON.js generates events when a collision is detected, which are propagated on
 ```javascript
 var playerEl = document.querySelector('[camera]');
 playerEl.addEventListener('collide', function (e) {
-  console.log('Player has collided with body #' + e.detail.body.id));
+  console.log('Player has collided with body #' + e.detail.body.id);
 
   e.detail.target.el;  // Original entity (playerEl).
   e.detail.body.el;    // Other entity, which playerEl touched.
