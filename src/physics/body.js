@@ -73,7 +73,6 @@ module.exports = {
 
     this.body.el = this.el;
     this.system.addBody(this.body);
-    console.info('[%s] loaded', this.name);
   },
 
   remove: function () {

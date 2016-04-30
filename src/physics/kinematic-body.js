@@ -54,8 +54,8 @@ module.exports = {
     });
     this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
 
+    this.body.el = this.el;
     this.system.addBody(this.body);
-    console.info('[kinematic-body] loaded');
   },
 
   remove: function () {
