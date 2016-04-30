@@ -34,7 +34,7 @@ Components for A-Frame physics integration, built on [CANNON.js](http://schteppe
 
 ## Debugging
 
-When debugging, it may be helpful to see the shape of the physics bodies attached to your entities, and verify that they're staying in sync.
+When debugging, it may be helpful to see the shape of the physics bodies attached to your entities, and verify that they're staying in sync. The `debug` option creates a red wireframe around each physics body:
 
 ```html
 <a-scene physics="debug: true;">
