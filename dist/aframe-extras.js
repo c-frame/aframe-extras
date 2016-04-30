@@ -22,6 +22,68 @@ module.exports = {
 };
 
 },{"./src/controls":14,"./src/loaders":20,"./src/math":23,"./src/misc":27,"./src/physics":32,"./src/primitives":39,"./src/shadows":40}],3:[function(require,module,exports){
+var CANNON = require('cannon');
+
+/**
+ * Given a THREE.Object3D instance, creates a corresponding CANNON shape.
+ * @param  {THREE.Object3D} object
+ * @return {CANNON.Shape}
+ */
+module.exports = function (object) {
+  var mesh, meshes = [];
+  object.traverse(function (object) {
+    if (object.type === 'Mesh') {
+      meshes.push(object);
+    }
+  });
+
+  mesh = meshes[0];
+  if (meshes.length > 1) {
+    console.warn('[mesh2shape] Found too many objects - returning shape for first first');
+  } else if (meshes.length === 0) {
+    return null;
+  }
+
+  switch (mesh.geometry.type) {
+    case 'BoxGeometry':
+      return createBoxShape(mesh.geometry);
+    case 'PlaneBufferGeometry':
+      return createPlaneShape(mesh.geometry);
+    case 'BufferGeometry':
+      return createTrimeshShape(mesh.geometry);
+    default:
+      console.warn('Unrecognized geometry: "%s". Using bounding box as shape.', mesh.geometry.type);
+      return createBoxShape(mesh.geometry);
+  }
+};
+
+function createPlaneShape (geometry) {
+  geometry.computeBoundingBox();
+  var box = geometry.boundingBox;
+  return new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2 || 0.1,
+    (box.max.y - box.min.y) / 2 || 0.1,
+    (box.max.z - box.min.z) / 2 || 0.1
+  ));
+}
+
+function createBoxShape (geometry) {
+  geometry.computeBoundingBox();
+  var box = geometry.boundingBox;
+  return new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2,
+    (box.max.y - box.min.y) / 2,
+    (box.max.z - box.min.z) / 2
+  ));
+}
+
+function createTrimeshShape (geometry) {
+  var vertices = geometry.attributes.position.array;
+  var indices = Object.keys(vertices).map(Number);
+  return new CANNON.Trimesh(vertices, indices);
+}
+
+},{"cannon":10}],4:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -181,7 +243,7 @@ CANNON.shape2mesh = function(body){
 
 module.exports = CANNON.shape2mesh;
 
-},{"cannon":10}],4:[function(require,module,exports){
+},{"cannon":10}],5:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  *
@@ -2945,7 +3007,7 @@ toMat44 = function ( arr ) {
 
 module.exports = THREE.FBXLoader;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 module.exports = Object.assign(function GamepadButton () {}, {
 	FACE_1: 0,
 	FACE_2: 1,
@@ -2968,7 +3030,7 @@ module.exports = Object.assign(function GamepadButton () {}, {
 	VENDOR: 16,
 });
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 function GamepadButtonEvent (type, index, details) {
   this.type = type;
   this.index = index;
@@ -2978,7 +3040,7 @@ function GamepadButtonEvent (type, index, details) {
 
 module.exports = GamepadButtonEvent;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /**
  * @author Wei Meng / http://about.me/menway
  *
@@ -3458,7 +3520,7 @@ THREE.PLYLoader.prototype = {
 
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
  * Polyfill for the additional KeyboardEvent properties defined in the D3E and
  * D4E draft specifications, by @inexorabletash.
@@ -4191,69 +4253,7 @@ THREE.PLYLoader.prototype = {
 
 } (window));
 
-},{}],9:[function(require,module,exports){
-var CANNON = require('cannon');
-
-/**
- * Given a THREE.Object3D instance, creates a corresponding CANNON shape.
- * @param  {THREE.Object3D} object
- * @return {CANNON.Shape}
- */
-module.exports = function (object) {
-  var mesh, meshes = [];
-  object.traverse(function (object) {
-    if (object.type === 'Mesh') {
-      meshes.push(object);
-    }
-  });
-
-  mesh = meshes[0];
-  if (meshes.length > 1) {
-    console.warn('[object2shape] Found too many objects - returning shape for first first');
-  } else if (meshes.length === 0) {
-    return null;
-  }
-
-  switch (mesh.geometry.type) {
-    case 'BoxGeometry':
-      return createBoxShape(mesh.geometry);
-    case 'PlaneBufferGeometry':
-      return createPlaneShape(mesh.geometry);
-    case 'BufferGeometry':
-      return createTrimeshShape(mesh.geometry);
-    default:
-      console.warn('Unrecognized geometry: "%s". Using bounding box as shape.', mesh.geometry.type);
-      return createBoxShape(mesh.geometry);
-  }
-};
-
-function createPlaneShape (geometry) {
-  geometry.computeBoundingBox();
-  var box = geometry.boundingBox;
-  return new CANNON.Box(new CANNON.Vec3(
-    (box.max.x - box.min.x) / 2 || 0.1,
-    (box.max.y - box.min.y) / 2 || 0.1,
-    (box.max.z - box.min.z) / 2 || 0.1
-  ));
-}
-
-function createBoxShape (geometry) {
-  geometry.computeBoundingBox();
-  var box = geometry.boundingBox;
-  return new CANNON.Box(new CANNON.Vec3(
-    (box.max.x - box.min.x) / 2,
-    (box.max.y - box.min.y) / 2,
-    (box.max.z - box.min.z) / 2
-  ));
-}
-
-function createTrimeshShape (geometry) {
-  var vertices = geometry.attributes.position.array;
-  var indices = Object.keys(vertices).map(Number);
-  return new CANNON.Trimesh(vertices, indices);
-}
-
-},{"cannon":10}],10:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (global){
 /*
  * Copyright (c) 2015 cannon.js Authors
@@ -18265,7 +18265,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":5,"../../lib/GamepadButtonEvent":6}],13:[function(require,module,exports){
+},{"../../lib/GamepadButton":6,"../../lib/GamepadButtonEvent":7}],13:[function(require,module,exports){
 var TICK_DEBOUNCE = 4; // ms
 
 module.exports = {
@@ -18534,7 +18534,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":8}],16:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":9}],16:[function(require,module,exports){
 /**
  * Mouse + Pointerlock controls.
  *
@@ -18982,7 +18982,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/FBXLoader":4}],20:[function(require,module,exports){
+},{"../../lib/FBXLoader":5}],20:[function(require,module,exports){
 module.exports = {
   'fbx-model':   require('./fbx-model'),
   'ply-model': require('./ply-model'),
@@ -19043,7 +19043,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/PLYLoader":7}],22:[function(require,module,exports){
+},{"../../lib/PLYLoader":8}],22:[function(require,module,exports){
 /**
  * three-model
  *
@@ -19180,8 +19180,8 @@ module.exports = {
     if (isNaN(dt)) return;
 
     var physics = this.el.sceneEl.systems.physics || {options:{maxInterval: 1 / 60}},
-        velocity = this.el.getAttribute('velocity'), // TODO - why not this.el.data?
-        position = this.el.getAttribute('position');
+        velocity = this.el.getComputedAttribute('velocity'),
+        position = this.el.getComputedAttribute('position');
 
     dt = Math.min(dt, physics.options.maxInterval * 1000);
 
@@ -19340,7 +19340,7 @@ module.exports = {
 
 },{}],30:[function(require,module,exports){
 var CANNON = require('cannon'),
-    object2shape = require('../../lib/object2shape');
+    mesh2shape = require('../../lib/CANNON-mesh2shape');
 
 require('../../lib/CANNON-shape2mesh');
 
@@ -19355,14 +19355,14 @@ module.exports = {
     this.system = this.el.sceneEl.systems.physics;
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
-    var shape = object2shape(this.el.object3D);
+    var shape = mesh2shape(this.el.object3D);
     if (shape && this.el.sceneEl.hasLoaded) {
       this.initBody_(shape);
     } else if (shape && !this.el.sceneEl.hasLoaded) {
       this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
     } else {
       this.el.addEventListener('model-loaded', function (e) {
-        this.initBody_(object2shape(e.detail.model));
+        this.initBody_(mesh2shape(e.detail.model));
       }.bind(this));
     }
   },
@@ -19430,7 +19430,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/CANNON-shape2mesh":3,"../../lib/object2shape":9,"cannon":10}],31:[function(require,module,exports){
+},{"../../lib/CANNON-mesh2shape":3,"../../lib/CANNON-shape2mesh":4,"cannon":10}],31:[function(require,module,exports){
 var Body = require('./body');
 
 /**

@@ -1,6 +1,68 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/misc').registerAll();
 },{"./src/misc":9}],2:[function(require,module,exports){
+var CANNON = require('cannon');
+
+/**
+ * Given a THREE.Object3D instance, creates a corresponding CANNON shape.
+ * @param  {THREE.Object3D} object
+ * @return {CANNON.Shape}
+ */
+module.exports = function (object) {
+  var mesh, meshes = [];
+  object.traverse(function (object) {
+    if (object.type === 'Mesh') {
+      meshes.push(object);
+    }
+  });
+
+  mesh = meshes[0];
+  if (meshes.length > 1) {
+    console.warn('[mesh2shape] Found too many objects - returning shape for first first');
+  } else if (meshes.length === 0) {
+    return null;
+  }
+
+  switch (mesh.geometry.type) {
+    case 'BoxGeometry':
+      return createBoxShape(mesh.geometry);
+    case 'PlaneBufferGeometry':
+      return createPlaneShape(mesh.geometry);
+    case 'BufferGeometry':
+      return createTrimeshShape(mesh.geometry);
+    default:
+      console.warn('Unrecognized geometry: "%s". Using bounding box as shape.', mesh.geometry.type);
+      return createBoxShape(mesh.geometry);
+  }
+};
+
+function createPlaneShape (geometry) {
+  geometry.computeBoundingBox();
+  var box = geometry.boundingBox;
+  return new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2 || 0.1,
+    (box.max.y - box.min.y) / 2 || 0.1,
+    (box.max.z - box.min.z) / 2 || 0.1
+  ));
+}
+
+function createBoxShape (geometry) {
+  geometry.computeBoundingBox();
+  var box = geometry.boundingBox;
+  return new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2,
+    (box.max.y - box.min.y) / 2,
+    (box.max.z - box.min.z) / 2
+  ));
+}
+
+function createTrimeshShape (geometry) {
+  var vertices = geometry.attributes.position.array;
+  var indices = Object.keys(vertices).map(Number);
+  return new CANNON.Trimesh(vertices, indices);
+}
+
+},{"cannon":4}],3:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -159,68 +221,6 @@ CANNON.shape2mesh = function(body){
 };
 
 module.exports = CANNON.shape2mesh;
-
-},{"cannon":4}],3:[function(require,module,exports){
-var CANNON = require('cannon');
-
-/**
- * Given a THREE.Object3D instance, creates a corresponding CANNON shape.
- * @param  {THREE.Object3D} object
- * @return {CANNON.Shape}
- */
-module.exports = function (object) {
-  var mesh, meshes = [];
-  object.traverse(function (object) {
-    if (object.type === 'Mesh') {
-      meshes.push(object);
-    }
-  });
-
-  mesh = meshes[0];
-  if (meshes.length > 1) {
-    console.warn('[object2shape] Found too many objects - returning shape for first first');
-  } else if (meshes.length === 0) {
-    return null;
-  }
-
-  switch (mesh.geometry.type) {
-    case 'BoxGeometry':
-      return createBoxShape(mesh.geometry);
-    case 'PlaneBufferGeometry':
-      return createPlaneShape(mesh.geometry);
-    case 'BufferGeometry':
-      return createTrimeshShape(mesh.geometry);
-    default:
-      console.warn('Unrecognized geometry: "%s". Using bounding box as shape.', mesh.geometry.type);
-      return createBoxShape(mesh.geometry);
-  }
-};
-
-function createPlaneShape (geometry) {
-  geometry.computeBoundingBox();
-  var box = geometry.boundingBox;
-  return new CANNON.Box(new CANNON.Vec3(
-    (box.max.x - box.min.x) / 2 || 0.1,
-    (box.max.y - box.min.y) / 2 || 0.1,
-    (box.max.z - box.min.z) / 2 || 0.1
-  ));
-}
-
-function createBoxShape (geometry) {
-  geometry.computeBoundingBox();
-  var box = geometry.boundingBox;
-  return new CANNON.Box(new CANNON.Vec3(
-    (box.max.x - box.min.x) / 2,
-    (box.max.y - box.min.y) / 2,
-    (box.max.z - box.min.z) / 2
-  ));
-}
-
-function createTrimeshShape (geometry) {
-  var vertices = geometry.attributes.position.array;
-  var indices = Object.keys(vertices).map(Number);
-  return new CANNON.Trimesh(vertices, indices);
-}
 
 },{"cannon":4}],4:[function(require,module,exports){
 (function (global){
@@ -13977,8 +13977,8 @@ module.exports = {
     if (isNaN(dt)) return;
 
     var physics = this.el.sceneEl.systems.physics || {options:{maxInterval: 1 / 60}},
-        velocity = this.el.getAttribute('velocity'), // TODO - why not this.el.data?
-        position = this.el.getAttribute('position');
+        velocity = this.el.getComputedAttribute('velocity'),
+        position = this.el.getComputedAttribute('position');
 
     dt = Math.min(dt, physics.options.maxInterval * 1000);
 
@@ -14137,7 +14137,7 @@ module.exports = {
 
 },{}],12:[function(require,module,exports){
 var CANNON = require('cannon'),
-    object2shape = require('../../lib/object2shape');
+    mesh2shape = require('../../lib/CANNON-mesh2shape');
 
 require('../../lib/CANNON-shape2mesh');
 
@@ -14152,14 +14152,14 @@ module.exports = {
     this.system = this.el.sceneEl.systems.physics;
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
-    var shape = object2shape(this.el.object3D);
+    var shape = mesh2shape(this.el.object3D);
     if (shape && this.el.sceneEl.hasLoaded) {
       this.initBody_(shape);
     } else if (shape && !this.el.sceneEl.hasLoaded) {
       this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
     } else {
       this.el.addEventListener('model-loaded', function (e) {
-        this.initBody_(object2shape(e.detail.model));
+        this.initBody_(mesh2shape(e.detail.model));
       }.bind(this));
     }
   },
@@ -14227,7 +14227,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/CANNON-shape2mesh":2,"../../lib/object2shape":3,"cannon":4}],13:[function(require,module,exports){
+},{"../../lib/CANNON-mesh2shape":2,"../../lib/CANNON-shape2mesh":3,"cannon":4}],13:[function(require,module,exports){
 var Body = require('./body');
 
 /**

@@ -1821,8 +1821,8 @@ module.exports = {
     if (isNaN(dt)) return;
 
     var physics = this.el.sceneEl.systems.physics || {options:{maxInterval: 1 / 60}},
-        velocity = this.el.getAttribute('velocity'), // TODO - why not this.el.data?
-        position = this.el.getAttribute('position');
+        velocity = this.el.getComputedAttribute('velocity'),
+        position = this.el.getComputedAttribute('position');
 
     dt = Math.min(dt, physics.options.maxInterval * 1000);
 
