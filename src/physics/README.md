@@ -46,7 +46,7 @@ When debugging, it may be helpful to see the shape of the physics bodies attache
 
 ## Body Shapes
 
-Components will attempt to find an appropriate CANNON.js shape to fit your model. Boxes, Planes, Cylinders, and Trimeshes are supported now. Trimeshes adapt to fit custom geometry (e.g. a .OBJ or .DAE file), but may not perform as well as primitive shapes. Additional shapes offered by CANNON.js (sphere, heightfield, ...) will be supported soon.
+Components will attempt to find an appropriate CANNON.js shape to fit your model. Boxes, Planes, Cylinders, Spheres, and Trimeshes are supported. Trimeshes adapt to fit custom geometry (e.g. a `.OBJ` or `.DAE` file), but may not perform as well as primitive shapes.
 
 CANNON.js also offers support for "composing" shapes for complex objects, using multiple primitives. For example, a stool might be modeled as a cylinder-shaped seat, on four long cylindrical legs. This has the advantage of better performance over a Trimesh, but requires manual customization. Composed shapes are not currently supported by these components, although writing a `chair-body` component, extending `body`, would allow you to override the default shape.
 
