@@ -19414,7 +19414,6 @@ module.exports = {
 
     this.body.el = this.el;
     this.system.addBody(this.body);
-    console.info('[%s] loaded', this.name);
   },
 
   remove: function () {
@@ -19542,8 +19541,8 @@ module.exports = {
     });
     this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
 
+    this.body.el = this.el;
     this.system.addBody(this.body);
-    console.info('[kinematic-body] loaded');
   },
 
   remove: function () {
@@ -19725,12 +19724,17 @@ module.exports = {
     RENDER:   'render'
   },
 
+  /**
+   * Initializes the physics system.
+   */
   init: function () {
     this.options = AFRAME.utils.extend({}, OPTIONS);
 
     this.children = {};
     this.children[this.Phase.SIMULATE] = [];
     this.children[this.Phase.RENDER] = [];
+
+    this.listeners = {};
 
     this.world = new CANNON.World();
     this.world.quatNormalizeSkip = 0;
@@ -19748,6 +19752,11 @@ module.exports = {
     this.world.addContactMaterial(this.contactMaterial);
   },
 
+  /**
+   * Sets an option on the physics system, affecting future simulation steps.
+   * @param {string} opt
+   * @param {mixed} value
+   */
   setOption: function (opt, value) {
     this.options[opt] = value;
     switch (opt) {
@@ -19765,6 +19774,14 @@ module.exports = {
     }
   },
 
+  /**
+   * Updates the physics world on each tick of the A-Frame scene. It would be
+   * entirely possible to separate the two – updating physics more or less
+   * frequently than the scene – if greater precision or performance were
+   * necessary.
+   * @param  {number} t
+   * @param  {number} dt
+   */
   tick: function (t, dt) {
     if (isNaN(dt)) return;
 
@@ -19780,18 +19797,41 @@ module.exports = {
     }
   },
 
+  /**
+   * Adds a body to the scene, and binds collision events to the element.
+   * @param {CANNON.Body} body
+   */
   addBody: function (body) {
+    this.listeners[body.id] = function (e) { body.el.emit('collide', e); };
+    body.addEventListener('collide', this.listeners[body.id]);
     this.world.addBody(body);
   },
 
+  /**
+   * Removes a body, and its listeners, from the scene.
+   * @param {CANNON.Body} body
+   */
   removeBody: function (body) {
+    body.addEventListener('collide', this.listeners[body.id]);
+    delete this.listeners[body.id];
     this.world.removeBody(body);
   },
 
+  /**
+   * Adds a component instance to the system, to be invoked on each tick during
+   * the given phase.
+   * @param {Component} component
+   * @param {string} phase
+   */
   addBehavior: function (component, phase) {
     this.children[phase].push(component);
   },
 
+  /**
+   * Removes a component instance from the system.
+   * @param {Component} component
+   * @param {string} phase
+   */
   removeBehavior: function (component, phase) {
     this.children[phase].splice(this.children[phase].indexOf(component), 1);
   }
