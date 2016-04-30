@@ -47,8 +47,14 @@ module.exports = function (object) {
   switch (mesh.geometry.type) {
     case 'BoxGeometry':
       return createBoxShape(mesh.geometry);
+    case 'CylinderGeometry':
+      return createCylinderShape(mesh.geometry);
+    case 'PlaneGeometry':
     case 'PlaneBufferGeometry':
       return createPlaneShape(mesh.geometry);
+    case 'SphereGeometry':
+    case 'SphereBufferGeometry':
+      return createSphereShape(mesh.geometry);
     case 'BufferGeometry':
       return createTrimeshShape(mesh.geometry);
     default:
@@ -56,6 +62,30 @@ module.exports = function (object) {
       return createBoxShape(mesh.geometry);
   }
 };
+
+function createBoxShape (geometry) {
+  geometry.computeBoundingBox();
+  var box = geometry.boundingBox;
+  return new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2,
+    (box.max.y - box.min.y) / 2,
+    (box.max.z - box.min.z) / 2
+  ));
+}
+
+function createCylinderShape (geometry) {
+  var shape,
+      params = geometry.parameters;
+  shape = new CANNON.Cylinder(
+    params.radiusTop,
+    params.radiusBottom,
+    params.height,
+    params.radialSegments
+  );
+  shape.orientation = new CANNON.Quaternion();
+  shape.orientation.setFromEuler(THREE.Math.degToRad(-90), 0, 0, 'XYZ').normalize();
+  return shape;
+}
 
 function createPlaneShape (geometry) {
   geometry.computeBoundingBox();
@@ -67,14 +97,8 @@ function createPlaneShape (geometry) {
   ));
 }
 
-function createBoxShape (geometry) {
-  geometry.computeBoundingBox();
-  var box = geometry.boundingBox;
-  return new CANNON.Box(new CANNON.Vec3(
-    (box.max.x - box.min.x) / 2,
-    (box.max.y - box.min.y) / 2,
-    (box.max.z - box.min.z) / 2
-  ));
+function createSphereShape (geometry) {
+  return new CANNON.Sphere(geometry.radius);
 }
 
 function createTrimeshShape (geometry) {
@@ -19389,13 +19413,13 @@ module.exports = {
     }
 
     this.body = new CANNON.Body({
-      shape: shape,
       mass: data.mass || 0,
       material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
+    this.body.addShape(shape, null, shape.orientation);
 
     // Apply rotation
     var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
@@ -19408,10 +19432,7 @@ module.exports = {
 
     // Show wireframe
     if (this.system.options.debug) {
-      var mesh = CANNON.shape2mesh(this.body).children[0];
-      this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
-      this.syncWireframe();
-      this.el.sceneEl.object3D.add(this.wireframe);
+      this.createWireframe(this.body, shape);
     }
 
     this.body.el = this.el;
@@ -19424,11 +19445,41 @@ module.exports = {
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
+  createWireframe: function (body, shape) {
+    var orientation = shape.orientation,
+        mesh = CANNON.shape2mesh(body).children[0];
+    this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
+
+    if (orientation) {
+      orientation.inverse(orientation);
+      this.wireframe.orientation = new THREE.Quaternion(
+        orientation.x,
+        orientation.y,
+        orientation.z,
+        orientation.w
+      );
+    }
+
+    this.syncWireframe();
+    this.el.sceneEl.object3D.add(this.wireframe);
+  },
+
   syncWireframe: function () {
+    var wireframe = this.wireframe;
+
     if (!this.wireframe) return;
-    this.wireframe.quaternion.copy(this.body.quaternion);
-    this.wireframe.position.copy(this.body.position);
-    this.wireframe.updateMatrix();
+
+    // Apply rotation. If the shape required custom orientation, also apply
+    // that on the wireframe.
+    wireframe.quaternion.copy(this.body.quaternion);
+    if (wireframe.orientation) {
+      wireframe.quaternion.multiply(wireframe.orientation);
+    }
+
+    // Apply position.
+    wireframe.position.copy(this.body.position);
+
+    wireframe.updateMatrix();
   }
 };
 
