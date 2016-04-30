@@ -28,8 +28,10 @@ module.exports = {
     if (isNaN(dt)) return;
 
     var physics = this.el.sceneEl.systems.physics || {options:{maxInterval: 1 / 60}},
-        velocity = this.el.getComputedAttribute('velocity'),
-        position = this.el.getComputedAttribute('position');
+
+        // TODO - There's definitely a bug with getComputedAttribute and el.data.
+        velocity = this.el.getAttribute('velocity') || {x: 0, y: 0, z: 0},
+        position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
 
     dt = Math.min(dt, physics.options.maxInterval * 1000);
 
