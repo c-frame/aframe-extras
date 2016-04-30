@@ -4,7 +4,7 @@
 
 Extensible movement/rotation/hotkey controls, with support for a variety of input devices.
 
-- `universal-controls`: Manager for other controls, which can be used to decide which input device is used when multiple are available, and to set common acceleration/sensitivity across all controls.
+- **universal-controls**: Manager for other controls, which can be used to decide which input device is used when multiple are available, and to set common acceleration/sensitivity across all controls.
 
 ## Usage
 
@@ -24,12 +24,12 @@ Extend with custom controls:
 
 ## Input devices:
 
-- `checkpoint-controls`: Teleport or animate between checkpoints. See also: [checkpoint](/src/misc/checkpoint.js).
-- `gamepad-controls`: Gamepad position + (optional) rotation controls.
-- `hmd-controls`: HMD rotation / positional tracking controls.
-- `keyboard-controls`: WASD+Arrow key movement controls, with improved support for ZQSD and Dvorak layouts.
-- `mouse-controls`: Mouse + Pointerlock controls. *Non-VR / desktop only.*
-- `touch-controls`: Touch-to-move controls, e.g. for Cardboard.
+- **checkpoint-controls**: Teleport or animate between checkpoints. See also: [checkpoint](/src/misc/checkpoint.js).
+- **gamepad-controls**: Gamepad position + (optional) rotation controls.
+- **hmd-controls**: HMD rotation / positional tracking controls.
+- **keyboard-controls**: WASD+Arrow key movement controls, with improved support for ZQSD and Dvorak layouts.
+- **mouse-controls**: Mouse + Pointerlock controls. *Non-VR / desktop only.*
+- **touch-controls**: Touch-to-move controls, e.g. for Cardboard.
 
 ## Other Controls
 
@@ -37,7 +37,7 @@ I've written standalone components for several other control components.
 
 - [gamepad-controls](https://github.com/donmccurdy/aframe-gamepad-controls): A more advanced standalone gamepad controller than the version in this package.
 - [keyboard-controls](https://github.com/donmccurdy/aframe-keyboard-controls): A more advanced standalone keyboard controller than the version in this package.
-- `leap-motion-controls`: *In progress.*
+- **leap-motion-controls**: *In progress.*
 
 ## Mobile + Desktop Input Devices
 

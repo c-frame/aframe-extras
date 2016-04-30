@@ -2,8 +2,8 @@
 
 Helpers for physics and controls components.
 
-- `velocity`: Updates an entity's position at each clock tick, according to a constant (or animateable) velocity.
-- `quaternion`: Alternative to the `rotation` component, helpful in the odd case where gimbal lock is an issue.
+- **velocity**: Updates an entity's position at each clock tick, according to a constant (or animateable) velocity.
+- **quaternion**: Alternative to the `rotation` component, helpful in the odd case where gimbal lock is an issue.
 
 ## Usage
 
