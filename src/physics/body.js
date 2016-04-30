@@ -1,5 +1,5 @@
 var CANNON = require('cannon'),
-    object2shape = require('../../lib/object2shape');
+    mesh2shape = require('../../lib/CANNON-mesh2shape');
 
 require('../../lib/CANNON-shape2mesh');
 
@@ -14,14 +14,14 @@ module.exports = {
     this.system = this.el.sceneEl.systems.physics;
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
-    var shape = object2shape(this.el.object3D);
+    var shape = mesh2shape(this.el.object3D);
     if (shape && this.el.sceneEl.hasLoaded) {
       this.initBody_(shape);
     } else if (shape && !this.el.sceneEl.hasLoaded) {
       this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
     } else {
       this.el.addEventListener('model-loaded', function (e) {
-        this.initBody_(object2shape(e.detail.model));
+        this.initBody_(mesh2shape(e.detail.model));
       }.bind(this));
     }
   },
