@@ -77,7 +77,7 @@ function createPlaneShape (geometry) {
 }
 
 function createSphereShape (geometry) {
-  return new CANNON.Sphere(geometry.radius);
+  return new CANNON.Sphere(geometry.parameters.radius);
 }
 
 function createTrimeshShape (geometry) {
