@@ -9,6 +9,18 @@
     "type": "git",
     "url": "git+https://github.com/donmccurdy/aframe-extras.git"
   },
+  "scripts": {
+    "dev": "budo browser.js:examples/aframe-extras.js",
+    "build": "./scripts/dist.js && ./scripts/build.js",
+    "dist": "./scripts/dist.js",
+    "test": "karma start ./tests/karma.conf.js",
+    "test:firefox": "karma start ./tests/karma.conf.js --browsers FirefoxNightly",
+    "test:chrome": "karma start ./tests/karma.conf.js --browsers Chrome",
+    "preversion": "npm run test -- --single-run",
+    "preversion:readme": "replace 'aframe-extras/v\\d+\\.\\d+\\.\\d+/' \"aframe-extras/v$npm_package_version/\" ./README.md",
+    "version": "npm run preversion:readme && npm run dist && git add -A dist",
+    "postversion": "git push && git push --tags && npm publish"
+  },
   "peerDependencies": {
     "aframe": "^0.2.0"
   },
@@ -32,20 +44,10 @@
     "karma-mocha-reporter": "^1.1.0",
     "karma-sinon-chai": "^1.1.0",
     "mocha": "^2.3.3",
+    "replace": "^0.3.0",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
     "uglify-js": "^2.6.2"
-  },
-  "scripts": {
-    "dev": "budo browser.js:examples/aframe-extras.js",
-    "build": "./scripts/dist.js && ./scripts/build.js",
-    "dist": "./scripts/dist.js",
-    "test": "karma start ./tests/karma.conf.js",
-    "test:firefox": "karma start ./tests/karma.conf.js --browsers FirefoxNightly",
-    "test:chrome": "karma start ./tests/karma.conf.js --browsers Chrome",
-    "preversion": "npm run test -- --single-run",
-    "version": "npm run dist && git add -A dist",
-    "postversion": "git push && git push --tags && npm publish"
   },
   "keywords": [
     "aframe",
