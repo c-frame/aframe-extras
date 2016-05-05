@@ -14,14 +14,36 @@ module.exports = {
     this.system = this.el.sceneEl.systems.physics;
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
-    var shape = mesh2shape(this.el.object3D);
+    var shape, options;
+
+    if (this.data.shape !== 'auto') {
+      options = {
+        type: mesh2shape.Type[this.data.shape.toUpperCase()]
+      };
+    }
+
+    // TODO - This is pretty obtuse. There really ought to be a clean way to
+    // delay component initialization until the scene and all of its components
+    // have been taken care of.
+    shape = mesh2shape(this.el.object3D, options);
     if (shape && this.el.sceneEl.hasLoaded) {
       this.initBody_(shape);
     } else if (shape && !this.el.sceneEl.hasLoaded) {
       this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
+    } else if (!this.el.sceneEl.hasLoaded) {
+      this.el.sceneEl.addEventListener('loaded', function () {
+        shape = mesh2shape(this.el.object3D, options);
+        if (shape) {
+          this.initBody_(shape);
+        } else {
+          this.el.addEventListener('model-loaded', function (e) {
+            this.initBody_(mesh2shape(e.detail.model, options));
+          }.bind(this));
+        }
+      }.bind(this));
     } else {
       this.el.addEventListener('model-loaded', function (e) {
-        this.initBody_(mesh2shape(e.detail.model));
+        this.initBody_(mesh2shape(e.detail.model, options));
       }.bind(this));
     }
   },
@@ -52,7 +74,7 @@ module.exports = {
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
-    this.body.addShape(shape, null, shape.orientation);
+    this.body.addShape(shape, shape.offset, shape.orientation);
 
     // Apply rotation
     var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
@@ -79,9 +101,14 @@ module.exports = {
   },
 
   createWireframe: function (body, shape) {
-    var orientation = shape.orientation,
+    var offset = shape.offset,
+        orientation = shape.orientation,
         mesh = CANNON.shape2mesh(body).children[0];
     this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
+
+    if (offset) {
+      this.wireframe.offset = offset.clone();
+    }
 
     if (orientation) {
       orientation.inverse(orientation);
@@ -98,7 +125,8 @@ module.exports = {
   },
 
   syncWireframe: function () {
-    var wireframe = this.wireframe;
+    var offset,
+        wireframe = this.wireframe;
 
     if (!this.wireframe) return;
 
@@ -109,8 +137,13 @@ module.exports = {
       wireframe.quaternion.multiply(wireframe.orientation);
     }
 
-    // Apply position.
+    // Apply position. If the shape required custom offset, also apply that on
+    // the wireframe.
     wireframe.position.copy(this.body.position);
+    if (wireframe.offset) {
+      offset = wireframe.offset.clone().applyQuaternion(wireframe.quaternion);
+      wireframe.position.add(offset);
+    }
 
     wireframe.updateMatrix();
   }

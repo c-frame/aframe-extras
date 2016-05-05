@@ -11,7 +11,8 @@ module.exports = AFRAME.utils.extend({}, Body, {
   schema: {
     mass:           { default: 5 },
     linearDamping:  { default: 0.01 },
-    angularDamping: { default: 0.01 }
+    angularDamping: { default: 0.01 },
+    shape: {default: 'auto', oneOf: ['auto', 'box']}
   },
 
   step: function () {
