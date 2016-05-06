@@ -29,41 +29,105 @@ var CANNON = require('cannon');
  * @param  {THREE.Object3D} object
  * @return {CANNON.Shape}
  */
-module.exports = function (object) {
-  var mesh, meshes = [];
+module.exports = function (object, options) {
+  options = options || {};
+
+  if (options.type === 'BoxGeometry') {
+    return createBoundingBoxShape(object);
+  } else if (options.type) {
+    throw new Error('[CANNON.mesh2shape] Invalid type "%s".', options.type);
+  }
+
+  var geometry, meshes = [];
   object.traverse(function (object) {
     if (object.type === 'Mesh') {
       meshes.push(object);
     }
   });
 
-  mesh = meshes[0];
   if (meshes.length > 1) {
-    console.warn('[mesh2shape] Found too many objects - returning shape for first first');
+    // Merge additional geometries into the first. Could try to create a
+    // compound shape from primitives, but this is probably a custom model, and
+    // doing that well automatically is complex.
+    geometry = meshes.pop().geometry.clone();
+    for (var i = 0; i < meshes.length; i++) {
+      geometry.merge(meshes[i].geometry);
+    }
+  } else if (meshes.length === 1) {
+    geometry = meshes[0].geometry;
   } else if (meshes.length === 0) {
     return null;
   }
 
-  switch (mesh.geometry.type) {
+  switch (geometry.type) {
     case 'BoxGeometry':
-      return createBoxShape(mesh.geometry);
+    case 'BoxBufferGeometry':
+      return createBoxShape(geometry);
     case 'CylinderGeometry':
-      return createCylinderShape(mesh.geometry);
+    case 'CylinderBufferGeometry':
+      return createCylinderShape(geometry);
     case 'PlaneGeometry':
     case 'PlaneBufferGeometry':
-      return createPlaneShape(mesh.geometry);
+      return createPlaneShape(geometry);
     case 'SphereGeometry':
     case 'SphereBufferGeometry':
-      return createSphereShape(mesh.geometry);
+      return createSphereShape(geometry);
+    case 'Geometry':
     case 'BufferGeometry':
-      return createTrimeshShape(mesh.geometry);
+      return createTrimeshShape(geometry);
     default:
-      console.warn('Unrecognized geometry: "%s". Using bounding box as shape.', mesh.geometry.type);
-      return createBoxShape(mesh.geometry);
+      console.warn('Unrecognized geometry: "%s". Using bounding box as shape.', geometry.type);
+      return createBoxShape(geometry);
   }
 };
 
+/******************************************************************************
+ * Type overrides
+ */
+
+module.exports.Type = {BOX: 'BoxGeometry'};
+
+/******************************************************************************
+ * Shape construction
+ */
+
+/**
+ * Bounding box needs to be computed with the entire mesh, not just geometry.
+ * @param  {THREE.Object3D} mesh
+ * @return {CANNON.Shape}
+ */
+function createBoundingBoxShape (object) {
+  var box,
+      shape,
+      helper = new THREE.BoundingBoxHelper(object);
+  helper.update();
+  box = helper.box;
+
+  if (!isFinite(box.min.lengthSq())) return null;
+
+  shape = new CANNON.Box(new CANNON.Vec3(
+    (box.max.x - box.min.x) / 2,
+    (box.max.y - box.min.y) / 2,
+    (box.max.z - box.min.z) / 2
+  ));
+
+  helper.position.sub(object.position);
+  if (helper.position.lengthSq()) {
+    shape.offset = helper.position;
+  }
+
+  return shape;
+}
+
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {CANNON.Shape}
+ */
 function createBoxShape (geometry) {
+  var vertices = getVertices(geometry);
+
+  if (!vertices.length) return null;
+
   geometry.computeBoundingBox();
   var box = geometry.boundingBox;
   return new CANNON.Box(new CANNON.Vec3(
@@ -73,6 +137,10 @@ function createBoxShape (geometry) {
   ));
 }
 
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {CANNON.Shape}
+ */
 function createCylinderShape (geometry) {
   var shape,
       params = geometry.parameters;
@@ -87,6 +155,10 @@ function createCylinderShape (geometry) {
   return shape;
 }
 
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {CANNON.Shape}
+ */
 function createPlaneShape (geometry) {
   geometry.computeBoundingBox();
   var box = geometry.boundingBox;
@@ -97,14 +169,41 @@ function createPlaneShape (geometry) {
   ));
 }
 
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {CANNON.Shape}
+ */
 function createSphereShape (geometry) {
   return new CANNON.Sphere(geometry.parameters.radius);
 }
 
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {CANNON.Shape}
+ */
 function createTrimeshShape (geometry) {
-  var vertices = geometry.attributes.position.array;
-  var indices = Object.keys(vertices).map(Number);
+  var indices,
+      vertices = getVertices(geometry);
+
+  if (!vertices.length) return null;
+
+  indices = Object.keys(vertices).map(Number);
   return new CANNON.Trimesh(vertices, indices);
+}
+
+/******************************************************************************
+ * Utils
+ */
+
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {Array<number>}
+ */
+function getVertices (geometry) {
+  if (geometry.attributes) {
+    return geometry.attributes.position.array;
+  }
+  return geometry.vertices || [];
 }
 
 },{"cannon":10}],4:[function(require,module,exports){
@@ -19381,14 +19480,36 @@ module.exports = {
     this.system = this.el.sceneEl.systems.physics;
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
-    var shape = mesh2shape(this.el.object3D);
+    var shape, options;
+
+    if (this.data.shape !== 'auto') {
+      options = {
+        type: mesh2shape.Type[this.data.shape.toUpperCase()]
+      };
+    }
+
+    // TODO - This is pretty obtuse. There really ought to be a clean way to
+    // delay component initialization until the scene and all of its components
+    // have been taken care of.
+    shape = mesh2shape(this.el.object3D, options);
     if (shape && this.el.sceneEl.hasLoaded) {
       this.initBody_(shape);
     } else if (shape && !this.el.sceneEl.hasLoaded) {
       this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
+    } else if (!this.el.sceneEl.hasLoaded) {
+      this.el.sceneEl.addEventListener('loaded', function () {
+        shape = mesh2shape(this.el.object3D, options);
+        if (shape) {
+          this.initBody_(shape);
+        } else {
+          this.el.addEventListener('model-loaded', function (e) {
+            this.initBody_(mesh2shape(e.detail.model, options));
+          }.bind(this));
+        }
+      }.bind(this));
     } else {
       this.el.addEventListener('model-loaded', function (e) {
-        this.initBody_(mesh2shape(e.detail.model));
+        this.initBody_(mesh2shape(e.detail.model, options));
       }.bind(this));
     }
   },
@@ -19419,7 +19540,7 @@ module.exports = {
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
-    this.body.addShape(shape, null, shape.orientation);
+    this.body.addShape(shape, shape.offset, shape.orientation);
 
     // Apply rotation
     var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
@@ -19446,9 +19567,14 @@ module.exports = {
   },
 
   createWireframe: function (body, shape) {
-    var orientation = shape.orientation,
+    var offset = shape.offset,
+        orientation = shape.orientation,
         mesh = CANNON.shape2mesh(body).children[0];
     this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
+
+    if (offset) {
+      this.wireframe.offset = offset.clone();
+    }
 
     if (orientation) {
       orientation.inverse(orientation);
@@ -19465,7 +19591,8 @@ module.exports = {
   },
 
   syncWireframe: function () {
-    var wireframe = this.wireframe;
+    var offset,
+        wireframe = this.wireframe;
 
     if (!this.wireframe) return;
 
@@ -19476,8 +19603,13 @@ module.exports = {
       wireframe.quaternion.multiply(wireframe.orientation);
     }
 
-    // Apply position.
+    // Apply position. If the shape required custom offset, also apply that on
+    // the wireframe.
     wireframe.position.copy(this.body.position);
+    if (wireframe.offset) {
+      offset = wireframe.offset.clone().applyQuaternion(wireframe.quaternion);
+      wireframe.position.add(offset);
+    }
 
     wireframe.updateMatrix();
   }
@@ -19497,7 +19629,8 @@ module.exports = AFRAME.utils.extend({}, Body, {
   schema: {
     mass:           { default: 5 },
     linearDamping:  { default: 0.01 },
-    angularDamping: { default: 0.01 }
+    angularDamping: { default: 0.01 },
+    shape: {default: 'auto', oneOf: ['auto', 'box']}
   },
 
   step: function () {
@@ -19739,6 +19872,9 @@ var Body = require('./body');
  * other objects may collide with it.
  */
 module.exports = AFRAME.utils.extend({}, Body, {
+  schema: {
+    shape: {default: 'auto', oneOf: ['auto', 'box']}
+  },
   step: function () {
     if (!this.body) return;
     if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
