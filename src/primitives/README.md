@@ -4,6 +4,7 @@ Reusable entities / primitives.
 
 - `<a-grid/>`: Flat grid, with subdivisions at regular intervals.
 - `<a-ocean/>`: Ocean with animated waves.
+- `<a-tube/>`: Tube following a custom path.
 
 ## Usage
 
