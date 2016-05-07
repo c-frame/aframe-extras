@@ -1,5 +1,11 @@
 /**
  * Tube following a custom path.
+ *
+ * Usage:
+ *
+ * ```html
+ * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
+ * ```
  */
 module.exports.Primitive = {
   defaultAttributes: {
