@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/primitives').registerAll();
-},{"./src/primitives":4}],2:[function(require,module,exports){
+},{"./src/primitives":5}],2:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -119,9 +119,71 @@ module.exports.Component = {
 };
 
 },{}],4:[function(require,module,exports){
+/**
+ * Flat-shaded ocean primitive.
+ *
+ * Based on a Codrops tutorial:
+ * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
+ */
+module.exports.Primitive = {
+  defaultAttributes: {
+    tube:           {},
+  },
+  mappings: {
+    path:           'tube.path',
+    segments:       'tube.segments',
+    radius:         'tube.radius',
+    radialSegments: 'tube.radialSegments',
+    closed:         'tube.closed'
+  }
+};
+
+module.exports.Component = {
+  schema: {
+    path:           {default: []},
+    segments:       {default: 64},
+    radius:         {default: 1},
+    radialSegments: {default: 8},
+    closed:         {default: false}
+  },
+
+  init: function () {
+    var el = this.el,
+        data = this.data,
+        material = el.components.material;
+
+    if (!data.path.length) {
+      console.error('[a-tube] `path` property expected but not found.');
+      return;
+    }
+
+    var curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
+      point = point.split(' ');
+      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
+    }));
+    var geometry = new THREE.TubeGeometry(
+      curve, data.segments, data.radius, data.radialSegments, data.closed
+    );
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial();
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    this.el.setObject3D('mesh', this.mesh);
+  },
+
+  remove: function () {
+    if (this.mesh) this.el.removeObject3D('mesh');
+  }
+};
+
+},{}],5:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
   'a-ocean':        require('./a-ocean'),
+  'a-tube':        require('./a-tube'),
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
@@ -134,8 +196,11 @@ module.exports = {
     AFRAME.registerComponent('ocean', this['a-ocean'].Component);
     AFRAME.registerPrimitive('a-ocean', this['a-ocean'].Primitive);
 
+    AFRAME.registerComponent('tube', this['a-tube'].Component);
+    AFRAME.registerPrimitive('a-tube', this['a-tube'].Primitive);
+
     this._registered = true;
   }
 };
 
-},{"./a-grid":2,"./a-ocean":3}]},{},[1]);
+},{"./a-grid":2,"./a-ocean":3,"./a-tube":4}]},{},[1]);

@@ -21,7 +21,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":14,"./src/loaders":20,"./src/math":23,"./src/misc":27,"./src/physics":32,"./src/primitives":39,"./src/shadows":40}],3:[function(require,module,exports){
+},{"./src/controls":14,"./src/loaders":20,"./src/math":23,"./src/misc":27,"./src/physics":32,"./src/primitives":40,"./src/shadows":41}],3:[function(require,module,exports){
 var CANNON = require('cannon');
 
 /**
@@ -72,6 +72,8 @@ module.exports = function (object, options) {
     case 'SphereGeometry':
     case 'SphereBufferGeometry':
       return createSphereShape(geometry);
+    case 'TubeGeometry':
+      return createTubeShape(geometry);
     case 'Geometry':
     case 'BufferGeometry':
       return createTrimeshShape(geometry);
@@ -181,6 +183,16 @@ function createSphereShape (geometry) {
  * @param  {THREE.Geometry} geometry
  * @return {CANNON.Shape}
  */
+function createTubeShape (geometry) {
+  var tmp = new THREE.BufferGeometry();
+  tmp.fromGeometry(geometry);
+  return createTrimeshShape(tmp);
+}
+
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {CANNON.Shape}
+ */
 function createTrimeshShape (geometry) {
   var indices,
       vertices = getVertices(geometry);
@@ -204,6 +216,31 @@ function getVertices (geometry) {
     return geometry.attributes.position.array;
   }
   return geometry.vertices || [];
+}
+
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {THREE.Geometry} Original geometry.
+ */
+function centerGeometry (geometry) {
+  geometry.computeBoundingSphere();
+
+  var center = geometry.boundingSphere.center;
+  var radius = geometry.boundingSphere.radius;
+
+  var s = radius === 0 ? 1 : 1.0 / radius;
+
+  var matrix = new THREE.Matrix4();
+  matrix.set(
+    1, 0, 0, - 1 * center.x,
+    0, 1, 0, - 1 * center.y,
+    0, 0, 1, - 1 * center.z,
+    0, 0, 0, 1
+  );
+
+  geometry.applyMatrix(matrix);
+
+  return geometry;
 }
 
 },{"cannon":10}],4:[function(require,module,exports){
@@ -20145,9 +20182,71 @@ module.exports.Component = {
 };
 
 },{}],39:[function(require,module,exports){
+/**
+ * Flat-shaded ocean primitive.
+ *
+ * Based on a Codrops tutorial:
+ * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
+ */
+module.exports.Primitive = {
+  defaultAttributes: {
+    tube:           {},
+  },
+  mappings: {
+    path:           'tube.path',
+    segments:       'tube.segments',
+    radius:         'tube.radius',
+    radialSegments: 'tube.radialSegments',
+    closed:         'tube.closed'
+  }
+};
+
+module.exports.Component = {
+  schema: {
+    path:           {default: []},
+    segments:       {default: 64},
+    radius:         {default: 1},
+    radialSegments: {default: 8},
+    closed:         {default: false}
+  },
+
+  init: function () {
+    var el = this.el,
+        data = this.data,
+        material = el.components.material;
+
+    if (!data.path.length) {
+      console.error('[a-tube] `path` property expected but not found.');
+      return;
+    }
+
+    var curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
+      point = point.split(' ');
+      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
+    }));
+    var geometry = new THREE.TubeGeometry(
+      curve, data.segments, data.radius, data.radialSegments, data.closed
+    );
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial();
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    this.el.setObject3D('mesh', this.mesh);
+  },
+
+  remove: function () {
+    if (this.mesh) this.el.removeObject3D('mesh');
+  }
+};
+
+},{}],40:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
   'a-ocean':        require('./a-ocean'),
+  'a-tube':        require('./a-tube'),
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
@@ -20160,11 +20259,14 @@ module.exports = {
     AFRAME.registerComponent('ocean', this['a-ocean'].Component);
     AFRAME.registerPrimitive('a-ocean', this['a-ocean'].Primitive);
 
+    AFRAME.registerComponent('tube', this['a-tube'].Component);
+    AFRAME.registerPrimitive('a-tube', this['a-tube'].Primitive);
+
     this._registered = true;
   }
 };
 
-},{"./a-grid":37,"./a-ocean":38}],40:[function(require,module,exports){
+},{"./a-grid":37,"./a-ocean":38,"./a-tube":39}],41:[function(require,module,exports){
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
@@ -20181,7 +20283,7 @@ module.exports = {
   }
 };
 
-},{"./shadow":42,"./shadow-light":41}],41:[function(require,module,exports){
+},{"./shadow":43,"./shadow-light":42}],42:[function(require,module,exports){
 /**
  * Light component.
  *
@@ -20322,7 +20424,7 @@ module.exports = {
   }
 };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /**
  * Shadow component.
  *

@@ -51,6 +51,8 @@ module.exports = function (object, options) {
     case 'SphereGeometry':
     case 'SphereBufferGeometry':
       return createSphereShape(geometry);
+    case 'TubeGeometry':
+      return createTubeShape(geometry);
     case 'Geometry':
     case 'BufferGeometry':
       return createTrimeshShape(geometry);
@@ -160,6 +162,16 @@ function createSphereShape (geometry) {
  * @param  {THREE.Geometry} geometry
  * @return {CANNON.Shape}
  */
+function createTubeShape (geometry) {
+  var tmp = new THREE.BufferGeometry();
+  tmp.fromGeometry(geometry);
+  return createTrimeshShape(tmp);
+}
+
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {CANNON.Shape}
+ */
 function createTrimeshShape (geometry) {
   var indices,
       vertices = getVertices(geometry);
@@ -183,6 +195,31 @@ function getVertices (geometry) {
     return geometry.attributes.position.array;
   }
   return geometry.vertices || [];
+}
+
+/**
+ * @param  {THREE.Geometry} geometry
+ * @return {THREE.Geometry} Original geometry.
+ */
+function centerGeometry (geometry) {
+  geometry.computeBoundingSphere();
+
+  var center = geometry.boundingSphere.center;
+  var radius = geometry.boundingSphere.radius;
+
+  var s = radius === 0 ? 1 : 1.0 / radius;
+
+  var matrix = new THREE.Matrix4();
+  matrix.set(
+    1, 0, 0, - 1 * center.x,
+    0, 1, 0, - 1 * center.y,
+    0, 0, 1, - 1 * center.z,
+    0, 0, 0, 1
+  );
+
+  geometry.applyMatrix(matrix);
+
+  return geometry;
 }
 
 },{"cannon":4}],3:[function(require,module,exports){
