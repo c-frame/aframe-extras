@@ -1,8 +1,5 @@
 /**
- * Flat-shaded ocean primitive.
- *
- * Based on a Codrops tutorial:
- * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
+ * Tube following a custom path.
  */
 module.exports.Primitive = {
   defaultAttributes: {
