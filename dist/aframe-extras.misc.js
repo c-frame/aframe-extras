@@ -14536,7 +14536,8 @@ module.exports = {
     mass:           { default: 5 },
     radius:         { default: 1.3 },
     height:         { default: 1.764 },
-    linearDamping:  { default: 0.05 }
+    linearDamping:  { default: 0.05 },
+    enableSlopes:   { default: true }
   },
 
   /*******************************************************************
@@ -14640,6 +14641,12 @@ module.exports = {
 
       normalizedVelocity.copy(velocity).normalize();
       if (groundBody && normalizedVelocity.y < 0.5) {
+        if (!data.enableSlopes) {
+          groundNormal.set(0, 1, 0);
+        } else if (groundNormal.y < 1 - EPS) {
+          groundNormal = this.raycastToGround(groundBody, groundNormal);
+        }
+
         // 4. Project trajectory onto the top-most ground object, unless
         // trajectory is > 45º.
         velocity = velocity.projectOnPlane(groundNormal);
@@ -14665,7 +14672,34 @@ module.exports = {
       body.velocity.copy(velocity);
       this.el.setAttribute('velocity', velocity);
     };
-  }())
+  }()),
+
+  /**
+   * When walking on complex surfaces (trimeshes, borders between two shapes),
+   * the collision normals returned for the player sphere can be very
+   * inconsistent. To address this, raycast straight down, find the collision
+   * normal, and return whichever normal is more vertical.
+   * @param  {CANNON.Body} groundBody
+   * @param  {CANNON.Vec3} groundNormal
+   * @return {CANNON.Vec3}
+   */
+  raycastToGround: function (groundBody, groundNormal) {
+    var ray,
+        hitNormal,
+        vFrom = this.body.position,
+        vTo = this.body.position.clone();
+
+    vTo.y -= this.data.height;
+    ray = new CANNON.Ray(vFrom, vTo);
+    ray._updateDirection(); // TODO - Report bug.
+    ray.intersectBody(groundBody);
+
+    if (!ray.hasHit) return groundNormal;
+
+    // Compare ABS, in case we're projecting against the inside of the face.
+    hitNormal = ray.result.hitNormalWorld;
+    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
+  }
 };
 
 },{"cannon":4}],16:[function(require,module,exports){

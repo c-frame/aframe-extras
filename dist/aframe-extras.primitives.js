@@ -120,10 +120,13 @@ module.exports.Component = {
 
 },{}],4:[function(require,module,exports){
 /**
- * Flat-shaded ocean primitive.
+ * Tube following a custom path.
  *
- * Based on a Codrops tutorial:
- * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
+ * Usage:
+ *
+ * ```html
+ * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
+ * ```
  */
 module.exports.Primitive = {
   defaultAttributes: {
