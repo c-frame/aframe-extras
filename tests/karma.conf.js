@@ -1,4 +1,3 @@
-'use strict';
 module.exports = function (config) {
   config.set({
     basePath: '../',
@@ -6,7 +5,7 @@ module.exports = function (config) {
       debug: true,
       paths: ['src']
     },
-    browsers: ['FirefoxNightly', 'Chrome'],
+    browsers: ['Firefox', 'Chrome'],
     client: {
       captureConsole: true,
       mocha: {'ui': 'tdd'}
