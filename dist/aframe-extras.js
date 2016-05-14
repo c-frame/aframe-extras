@@ -29,7 +29,7 @@ var CANNON = require('cannon');
  * @param  {THREE.Object3D} object
  * @return {CANNON.Shape}
  */
-module.exports = function (object, options) {
+module.exports = CANNON.mesh2shape = function (object, options) {
   options = options || {};
 
   if (options.type === 'BoxGeometry') {
@@ -38,26 +38,9 @@ module.exports = function (object, options) {
     throw new Error('[CANNON.mesh2shape] Invalid type "%s".', options.type);
   }
 
-  var geometry, meshes = [];
-  object.traverse(function (object) {
-    if (object.type === 'Mesh') {
-      meshes.push(object);
-    }
-  });
+  var geometry = getGeometry(object);
 
-  if (meshes.length > 1) {
-    // Merge additional geometries into the first. Could try to create a
-    // compound shape from primitives, but this is probably a custom model, and
-    // doing that well automatically is complex.
-    geometry = meshes.pop().geometry.clone();
-    for (var i = 0; i < meshes.length; i++) {
-      geometry.merge(meshes[i].geometry);
-    }
-  } else if (meshes.length === 1) {
-    geometry = meshes[0].geometry;
-  } else if (meshes.length === 0) {
-    return null;
-  }
+  if (!geometry) return null;
 
   switch (geometry.type) {
     case 'BoxGeometry':
@@ -208,14 +191,38 @@ function createTrimeshShape (geometry) {
  */
 
 /**
+ * Returns a single geometry for the given object. If the object is compound,
+ * its geometries are automatically merged.
+ * @param {THREE.Object3D} object
+ * @return {THREE.Geometry}
+ */
+function getGeometry (object) {
+  var geometry, tmpGeometry, scale, mesh, meshes = [];
+  object.traverse(function (object) {
+    if (object.type === 'Mesh') {
+      meshes.push(object);
+    }
+  });
+
+  if (meshes.length === 0) return null;
+
+  geometry = safeCloneGeometry(meshes.pop());
+  while (meshes.length > 0) {
+    geometry.merge( safeCloneGeometry(meshes.pop()) );
+  }
+
+  return geometry;
+}
+
+/**
  * @param  {THREE.Geometry} geometry
  * @return {Array<number>}
  */
 function getVertices (geometry) {
-  if (geometry.attributes) {
-    return geometry.attributes.position.array;
+  if (!geometry.attributes) {
+    geometry = new THREE.BufferGeometry().fromGeometry(geometry);
   }
-  return geometry.vertices || [];
+  return geometry.attributes.position.array;
 }
 
 /**
@@ -239,6 +246,39 @@ function centerGeometry (geometry) {
   );
 
   geometry.applyMatrix(matrix);
+
+  return geometry;
+}
+
+/**
+ * Clones a mesh's geometry, with several non-default workarounds.
+ *
+ * 1. Scale geometry to match the mesh.
+ * 2. Offset geometry position to match mesh.
+ * 3. Avoid cloning when possible, to keep type information. For example,
+ *    cloning PlaneBufferGeometry normally returns a BufferGeometry instead.
+ *
+ * @param  {THREE.Mesh} mesh
+ * @return {THREE.Geometry}
+ */
+function safeCloneGeometry (mesh) {
+  var cloned = false;
+  var geometry = mesh.geometry;
+  var scale = mesh.getWorldScale();
+  var offset = mesh.getWorldPosition();
+
+  if (scale.x !== 1 || scale.y !== 1 || scale.z !== 1) {
+    console.log('SCALE %f %f %f', scale.x, scale.y, scale.z);
+    geometry = geometry.clone().scale(scale.x, scale.y, scale.z);
+    cloned = true;
+  }
+
+  if (offset.x || offset.y || offset.z) {
+    console.log('OFFSET %f %f %f', offset.x, offset.y, offset.z);
+    geometry = cloned ? geometry : geometry.clone();
+    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, offset.y, offset.z));
+    cloned = true;
+  }
 
   return geometry;
 }
@@ -19515,7 +19555,6 @@ module.exports = {
 
   initBody: function () {
     this.system = this.el.sceneEl.systems.physics;
-    this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
     var shape, options;
 
@@ -19593,14 +19632,36 @@ module.exports = {
       this.createWireframe(this.body, shape);
     }
 
+    this.el.body = this.body;
     this.body.el = this.el;
+    this.loaded = true;
+    this.play();
+  },
+
+  play: function () {
+    if (!this.loaded) return;
+
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
     this.system.addBody(this.body);
+    if (this.wireframe) this.el.sceneEl.object3D.add(this.wireframe);
+
+    this.syncToPhysics();
+  },
+
+  pause: function () {
+    if (!this.loaded) return;
+
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
+    this.system.removeBody(this.body);
+    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
   remove: function () {
-    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
-    if (this.body) this.system.removeBody(this.body);
-    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
+    this.pause();
+    delete this.body.el;
+    delete this.body;
+    delete this.el.body;
+    delete this.wireframe;
   },
 
   createWireframe: function (body, shape) {
@@ -19624,7 +19685,6 @@ module.exports = {
     }
 
     this.syncWireframe();
-    this.el.sceneEl.object3D.add(this.wireframe);
   },
 
   syncWireframe: function () {
@@ -19649,6 +19709,20 @@ module.exports = {
     }
 
     wireframe.updateMatrix();
+  },
+
+  syncToPhysics: function () {
+    if (!this.body) return;
+    if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
+    if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
+    if (this.wireframe) this.syncWireframe();
+  },
+
+  syncFromPhysics: function () {
+    if (!this.body) return;
+    this.el.setAttribute('quaternion', this.body.quaternion);
+    this.el.setAttribute('position', this.body.position);
+    if (this.wireframe) this.syncWireframe();
   }
 };
 
@@ -19671,10 +19745,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   },
 
   step: function () {
-    if (!this.body) return;
-    this.el.setAttribute('quaternion', this.body.quaternion);
-    this.el.setAttribute('position', this.body.position);
-    if (this.wireframe) this.syncWireframe();
+    this.syncFromPhysics();
   }
 });
 
@@ -19910,9 +19981,6 @@ module.exports = {
 
 module.exports = {
   schema: {
-    friction:     { default: 0.01 },
-    restitution:  { default: 0.3 },
-    iterations:   { default: 5 },
     gravity:      { default: -9.8 },
 
     // Never step more than four frames at once. Effectively pauses the scene
@@ -19920,7 +19988,7 @@ module.exports = {
     maxInterval:      { default: 4 / 60 },
 
     // If true, show wireframes around physics bodies.
-    debug:        { default: false }
+    debug:        { default: false },
   },
 
   update: function (previousData) {
@@ -19947,10 +20015,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
     shape: {default: 'auto', oneOf: ['auto', 'box']}
   },
   step: function () {
-    if (!this.body) return;
-    if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
-    if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
-    if (this.wireframe) this.syncWireframe();
+    this.syncToPhysics();
   }
 });
 
@@ -20013,28 +20078,6 @@ module.exports = {
   },
 
   /**
-   * Sets an option on the physics system, affecting future simulation steps.
-   * @param {string} opt
-   * @param {mixed} value
-   */
-  setOption: function (opt, value) {
-    this.options[opt] = value;
-    switch (opt) {
-      case 'maxInterval':
-        break; // no-op
-      case 'friction':
-      case 'restitution':
-      case 'iterations':
-      case 'gravity':
-      case 'debug':
-        console.warn('Option "%s" cannot yet be dynamically updated.', opt);
-        break;
-      default:
-        console.error('Option "%s" not recognized.', opt);
-    }
-  },
-
-  /**
    * Updates the physics world on each tick of the A-Frame scene. It would be
    * entirely possible to separate the two – updating physics more or less
    * frequently than the scene – if greater precision or performance were
@@ -20072,7 +20115,7 @@ module.exports = {
    * @param {CANNON.Body} body
    */
   removeBody: function (body) {
-    body.addEventListener('collide', this.listeners[body.id]);
+    body.removeEventListener('collide', this.listeners[body.id]);
     delete this.listeners[body.id];
     this.world.removeBody(body);
   },
@@ -20094,6 +20137,37 @@ module.exports = {
    */
   removeBehavior: function (component, phase) {
     this.children[phase].splice(this.children[phase].indexOf(component), 1);
+  },
+
+  /**
+   * Sets an option on the physics system, affecting future simulation steps.
+   * @param {string} opt
+   * @param {mixed} value
+   */
+  setOption: function (opt, value) {
+    if (this.options[opt] === value) return;
+
+    switch (opt) {
+      case 'maxInterval': return this.setMaxInterval(value);
+      case 'gravity':     return this.setGravity(value);
+      case 'debug':       return this.setDebug(value);
+      default:
+        console.error('Option "%s" not recognized.', opt);
+    }
+  },
+
+  setMaxInterval: function (maxInterval) {
+    this.options.maxInterval = maxInterval;
+  },
+
+  setGravity: function (gravity) {
+    this.options.gravity = gravity;
+    this.world.gravity.y = gravity;
+  },
+
+  setDebug: function (debug) {
+    this.options.debug = debug;
+    console.warn('[physics] Option "debug" cannot be dynamically updated yet');
   }
 };
 
