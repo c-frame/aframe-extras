@@ -16,9 +16,6 @@ module.exports = AFRAME.utils.extend({}, Body, {
   },
 
   step: function () {
-    if (!this.body) return;
-    this.el.setAttribute('quaternion', this.body.quaternion);
-    this.el.setAttribute('position', this.body.position);
-    if (this.wireframe) this.syncWireframe();
+    this.syncFromPhysics();
   }
 });

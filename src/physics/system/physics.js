@@ -56,28 +56,6 @@ module.exports = {
   },
 
   /**
-   * Sets an option on the physics system, affecting future simulation steps.
-   * @param {string} opt
-   * @param {mixed} value
-   */
-  setOption: function (opt, value) {
-    this.options[opt] = value;
-    switch (opt) {
-      case 'maxInterval':
-        break; // no-op
-      case 'friction':
-      case 'restitution':
-      case 'iterations':
-      case 'gravity':
-      case 'debug':
-        console.warn('Option "%s" cannot yet be dynamically updated.', opt);
-        break;
-      default:
-        console.error('Option "%s" not recognized.', opt);
-    }
-  },
-
-  /**
    * Updates the physics world on each tick of the A-Frame scene. It would be
    * entirely possible to separate the two – updating physics more or less
    * frequently than the scene – if greater precision or performance were
@@ -115,7 +93,7 @@ module.exports = {
    * @param {CANNON.Body} body
    */
   removeBody: function (body) {
-    body.addEventListener('collide', this.listeners[body.id]);
+    body.removeEventListener('collide', this.listeners[body.id]);
     delete this.listeners[body.id];
     this.world.removeBody(body);
   },
@@ -137,5 +115,36 @@ module.exports = {
    */
   removeBehavior: function (component, phase) {
     this.children[phase].splice(this.children[phase].indexOf(component), 1);
+  },
+
+  /**
+   * Sets an option on the physics system, affecting future simulation steps.
+   * @param {string} opt
+   * @param {mixed} value
+   */
+  setOption: function (opt, value) {
+    if (this.options[opt] === value) return;
+
+    switch (opt) {
+      case 'maxInterval': return this.setMaxInterval(value);
+      case 'gravity':     return this.setGravity(value);
+      case 'debug':       return this.setDebug(value);
+      default:
+        console.error('Option "%s" not recognized.', opt);
+    }
+  },
+
+  setMaxInterval: function (maxInterval) {
+    this.options.maxInterval = maxInterval;
+  },
+
+  setGravity: function (gravity) {
+    this.options.gravity = gravity;
+    this.world.gravity.y = gravity;
+  },
+
+  setDebug: function (debug) {
+    this.options.debug = debug;
+    console.warn('[physics] Option "debug" cannot be dynamically updated yet');
   }
 };

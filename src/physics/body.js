@@ -12,7 +12,6 @@ module.exports = {
 
   initBody: function () {
     this.system = this.el.sceneEl.systems.physics;
-    this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
     var shape, options;
 
@@ -90,14 +89,36 @@ module.exports = {
       this.createWireframe(this.body, shape);
     }
 
+    this.el.body = this.body;
     this.body.el = this.el;
+    this.loaded = true;
+    this.play();
+  },
+
+  play: function () {
+    if (!this.loaded) return;
+
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
     this.system.addBody(this.body);
+    if (this.wireframe) this.el.sceneEl.object3D.add(this.wireframe);
+
+    this.syncToPhysics();
+  },
+
+  pause: function () {
+    if (!this.loaded) return;
+
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
+    this.system.removeBody(this.body);
+    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
   remove: function () {
-    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
-    if (this.body) this.system.removeBody(this.body);
-    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
+    this.pause();
+    delete this.body.el;
+    delete this.body;
+    delete this.el.body;
+    delete this.wireframe;
   },
 
   createWireframe: function (body, shape) {
@@ -121,7 +142,6 @@ module.exports = {
     }
 
     this.syncWireframe();
-    this.el.sceneEl.object3D.add(this.wireframe);
   },
 
   syncWireframe: function () {
@@ -146,5 +166,19 @@ module.exports = {
     }
 
     wireframe.updateMatrix();
+  },
+
+  syncToPhysics: function () {
+    if (!this.body) return;
+    if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
+    if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
+    if (this.wireframe) this.syncWireframe();
+  },
+
+  syncFromPhysics: function () {
+    if (!this.body) return;
+    this.el.setAttribute('quaternion', this.body.quaternion);
+    this.el.setAttribute('position', this.body.position);
+    if (this.wireframe) this.syncWireframe();
   }
 };

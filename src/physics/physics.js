@@ -2,9 +2,6 @@
 
 module.exports = {
   schema: {
-    friction:     { default: 0.01 },
-    restitution:  { default: 0.3 },
-    iterations:   { default: 5 },
     gravity:      { default: -9.8 },
 
     // Never step more than four frames at once. Effectively pauses the scene
@@ -12,7 +9,7 @@ module.exports = {
     maxInterval:      { default: 4 / 60 },
 
     // If true, show wireframes around physics bodies.
-    debug:        { default: false }
+    debug:        { default: false },
   },
 
   update: function (previousData) {
