@@ -3,10 +3,11 @@ language: node_js
 node_js:
   - '5.5'
 
+addons:
+  firefox: "latest"
+
 install:
   - npm install
-  - ./node_modules/.bin/mozilla-download ./firefox/ --product firefox --branch mozilla-aurora
-  - export FIREFOX_NIGHTLY_BIN="./firefox/firefox/firefox-bin"
 
 before_script:
   - export DISPLAY=:99.0
