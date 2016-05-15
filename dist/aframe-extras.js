@@ -19750,7 +19750,8 @@ module.exports = AFRAME.utils.extend({}, Body, {
 });
 
 },{"./body":30}],32:[function(require,module,exports){
-var math = require('../math');
+var CANNON = require('cannon'),
+    math = require('../math');
 
 module.exports = {
   'physics':        require('./physics'),
@@ -19778,7 +19779,10 @@ module.exports = {
   }
 };
 
-},{"../math":23,"./dynamic-body":31,"./kinematic-body":33,"./physics":34,"./static-body":35,"./system/physics":36}],33:[function(require,module,exports){
+// Export CANNON.js.
+window.CANNON = window.CANNON || CANNON;
+
+},{"../math":23,"./dynamic-body":31,"./kinematic-body":33,"./physics":34,"./static-body":35,"./system/physics":36,"cannon":10}],33:[function(require,module,exports){
 /**
  * Kinematic body.
  *
