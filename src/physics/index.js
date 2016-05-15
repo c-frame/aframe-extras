@@ -1,4 +1,5 @@
-var math = require('../math');
+var CANNON = require('cannon'),
+    math = require('../math');
 
 module.exports = {
   'physics':        require('./physics'),
@@ -25,3 +26,6 @@ module.exports = {
     this._registered = true;
   }
 };
+
+// Export CANNON.js.
+window.CANNON = window.CANNON || CANNON;
