@@ -8,8 +8,8 @@ Components for A-Frame physics integration, built on [CANNON.js](http://schteppe
 
 ## Components
 
-- **dynamic-body**: Object that moves only according to physics simulation, which has mass and may collide with other objects.
-- **static-body**: Static body with a fixed position. Unaffected by gravity and collisions, but other objects may collide with it.
+- **dynamic-body**: Object that moves only according to physics simulation, which has mass and may collide with other objects. If the object will be pushed around by the player or other objects, choose `dynamic-body`.
+- **static-body**: Static body with a fixed position. Unaffected by gravity and collisions, but other objects may collide with it. If the object will move only through animation, or not at all, use a `static-body`.
 - **kinematic-body**: Controlled but dynamic body, which moves but is not affected (directly) by the physics engine. Intended for use on the player's model. Gravity and collisions are simulated, without giving full control to the physics engine.
 
 ## Usage
@@ -46,9 +46,24 @@ When debugging, it may be helpful to see the shape of the physics bodies attache
 
 ## Body Shapes
 
-Components will attempt to find an appropriate CANNON.js shape to fit your model. Boxes, Planes, Cylinders, Spheres, and Trimeshes are supported. Trimeshes adapt to fit custom geometry (e.g. a `.OBJ` or `.DAE` file), but may not perform as well as primitive shapes.
+Components will attempt to find an appropriate CANNON.js shape to fit your model. Boxes, Planes, Cylinders, Spheres, Convex Hulls, and Trimeshes are supported. When defining an object, you may use `auto`, `box`, or `hull`. `auto` will choose from the available shapes automatically. Select a shape carefully, as there are performance implications with different choices:
 
-CANNON.js also offers support for "composing" shapes for complex objects, using multiple primitives. For example, a stool might be modeled as a cylinder-shaped seat, on four long cylindrical legs. This has the advantage of better performance over a Trimesh, but requires manual customization. Composed shapes are not currently supported by these components, although writing a `chair-body` component, extending `body`, would allow you to override the default shape.
+* **Auto** (`auto`) – Chooses automatically from the available shapes. Currently uses Trimesh as a fallback for custom models, but this default may change in the future, to improve default scene performance.
+* **Box** (`box`) – Great performance, compared to Hull or Trimesh shapes, and may be fitted to custom models.
+* **Plane** ( – ) – Not available as a custom shape, but may be chosen automatically for PlaneGeometry.
+* **Cylinder** ( – ) – Not available as a custom shape, but may be chosen automatically for CylinderGeometry.
+* **Sphere** ( – ) – Not available as a custom shape, but may be chosen automatically for SphereGeometry.
+* **Convex** (`hull`) – Wraps a model, much like shrink-wrap. Indents and holes are removed from the physics shape. Convex shapes are better supported than Trimesh, but still have performance implications when used as dynamic objects.
+* **Trimesh** ( – ) – Not available as a custom shape, but may be chosen as a last resort for custom geometry. Trimeshes adapt to fit custom geometry (e.g. a `.OBJ` or `.DAE` file), but have very minimal support. Arbitrary trimesh shapes are difficult to model in any JS physics engine, will "fall through" certain other shapes, and have serious performance limitations.
+* **Compound** ( – ) – *In progress.* Compound shapes require a bit of work to set up, but allow you to use multiple primitives to define a physics shape around custom models. These will general perform better, and behave more accurately, than Trimesh or Convex shapes. For example, a stool might be modeled as a cylinder-shaped seat, on four long cylindrical legs.
+
+For more details, see the CANNON.js [collision matrix](https://github.com/schteppe/cannon.js#features).
+
+Example using a bounding box for a custom model:
+
+```html
+<a-entity obj-model="obj: url(...)" dynamic-body="shape: box; mass: 2"></a-entity>
+```
 
 ## Collision Events
 
