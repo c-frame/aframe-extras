@@ -8,7 +8,7 @@ var Body = require('./body');
  */
 module.exports = AFRAME.utils.extend({}, Body, {
   schema: {
-    shape: {default: 'auto', oneOf: ['auto', 'box']}
+    shape: {default: 'auto', oneOf: ['auto', 'box', 'hull']}
   },
   step: function () {
     this.syncToPhysics();
