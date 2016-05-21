@@ -9,13 +9,13 @@ Add-ons and helpers for A-Frame VR.
 In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v1.15.2/dist/aframe-extras.min.js"></script>
+<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.0/dist/aframe-extras.min.js"></script>
 ```
 
-CDN builds for aframe-extras/v1.15.2:
+CDN builds for aframe-extras/v1.16.0:
 
-- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.15.2/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.15.2/dist/aframe-extras.min.js) *(production)*
+- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.0/dist/aframe-extras.js) *(development)*
+- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.0/dist/aframe-extras.min.js) *(production)*
 
 ## Usage (NPM)
 
