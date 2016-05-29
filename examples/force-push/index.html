@@ -12,11 +12,13 @@
  */
 AFRAME.registerComponent('rain-of-cubes', {
   schema: {
-    maxCount: { default: 10, min: 0 }
+    maxCount: { default: 10, min: 0 },
+    interval: { default: 1000, min: 0 },
+    lifetime: { default: 10000, min: 0 }
   },
   init: function () {
     this.boxes = [];
-    this.timeout = setInterval(this.spawn.bind(this), 1000);
+    this.timeout = setInterval(this.spawn.bind(this), this.data.interval);
   },
   spawn: function () {
     if (this.boxes.length >= this.data.maxCount) {
@@ -38,7 +40,7 @@ AFRAME.registerComponent('rain-of-cubes', {
       if (box.body.position.y > 0) return;
       box.body.position.copy(this.randomPosition());
       box.body.velocity.set(0,0,0);
-    }.bind(this), 10000);
+    }.bind(this), this.data.lifetime);
   },
   randomPosition: function () {
     return {x: Math.random() * 10 - 5, y: 10, z: Math.random() * 10 - 5};
