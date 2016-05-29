@@ -14788,6 +14788,8 @@ module.exports = {
     this.body.el = this.el;
     this.loaded = true;
     this.play();
+
+    this.el.emit('body-loaded', {body: this.el.body});
   },
 
   play: function () {
