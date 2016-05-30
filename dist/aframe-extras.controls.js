@@ -1784,7 +1784,7 @@ module.exports = {
  */
 module.exports = {
   schema: {type: 'vec4'},
-  tick: function () {
+  update: function () {
     var data = this.data;
     this.el.object3D.quaternion.set(data.x, data.y, data.z, data.w);
   }
