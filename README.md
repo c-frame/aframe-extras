@@ -47,38 +47,38 @@ browserify custom-extras.js -o bundle.js
 <!-- tree src -I index.js -->
 <pre>
 src
-├── <a href="/src/controls">controls/</a>
+├── controls/ (<a href="/src/controls">Documentation</a>)
 │   ├── checkpoint-controls.js
 │   ├── gamepad-controls.js
 │   ├── hmd-controls.js
-│   ├── keyboard-controls.js    <i>(not VR-friendly)</i>
-│   ├── mouse-controls.js       <i>(not VR-friendly)</i>
+│   ├── keyboard-controls.js    <sub><img alt="Experimental" src="https://img.shields.io/badge/VR--friendly-no-red.svg"></sub>
+│   ├── mouse-controls.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/VR--friendly-no-red.svg"></sub>
 │   ├── touch-controls.js
 │   └── universal-controls.js
-├── <a href="/src/loaders">loaders/</a>
-│   ├── fbx-model.js            <i>(experimental)</i>
+├── loaders/ (<a href="/src/loaders">Documentation</a>)
+│   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-deprecated-lightgrey.svg"></sub>
 │   ├── ply-model.js
 │   └── three-model.js
-├── <a href="/src/math">math/</a>
+├── math/ (<a href="/src/math">Documentation</a>)
 │   ├── quaternion.js
 │   └── velocity.js
-├── <a href="/src/misc">misc/</a>
+├── misc/ (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
-│   ├── jump-ability.js         <i>(not VR-friendly)</i>
+│   ├── jump-ability.js         <sub><img alt="Experimental" src="https://img.shields.io/badge/VR--friendly-no-red.svg"></sub>
 │   └── toggle-velocity.js
-├── <a href="/src/physics">physics/</a>
+├── physics/ (<a href="/src/physics">Documentation</a>)
 │   ├── body.js
 │   ├── dynamic-body.js
-│   ├── kinematic-body.js
+│   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
 │   ├── physics.js
 │   ├── static-body.js
 │   └── system
 │       └── physics.js
-├── <a href="/src/primitives">primitives/</a>
+├── primitives/ (<a href="/src/primitives">Documentation</a>)
 │   ├── a-grid.js
 │   ├── a-ocean.js
 │   └── a-tube.js
-└── <a href="/src/shadows">shadows/</a>
-    ├── shadow-light.js         <i>(experimental)</i>
-    └── shadow.js               <i>(experimental)</i>
+└── shadows/ (<a href="/src/shadows">Documentation</a>)    <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
+    ├── shadow-light.js
+    └── shadow.js
 </pre>
