@@ -59,7 +59,7 @@ src
 │   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-deprecated-lightgrey.svg"></sub>
 │   ├── ply-model.js
 │   └── three-model.js
-├── <b>math/ (<a href="/src/math">Documentation</a>)
+├── <b>math/</b> (<a href="/src/math">Documentation</a>)
 │   ├── quaternion.js
 │   └── velocity.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
