@@ -5,50 +5,28 @@ require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
   init: function () {
-    this.initBody();
+    this.system = this.el.sceneEl.systems.physics;
+
+    if (this.el.sceneEl.hasLoaded) {
+      this.initBody();
+    } else {
+      this.el.sceneEl.addEventListener('loaded', this.initBody.bind(this));
+    }
   },
 
   initBody: function () {
-    this.system = this.el.sceneEl.systems.physics;
-
-    var shape, options;
-
-    if (this.data.shape !== 'auto') {
-      options = {
-        type: mesh2shape.Type[this.data.shape.toUpperCase()]
-      };
-    }
-
-    // TODO - This is pretty obtuse. There really ought to be a clean way to
-    // delay component initialization until the scene and all of its components
-    // have been taken care of.
-    shape = mesh2shape(this.el.object3D, options);
-    if (shape && this.el.sceneEl.hasLoaded) {
-      this.initBody_(shape);
-    } else if (shape && !this.el.sceneEl.hasLoaded) {
-      this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
-    } else if (!this.el.sceneEl.hasLoaded) {
-      this.el.sceneEl.addEventListener('loaded', function () {
-        shape = mesh2shape(this.el.object3D, options);
-        if (shape) {
-          this.initBody_(shape);
-        } else {
-          this.el.addEventListener('model-loaded', function (e) {
-            this.initBody_(mesh2shape(e.detail.model, options));
-          }.bind(this));
-        }
-      }.bind(this));
-    } else {
-      this.el.addEventListener('model-loaded', function (e) {
-        this.initBody_(mesh2shape(e.detail.model, options));
-      }.bind(this));
-    }
-  },
-
-  initBody_: function (shape) {
     var el = this.el,
         data = this.data,
-        pos = el.getComputedAttribute('position');
+        pos = el.getComputedAttribute('position'),
+        options = data.shape === 'auto' ? undefined : {
+          type: mesh2shape.Type[this.data.shape.toUpperCase()]
+        },
+        shape = mesh2shape(this.el.object3D, options);
+
+    if (!shape) {
+      this.el.addEventListener('model-loaded', this.initBody.bind(this));
+      return;
+    }
 
     this.body = new CANNON.Body({
       mass: data.mass || 0,
