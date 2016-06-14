@@ -4,8 +4,6 @@ var CANNON = require('cannon'),
 require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
-  dependencies: ['position'],
-
   init: function () {
     this.initBody();
   },
@@ -50,21 +48,7 @@ module.exports = {
   initBody_: function (shape) {
     var el = this.el,
         data = this.data,
-        pos = el.getAttribute('position');
-
-    if (!pos) {
-      pos = {x: 0, y: 0, z: 0};
-      el.setAttribute('position', pos);
-    }
-
-    // Apply scaling
-    if (this.el.hasAttribute('scale')) {
-      if (shape.setScale) {
-        shape.setScale(this.el.getAttribute('scale'));
-      } else {
-        console.warn('Physics body scaling could not be applied.');
-      }
-    }
+        pos = el.getComputedAttribute('position');
 
     this.body = new CANNON.Body({
       mass: data.mass || 0,
@@ -76,7 +60,7 @@ module.exports = {
     this.body.addShape(shape, shape.offset, shape.orientation);
 
     // Apply rotation
-    var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
+    var rot = el.getComputedAttribute('rotation');
     this.body.quaternion.setFromEuler(
       THREE.Math.degToRad(rot.x),
       THREE.Math.degToRad(rot.y),

@@ -5,7 +5,7 @@
  * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
  */
 module.exports.Primitive = {
-  defaultAttributes: {
+  defaultComponents: {
     ocean: {},
     rotation: {x: -90, y: 0, z: 0}
   },

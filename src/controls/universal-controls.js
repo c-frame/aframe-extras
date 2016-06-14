@@ -80,7 +80,7 @@ module.exports = {
    */
 
   tick: function (t, dt) {
-    if (isNaN(dt)) { return; }
+    if (!dt) { return; }
 
     // Update rotation.
     if (this.data.rotationEnabled) this.updateRotation(dt);

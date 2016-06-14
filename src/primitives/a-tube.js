@@ -8,7 +8,7 @@
  * ```
  */
 module.exports.Primitive = {
-  defaultAttributes: {
+  defaultComponents: {
     tube:           {},
   },
   mappings: {
