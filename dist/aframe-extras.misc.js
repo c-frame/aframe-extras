@@ -15011,9 +15011,10 @@ module.exports = {
   },
 
   syncToPhysics: function () {
-    if (!this.body) return;
-    if (this.el.components.velocity) this.body.velocity.copy(this.el.getAttribute('velocity'));
-    if (this.el.components.position) this.body.position.copy(this.el.getAttribute('position'));
+    var body = this.body;
+    if (!body) return;
+    if (this.el.components.velocity) body.velocity.copy(this.el.getComputedAttribute('velocity'));
+    if (this.el.components.position) body.position.copy(this.el.getComputedAttribute('position'));
     if (this.wireframe) this.syncWireframe();
   },
 

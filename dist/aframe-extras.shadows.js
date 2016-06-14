@@ -26,7 +26,7 @@ module.exports = {
  * @namespace light
  * @param {number} [angle=PI / 3] - Maximum extent of light from its direction,
           in radians. For spot lights.
- * @param {bool} [cast=false] - Whether light will cast shadows.
+ * @param {bool} [castShadow=false] - Whether light will cast shadows.
           Only applies to directional, point, and spot lights.
  * @param {string} [color=#FFF] - Light color. For every light.
  * @param {number} [decay=1] - Amount the light dims along the distance of the
@@ -62,7 +62,7 @@ module.exports = {
       shadowBias:       { default: 0 },
       shadowCameraFar:  { default: 5000 },
       shadowCameraFov:  { default: 50 },
-      shadowCameraNear: { default: 50 },
+      shadowCameraNear: { default: 0.5 },
       shadowDarkness:   { default: 0.5 },
       shadowMapHeight:  { default: 512 },
       shadowMapWidth:   { default: 512 },
@@ -73,26 +73,26 @@ module.exports = {
     var el = this.el;
     this.light = this.getLight();
     el.object3D.add(this.light);
-    el.sceneEl.registerLight(el);
-
-    if (!el.sceneEl.renderer.shadowMap.enabled) {
-      el.sceneEl.renderer.shadowMap.enabled = true;
+    el.sceneEl.systems.light.registerLight(el);
+    if (!el.sceneEl.hasLoaded) {
+      el.sceneEl.addEventListener('loaded', this.play.bind(this));
     }
   },
 
   update: function (previousData) {
-    // TODO: This check won't be necessary after v0.2.0.
-    if (previousData) {
-      var el = this.el;
-      el.object3D.remove(this.light);
-      this.light = this.getLight();
-      el.object3D.add(this.light);
-    }
+    if (!previousData) { return; }
+    this.el.object3D.remove(this.light);
+    this.light = this.getLight();
+    this.el.object3D.add(this.light);
   },
 
-  tick: function () {},
-
-  remove: function () {},
+  play: function () {
+    var el = this.el,
+        renderer = el.sceneEl.renderer;
+    if (renderer && !renderer.shadowMap.enabled) {
+      renderer.shadowMap.enabled = true;
+    }
+  },
 
   /**
    * Creates a new three.js light object given the current attributes of the
@@ -142,18 +142,16 @@ module.exports = {
    */
   setShadow: function (light) {
     var data = this.data;
-    if (!this.data.castShadow) { return light; }
-    [
-      'castShadow',
-      'shadowCameraNear',
-      'shadowCameraFar',
-      'shadowCameraFov',
-      'shadowDarkness',
-      'shadowMapHeight',
-      'shadowMapWidth'
-    ].forEach(function (shadowAttr) {
-      light[shadowAttr] = data[shadowAttr];
-    });
+    if (!data.castShadow) { return light; }
+
+    light.castShadow = data.castShadow;
+    light.shadow.camera.near = data.shadowCameraNear;
+    light.shadow.camera.far = data.shadowCameraFar;
+    light.shadow.camera.fov = data.shadowCameraFov;
+    light.shadow.darkness = data.shadowDarkness;
+    light.shadow.mapSize.height = data.shadowMapHeight;
+    light.shadow.mapSize.width = data.shadowMapWidth;
+
     return light;
   }
 };
@@ -175,25 +173,19 @@ module.exports = {
   },
 
   init: function () {
-    this.update({});
-    this.el.addEventListener('model-loaded', this.update.bind(this, {}, 'foobar'));
+    this.el.addEventListener('model-loaded', this.update.bind(this));
   },
 
-  tick: function () {},
+  update: function () {
+    var data = this.data;
 
-  update: function (previousData) {
-    // TODO: This check won't be necessary after v0.2.0.
-    if (previousData) {
-      var data = this.data;
-
-      // Applied recursively to support imported models.
-      this.el.object3D.traverse(function(node) {
-        if (node instanceof THREE.Mesh) {
-          node.castShadow = data.cast;
-          node.receiveShadow = data.receive;
-        }
-      });
-    }
+    // Applied recursively to support imported models.
+    this.el.object3D.traverse(function(node) {
+      if (node instanceof THREE.Mesh) {
+        node.castShadow = data.cast;
+        node.receiveShadow = data.receive;
+      }
+    });
   },
 
   remove: function () {}

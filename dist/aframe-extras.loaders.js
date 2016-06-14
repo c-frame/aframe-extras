@@ -3275,7 +3275,10 @@ module.exports = {
     var loader,
         data = this.data;
 
-    if (!data.src) return;
+    if (!data.src) {
+      console.warn('[%s] `src` property is required.', this.name);
+      return;
+    }
 
     this.remove();
     loader = new THREE.FBXLoader();
@@ -3331,7 +3334,10 @@ module.exports = {
     var loader,
         data = this.data;
 
-    if (!data.src) return;
+    if (!data.src) {
+      console.warn('[%s] `src` property is required.', this.name);
+      return;
+    }
 
     this.remove();
     loader = new THREE.PLYLoader();
