@@ -152,7 +152,7 @@ module.exports = {
     }
 
     velocity = this.velocity;
-    velocity.copy(this.el.getAttribute('velocity'));
+    velocity.copy(this.el.getComputedAttribute('velocity'));
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
 
