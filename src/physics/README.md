@@ -58,12 +58,10 @@ Components will attempt to find an appropriate CANNON.js shape to fit your model
 
 * **Auto** (`auto`) – Chooses automatically from the available shapes. Currently uses Trimesh as a fallback for custom models, but this default may change in the future, to improve default scene performance.
 * **Box** (`box`) – Great performance, compared to Hull or Trimesh shapes, and may be fitted to custom models.
-* **Plane** ( – ) – Not available as a custom shape, but may be chosen automatically for PlaneGeometry.
-* **Cylinder** ( – ) – Not available as a custom shape, but may be chosen automatically for CylinderGeometry.
-* **Sphere** ( – ) – Not available as a custom shape, but may be chosen automatically for SphereGeometry.
-* **Convex** (`hull`) – Wraps a model, much like shrink-wrap. Indents and holes are removed from the physics shape. Convex shapes are better supported than Trimesh, but still have performance implications when used as dynamic objects.
-* **Trimesh** ( – ) – Not available as a custom shape, but may be chosen as a last resort for custom geometry. Trimeshes adapt to fit custom geometry (e.g. a `.OBJ` or `.DAE` file), but have very minimal support. Arbitrary trimesh shapes are difficult to model in any JS physics engine, will "fall through" certain other shapes, and have serious performance limitations.
-* **Compound** ( – ) – *In progress.* Compound shapes require a bit of work to set up, but allow you to use multiple primitives to define a physics shape around custom models. These will general perform better, and behave more accurately, than Trimesh or Convex shapes. For example, a stool might be modeled as a cylinder-shaped seat, on four long cylindrical legs.
+* **Convex** (`hull`) – Wraps a model like shrink-wrap. Convex shapes are more performant and better supported than Trimesh, but may still have some performance impact when used as dynamic objects.
+* **Primitives** – Plane/Cylinder/Sphere. Used automatically with the corresponding A-Frame primitives.
+* **Trimesh** – *Deprecated.* Not available as a custom shape, but may be chosen as a last resort for custom geometry. Trimeshes adapt to fit custom geometry (e.g. a `.OBJ` or `.DAE` file), but have very minimal support. Arbitrary trimesh shapes are difficult to model in any JS physics engine, will "fall through" certain other shapes, and have serious performance limitations.
+* **Compound** – *In progress.* Compound shapes require a bit of work to set up, but allow you to use multiple primitives to define a physics shape around custom models. These will general perform better, and behave more accurately, than Trimesh or Convex shapes. For example, a stool might be modeled as a cylinder-shaped seat, on four long cylindrical legs.
 
 For more details, see the CANNON.js [collision matrix](https://github.com/schteppe/cannon.js#features).
 
