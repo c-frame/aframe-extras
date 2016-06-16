@@ -89,6 +89,35 @@ playerEl.addEventListener('collide', function (e) {
 
 Note that CANNON.js cannot perfectly detect collisions with very fast-moving bodies. Doing so requires Continuous Collision Detection, which can be both slow and difficult to implement. If this is an issue for your scene, consider (1) slowing objects down, (2) detecting collisions manually (collisions with the floor are easy – `position.y - height / 2 <= 0`), or (3) attempting a PR to CANNON.js. See: [Collision with fast bodies](https://github.com/schteppe/cannon.js/issues/202).
 
+## Configuration
+
+Contact materials define what happens when two objects meet, including physical properties such as friction and restitution (bounciness). The default, scene-wide contact materials may be configured on the scene element:
+
+```html
+<a-scene physics="friction: 0.1; restitution: 0.5">
+  <!-- ... -->
+</a-scene>
+```
+
+| Property                        | Default | Description                                        |
+|---------------------------------|---------|----------------------------------------------------|
+| debug                           | true    | Whether to show wireframes for debugging.          |
+| iterations                      | 10      | The number of solver iterations determines quality of the constraints in the world. The more iterations, the more correct simulation. More iterations need more computations though. If you have a large gravity force in your world, you will need more iterations. |
+| maxInterval                     | 0.0667  | Maximum simulated time (in milliseconds) that may be taken by the physics engine per frame. Effectively prevents weird "jumps" when the player returns to the scene after a few minutes, at the expense of pausing physics during this time. |
+| friction                        | 0.01    | Coefficient of friction.                           |
+| restitution                     | 0.3     | Coefficient of restitution (bounciness).           |
+| contactEquationStiffness        | 1e8     | Stiffness of the produced contact equations.       |
+| contactEquationRelaxation       | 3       | Relaxation time of the produced contact equations. |
+| frictionEquationStiffness       | 1e8     | Stiffness of the produced friction equations.      |
+| frictionEquationRegularization  | 3       | Relaxation time of the produced friction equations |
+
+More advanced configuration, including specifying different collision behaviors for different objects, is available through the CANNON.js JavaScript API.
+
+Resources:
+
+* [CANNON.World](http://schteppe.github.io/cannon.js/docs/classes/World.html)
+* [CANNON.ContactMaterial](http://schteppe.github.io/cannon.js/docs/classes/ContactMaterial.html)
+
 ## Experimental
 
 The `kinematic-body` component is useful in FPS and third-person games, but is not intended for use with first-person VR experiences because it can jar the camera during collisions.

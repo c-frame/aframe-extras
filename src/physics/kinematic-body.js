@@ -93,7 +93,7 @@ module.exports = {
           height, groundHeight = -Infinity,
           groundBody;
 
-      dt = Math.min(dt, this.system.options.maxInterval * 1000);
+      dt = Math.min(dt, this.system.maxInterval * 1000);
 
       groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));

@@ -1,18 +1,6 @@
-var CANNON = require('cannon');
-
-var OPTIONS = {
-  friction:     0.01,
-  restitution:  0.3,
-  iterations:   5,
-  gravity:      -9.8,
-
-  // Never step more than four frames at once. Effectively pauses the scene
-  // when out of focus, and prevents weird "jumps" when focus returns.
-  maxInterval:  4 / 60,
-
-  // If true, show wireframes around physics bodies.
-  debug:        false
-};
+var CANNON = require('cannon'),
+    CONSTANTS = require('../constants'),
+    C_MAT = CONSTANTS.CONTACT_MATERIAL;
 
 /**
  * Physics system.
@@ -31,7 +19,12 @@ module.exports = {
    * Initializes the physics system.
    */
   init: function () {
-    this.options = AFRAME.utils.extend({}, OPTIONS);
+    // Never step more than four frames at once. Effectively pauses the scene
+    // when out of focus, and prevents weird "jumps" when focus returns.
+    this.maxInterval = CONSTANTS.MAX_INTERVAL;
+
+    // If true, show wireframes around physics bodies.
+    this.debug = false;
 
     this.children = {};
     this.children[this.Phase.SIMULATE] = [];
@@ -43,14 +36,18 @@ module.exports = {
     this.world.quatNormalizeSkip = 0;
     this.world.quatNormalizeFast = false;
     // this.world.solver.setSpookParams(300,10);
-    this.world.solver.iterations = this.options.iterations;
-    this.world.gravity.set(0, this.options.gravity, 0);
+    this.world.solver.iterations = CONSTANTS.ITERATIONS;
+    this.world.gravity.set(0, CONSTANTS.GRAVITY, 0);
     this.world.broadphase = new CANNON.NaiveBroadphase();
 
-    this.material = new CANNON.Material('slipperyMaterial');
+    this.material = new CANNON.Material({name: 'defaultMaterial'});
     this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
-        friction: this.options.friction,
-        restitution: this.options.restitution
+        friction: C_MAT.friction,
+        restitution: C_MAT.restitution,
+        contactEquationStiffness: C_MAT.contactEquationStiffness,
+        contactEquationRelaxation: C_MAT.contactEquationRelaxation,
+        frictionEquationStiffness: C_MAT.frictionEquationStiffness,
+        frictionEquationRegularization: C_MAT.frictionEquationRegularization
     });
     this.world.addContactMaterial(this.contactMaterial);
   },
@@ -66,7 +63,7 @@ module.exports = {
   tick: function (t, dt) {
     if (isNaN(dt)) return;
 
-    this.world.step(Math.min(dt / 1000, this.options.maxInterval));
+    this.world.step(Math.min(dt / 1000, this.maxInterval));
 
     var i;
     for (i = 0; i < this.children[this.Phase.SIMULATE].length; i++) {
@@ -123,28 +120,36 @@ module.exports = {
    * @param {mixed} value
    */
   setOption: function (opt, value) {
-    if (this.options[opt] === value) return;
-
     switch (opt) {
       case 'maxInterval': return this.setMaxInterval(value);
       case 'gravity':     return this.setGravity(value);
       case 'debug':       return this.setDebug(value);
+      case 'friction':
+      case 'restitution':
+      case 'contactEquationStiffness':
+      case 'contactEquationRelaxation':
+      case 'frictionEquationStiffness':
+      case 'frictionEquationRegularization':
+        return this.setContactMaterialProperty(opt, value);
       default:
         console.error('Option "%s" not recognized.', opt);
     }
   },
 
   setMaxInterval: function (maxInterval) {
-    this.options.maxInterval = maxInterval;
+    this.maxInterval = maxInterval;
   },
 
   setGravity: function (gravity) {
-    this.options.gravity = gravity;
     this.world.gravity.y = gravity;
   },
 
   setDebug: function (debug) {
-    this.options.debug = debug;
+    this.debug = debug;
     console.warn('[physics] Option "debug" cannot be dynamically updated yet');
+  },
+
+  setContactMaterialProperty(prop, value) {
+    this.contactMaterial[prop] = value;
   }
 };

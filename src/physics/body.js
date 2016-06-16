@@ -85,7 +85,7 @@ module.exports = {
     ).normalize();
 
     // Show wireframe
-    if (this.system.options.debug) {
+    if (this.system.debug) {
       this.createWireframe(this.body, shape);
     }
 
