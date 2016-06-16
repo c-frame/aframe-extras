@@ -2,20 +2,19 @@
 
 Components for A-Frame physics integration, built on [CANNON.js](http://schteppe.github.io/cannon.js/).
 
-## Scene Physics
-
-- **physics**: Added to the `<a-scene/>` element, and manages world physics.
-
 ## Components
 
-- **dynamic-body**: Object that moves only according to physics simulation, which has mass and may collide with other objects. If the object will be pushed around by the player or other objects, choose `dynamic-body`.
-- **static-body**: Static body with a fixed position. Unaffected by gravity and collisions, but other objects may collide with it. If the object will move only through animation, or not at all, use a `static-body`.
-- **kinematic-body**: Controlled but dynamic body, which moves but is not affected (directly) by the physics engine. Intended for use on the player's model. Gravity and collisions are simulated, without giving full control to the physics engine.
+The `dynamic-body` and `static-body` components may be added to any `<a-entity/>` that contains a mesh. Generally, each scene will have at least one `static-body` for the ground, and one or more `dynamic-body` instances that the player can interact with.
 
-## Usage
+- **dynamic-body**: A freely-moving object. Dynamic bodies have mass, collide with other objects, bounce or slow during collisions, and fall if gravity is enabled.
+- **static-body**: A fixed-position or animated object. Other objects may collide with static bodies, but static bodies themselves are unaffected by gravity and collisions.
+
+## Basic Usage
 
 ```html
-<a-scene physics>
+<!-- The debug:true option creates a wireframe around each physics body. If you don't see a wireframe,
+     the physics system may be unable to parse your model without a shape:box or shape:hull option. -->
+<a-scene physics="debug: true">
 
   <!-- Camera -->
   <a-entity camera universal-controls kinematic-body></a-entity>
@@ -32,16 +31,25 @@ Components for A-Frame physics integration, built on [CANNON.js](http://schteppe
 </a-scene>
 ```
 
-## Debugging
+## Using the CANNON.js API
 
-When debugging, it may be helpful to see the shape of the physics bodies attached to your entities, and verify that they're staying in sync. The `debug` option creates a red wireframe around each physics body:
+For more advanced physics, use the CANNON.js API with custom JavaScript and A-Frame components. The [CANNON.js documentation](http://schteppe.github.io/cannon.js/docs/) and source code offer good resources for learning to work with physics in JavaScript.
+
+In A-Frame, each entity's `CANNON.Body` instance is exposed on the `el.body` property. To apply a quick push to an object, you might do the following:
 
 ```html
-<a-scene physics="debug: true;">
-
-  <!-- ... -->
-
+<a-scene>
+  <a-entity id="nyan" dynamic-body="shape: hull" obj-model="obj: url(nyan-cat.obj)"></a-entity>
+  <a-grid static-body><a/grid>
 </a-scene>
+```
+
+```javascript
+var el = sceneEl.querySelector('#nyan');
+el.body.applyImpulse(
+  /* impulse */        new CANNON.Vec3(0, 1, -1),
+  /* world position */ new CANNON.Vec3().copy(el.getComputedAttribute('position'))
+);
 ```
 
 ## Body Shapes
@@ -82,3 +90,9 @@ playerEl.addEventListener('collide', function (e) {
 ```
 
 Note that CANNON.js cannot perfectly detect collisions with very fast-moving bodies. Doing so requires Continuous Collision Detection, which can be both slow and difficult to implement. If this is an issue for your scene, consider (1) slowing objects down, (2) detecting collisions manually (collisions with the floor are easy – `position.y - height / 2 <= 0`), or (3) attempting a PR to CANNON.js. See: [Collision with fast bodies](https://github.com/schteppe/cannon.js/issues/202).
+
+## Experimental
+
+The `kinematic-body` component is useful in FPS and third-person games, but is not intended for use with first-person VR experiences because it can jar the camera during collisions.
+
+- **kinematic-body**: Player-controlled body, which can move but is not affected (directly) by the physics engine. Intended for use on the player's model. Gravity and collisions are simulated, without giving full control to the physics engine.
