@@ -22,22 +22,29 @@ module.exports = {
     this.mixer = null;
   },
 
-  update: function () {
+  update: function (previousData) {
     var loader,
         data = this.data;
     if (!data.src) return;
 
-    this.remove();
-    if (data.loader === 'object') {
-      loader = new THREE.ObjectLoader();
-      loader.load(data.src, this.load.bind(this));
-    } else if (data.loader === 'json') {
-      loader = new THREE.JSONLoader();
-      loader.load(data.src, function (geometry, materials) {
-        this.load(new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials)));
-      }.bind(this));
-    } else {
-      throw new Error('[three-model] Invalid mode "%s".', data.mode);
+    if (!previousData) {
+      this.remove();
+      if (data.loader === 'object') {
+        loader = new THREE.ObjectLoader();
+        loader.load(data.src, this.load.bind(this));
+      } else if (data.loader === 'json') {
+        loader = new THREE.JSONLoader();
+        loader.load(data.src, function (geometry, materials) {
+          this.load(new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials)));
+        }.bind(this));
+      } else {
+        throw new Error('[three-model] Invalid mode "%s".', data.mode);
+      }
+    } else if (data.animation !== previousData.animation) {
+      if (this.model.activeAction) {
+        this.model.activeAction.stop();
+        this.playAnimation();
+      }
     }
   },
 
