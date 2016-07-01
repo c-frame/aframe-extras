@@ -12,7 +12,7 @@ module.exports = {
     },
     rotation: {x: -90, y: 0, z: 0},
     material: {
-      src: 'url(../../assets/grid.png)',
+      src: 'url(https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.3/assets/grid.png)',
       repeat: '75 75'
     }
   },
