@@ -149,7 +149,7 @@ module.exports = {
     console.warn('[physics] Option "debug" cannot be dynamically updated yet');
   },
 
-  setContactMaterialProperty(prop, value) {
+  setContactMaterialProperty: function (prop, value) {
     this.contactMaterial[prop] = value;
   }
 };

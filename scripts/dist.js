@@ -50,3 +50,8 @@ process.on('exit', (err) => {
   if (err) console.log(chalk.red('  ⇢  Failed.'));
   else console.log(chalk.yellow('  ⇢  Done. 🍻   '));
 });
+
+process.on('uncaughtException', (e) => {
+  console.error(chalk.red('  ⇢  %s, %s:%d'), e.message, e.filename, e.line);
+  process.exit(1);
+});
