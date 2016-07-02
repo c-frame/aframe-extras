@@ -23,13 +23,21 @@ module.exports = {
    * component.
    */
   initBody: function () {
-    var el = this.el,
+    var shape,
+        el = this.el,
         data = this.data,
         pos = el.getComputedAttribute('position'),
         options = data.shape === 'auto' ? undefined : {
           type: mesh2shape.Type[this.data.shape.toUpperCase()]
-        },
-        shape = mesh2shape(this.el.object3D, options);
+        };
+
+    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
+    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
+    // scale="0.5 0.5 0.5" will be ignored.
+    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
+    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
+    this.el.object3D.updateMatrixWorld(true);
+    shape = mesh2shape(this.el.object3D, options);
 
     if (!shape) {
       this.el.addEventListener('model-loaded', this.initBody.bind(this));
@@ -61,7 +69,7 @@ module.exports = {
 
     this.el.body = this.body;
     this.body.el = this.el;
-    this.loaded = true;
+    this.isLoaded = true;
 
     // If component wasn't initialized when play() was called, finish up.
     if (this.isPlaying) {
@@ -93,7 +101,7 @@ module.exports = {
    * Unregisters the component with the physics system.
    */
   pause: function () {
-    if (!this.loaded) return;
+    if (!this.isLoaded) return;
 
     this.system.removeBehavior(this, this.system.Phase.SIMULATE);
     this.system.removeBody(this.body);
