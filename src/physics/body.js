@@ -4,6 +4,10 @@ var CANNON = require('cannon'),
 require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
+  /**
+   * Initializes a body component, assigning it to the physics system and binding listeners for
+   * parsing the elements geometry.
+   */
   init: function () {
     this.system = this.el.sceneEl.systems.physics;
 
@@ -14,6 +18,10 @@ module.exports = {
     }
   },
 
+  /**
+   * Parses an element's geometry and component metadata to create a CANNON.Body instance for the
+   * component.
+   */
   initBody: function () {
     var el = this.el,
         data = this.data,
@@ -54,14 +62,26 @@ module.exports = {
     this.el.body = this.body;
     this.body.el = this.el;
     this.loaded = true;
-    this.play();
+
+    // If component wasn't initialized when play() was called, finish up.
+    if (this.isPlaying) {
+      this._play();
+    }
 
     this.el.emit('body-loaded', {body: this.el.body});
   },
 
+  /**
+   * Registers the component with the physics system, if ready.
+   */
   play: function () {
-    if (!this.loaded) return;
+    if (this.isLoaded) this._play();
+  },
 
+  /**
+   * Internal helper to register component with physics system.
+   */
+  _play: function () {
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
     this.system.addBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.add(this.wireframe);
@@ -69,6 +89,9 @@ module.exports = {
     this.syncToPhysics();
   },
 
+  /**
+   * Unregisters the component with the physics system.
+   */
   pause: function () {
     if (!this.loaded) return;
 
@@ -77,6 +100,9 @@ module.exports = {
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
+  /**
+   * Removes the component and all physics and scene side effects.
+   */
   remove: function () {
     this.pause();
     delete this.body.el;
@@ -85,6 +111,12 @@ module.exports = {
     delete this.wireframe;
   },
 
+  /**
+   * Creates a wireframe for the body, for debugging.
+   * TODO(donmccurdy) – Refactor this into a standalone utility or component.
+   * @param  {CANNON.Body} body
+   * @param  {CANNON.Shape} shape
+   */
   createWireframe: function (body, shape) {
     var offset = shape.offset,
         orientation = shape.orientation,
@@ -108,6 +140,9 @@ module.exports = {
     this.syncWireframe();
   },
 
+  /**
+   * Updates the debugging wireframe's position and rotation.
+   */
   syncWireframe: function () {
     var offset,
         wireframe = this.wireframe;
@@ -132,14 +167,21 @@ module.exports = {
     wireframe.updateMatrix();
   },
 
+  /**
+   * Updates the CANNON.Body instance's position, velocity, and rotation, based on the scene.
+   */
   syncToPhysics: function () {
     var body = this.body;
     if (!body) return;
     if (this.el.components.velocity) body.velocity.copy(this.el.getComputedAttribute('velocity'));
     if (this.el.components.position) body.position.copy(this.el.getComputedAttribute('position'));
+    // TODO(donmccurdy) - Quaternion should also be synced, but no reason currently.
     if (this.wireframe) this.syncWireframe();
   },
 
+  /**
+   * Updates the scene object's position and rotation, based on the physics simulation.
+   */
   syncFromPhysics: function () {
     if (!this.body) return;
     this.el.setAttribute('quaternion', this.body.quaternion);
