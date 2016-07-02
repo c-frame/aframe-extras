@@ -46,14 +46,16 @@ module.exports = {
         position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
 
     this.body = new CANNON.Body({
-      shape: new CANNON.Sphere(data.radius),
       material: this.system.material,
       position: position,
       mass: data.mass,
       linearDamping: data.linearDamping,
       fixedRotation: true
     });
-    this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
+    this.body.addShape(
+      new CANNON.Sphere(data.radius),
+      new CANNON.Vec3(0, data.radius - data.height, 0)
+    );
 
     this.body.el = this.el;
     this.system.addBody(this.body);
@@ -161,7 +163,6 @@ module.exports = {
         this.el.setAttribute('position', body.position);
       }
 
-      body.position.y -= (data.height - data.radius); // TODO - Simplify.
       body.velocity.copy(velocity);
       this.el.setAttribute('velocity', velocity);
     };
