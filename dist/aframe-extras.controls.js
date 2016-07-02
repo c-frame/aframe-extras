@@ -1423,7 +1423,7 @@ module.exports = {
   },
 
   removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.sceneEl.canvas;
+    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
     if (canvasEl) {
       canvasEl.removeEventListener('mousedown', this.onMouseDown, false);
       canvasEl.removeEventListener('mousemove', this.onMouseMove, false);
@@ -1535,7 +1535,7 @@ module.exports = {
   },
 
   removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.sceneEl.canvas;
+    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
     if (!canvasEl) { return; }
 
     canvasEl.removeEventListener('touchstart', this.onTouchStart);
@@ -1820,13 +1820,13 @@ module.exports = {
   step: function (t, dt) {
     if (isNaN(dt)) return;
 
-    var physics = this.el.sceneEl.systems.physics || {options:{maxInterval: 1 / 60}},
+    var physics = this.el.sceneEl.systems.physics || {maxInterval: 1 / 60},
 
         // TODO - There's definitely a bug with getComputedAttribute and el.data.
         velocity = this.el.getAttribute('velocity') || {x: 0, y: 0, z: 0},
         position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
 
-    dt = Math.min(dt, physics.options.maxInterval * 1000);
+    dt = Math.min(dt, physics.maxInterval * 1000);
 
     this.el.setAttribute('position', {
       x: position.x + velocity.x * dt / 1000,

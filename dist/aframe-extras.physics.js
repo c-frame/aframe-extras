@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/physics').registerAll();
-},{"./src/physics":11}],2:[function(require,module,exports){
+},{"./src/physics":12}],2:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./THREE.quickhull');
 
@@ -14676,13 +14676,13 @@ module.exports = {
   step: function (t, dt) {
     if (isNaN(dt)) return;
 
-    var physics = this.el.sceneEl.systems.physics || {options:{maxInterval: 1 / 60}},
+    var physics = this.el.sceneEl.systems.physics || {maxInterval: 1 / 60},
 
         // TODO - There's definitely a bug with getComputedAttribute and el.data.
         velocity = this.el.getAttribute('velocity') || {x: 0, y: 0, z: 0},
         position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
 
-    dt = Math.min(dt, physics.options.maxInterval * 1000);
+    dt = Math.min(dt, physics.maxInterval * 1000);
 
     this.el.setAttribute('position', {
       x: position.x + velocity.x * dt / 1000,
@@ -14780,7 +14780,7 @@ module.exports = {
     ).normalize();
 
     // Show wireframe
-    if (this.system.options.debug) {
+    if (this.system.debug) {
       this.createWireframe(this.body, shape);
     }
 
@@ -14882,6 +14882,21 @@ module.exports = {
 };
 
 },{"../../lib/CANNON-mesh2shape":2,"../../lib/CANNON-shape2mesh":3,"cannon":5}],10:[function(require,module,exports){
+module.exports = {
+  GRAVITY: -9.8,
+  MAX_INTERVAL: 4 / 60,
+  ITERATIONS: 10,
+  CONTACT_MATERIAL: {
+    friction:     0.01,
+    restitution:  0.3,
+    contactEquationStiffness: 1e8,
+    contactEquationRelaxation: 3,
+    frictionEquationStiffness: 1e8,
+    frictionEquationRegularization: 3
+  }
+};
+
+},{}],11:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -14904,7 +14919,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":9}],11:[function(require,module,exports){
+},{"./body":9}],12:[function(require,module,exports){
 var CANNON = require('cannon'),
     math = require('../math');
 
@@ -14937,7 +14952,7 @@ module.exports = {
 // Export CANNON.js.
 window.CANNON = window.CANNON || CANNON;
 
-},{"../math":6,"./dynamic-body":10,"./kinematic-body":12,"./physics":13,"./static-body":14,"./system/physics":15,"cannon":5}],12:[function(require,module,exports){
+},{"../math":6,"./dynamic-body":11,"./kinematic-body":13,"./physics":14,"./static-body":15,"./system/physics":16,"cannon":5}],13:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -15033,7 +15048,7 @@ module.exports = {
           height, groundHeight = -Infinity,
           groundBody;
 
-      dt = Math.min(dt, this.system.options.maxInterval * 1000);
+      dt = Math.min(dt, this.system.maxInterval * 1000);
 
       groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));
@@ -15135,12 +15150,20 @@ module.exports = {
   }
 };
 
-},{"cannon":5}],13:[function(require,module,exports){
-
+},{"cannon":5}],14:[function(require,module,exports){
+var CONSTANTS = require('./constants'),
+    C_GRAV = CONSTANTS.GRAVITY,
+    C_MAT = CONSTANTS.CONTACT_MATERIAL;
 
 module.exports = {
   schema: {
-    gravity:      { default: -9.8 },
+    gravity:                            { default: C_GRAV },
+    friction:                           { default: C_MAT.friction },
+    restitution:                        { default: C_MAT.restitution },
+    contactEquationStiffness:           { default: C_MAT.contactEquationStiffness },
+    contactEquationRelaxation:          { default: C_MAT.contactEquationRelaxation },
+    frictionEquationStiffness:          { default: C_MAT.frictionEquationStiffness },
+    frictionEquationRegularization:     { default: C_MAT.frictionEquationRegularization },
 
     // Never step more than four frames at once. Effectively pauses the scene
     // when out of focus, and prevents weird "jumps" when focus returns.
@@ -15151,16 +15174,17 @@ module.exports = {
   },
 
   update: function (previousData) {
-    var data = this.data;
+    var data = this.data,
+        schema = this.schema;
     for (var opt in data) {
-      if (!previousData || data[opt] !== previousData[opt]) {
+      if (data[opt] !== (previousData ? previousData[opt] : schema[opt].default)) {
         this.system.setOption(opt, data[opt]);
       }
     }
   }
 };
 
-},{}],14:[function(require,module,exports){
+},{"./constants":10}],15:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -15178,22 +15202,10 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":9}],15:[function(require,module,exports){
-var CANNON = require('cannon');
-
-var OPTIONS = {
-  friction:     0.01,
-  restitution:  0.3,
-  iterations:   5,
-  gravity:      -9.8,
-
-  // Never step more than four frames at once. Effectively pauses the scene
-  // when out of focus, and prevents weird "jumps" when focus returns.
-  maxInterval:  4 / 60,
-
-  // If true, show wireframes around physics bodies.
-  debug:        false
-};
+},{"./body":9}],16:[function(require,module,exports){
+var CANNON = require('cannon'),
+    CONSTANTS = require('../constants'),
+    C_MAT = CONSTANTS.CONTACT_MATERIAL;
 
 /**
  * Physics system.
@@ -15212,7 +15224,12 @@ module.exports = {
    * Initializes the physics system.
    */
   init: function () {
-    this.options = AFRAME.utils.extend({}, OPTIONS);
+    // Never step more than four frames at once. Effectively pauses the scene
+    // when out of focus, and prevents weird "jumps" when focus returns.
+    this.maxInterval = CONSTANTS.MAX_INTERVAL;
+
+    // If true, show wireframes around physics bodies.
+    this.debug = false;
 
     this.children = {};
     this.children[this.Phase.SIMULATE] = [];
@@ -15224,14 +15241,18 @@ module.exports = {
     this.world.quatNormalizeSkip = 0;
     this.world.quatNormalizeFast = false;
     // this.world.solver.setSpookParams(300,10);
-    this.world.solver.iterations = this.options.iterations;
-    this.world.gravity.set(0, this.options.gravity, 0);
+    this.world.solver.iterations = CONSTANTS.ITERATIONS;
+    this.world.gravity.set(0, CONSTANTS.GRAVITY, 0);
     this.world.broadphase = new CANNON.NaiveBroadphase();
 
-    this.material = new CANNON.Material('slipperyMaterial');
+    this.material = new CANNON.Material({name: 'defaultMaterial'});
     this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
-        friction: this.options.friction,
-        restitution: this.options.restitution
+        friction: C_MAT.friction,
+        restitution: C_MAT.restitution,
+        contactEquationStiffness: C_MAT.contactEquationStiffness,
+        contactEquationRelaxation: C_MAT.contactEquationRelaxation,
+        frictionEquationStiffness: C_MAT.frictionEquationStiffness,
+        frictionEquationRegularization: C_MAT.frictionEquationRegularization
     });
     this.world.addContactMaterial(this.contactMaterial);
   },
@@ -15247,7 +15268,7 @@ module.exports = {
   tick: function (t, dt) {
     if (isNaN(dt)) return;
 
-    this.world.step(Math.min(dt / 1000, this.options.maxInterval));
+    this.world.step(Math.min(dt / 1000, this.maxInterval));
 
     var i;
     for (i = 0; i < this.children[this.Phase.SIMULATE].length; i++) {
@@ -15304,30 +15325,38 @@ module.exports = {
    * @param {mixed} value
    */
   setOption: function (opt, value) {
-    if (this.options[opt] === value) return;
-
     switch (opt) {
       case 'maxInterval': return this.setMaxInterval(value);
       case 'gravity':     return this.setGravity(value);
       case 'debug':       return this.setDebug(value);
+      case 'friction':
+      case 'restitution':
+      case 'contactEquationStiffness':
+      case 'contactEquationRelaxation':
+      case 'frictionEquationStiffness':
+      case 'frictionEquationRegularization':
+        return this.setContactMaterialProperty(opt, value);
       default:
         console.error('Option "%s" not recognized.', opt);
     }
   },
 
   setMaxInterval: function (maxInterval) {
-    this.options.maxInterval = maxInterval;
+    this.maxInterval = maxInterval;
   },
 
   setGravity: function (gravity) {
-    this.options.gravity = gravity;
     this.world.gravity.y = gravity;
   },
 
   setDebug: function (debug) {
-    this.options.debug = debug;
+    this.debug = debug;
     console.warn('[physics] Option "debug" cannot be dynamically updated yet');
+  },
+
+  setContactMaterialProperty: function (prop, value) {
+    this.contactMaterial[prop] = value;
   }
 };
 
-},{"cannon":5}]},{},[1]);
+},{"../constants":10,"cannon":5}]},{},[1]);
