@@ -5,7 +5,7 @@
  * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
  */
 module.exports.Primitive = {
-  defaultAttributes: {
+  defaultComponents: {
     ocean: {},
     rotation: {x: -90, y: 0, z: 0}
   },
@@ -40,7 +40,11 @@ module.exports.Component = {
     opacity: {default: 0.8}
   },
 
-  init: function () {
+  /**
+   * Use play() instead of init(), because component mappings – unavailable as dependencies – are
+   * not guaranteed to have parsed when this component is initialized.
+   */
+  play: function () {
     var el = this.el,
         data = this.data,
         material = el.components.material;
@@ -77,7 +81,7 @@ module.exports.Component = {
   },
 
   tick: function (t, dt) {
-    if (isNaN(dt)) return;
+    if (!dt) return;
 
     var verts = this.mesh.geometry.vertices;
     for (var v, vprops, i = 0; (v = verts[i]); i++){

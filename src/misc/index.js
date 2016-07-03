@@ -3,8 +3,8 @@ var math = require('../math'),
 
 module.exports = {
   'checkpoint':      require('./checkpoint'),
-  'jump-ability':      require('./jump-ability'),
-  'toggle-velocity':   require('./toggle-velocity'),
+  'jump-ability':    require('./jump-ability'),
+  'toggle-velocity': require('./toggle-velocity'),
 
   registerAll: function (AFRAME) {
     if (this._registered) return;

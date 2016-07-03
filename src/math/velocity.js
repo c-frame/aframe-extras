@@ -19,13 +19,13 @@ module.exports = {
   },
 
   tick: function (t, dt) {
-    if (isNaN(dt)) return;
+    if (!dt) return;
     if (this.system) return;
     this.step(t, dt);
   },
 
   step: function (t, dt) {
-    if (isNaN(dt)) return;
+    if (!dt) return;
 
     var physics = this.el.sceneEl.systems.physics || {maxInterval: 1 / 60},
 

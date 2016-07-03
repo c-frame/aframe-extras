@@ -80,7 +80,7 @@ module.exports = {
    */
 
   tick: function (t, dt) {
-    if (isNaN(dt)) { return; }
+    if (!dt) { return; }
 
     // Update rotation.
     if (this.data.rotationEnabled) this.updateRotation(dt);
@@ -152,7 +152,7 @@ module.exports = {
     }
 
     velocity = this.velocity;
-    velocity.copy(this.el.getAttribute('velocity'));
+    velocity.copy(this.el.getComputedAttribute('velocity'));
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
 

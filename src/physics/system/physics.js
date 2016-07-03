@@ -61,7 +61,7 @@ module.exports = {
    * @param  {number} dt
    */
   tick: function (t, dt) {
-    if (isNaN(dt)) return;
+    if (!dt) return;
 
     this.world.step(Math.min(dt / 1000, this.maxInterval));
 

@@ -4,11 +4,10 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Platforms</title>
-    <script src="https://aframe.io/releases/0.2.0/aframe.js"></script>
     <script src="../aframe-extras.js"></script>
   </head>
   <body>
-    <a-scene physics fog="type: exponential; color: #FFF; density: 0.04;">
+    <a-scene fog="type: exponential; color: #FFF; density: 0.04;">
       <!-- Player -->
       <a-entity id="player"
                 camera
@@ -55,14 +54,15 @@ document.querySelector('a-scene').addEventListener('render-target-loaded', funct
       y: (Math.floor(Math.random() * MAP_SIZE)                ) * PLATFORM_SIZE + PLATFORM_SIZE / 2,
       z: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE
     };
+
     box = document.createElement('a-box');
+    platformsEl.appendChild(box);
     box.setAttribute('color', '#39BB82');
     box.setAttribute('width', PLATFORM_SIZE);
     box.setAttribute('height', PLATFORM_SIZE);
     box.setAttribute('depth', PLATFORM_SIZE);
     box.setAttribute('position', v.x + ' ' + v.y + ' ' + v.z);
-    box.setAttribute('static-body');
-    platformsEl.appendChild(box);
+    box.setAttribute('static-body', '');
   }
 
   console.info('Platforms loaded.');

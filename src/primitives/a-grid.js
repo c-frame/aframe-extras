@@ -4,7 +4,7 @@
  * Defaults to 75x75.
  */
 module.exports = {
-  defaultAttributes: {
+  defaultComponents: {
     geometry: {
       primitive: 'plane',
       width: 75,
