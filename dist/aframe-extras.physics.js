@@ -29,7 +29,11 @@ module.exports = CANNON.mesh2shape = function (object, options) {
 
   if (!geometry) return null;
 
-  switch (geometry.type) {
+  var type = geometry.metadata
+    ? geometry.metadata.type
+    : geometry.type;
+
+  switch (type) {
     case 'BoxGeometry':
     case 'BoxBufferGeometry':
       return createBoxShape(geometry);
@@ -151,7 +155,9 @@ function createBoxShape (geometry) {
  */
 function createCylinderShape (geometry) {
   var shape,
-      params = geometry.parameters;
+      params = geometry.metadata
+        ? geometry.metadata.parameters
+        : geometry.parameters;
   shape = new CANNON.Cylinder(
     params.radiusTop,
     params.radiusBottom,
@@ -182,7 +188,10 @@ function createPlaneShape (geometry) {
  * @return {CANNON.Shape}
  */
 function createSphereShape (geometry) {
-  return new CANNON.Sphere(geometry.parameters.radius);
+  var params = geometry.metadata
+    ? geometry.metadata.parameters
+    : geometry.parameters;
+  return new CANNON.Sphere(params.radius);
 }
 
 /**
@@ -226,16 +235,28 @@ function getGeometry (object) {
       combined = new THREE.Geometry();
 
   if (meshes.length === 0) return null;
-  if (meshes.length === 1) return meshes[0].geometry;
 
+  // Apply scale  – it can't easily be applied to a CANNON.Shape later.
+  if (meshes.length === 1) {
+    var position = new THREE.Vector3(),
+        quaternion = new THREE.Quaternion(),
+        scale = new THREE.Vector3();
+    tmp = meshes[0].geometry.clone();
+    tmp.metadata = meshes[0].geometry.metadata;
+    meshes[0].updateMatrixWorld();
+    meshes[0].matrixWorld.decompose(position, quaternion, scale);
+    return tmp.scale(scale.x, scale.y, scale.z);
+  }
+
+  // Recursively merge geometry, preserving local transforms.
   while ((mesh = meshes.pop())) {
+    mesh.updateMatrixWorld();
     if (mesh.geometry instanceof THREE.BufferGeometry) {
       tmp.fromBufferGeometry(mesh.geometry);
-      combined.merge(tmp, mesh.userData.matrix || mesh.matrix);
+      combined.merge(tmp, mesh.matrixWorld);
     } else {
-      combined.merge(mesh.geometry, mesh.userData.matrix || mesh.matrix);
+      combined.merge(mesh.geometry, mesh.matrixWorld);
     }
-    delete mesh.userData.matrix;
   }
 
   matrix = new THREE.Matrix4();
@@ -264,50 +285,13 @@ function getVertices (geometry) {
  * @return {Array<THREE.Mesh>}
  */
 function getMeshes (object) {
-  var meshes = [],
-      identity = new THREE.Matrix4();
-
+  var meshes = [];
   object.traverse(function (o) {
-    o.updateMatrix();
     if (o.type === 'Mesh') {
       meshes.push(o);
-    } else if (o !== object && !o.matrix.equals(identity)) {
-      // If transformations are applied to a THREE.Object3D or THREE.Group,
-      // they need to be inherited by descendent geometry.
-      o.traverse(function (o2) {
-        o2.updateMatrix();
-        o2.userData.matrix = o2.userData.matrix || o2.matrix.clone();
-        o2.userData.matrix.multiply(o.matrix);
-      });
     }
   });
-
   return meshes;
-}
-
-/**
- * @param  {THREE.Geometry} geometry
- * @return {THREE.Geometry} Original geometry.
- */
-function centerGeometry (geometry) {
-  geometry.computeBoundingSphere();
-
-  var center = geometry.boundingSphere.center;
-  var radius = geometry.boundingSphere.radius;
-
-  var s = radius === 0 ? 1 : 1.0 / radius;
-
-  var matrix = new THREE.Matrix4();
-  matrix.set(
-    1, 0, 0, - 1 * center.x,
-    0, 1, 0, - 1 * center.y,
-    0, 0, 1, - 1 * center.z,
-    0, 0, 0, 1
-  );
-
-  geometry.applyMatrix(matrix);
-
-  return geometry;
 }
 
 },{"./THREE.quickhull":4,"cannon":5}],3:[function(require,module,exports){
@@ -14668,13 +14652,13 @@ module.exports = {
   },
 
   tick: function (t, dt) {
-    if (isNaN(dt)) return;
+    if (!dt) return;
     if (this.system) return;
     this.step(t, dt);
   },
 
   step: function (t, dt) {
-    if (isNaN(dt)) return;
+    if (!dt) return;
 
     var physics = this.el.sceneEl.systems.physics || {maxInterval: 1 / 60},
 
@@ -14699,66 +14683,44 @@ var CANNON = require('cannon'),
 require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
-  dependencies: ['position'],
-
+  /**
+   * Initializes a body component, assigning it to the physics system and binding listeners for
+   * parsing the elements geometry.
+   */
   init: function () {
-    this.initBody();
-  },
-
-  initBody: function () {
     this.system = this.el.sceneEl.systems.physics;
 
-    var shape, options;
-
-    if (this.data.shape !== 'auto') {
-      options = {
-        type: mesh2shape.Type[this.data.shape.toUpperCase()]
-      };
-    }
-
-    // TODO - This is pretty obtuse. There really ought to be a clean way to
-    // delay component initialization until the scene and all of its components
-    // have been taken care of.
-    shape = mesh2shape(this.el.object3D, options);
-    if (shape && this.el.sceneEl.hasLoaded) {
-      this.initBody_(shape);
-    } else if (shape && !this.el.sceneEl.hasLoaded) {
-      this.el.sceneEl.addEventListener('loaded', this.initBody_.bind(this, shape));
-    } else if (!this.el.sceneEl.hasLoaded) {
-      this.el.sceneEl.addEventListener('loaded', function () {
-        shape = mesh2shape(this.el.object3D, options);
-        if (shape) {
-          this.initBody_(shape);
-        } else {
-          this.el.addEventListener('model-loaded', function (e) {
-            this.initBody_(mesh2shape(e.detail.model, options));
-          }.bind(this));
-        }
-      }.bind(this));
+    if (this.el.sceneEl.hasLoaded) {
+      this.initBody();
     } else {
-      this.el.addEventListener('model-loaded', function (e) {
-        this.initBody_(mesh2shape(e.detail.model, options));
-      }.bind(this));
+      this.el.sceneEl.addEventListener('loaded', this.initBody.bind(this));
     }
   },
 
-  initBody_: function (shape) {
-    var el = this.el,
+  /**
+   * Parses an element's geometry and component metadata to create a CANNON.Body instance for the
+   * component.
+   */
+  initBody: function () {
+    var shape,
+        el = this.el,
         data = this.data,
-        pos = el.getAttribute('position');
+        pos = el.getComputedAttribute('position'),
+        options = data.shape === 'auto' ? undefined : {
+          type: mesh2shape.Type[this.data.shape.toUpperCase()]
+        };
 
-    if (!pos) {
-      pos = {x: 0, y: 0, z: 0};
-      el.setAttribute('position', pos);
-    }
+    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
+    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
+    // scale="0.5 0.5 0.5" will be ignored.
+    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
+    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
+    this.el.object3D.updateMatrixWorld(true);
+    shape = mesh2shape(this.el.object3D, options);
 
-    // Apply scaling
-    if (this.el.hasAttribute('scale')) {
-      if (shape.setScale) {
-        shape.setScale(this.el.getAttribute('scale'));
-      } else {
-        console.warn('Physics body scaling could not be applied.');
-      }
+    if (!shape) {
+      this.el.addEventListener('model-loaded', this.initBody.bind(this));
+      return;
     }
 
     this.body = new CANNON.Body({
@@ -14771,7 +14733,7 @@ module.exports = {
     this.body.addShape(shape, shape.offset, shape.orientation);
 
     // Apply rotation
-    var rot = el.getAttribute('rotation') || {x: 0, y: 0, z: 0};
+    var rot = el.getComputedAttribute('rotation');
     this.body.quaternion.setFromEuler(
       THREE.Math.degToRad(rot.x),
       THREE.Math.degToRad(rot.y),
@@ -14786,15 +14748,27 @@ module.exports = {
 
     this.el.body = this.body;
     this.body.el = this.el;
-    this.loaded = true;
-    this.play();
+    this.isLoaded = true;
+
+    // If component wasn't initialized when play() was called, finish up.
+    if (this.isPlaying) {
+      this._play();
+    }
 
     this.el.emit('body-loaded', {body: this.el.body});
   },
 
+  /**
+   * Registers the component with the physics system, if ready.
+   */
   play: function () {
-    if (!this.loaded) return;
+    if (this.isLoaded) this._play();
+  },
 
+  /**
+   * Internal helper to register component with physics system.
+   */
+  _play: function () {
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
     this.system.addBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.add(this.wireframe);
@@ -14802,14 +14776,20 @@ module.exports = {
     this.syncToPhysics();
   },
 
+  /**
+   * Unregisters the component with the physics system.
+   */
   pause: function () {
-    if (!this.loaded) return;
+    if (!this.isLoaded) return;
 
     this.system.removeBehavior(this, this.system.Phase.SIMULATE);
     this.system.removeBody(this.body);
     if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
   },
 
+  /**
+   * Removes the component and all physics and scene side effects.
+   */
   remove: function () {
     this.pause();
     delete this.body.el;
@@ -14818,6 +14798,12 @@ module.exports = {
     delete this.wireframe;
   },
 
+  /**
+   * Creates a wireframe for the body, for debugging.
+   * TODO(donmccurdy) – Refactor this into a standalone utility or component.
+   * @param  {CANNON.Body} body
+   * @param  {CANNON.Shape} shape
+   */
   createWireframe: function (body, shape) {
     var offset = shape.offset,
         orientation = shape.orientation,
@@ -14841,6 +14827,9 @@ module.exports = {
     this.syncWireframe();
   },
 
+  /**
+   * Updates the debugging wireframe's position and rotation.
+   */
   syncWireframe: function () {
     var offset,
         wireframe = this.wireframe;
@@ -14865,14 +14854,21 @@ module.exports = {
     wireframe.updateMatrix();
   },
 
+  /**
+   * Updates the CANNON.Body instance's position, velocity, and rotation, based on the scene.
+   */
   syncToPhysics: function () {
     var body = this.body;
     if (!body) return;
     if (this.el.components.velocity) body.velocity.copy(this.el.getComputedAttribute('velocity'));
     if (this.el.components.position) body.position.copy(this.el.getComputedAttribute('position'));
+    // TODO(donmccurdy) - Quaternion should also be synced, but no reason currently.
     if (this.wireframe) this.syncWireframe();
   },
 
+  /**
+   * Updates the scene object's position and rotation, based on the physics simulation.
+   */
   syncFromPhysics: function () {
     if (!this.body) return;
     this.el.setAttribute('quaternion', this.body.quaternion);
@@ -15001,14 +14997,16 @@ module.exports = {
         position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
 
     this.body = new CANNON.Body({
-      shape: new CANNON.Sphere(data.radius),
       material: this.system.material,
       position: position,
       mass: data.mass,
       linearDamping: data.linearDamping,
       fixedRotation: true
     });
-    this.body.position.y -= (data.height - data.radius); // TODO - Simplify.
+    this.body.addShape(
+      new CANNON.Sphere(data.radius),
+      new CANNON.Vec3(0, data.radius - data.height, 0)
+    );
 
     this.body.el = this.el;
     this.system.addBody(this.body);
@@ -15040,7 +15038,7 @@ module.exports = {
         groundNormal = new THREE.Vector3();
 
     return function (t, dt) {
-      if (isNaN(dt)) return;
+      if (!dt) return;
 
       var body = this.body,
           data = this.data,
@@ -15116,7 +15114,6 @@ module.exports = {
         this.el.setAttribute('position', body.position);
       }
 
-      body.position.y -= (data.height - data.radius); // TODO - Simplify.
       body.velocity.copy(velocity);
       this.el.setAttribute('velocity', velocity);
     };
@@ -15266,7 +15263,7 @@ module.exports = {
    * @param  {number} dt
    */
   tick: function (t, dt) {
-    if (isNaN(dt)) return;
+    if (!dt) return;
 
     this.world.step(Math.min(dt / 1000, this.maxInterval));
 
