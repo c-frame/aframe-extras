@@ -18,6 +18,8 @@ CDN builds for aframe-extras/v2.0.0:
 - [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.0.0/dist/aframe-extras.js) *(development)*
 - [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.0.0/dist/aframe-extras.min.js) *(production)*
 
+> **Compatibility Notes:** Extras v2.0.0 is compatible with the A-Frame 'master' branch, and upcoming v0.3.0 release. For support for older versions of A-Frame, use Extras v1.17.0.
+
 ## Usage (NPM)
 
 ```
