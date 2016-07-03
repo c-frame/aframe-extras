@@ -36,14 +36,14 @@ AFRAME.registerComponent('rain-of-entities', {
     var data = this.data,
         box = document.createElement(data.tagName);
 
+    this.boxes.push(box);
+    this.el.appendChild(box);
+
     box.setAttribute('position', this.randomPosition());
     data.components.forEach(function (s) {
       var parts = s.split('|');
       box.setAttribute(parts[0], parts[1] || '');
     });
-
-    this.boxes.push(box);
-    this.el.appendChild(box);
 
     // Recycling is important, kids.
     setInterval(function () {
@@ -142,7 +142,7 @@ AFRAME.registerComponent('force-float', {
     </script>
   </head>
   <body>
-    <a-scene rain-of-entities force-float="selector: [force-pushable]" debug="true">
+    <a-scene rain-of-entities force-float="selector: [force-pushable]">
       <!-- Player -->
       <a-entity camera
                 universal-controls="movementEnabled: false"
