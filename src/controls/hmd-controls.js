@@ -1,85 +1,81 @@
-var TICK_DEBOUNCE = 4; // ms
+var radToDeg = THREE.Math.radToDeg,
+    isMobile = false;
 
 module.exports = {
-
-  /*******************************************************************
-   * Schema
-   */
-
   schema: {
-    enabled: { default: true }
+    enabled: {default: true},
+    standing: {default: true}
   },
-
-  /*******************************************************************
-   * Lifecycle
-   */
 
   init: function () {
-    this.tPrev = 0;
+    this.isPositionCalibrated = false;
     this.dolly = new THREE.Object3D();
-    this.euler = new THREE.Euler();
-    this.controls = new THREE.VRControls(this.dolly);
-    this.zeroQuaternion = new THREE.Quaternion();
+    this.hmdEuler = new THREE.Euler();
+    this.previousHMDPosition = new THREE.Vector3();
+    this.deltaHMDPosition = new THREE.Vector3();
+    this.vrControls = new THREE.VRControls(this.dolly);
+    this.rotation = new THREE.Vector3();
   },
 
-  /*******************************************************************
-   * Tick
-   */
-
-  tick: function (t) {
-    t = t || Date.now();
-    if (t - this.tPrev > TICK_DEBOUNCE) {
-      this.controls.update();
-      this.tPrev = t;
-    }
+  update: function () {
+    var data = this.data;
+    var vrControls = this.vrControls;
+    vrControls.standing = data.standing;
+    vrControls.update();
   },
 
-  /*******************************************************************
-   * Universal interface
-   */
+  tick: function () {
+    this.vrControls.update();
+  },
+
+  remove: function () {
+    this.vrControls.dispose();
+  },
 
   isRotationActive: function () {
-    return this.data.enabled && !this.dolly.quaternion.equals(this.zeroQuaternion);
+    var hmdEuler = this.hmdEuler;
+    if (!this.data.enabled || !(this.el.sceneEl.is('vr-mode') || isMobile)) {
+      return false;
+    }
+    hmdEuler.setFromQuaternion(this.dolly.quaternion, 'YXZ');
+    return !isNullVector(hmdEuler);
   },
 
-  getRotation: (function () {
-    var hmdEuler = new THREE.Euler();
-    hmdEuler.order = 'YXZ';
-    return function () {
-      this.tick();
-      var hmdQuaternion = this.calculateHMDQuaternion();
-      hmdEuler.setFromQuaternion(hmdQuaternion);
-      return new THREE.Vector3(
-        THREE.Math.radToDeg(hmdEuler.x),
-        THREE.Math.radToDeg(hmdEuler.y),
-        THREE.Math.radToDeg(hmdEuler.z)
-      );
-    };
-  }()),
+  getRotation: function () {
+    var hmdEuler = this.hmdEuler;
+    return this.rotation.set(
+      radToDeg(hmdEuler.x),
+      radToDeg(hmdEuler.y),
+      radToDeg(hmdEuler.z)
+    );
+  },
 
-  /*******************************************************************
-   * Orientation
-   */
+  isVelocityActive: function () {
+    var deltaHMDPosition = this.deltaHMDPosition;
+    var previousHMDPosition = this.previousHMDPosition;
+    var currentHMDPosition = this.calculateHMDPosition();
+    this.isPositionCalibrated = this.isPositionCalibrated || !isNullVector(previousHMDPosition);
+    if (!this.data.enabled || !this.el.sceneEl.is('vr-mode') || isMobile) {
+      return false;
+    }
+    deltaHMDPosition.copy(currentHMDPosition).sub(previousHMDPosition);
+    previousHMDPosition.copy(currentHMDPosition);
+    return this.isPositionCalibrated && !isNullVector(deltaHMDPosition);
+  },
 
-  calculateHMDQuaternion: (function () {
-    var hmdQuaternion = new THREE.Quaternion();
-    return function () {
-      var dolly = this.dolly;
-      if (!this.zeroed && !dolly.quaternion.equals(this.zeroQuaternion)) {
-        this.zeroOrientation();
-        this.zeroed = true;
-      }
-      hmdQuaternion.copy(this.zeroQuaternion).multiply(dolly.quaternion);
-      return hmdQuaternion;
-    };
-  }()),
+  getPositionDelta: function () {
+    return this.deltaHMDPosition;
+  },
 
-  zeroOrientation: function () {
-    var euler = new THREE.Euler();
-    euler.setFromQuaternion(this.dolly.quaternion.clone().inverse());
-    // Cancel out roll and pitch. We want to only reset yaw
-    euler.z = 0;
-    euler.x = 0;
-    this.zeroQuaternion.setFromEuler(euler);
+  calculateHMDPosition: function () {
+    var dolly = this.dolly;
+    var position = new THREE.Vector3();
+    dolly.updateMatrix();
+    position.setFromMatrixPosition(dolly.matrix);
+    return position;
   }
 };
+
+function isNullVector (vector) {
+  return vector.x === 0 && vector.y === 0 && vector.z === 0;
+}

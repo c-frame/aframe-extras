@@ -19,7 +19,7 @@ module.exports = {
   schema: {
     enabled:              { default: true },
     movementEnabled:      { default: true },
-    movementControls:     { default: ['gamepad', 'keyboard', 'touch'] },
+    movementControls:     { default: ['gamepad', 'keyboard', 'touch', 'hmd'] },
     rotationEnabled:      { default: true },
     rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
     movementSpeed:        { default: 5 }, // m/s
@@ -131,7 +131,8 @@ module.exports = {
    */
 
   updateVelocity: function (dt) {
-    var control, velocity, dVelocity,
+    var control, dVelocity,
+        velocity = this.velocity,
         data = this.data;
 
     if (data.movementEnabled) {
@@ -143,6 +144,10 @@ module.exports = {
           } else if (control.getVelocity) {
             this.el.setAttribute('velocity', control.getVelocity());
             return;
+          } else if (control.getPositionDelta) {
+            velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
+            this.el.setAttribute('velocity', velocity);
+            return;
           } else {
             throw new Error('Incompatible movement controls: ', data.movementControls[i]);
           }
@@ -151,7 +156,6 @@ module.exports = {
       }
     }
 
-    velocity = this.velocity;
     velocity.copy(this.el.getComputedAttribute('velocity'));
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
