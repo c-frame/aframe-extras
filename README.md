@@ -10,13 +10,13 @@ Add-ons and helpers for A-Frame VR.
 In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.0.0/dist/aframe-extras.min.js"></script>
+<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.1.0/dist/aframe-extras.min.js"></script>
 ```
 
-CDN builds for aframe-extras/v2.0.0:
+CDN builds for aframe-extras/v2.1.0:
 
-- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.0.0/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.0.0/dist/aframe-extras.min.js) *(production)*
+- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.1.0/dist/aframe-extras.js) *(development)*
+- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.1.0/dist/aframe-extras.min.js) *(production)*
 
 > **Compatibility Notes:** Extras v2.0.0 is compatible with the A-Frame 'master' branch, and upcoming v0.3.0 release. For support for older versions of A-Frame, use Extras v1.17.0.
 
