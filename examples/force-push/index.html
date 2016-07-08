@@ -72,7 +72,7 @@ AFRAME.registerComponent('force-pushable', {
   init: function () {
     this.pStart = new THREE.Vector3();
     this.sourceEl = this.el.sceneEl.querySelector('[camera]');
-    this.el.addEventListener('cursor-click', this.forcePush.bind(this));
+    this.el.addEventListener('click', this.forcePush.bind(this));
   },
   forcePush: function () {
     var force,
