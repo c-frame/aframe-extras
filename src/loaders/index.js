@@ -7,8 +7,16 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
     AFRAME = AFRAME.aframeCore || AFRAME;
-    if (!AFRAME.components['ply-model'])    AFRAME.registerComponent('ply-model',   this['ply-model']);
-    if (!AFRAME.components['three-model'])  AFRAME.registerComponent('three-model', this['three-model']);
+
+    if (!AFRAME.systems['ply-model']) {
+      AFRAME.registerSystem('ply-model', this['ply-model'].System);
+    }
+    if (!AFRAME.components['ply-model']) {
+      AFRAME.registerComponent('ply-model', this['ply-model'].Component);
+    }
+    if (!AFRAME.components['three-model']) {
+      AFRAME.registerComponent('three-model', this['three-model']);
+    }
 
     this._registered = true;
   }
