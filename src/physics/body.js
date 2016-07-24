@@ -182,21 +182,45 @@ module.exports = {
    * Updates the CANNON.Body instance's position, velocity, and rotation, based on the scene.
    */
   syncToPhysics: function () {
-    var body = this.body;
+    var el = this.el,
+        body = this.body;
     if (!body) return;
-    if (this.el.components.velocity) body.velocity.copy(this.el.getComputedAttribute('velocity'));
-    if (this.el.components.position) body.position.copy(this.el.getComputedAttribute('position'));
-    // TODO(donmccurdy) - Quaternion should also be synced, but no reason currently.
-    if (this.wireframe) this.syncWireframe();
+    if (el.components.velocity)   body.velocity.copy(el.getComputedAttribute('velocity'));
+    // TODO - this line somehow prevents setting default rotation of dynamic body.
+    if (el.components.quaternion) body.quaternion.copy(el.object3D.getWorldQuaternion());
+    if (el.components.position)   body.position.copy(el.object3D.getWorldPosition());
+    if (this.wireframe)           this.syncWireframe();
   },
 
   /**
    * Updates the scene object's position and rotation, based on the physics simulation.
    */
-  syncFromPhysics: function () {
-    if (!this.body) return;
-    this.el.setAttribute('quaternion', this.body.quaternion);
-    this.el.setAttribute('position', this.body.position);
-    if (this.wireframe) this.syncWireframe();
-  }
+  syncFromPhysics: (function () {
+    var v = new THREE.Vector3(),
+        q1 = new THREE.Quaternion(),
+        q2 = new THREE.Quaternion();
+    return function () {
+      var el = this.el,
+          parentEl = el.parentEl,
+          body = this.body;
+
+      if (!body) return;
+
+      if (parentEl.isScene) {
+          el.setAttribute('quaternion', body.quaternion);
+          el.setAttribute('position', body.position);
+      } else {
+        q1.copy(body.quaternion);
+        q2.setFromRotationMatrix(parentEl.object3D.matrixWorld).inverse();
+        q1.multiply(q2);
+        el.setAttribute('quaternion', {x: q1.x, y: q1.y, z: q1.z, w: q1.w});
+
+        v.copy(body.position);
+        parentEl.object3D.worldToLocal(v);
+        el.setAttribute('position', {x: v.x, y: v.y, z: v.z});
+      }
+
+      if (this.wireframe) this.syncWireframe();
+    };
+  }())
 };
