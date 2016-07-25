@@ -4,6 +4,8 @@ var CANNON = require('cannon'),
 require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
+  dependencies: ['quaternion'],
+
   /**
    * Initializes a body component, assigning it to the physics system and binding listeners for
    * parsing the elements geometry.
@@ -28,7 +30,8 @@ module.exports = {
         data = this.data,
         pos = el.getComputedAttribute('position'),
         options = data.shape === 'auto' ? undefined : {
-          type: mesh2shape.Type[this.data.shape.toUpperCase()]
+          type: mesh2shape.Type[data.shape.toUpperCase()],
+          sphereRadius: data.sphereRadius
         };
 
     // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()

@@ -12,7 +12,8 @@ module.exports = AFRAME.utils.extend({}, Body, {
     mass:           { default: 5 },
     linearDamping:  { default: 0.01 },
     angularDamping: { default: 0.01 },
-    shape: {default: 'auto', oneOf: ['auto', 'box', 'sphere', 'hull']}
+    shape: {default: 'auto', oneOf: ['auto', 'box', 'sphere', 'hull']},
+    sphereRadius: {default: NaN}
   },
 
   step: function () {
