@@ -4,8 +4,10 @@
 window.debug = true;
 
 var AScene = require('aframe').AScene;
+var extras = require('../');
 
-require('../').registerAll();
+extras.controls.registerAll();
+extras.math.registerAll();
 
 setup(function () {
   this.sinon = sinon.sandbox.create();
