@@ -185,10 +185,10 @@ module.exports = {
     var el = this.el,
         body = this.body;
     if (!body) return;
-    if (el.components.velocity)   body.velocity.copy(el.getComputedAttribute('velocity'));
+    if (el.components.velocity) body.velocity.copy(el.getComputedAttribute('velocity'));
     // TODO - this line somehow prevents setting default rotation of dynamic body.
-    if (el.components.quaternion) body.quaternion.copy(el.object3D.getWorldQuaternion());
-    if (el.components.position)   body.position.copy(el.object3D.getWorldPosition());
+    body.quaternion.copy(el.object3D.getWorldQuaternion());
+    body.position.copy(el.object3D.getWorldPosition());
     if (this.wireframe)           this.syncWireframe();
   },
 
