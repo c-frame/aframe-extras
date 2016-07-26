@@ -65,7 +65,9 @@ src
 │   └── velocity.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
+│   ├── grab.js
 │   ├── jump-ability.js
+│   ├── sphere-collider.js
 │   └── toggle-velocity.js
 ├── <b>physics/</b> (<a href="/src/physics">Documentation</a>)
 │   ├── body.js
