@@ -4,8 +4,6 @@ var CANNON = require('cannon'),
 require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
-  dependencies: ['quaternion'],
-
   schema: {
     shape: {default: 'auto', oneOf: ['auto', 'box', 'sphere', 'hull']},
     sphereRadius: {default: NaN}
