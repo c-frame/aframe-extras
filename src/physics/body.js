@@ -184,16 +184,31 @@ module.exports = {
   /**
    * Updates the CANNON.Body instance's position, velocity, and rotation, based on the scene.
    */
-  syncToPhysics: function () {
-    var el = this.el,
-        body = this.body;
-    if (!body) return;
-    if (el.components.velocity) body.velocity.copy(el.getComputedAttribute('velocity'));
-    // TODO - this line somehow prevents setting default rotation of dynamic body.
-    body.quaternion.copy(el.object3D.getWorldQuaternion());
-    body.position.copy(el.object3D.getWorldPosition());
-    if (this.wireframe) this.syncWireframe();
-  },
+  syncToPhysics: (function () {
+    var q =  new THREE.Quaternion(),
+        v = new THREE.Vector3();
+    return function () {
+      var el = this.el,
+          parentEl = el.parentEl,
+          body = this.body;
+
+      if (!body) return;
+
+      if (el.components.velocity) body.velocity.copy(el.getComputedAttribute('velocity'));
+
+      if (parentEl.isScene) {
+        body.quaternion.copy(el.object3D.quaternion);
+        body.position.copy(el.object3D.position);
+      } else {
+        el.object3D.getWorldQuaternion(q);
+        body.quaternion.copy(q);
+        el.object3D.getWorldPosition(v);
+        body.position.copy(v);
+      }
+
+      if (this.wireframe) this.syncWireframe();
+    };
+  }()),
 
   /**
    * Updates the scene object's position and rotation, based on the physics simulation.
@@ -210,12 +225,13 @@ module.exports = {
       if (!body) return;
 
       if (parentEl.isScene) {
-          el.setAttribute('quaternion', body.quaternion);
-          el.setAttribute('position', body.position);
+        el.setAttribute('quaternion', body.quaternion);
+        el.setAttribute('position', body.position);
       } else {
+        // TODO - Nested rotation doesn't seem to be working as expected.
         q1.copy(body.quaternion);
-        q2.setFromRotationMatrix(parentEl.object3D.matrixWorld).inverse();
-        q1.multiply(q2);
+        parentEl.object3D.getWorldQuaternion(q2);
+        q1.multiply(q2.inverse());
         el.setAttribute('quaternion', {x: q1.x, y: q1.y, z: q1.z, w: q1.w});
 
         v.copy(body.position);
