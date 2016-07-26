@@ -6,6 +6,11 @@ require('../../lib/CANNON-shape2mesh');
 module.exports = {
   dependencies: ['quaternion'],
 
+  schema: {
+    shape: {default: 'auto', oneOf: ['auto', 'box', 'sphere', 'hull']},
+    sphereRadius: {default: NaN}
+  },
+
   /**
    * Initializes a body component, assigning it to the physics system and binding listeners for
    * parsing the elements geometry.
@@ -189,7 +194,7 @@ module.exports = {
     // TODO - this line somehow prevents setting default rotation of dynamic body.
     body.quaternion.copy(el.object3D.getWorldQuaternion());
     body.position.copy(el.object3D.getWorldPosition());
-    if (this.wireframe)           this.syncWireframe();
+    if (this.wireframe) this.syncWireframe();
   },
 
   /**
