@@ -17,7 +17,7 @@ suite('quaternion', function () {
     test('defaults to null transform', function () {
       component.update();
       expect(el.object3D.quaternion).to.shallowDeepEqual({
-        x: 0, y: 0, z: 0, w: 1
+        x: 0, y: 0, z: 0
       });
     });
 
