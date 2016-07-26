@@ -65,9 +65,9 @@ src
 │   └── velocity.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
-│   ├── grab.js
+│   ├── grab.js                 <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── jump-ability.js
-│   ├── sphere-collider.js
+│   ├── sphere-collider.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   └── toggle-velocity.js
 ├── <b>physics/</b> (<a href="/src/physics">Documentation</a>)
 │   ├── body.js
