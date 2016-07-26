@@ -95,7 +95,7 @@ module.exports = {
           height, groundHeight = -Infinity,
           groundBody;
 
-      dt = Math.min(dt, this.system.maxInterval * 1000);
+      dt = Math.min(dt, this.system.data.maxInterval * 1000);
 
       groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));
@@ -154,7 +154,7 @@ module.exports = {
       // 6. If the ground surface has a velocity, apply it directly to current
       // position, not velocity, to preserve relative velocity.
       if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        var groundVelocity = groundBody.el.getAttribute('velocity');
+        var groundVelocity = groundBody.el.getComputedAttribute('velocity');
         body.position.copy({
           x: body.position.x + groundVelocity.x * dt / 1000,
           y: body.position.y + groundVelocity.y * dt / 1000,
