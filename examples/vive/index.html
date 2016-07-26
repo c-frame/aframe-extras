@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Vive</title>
+    <script src="../aframe-extras.js"></script>
+  </head>
+  <body>
+    <a-scene physics="debug: true">
+      <!-- Player -->
+      <a-entity camera look-controls></a-entity>
+      <a-entity static-body="shape: sphere; sphereRadius: 0.02;" vive-controls="hand: left" sphere-collider="objects: .cube;" grab></a-entity>
+      <a-entity static-body="shape: sphere; sphereRadius: 0.02;" vive-controls="hand: right" sphere-collider="objects: .cube;" grab></a-entity>
+
+      <a-box class="cube" dynamic-body position="0 0.25 -1" width="0.5" height="0.5" depth="0.5" color="red"></a-box>
+      <a-box class="cube" dynamic-body position="-1 0.25 -1" width="0.5" height="0.5" depth="0.5" color="green"></a-box>
+      <a-box class="cube" dynamic-body position="1 0.25 -1" width="0.5" height="0.5" depth="0.5" color="blue"></a-box>
+
+      <!-- Terrain -->
+      <a-grid static-body></a-grid>
+
+      <!-- Lighting -->
+      <a-entity light="type: point; color: #f4f4f4; intensity: 0.2; distance: 0" position="8 10 18"></a-entity>
+      <a-entity light="type: point; color: #f4f4f4; intensity: 0.6; distance: 0" position="-8 10 -18"></a-entity>
+      <a-entity light="type: ambient; color: #f4f4f4; intensity: 0.4;" position="-8 10 -18"></a-entity>
+    </a-scene>
+  </body>
+</html>
