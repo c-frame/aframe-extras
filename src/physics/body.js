@@ -5,7 +5,8 @@ require('../../lib/CANNON-shape2mesh');
 
 module.exports = {
   schema: {
-    shape: {default: 'auto', oneOf: ['auto', 'box', 'sphere', 'hull']},
+    shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull']},
+    cylinderAxis: {default: 'y', oneOf: ['x', 'y', 'z']},
     sphereRadius: {default: NaN}
   },
 
@@ -32,10 +33,9 @@ module.exports = {
         el = this.el,
         data = this.data,
         pos = el.getComputedAttribute('position'),
-        options = data.shape === 'auto' ? undefined : {
-          type: mesh2shape.Type[data.shape.toUpperCase()],
-          sphereRadius: data.sphereRadius
-        };
+        options = data.shape === 'auto' ? undefined : AFRAME.utils.extend({}, this.data, {
+          type: mesh2shape.Type[data.shape.toUpperCase()]
+        });
 
     // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
     // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with

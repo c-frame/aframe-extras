@@ -54,11 +54,12 @@ el.body.applyImpulse(
 
 ## Body Shapes
 
-Components will attempt to find an appropriate CANNON.js shape to fit your model. Boxes, Planes, Cylinders, Spheres, Convex Hulls, and Trimeshes are supported. When defining an object, you may use `auto`, `box`, `sphere`, or `hull`. `auto` will choose from the available shapes automatically. Select a shape carefully, as there are performance implications with different choices:
+Body components will attempt to find an appropriate CANNON.js shape to fit your model. When defining an object you may choose a shape or leave the default, `auto`. Select a shape carefully, as there are performance implications with different choices:
 
 * **Auto** (`auto`) – Chooses automatically from the available shapes.
 * **Box** (`box`) – Great performance, compared to Hull or Trimesh shapes, and may be fitted to custom models.
-* **Sphere** (`sphere`) – Great performance, compared to Hull or Trimesh shapes, and may be fitted to custom models.
+* **Cylinder** (`cylinder`) – See `box`. Adds `cylinderAxis` option.
+* **Sphere** (`sphere`) – See `box`. Adds `sphereRadius` option.
 * **Convex** (`hull`) – Wraps a model like shrink-wrap. Convex shapes are more performant and better supported than Trimesh, but may still have some performance impact when used as dynamic objects.
 * **Primitives** – Plane/Cylinder/Sphere. Used automatically with the corresponding A-Frame primitives.
 * **Trimesh** – *Deprecated.* Not available as a custom shape, but may be chosen as a last resort for custom geometry. Trimeshes adapt to fit custom geometry (e.g. a `.OBJ` or `.DAE` file), but have very minimal support. Arbitrary trimesh shapes are difficult to model in any JS physics engine, will "fall through" certain other shapes, and have serious performance limitations.
@@ -69,7 +70,11 @@ For more details, see the CANNON.js [collision matrix](https://github.com/schtep
 Example using a bounding box for a custom model:
 
 ```html
+<!-- Box -->
 <a-entity obj-model="obj: url(...)" dynamic-body="shape: box; mass: 2"></a-entity>
+
+<!-- Cylinder -->
+<a-entity obj-model="obj: url(...)" dynamic-body="shape: cylinder; cylinderAxis: y; mass: 5"></a-entity>
 ```
 
 ## Collision Events
