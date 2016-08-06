@@ -13,7 +13,6 @@ module.exports = {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
-    AFRAME = AFRAME.aframeCore || AFRAME;
 
     math.registerAll();
     if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);

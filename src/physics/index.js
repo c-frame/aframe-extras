@@ -11,7 +11,6 @@ module.exports = {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
-    AFRAME = AFRAME.aframeCore || AFRAME;
 
     math.registerAll();
     if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics',           this.system);
