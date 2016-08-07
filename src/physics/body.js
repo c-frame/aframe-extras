@@ -7,7 +7,8 @@ module.exports = {
   schema: {
     shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull']},
     cylinderAxis: {default: 'y', oneOf: ['x', 'y', 'z']},
-    sphereRadius: {default: NaN}
+    sphereRadius: {default: NaN},
+    fixedRotation: {default: false}
   },
 
   /**
@@ -55,7 +56,8 @@ module.exports = {
       material: this.system.material,
       position: new CANNON.Vec3(pos.x, pos.y, pos.z),
       linearDamping: data.linearDamping,
-      angularDamping: data.angularDamping
+      angularDamping: data.angularDamping,
+      fixedRotation: data.fixedRotation
     });
     this.body.addShape(shape, shape.offset, shape.orientation);
 

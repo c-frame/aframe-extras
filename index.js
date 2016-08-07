@@ -6,6 +6,7 @@ module.exports = {
   physics:    require('./src/physics'),
   primitives: require('./src/primitives'),
   shadows:    require('./src/shadows'),
+  ui:         require('./src/ui'),
 
   registerAll: function () {
     this.controls.registerAll();
@@ -15,5 +16,6 @@ module.exports = {
     this.physics.registerAll();
     this.primitives.registerAll();
     this.shadows.registerAll();
+    this.ui.registerAll();
   }
 };

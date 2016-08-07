@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • UI</title>
+    <script src="../aframe-extras.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Player -->
+      <a-entity camera="near: 0.1" universal-controls kinematic-body position="0 1.5 5"></a-entity>
+      <a-entity vive-controls="hand: left" sphere-collider="objects: .cube;"></a-entity>
+      <a-entity vive-controls="hand: right" sphere-collider="objects: .cube;"></a-entity>
+
+      <!--
+           Palette by http://www.colourlovers.com/lover/Trixsta%20T
+           Porous rock: #BDAA9C
+           Flesh:       #C18A6B
+           SandyToes:   #726656
+           Colour153:   #D5AFAE
+           Queen:       #AF7987
+        -->
+
+      <!-- UI -->
+      <a-entity ui-button
+                geometry="primitive: box; width: 0.5; height: 0.1; depth: 0.025"
+                material="color: #AF7987";
+                position="0 1.3 -0.5"></a-entity>
+      <a-entity ui-radiogroup position="0 1.5 -0.5">
+        <a-entity ui-button
+                  position="-0.20 0 0"
+                  geometry="primitive: box; width: 0.1; height: 0.1; depth: 0.025"
+                  material="color: #C18A6B"></a-entity>
+        <a-entity ui-button
+                  position="0 0 0"
+                  geometry="primitive: box; width: 0.1; height: 0.1; depth: 0.025"
+                  material="color: #726656"></a-entity>
+        <a-entity ui-button
+                  position="0.20 0 0"
+                  geometry="primitive: box; width: 0.1; height: 0.1; depth: 0.025"
+                  material="color: #D5AFAE"></a-entity>
+      </a-entity>
+
+      <!-- Ground -->
+      <a-grid static-body></a-grid>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#bbb"></a-light>
+      <a-light color="#ccc" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ccc" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
+    </a-scene>
+  </body>
+</html>
