@@ -63,7 +63,7 @@ Body components will attempt to find an appropriate CANNON.js shape to fit your 
 * **Convex** (`hull`) – Wraps a model like shrink-wrap. Convex shapes are more performant and better supported than Trimesh, but may still have some performance impact when used as dynamic objects.
 * **Primitives** – Plane/Cylinder/Sphere. Used automatically with the corresponding A-Frame primitives.
 * **Trimesh** – *Deprecated.* Not available as a custom shape, but may be chosen as a last resort for custom geometry. Trimeshes adapt to fit custom geometry (e.g. a `.OBJ` or `.DAE` file), but have very minimal support. Arbitrary trimesh shapes are difficult to model in any JS physics engine, will "fall through" certain other shapes, and have serious performance limitations.
-* **Compound** – *In progress.* Compound shapes require a bit of work to set up, but allow you to use multiple primitives to define a physics shape around custom models. These will general perform better, and behave more accurately, than Trimesh or Convex shapes. For example, a stool might be modeled as a cylinder-shaped seat, on four long cylindrical legs.
+* **Compound** – *In progress.* Compound shapes require a bit of work to set up, but allow you to use multiple primitives to define a physics shape around custom models. These will generally perform better, and behave more accurately, than Trimesh or Convex shapes. For example, a stool might be modeled as a cylinder-shaped seat, on four long cylindrical legs.
 
 For more details, see the CANNON.js [collision matrix](https://github.com/schteppe/cannon.js#features).
 
@@ -116,6 +116,7 @@ Contact materials define what happens when two objects meet, including physical 
 | contactEquationRelaxation       | 3       | Relaxation time of the produced contact equations. |
 | frictionEquationStiffness       | 1e8     | Stiffness of the produced friction equations.      |
 | frictionEquationRegularization  | 3       | Relaxation time of the produced friction equations |
+| gravity | -9.8    | Force of gravity (in m/s^2) |
 
 More advanced configuration, including specifying different collision behaviors for different objects, is available through the CANNON.js JavaScript API.
 
