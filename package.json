@@ -28,7 +28,8 @@
     "aframe": "^0.2.0"
   },
   "dependencies": {
-    "cannon": "^0.6.2"
+    "cannon": "^0.6.2",
+    "three-to-cannon": "^1.0.0"
   },
   "devDependencies": {
     "aframe": "^0.2.0",
