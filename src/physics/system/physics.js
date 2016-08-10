@@ -9,13 +9,13 @@ var CANNON = require('cannon'),
 module.exports = {
   schema: {
     gravity:                        { default: C_GRAV },
+    iterations:                     { default: CONSTANTS.ITERATIONS },
     friction:                       { default: C_MAT.friction },
     restitution:                    { default: C_MAT.restitution },
     contactEquationStiffness:       { default: C_MAT.contactEquationStiffness },
     contactEquationRelaxation:      { default: C_MAT.contactEquationRelaxation },
     frictionEquationStiffness:      { default: C_MAT.frictionEquationStiffness },
     frictionEquationRegularization: { default: C_MAT.frictionEquationRegularization },
-    iterations: { default: CONSTANTS.ITERATIONS },
 
     // Never step more than four frames at once. Effectively pauses the scene
     // when out of focus, and prevents weird "jumps" when focus returns.

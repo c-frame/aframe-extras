@@ -108,6 +108,7 @@ Contact materials define what happens when two objects meet, including physical 
 | Property                        | Default | Description                                        |
 |---------------------------------|---------|----------------------------------------------------|
 | debug                           | true    | Whether to show wireframes for debugging.          |
+| gravity                         | -9.8    | Force of gravity (in m/s^2).                       |
 | iterations                      | 10      | The number of solver iterations determines quality of the constraints in the world. The more iterations, the more correct simulation. More iterations need more computations though. If you have a large gravity force in your world, you will need more iterations. |
 | maxInterval                     | 0.0667  | Maximum simulated time (in milliseconds) that may be taken by the physics engine per frame. Effectively prevents weird "jumps" when the player returns to the scene after a few minutes, at the expense of pausing physics during this time. |
 | friction                        | 0.01    | Coefficient of friction.                           |
@@ -116,7 +117,6 @@ Contact materials define what happens when two objects meet, including physical 
 | contactEquationRelaxation       | 3       | Relaxation time of the produced contact equations. |
 | frictionEquationStiffness       | 1e8     | Stiffness of the produced friction equations.      |
 | frictionEquationRegularization  | 3       | Relaxation time of the produced friction equations |
-| gravity | -9.8    | Force of gravity (in m/s^2) |
 
 More advanced configuration, including specifying different collision behaviors for different objects, is available through the CANNON.js JavaScript API.
 
