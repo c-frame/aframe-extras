@@ -15,6 +15,7 @@ module.exports = {
     contactEquationRelaxation:      { default: C_MAT.contactEquationRelaxation },
     frictionEquationStiffness:      { default: C_MAT.frictionEquationStiffness },
     frictionEquationRegularization: { default: C_MAT.frictionEquationRegularization },
+    iterations: { default: CONSTANTS.ITERATIONS },
 
     // Never step more than four frames at once. Effectively pauses the scene
     // when out of focus, and prevents weird "jumps" when focus returns.
@@ -52,7 +53,7 @@ module.exports = {
     this.world.quatNormalizeSkip = 0;
     this.world.quatNormalizeFast = false;
     // this.world.solver.setSpookParams(300,10);
-    this.world.solver.iterations = CONSTANTS.ITERATIONS;
+    this.world.solver.iterations = data.iterations;
     this.world.gravity.set(0, data.gravity, 0);
     this.world.broadphase = new CANNON.NaiveBroadphase();
 
