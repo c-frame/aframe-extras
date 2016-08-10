@@ -489,7 +489,6 @@ module.exports = {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
-    AFRAME = AFRAME.aframeCore || AFRAME;
 
     if (!AFRAME.systems['ply-model']) {
       AFRAME.registerSystem('ply-model', this['ply-model'].System);

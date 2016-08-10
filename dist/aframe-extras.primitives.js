@@ -196,7 +196,6 @@ module.exports = {
     if (this._registered) return;
 
     AFRAME = AFRAME || window.AFRAME;
-    AFRAME = AFRAME.aframeCore || AFRAME;
 
     AFRAME.registerPrimitive('a-grid',  this['a-grid']);
 
