@@ -10,6 +10,7 @@ module.exports.entityFactory = function (opts) {
   var entity = document.createElement('a-entity');
   scene.appendChild(assets);
   scene.appendChild(entity);
+  entity.sceneEl = scene;
 
   opts = opts || {};
 
