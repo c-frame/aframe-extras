@@ -12,6 +12,7 @@ suite('velocity', function () {
       el.setAttribute('velocity', '');
       el.addEventListener('loaded', function () {
         component = el.components.velocity;
+        delete component.system;
         done();
       });
     });
