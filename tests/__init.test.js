@@ -8,7 +8,6 @@ var extras = require('../');
 
 extras.controls.registerAll();
 extras.math.registerAll();
-extras.physics.registerAll();
 
 setup(function () {
   this.sinon = sinon.sandbox.create();
