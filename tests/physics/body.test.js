@@ -22,6 +22,7 @@ suite('body', function () {
     el.addEventListener('loaded', function () {
       el.sceneEl.systems.physics = physics;
       component = new CustomBody();
+      sinon.stub(component, 'initBody');
       component.el = el;
       done();
     });
@@ -34,9 +35,10 @@ suite('body', function () {
 
   suite('lifecycle', function () {
     test('init', function () {
-      el.sceneEl.hasLoaded = false;
+      el.sceneEl.hasLoaded = true;
       component.init();
       expect(component.system).to.equal(physics);
+      expect(component.initBody).to.have.been.calledOnce;
     });
 
     test.skip('update', function () {
