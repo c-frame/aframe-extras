@@ -611,11 +611,13 @@ module.exports = {
   },
 
   update: function (previousData) {
+    previousData = previousData || {};
+
     var loader,
         data = this.data;
     if (!data.src) return;
 
-    if (!previousData) {
+    if (!Object.keys(previousData).length) {
       this.remove();
       if (data.loader === 'object') {
         loader = new THREE.ObjectLoader();
@@ -629,7 +631,7 @@ module.exports = {
         throw new Error('[three-model] Invalid mode "%s".', data.mode);
       }
     } else if (data.animation !== previousData.animation) {
-      if (this.model.activeAction) {
+      if (this.model && this.model.activeAction) {
         this.model.activeAction.stop();
         this.playAnimation();
       }
