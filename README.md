@@ -13,12 +13,19 @@ In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) fol
 <script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.2.1/dist/aframe-extras.min.js"></script>
 ```
 
-**COMPATIBILITY NOTES: Extras v2.* is compatible with the A-Frame `master` branch, and upcoming A-Frame v0.3.0 release. For support for older versions of A-Frame, including A-Frame v0.2.0, use Extras v1.17.0.**
-
 CDN builds for aframe-extras/v2.2.1:
 
 - [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.2.1/dist/aframe-extras.js) *(development)*
 - [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.2.1/dist/aframe-extras.min.js) *(production)*
+
+For partial builds, use a subpackage like `aframe-extras.physics.min.js`. [Full list of packages below](#add-ons).
+
+**A-Frame Version Compatibility**
+
+| A-Frame   | Extras                |
+|-----------|-----------------------|
+| >= v0.3.0 | aframe-extras/v2.2.0  | 
+| < v0.2.0  | aframe-extras/v1.17.0 | 
 
 ## Usage (NPM)
 
