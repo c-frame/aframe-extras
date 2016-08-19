@@ -25,14 +25,14 @@
     "postversion": "git push && git push --tags && npm publish"
   },
   "peerDependencies": {
-    "aframe": "^0.2.0"
+    "aframe": "^0.3.0"
   },
   "dependencies": {
     "cannon": "^0.6.2",
     "three-to-cannon": "^1.0.0"
   },
   "devDependencies": {
-    "aframe": "^0.2.0",
+    "aframe": "^0.3.0",
     "browserify": "^13.0.0",
     "budo": "^8.0.4",
     "chai": "^3.5.0",
