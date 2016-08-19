@@ -60,7 +60,8 @@ module.exports = {
   },
 
   update: function (previousData) {
-    if (!previousData) { return; }
+    previousData = previousData || {};
+    if (!Object.keys(previousData).length) { return; }
     this.el.object3D.remove(this.light);
     this.light = this.getLight();
     this.el.object3D.add(this.light);
