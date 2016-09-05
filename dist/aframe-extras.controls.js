@@ -1590,7 +1590,8 @@ module.exports = {
     movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
     movementAcceleration: { default: 80 }, // m/s2
-    rotationSensitivity:  { default: 0.05 } // radians/frame, ish
+    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
+    fly:                  { default: false }
   },
 
   /*******************************************************************
@@ -1736,7 +1737,11 @@ module.exports = {
       // Rotate to heading
       var rotation = this.el.getAttribute('rotation');
       if (rotation) {
-        this.heading.set(0 /* no flying */, THREE.Math.degToRad(rotation.y), 0);
+        this.heading.set(
+          data.fly ? THREE.Math.degToRad(rotation.x) : 0,
+          THREE.Math.degToRad(rotation.y),
+          0
+        );
         dVelocity.applyEuler(this.heading);
       }
 

@@ -3047,7 +3047,8 @@ module.exports = {
     movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
     movementAcceleration: { default: 80 }, // m/s2
-    rotationSensitivity:  { default: 0.05 } // radians/frame, ish
+    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
+    fly:                  { default: false }
   },
 
   /*******************************************************************
@@ -3193,7 +3194,11 @@ module.exports = {
       // Rotate to heading
       var rotation = this.el.getAttribute('rotation');
       if (rotation) {
-        this.heading.set(0 /* no flying */, THREE.Math.degToRad(rotation.y), 0);
+        this.heading.set(
+          data.fly ? THREE.Math.degToRad(rotation.x) : 0,
+          THREE.Math.degToRad(rotation.y),
+          0
+        );
         dVelocity.applyEuler(this.heading);
       }
 
@@ -3651,6 +3656,8 @@ module.exports = {
       this.bindings[events[i]] = beginJump;
       this.el.addEventListener(events[i], beginJump);
     }
+    this.bindings.collide = this.onCollide.bind(this);
+    this.el.addEventListener('collide', this.bindings.collide);
   },
 
   remove: function () {
@@ -3660,16 +3667,22 @@ module.exports = {
         delete this.bindings[event];
       }
     }
+    this.el.removeEventListener('collide', this.bindings.collide);
+    delete this.bindings.collide;
   },
 
   beginJump: function () {
-    if (this.isOnObject || this.data.enableDoubleJump && this.numJumps === 1) {
+    if (this.isOnObject || this.data.enableDoubleJump) {
       var data = this.data,
           initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
           v = this.el.getAttribute('velocity');
       this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
-      this.numJumps++;
+      this.isOnObject = false;
     }
+  },
+
+  onCollide: function () {
+    this.isOnObject = true;
   }
 };
 
