@@ -32,6 +32,8 @@ module.exports = {
       this.bindings[events[i]] = beginJump;
       this.el.addEventListener(events[i], beginJump);
     }
+    this.bindings.collide = this.onCollide.bind(this);
+    this.el.addEventListener('collide', this.bindings.collide);
   },
 
   remove: function () {
@@ -41,15 +43,21 @@ module.exports = {
         delete this.bindings[event];
       }
     }
+    this.el.removeEventListener('collide', this.bindings.collide);
+    delete this.bindings.collide;
   },
 
   beginJump: function () {
-    if (this.isOnObject || this.data.enableDoubleJump && this.numJumps === 1) {
+    if (this.isOnObject || this.data.enableDoubleJump) {
       var data = this.data,
           initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
           v = this.el.getAttribute('velocity');
       this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
-      this.numJumps++;
+      this.isOnObject = false;
     }
+  },
+
+  onCollide: function () {
+    this.isOnObject = true;
   }
 };
