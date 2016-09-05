@@ -21,7 +21,7 @@ module.exports = {
   },
   mappings: {
     width: 'geometry.width',
-    depth: 'geometry.depth',
+    height: 'geometry.height',
     src: 'material.src'
   }
 };
