@@ -1190,7 +1190,7 @@ module.exports = {
   schema: {
     on: { default: 'keydown:Space gamepadbuttondown:0' },
     playerHeight: { default: 1.764 },
-    enableDoubleJump: { default: false },
+    maxJumps: { default: 1 },
     distance: { default: 5 },
     soundJump: { default: '' },
     soundLand: { default: '' },
@@ -1198,7 +1198,6 @@ module.exports = {
   },
 
   init: function () {
-    this.isOnObject = true;
     this.velocity = 0;
     this.numJumps = 0;
 
@@ -1225,17 +1224,17 @@ module.exports = {
   },
 
   beginJump: function () {
-    if (this.isOnObject || this.data.enableDoubleJump) {
+    if (this.numJumps < this.data.maxJumps) {
       var data = this.data,
           initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
           v = this.el.getAttribute('velocity');
       this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
-      this.isOnObject = false;
+      this.numJumps++;
     }
   },
 
   onCollide: function () {
-    this.isOnObject = true;
+    this.numJumps = 0;
   }
 };
 
