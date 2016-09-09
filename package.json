@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "budo browser.js:examples/aframe-extras.js",
-    "dev:win": "live-server . --port=9966 & watch-exec -c 'browserify browser.js -d -o examples/aframe-extras.js' -w src",
+    "dev:win": "live-server . --port=9966 --no-browser & watch-exec -c 'browserify browser.js -d -o examples/aframe-extras.js' -w src",
     "build": "./scripts/build.js",
     "dist": "./scripts/dist.js",
     "test": "karma start ./tests/karma.conf.js",
@@ -25,14 +25,14 @@
     "postversion": "git push && git push --tags && npm publish"
   },
   "peerDependencies": {
-    "aframe": "^0.3.0"
+    "aframe": "^0.3.1"
   },
   "dependencies": {
     "cannon": "^0.6.2",
     "three-to-cannon": "^1.0.0"
   },
   "devDependencies": {
-    "aframe": "^0.3.0",
+    "aframe": "^0.3.1",
     "browserify": "^13.0.0",
     "budo": "^9.0.0",
     "chai": "^3.5.0",
