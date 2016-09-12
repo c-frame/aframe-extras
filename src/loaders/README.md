@@ -27,10 +27,8 @@ an animation and its duration in the `three-model` properties:
 | Property          | Default | Description                                                |
 |-------------------|---------|------------------------------------------------------------|
 | enableAnimation   | true    | Enables animation of the model.                            |
-| animation         | AUTO    | Name of the animation to play, if there are more than one. |
+| animation         | AUTO    | Name of the animation to play, if there are more than one. A list of available animations can usually be found in the model file or its documentation. |
 | animationDuration | AUTO    | Duration of the animation, in seconds.                     |
-
-Names of available animations can usually be found by inspecting the file.
 
 THREE.js models often need to be scaled down. Example:
 
