@@ -17,14 +17,22 @@ JSON:
 
 ```html
       <a-entity three-model="loader: object;
-                             animation: default;
                              src: url(my-model.json);">
       </a-entity>
 ```
 
-If your JSON model includes one or more animations, you'll need to specify the name of the animation to play. This can generally be found by inspecting the file itself, or opening it in a viewing program.
+THREE.js models also support animation. The first animation will play by default, or you can specify
+an animation and its duration in the `three-model` properties:
 
-Scaling + model:
+| Property          | Default | Description                                                |
+|-------------------|---------|------------------------------------------------------------|
+| enableAnimation   | true    | Enables animation of the model.                            |
+| animation         | AUTO    | Name of the animation to play, if there are more than one. |
+| animationDuration | AUTO    | Duration of the animation, in seconds.                     |
+
+Names of available animations can usually be found by inspecting the file.
+
+THREE.js models often need to be scaled down. Example:
 
 ```html
 <a-entity scale="0.5 0.5 0.5" ply-model="src: url(my-model.ply);"></a-entity>
