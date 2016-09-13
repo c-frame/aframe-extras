@@ -52,7 +52,7 @@ module.exports = {
       } else {
         throw new Error('[three-model] Invalid mode "%s".', data.mode);
       }
-    } else if (data.animation !== previousData.animation) {
+    } else if (data.animation !== previousData.animation || data.animationDuration !== previousData.animationDuration) {
       if (this.model && this.model.activeAction) {
         this.model.activeAction.stop();
         this.playAnimation();
