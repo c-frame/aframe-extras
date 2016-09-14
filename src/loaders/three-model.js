@@ -37,10 +37,10 @@ module.exports = {
       this.remove();
       if (data.loader === 'object') {
         loader = new THREE.ObjectLoader();
-        loader.load(data.src, function( loaded ) {
-          loaded.traverse( function(object ) {
-          if (object instanceof THREE.SkinnedMesh )
-            loaded = object;
+        loader.load(data.src, function(loaded) {
+          loaded.traverse( function(object) {
+            if (object instanceof THREE.SkinnedMesh)
+              loaded = object;
           });
           if(loaded.material)
             loaded.material.skinning = !!((loaded.geometry && loaded.geometry.bones) || []).length;
