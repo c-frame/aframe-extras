@@ -628,19 +628,26 @@ module.exports = {
         loader.load(data.src, this.load.bind(this));
       } else if (data.loader === 'json') {
         loader = new THREE.JSONLoader();
-        loader.load(data.src, function (geometry /*, materials */) {
-          var mesh = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
-            vertexColors: THREE.FaceColors,
-            morphTargets: !!(geometry.morphTargets || []).length,
-            morphNormals: !!(geometry.morphNormals || []).length,
-            skinning:     !!(geometry.skinIndices || []).length
-          }));
+        loader.load(data.src, function (geometry, materials) {
+
+          // Attempt to automatically detect common material options.
+          materials.forEach(function (mat) {
+            mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
+            mat.skinning = !!(geometry.bones || []).length;
+            mat.morphTargets = !!(geometry.morphTargets || []).length;
+            mat.morphNormals = !!(geometry.morphNormals || []).length;
+          });
+
+          var mesh = (geometry.bones || []).length
+            ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
+            : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
           this.load(mesh);
         }.bind(this));
       } else {
         throw new Error('[three-model] Invalid mode "%s".', data.mode);
       }
-    } else if (data.animation !== previousData.animation) {
+    } else if (data.animation !== previousData.animation || data.animationDuration !== previousData.animationDuration) {
       if (this.model && this.model.activeAction) {
         this.model.activeAction.stop();
         this.playAnimation();
