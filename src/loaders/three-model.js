@@ -37,7 +37,15 @@ module.exports = {
       this.remove();
       if (data.loader === 'object') {
         loader = new THREE.ObjectLoader();
-        loader.load(data.src, this.load.bind(this));
+        loader.load(data.src, function( loaded ) {
+    			loaded.traverse( function(object ) {
+    				if (object instanceof THREE.SkinnedMesh )
+    					loaded = object;
+    			});
+          if(loaded.material)
+            loaded.material.skinning = !!((loaded.geometry && loaded.geometry.bones) || []).length;
+          this.load(loaded);
+    		}.bind(this));
       } else if (data.loader === 'json') {
         loader = new THREE.JSONLoader();
         loader.load(data.src, function (geometry, materials) {
