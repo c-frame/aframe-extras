@@ -40,14 +40,18 @@ module.exports = {
         loader.load(data.src, this.load.bind(this));
       } else if (data.loader === 'json') {
         loader = new THREE.JSONLoader();
-        loader.load(data.src, function (geometry /*, materials */) {
-          var mesh = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
-            vertexColors: THREE.FaceColors,
-            morphTargets: !!(geometry.morphTargets || []).length,
-            morphNormals: !!(geometry.morphNormals || []).length,
-            skinning:     !!(geometry.skinIndices || []).length
-          }));
-          this.load(mesh);
+        loader.load(data.src, function (geometry, materials ) {
+          if (materials[0] instanceof THREE.MeshLambertMaterial){
+    				var mesh = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
+    					vertexColors: THREE.FaceColors,
+    					morphTargets: !!(geometry.morphTargets || []).length,
+    					morphNormals: !!(geometry.morphNormals || []).length,
+    					skinning:     !!(geometry.skinIndices || []).length
+    				}));
+    				this.load(mesh);
+    			} else {
+    				this.load(new THREE.SkinnedMesh( geometry, new THREE.MultiMaterial( materials ) ));
+    			}
         }.bind(this));
       } else {
         throw new Error('[three-model] Invalid mode "%s".', data.mode);
