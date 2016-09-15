@@ -1090,7 +1090,7 @@ module.exports = {
 
 },{"../../lib/GamepadButton":2,"../../lib/GamepadButtonEvent":3}],7:[function(require,module,exports){
 var radToDeg = THREE.Math.radToDeg,
-    isMobile = false;
+    isMobile = AFRAME.utils.isMobile();
 
 module.exports = {
   schema: {

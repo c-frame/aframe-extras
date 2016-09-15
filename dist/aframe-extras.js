@@ -2547,7 +2547,7 @@ module.exports = {
 
 },{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],12:[function(require,module,exports){
 var radToDeg = THREE.Math.radToDeg,
-    isMobile = false;
+    isMobile = AFRAME.utils.isMobile();
 
 module.exports = {
   schema: {
@@ -3384,10 +3384,14 @@ module.exports = {
       } else {
         throw new Error('[three-model] Invalid mode "%s".', data.mode);
       }
-    } else if (data.animation !== previousData.animation || data.animationDuration !== previousData.animationDuration) {
+    } else if (data.animation !== previousData.animation) {
       if (this.model && this.model.activeAction) {
         this.model.activeAction.stop();
         this.playAnimation();
+      }
+    } else if (data.animationDuration !== previousData.animationDuration) {
+      if (this.model && this.model.activeAction) {
+        this.model.activeAction.setDuration(data.animationDuration);
       }
     }
   },
