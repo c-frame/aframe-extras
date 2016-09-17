@@ -13,6 +13,8 @@ var DEFAULT_ANIMATION = '__auto__';
  * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
  */
 module.exports = {
+  deprecated: true,
+
   schema: {
     src:               { type: 'src' },
     loader:            { default: 'object', oneOf: ['object', 'json'] },
@@ -25,6 +27,7 @@ module.exports = {
   init: function () {
     this.model = null;
     this.mixer = null;
+    console.warn('[three-model] Component is deprecated. Use json-model or object-model instead.');
   },
 
   update: function (previousData) {

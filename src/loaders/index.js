@@ -1,4 +1,6 @@
 module.exports = {
+  'animation-mixer': require('./animation-mixer'),
+  'json-model': require('./json-model'),
   'ply-model': require('./ply-model'),
   'three-model': require('./three-model'),
 
@@ -7,12 +9,25 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
 
+    // THREE.AnimationMixer
+    if (!AFRAME.components['animation-mixer']) {
+      AFRAME.registerComponent('animation-mixer', this['animation-mixer']);
+    }
+
+    // THREE.PlyLoader
     if (!AFRAME.systems['ply-model']) {
       AFRAME.registerSystem('ply-model', this['ply-model'].System);
     }
     if (!AFRAME.components['ply-model']) {
       AFRAME.registerComponent('ply-model', this['ply-model'].Component);
     }
+
+    // THREE.JsonLoader
+    if (!AFRAME.components['json-model']) {
+      AFRAME.registerComponent('json-model', this['json-model']);
+    }
+
+    // (deprecated) THREE.JsonLoader and THREE.ObjectLoader
     if (!AFRAME.components['three-model']) {
       AFRAME.registerComponent('three-model', this['three-model']);
     }
