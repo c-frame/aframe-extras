@@ -72,8 +72,10 @@ src
 │   ├── touch-controls.js
 │   └── universal-controls.js
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
-│   ├── ply-model.js
-│   └── three-model.js
+│   ├── animation-mixer.js
+│   ├── json-model.js
+│   ├── object-model.js
+│   └── ply-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
 │   ├── grab.js                 <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
