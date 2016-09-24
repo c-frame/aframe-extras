@@ -8,7 +8,9 @@ var chalk = require('chalk'),
     Readable = require('stream').Readable;
 
 var DIST_DIR = 'dist',
-    PACKAGES = ['controls', 'loaders', 'math', 'misc', 'physics', 'primitives', 'shadows'];
+    COMPONENTS_DIR = 'components',
+    PACKAGES = ['controls', 'loaders', 'math', 'misc', 'physics', 'primitives', 'shadows'],
+    COMPONENTS = ['loaders/three-model'];
 
 var streams = {};
 
@@ -26,11 +28,25 @@ PACKAGES.forEach((name) => {
   streams[`aframe-extras.${name}.js`] = stream;
 });
 
+// Individual components.
+COMPONENTS.forEach((name => {
+  var stream = new Readable(),
+      basename = path.basename(name);
+  stream.push(`AFRAME.registerComponent('${basename}', require('./src/${name}'));`);
+  stream.push(null);
+  stream._isComponent = true;
+  streams[`${basename}.js`] = stream;
+}));
+
 // Browserify.
 console.log(chalk.green('Dist...'));
 fs.emptydirSync(DIST_DIR);
+fs.mkdirSync(path.join(DIST_DIR, COMPONENTS_DIR));
 Object.keys(streams).forEach((fileName) => {
-  var writeStream = fs.createWriteStream(path.join(DIST_DIR, fileName));
+  var subDir = streams[fileName]._isComponent ? COMPONENTS_DIR : '',
+      fullDir = path.join(DIST_DIR, subDir, fileName),
+      writeStream = fs.createWriteStream(fullDir);
+
   browserify()
     .add(streams[fileName])
     .bundle()
@@ -38,10 +54,10 @@ Object.keys(streams).forEach((fileName) => {
 
   // Minify.
   writeStream.on('close', () => {
-    fs.createWriteStream(path.join(DIST_DIR, fileName.replace('.js', '.min.js')))
-      .end(uglifyJS.minify([path.join(DIST_DIR, fileName)]).code);
+    fs.createWriteStream(fullDir.replace('.js', '.min.js'))
+      .end(uglifyJS.minify([fullDir]).code);
 
-    console.log(chalk.yellow('  ⇢  %s/%s'), DIST_DIR, fileName);
+    console.log(chalk.yellow('  ⇢  %s'), fullDir);
   });
 });
 
