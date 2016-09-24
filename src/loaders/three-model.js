@@ -31,8 +31,13 @@ module.exports = {
 
     var loader,
         data = this.data;
-    if (!data.src) return;
 
+    if (!data.src) {
+      this.remove();
+      return;
+    }
+
+    // First load.
     if (!Object.keys(previousData).length) {
       this.remove();
       if (data.loader === 'object') {
@@ -67,15 +72,23 @@ module.exports = {
       } else {
         throw new Error('[three-model] Invalid mode "%s".', data.mode);
       }
-    } else if (data.animation !== previousData.animation) {
-      if (this.model && this.model.activeAction) {
-        this.model.activeAction.stop();
-        this.playAnimation();
-      }
-    } else if (data.animationDuration !== previousData.animationDuration) {
-      if (this.model && this.model.activeAction) {
-        this.model.activeAction.setDuration(data.animationDuration);
-      }
+      return;
+    }
+
+    var activeAction = this.model && this.model.activeAction;
+
+    if (data.animation !== previousData.animation) {
+      if (activeAction) activeAction.stop();
+      this.playAnimation();
+      return;
+    }
+
+    if (activeAction && data.enableAnimation !== activeAction.isRunning()) {
+      data.enableAnimation ? this.playAnimation() : activeAction.stop();
+    }
+
+    if (activeAction && data.animationDuration) {
+        activeAction.setDuration(data.animationDuration);
     }
   },
 
@@ -93,7 +106,9 @@ module.exports = {
         data = this.data,
         animations = this.model.animations || this.model.geometry.animations || [];
 
-    if (!animations.length) return;
+    if (!data.enableAnimation || !data.animation || !animations.length) {
+      return;
+    }
 
     clip = data.animation === DEFAULT_ANIMATION
       ? animations[0]
