@@ -31,7 +31,7 @@ module.exports = {
   load: function (model) {
     this.model = model;
     this.mixer = new THREE.AnimationMixer(model);
-    if (this.data.clip) this.playClip(this.data.clip);
+    if (this.data.clip) this.update({});
   },
 
   remove: function () {
@@ -44,11 +44,14 @@ module.exports = {
     var data = this.data;
 
     if (data.clip !== previousData.clip) {
-      this.playClip(data.clip);
-    } else if (data.duration !== previousData.duration) {
-      if (this.activeAction) {
-        this.activeAction.setDuration(data.duration);
-      }
+      if (this.activeAction) this.activeAction.stop();
+      if (data.clip) this.playClip(data.clip);
+    }
+
+    if (!this.activeAction) return;
+
+    if (data.duration) {
+      this.activeAction.setDuration(data.duration);
     }
   },
 
@@ -67,14 +70,11 @@ module.exports = {
       : THREE.AnimationClip.findByName(animations, data.clip);
 
     if (!clip) {
-      console.error('[animation-mixer] Animation "%s" not found.', data.clip);
+      console.error('[animation-mixer] Clip "%s" not found.', data.clip);
       return;
     }
 
     this.activeAction = this.mixer.clipAction(clip, model);
-    if (data.duration) {
-      this.activeAction.setDuration(data.duration);
-    }
     this.activeAction.play();
   },
 
