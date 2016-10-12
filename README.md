@@ -7,7 +7,7 @@ Add-ons and helpers for A-Frame VR.
 
 ![5a499302-8c0c-11e6-9bc8-5e6a130cb82e](https://cloud.githubusercontent.com/assets/1848368/19297205/91159cd4-9010-11e6-8409-057c28f605b2.png)
 
-> Image credit [@ngokevin](https://github.com/ngokevin).
+> Image credit [@andgokevin](https://twitter.com/andgokevin).
 
 ## Usage (Scripts)
 
