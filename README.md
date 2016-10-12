@@ -5,6 +5,10 @@
 
 Add-ons and helpers for A-Frame VR.
 
+![5a499302-8c0c-11e6-9bc8-5e6a130cb82e](https://cloud.githubusercontent.com/assets/1848368/19297205/91159cd4-9010-11e6-8409-057c28f605b2.png)
+
+> Image credit [@ngokevin](https://github.com/ngokevin).
+
 ## Usage (Scripts)
 
 In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
