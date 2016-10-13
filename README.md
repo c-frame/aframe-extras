@@ -18,7 +18,7 @@ CDN builds for aframe-extras/v2.5.4:
 - [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.5.4/dist/aframe-extras.js) *(development)*
 - [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v2.5.4/dist/aframe-extras.min.js) *(production)*
 
-For partial builds, use a subpackage like `aframe-extras.physics.min.js`. [Full list of packages below](#add-ons).
+For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full list of packages below](#add-ons).
 
 **A-Frame Version Compatibility**
 
@@ -37,9 +37,15 @@ npm install --save aframe-extras
 // custom-extras.js
 
 var extras = require('aframe-extras');
-AFRAME.registerComponent('velocity', extras.math.velocity); // Register a single component.
-extras.physics.registerAll();                               // Register a particular package, and its dependencies.
-extras.registerAll();                                       // Register everything.
+
+// Register a single component.
+AFRAME.registerComponent('checkpoint', extras.misc.checkpoint);
+
+// Register a particular package, and its dependencies.
+extras.controls.registerAll();
+
+// Register everything.
+extras.registerAll();
 ```
 
 Once installed, you'll need to compile your JavaScript using something like [Browserify](http://browserify.org/) or [Webpack](http://webpack.github.io/). Example:
@@ -67,23 +73,14 @@ src
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
 │   ├── ply-model.js
 │   └── three-model.js
-├── <b>math/</b> (<a href="/src/math">Documentation</a>)
-│   ├── quaternion.js
-│   └── velocity.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
 │   ├── grab.js                 <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── jump-ability.js
+│   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
 │   ├── sphere-collider.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   └── toggle-velocity.js
-├── <b>physics/</b> (<a href="/src/physics">Documentation</a>)
-│   ├── body.js
-│   ├── dynamic-body.js
-│   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── physics.js
-│   ├── static-body.js
-│   └── system
-│       └── physics.js
+├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
 ├── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
 │   ├── a-grid.js
 │   ├── a-ocean.js

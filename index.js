@@ -1,16 +1,14 @@
 module.exports = {
   controls:   require('./src/controls'),
   loaders:    require('./src/loaders'),
-  math:       require('./src/math'),
   misc:       require('./src/misc'),
-  physics:    require('./src/physics'),
+  physics:    require('aframe-physics-system'),
   primitives: require('./src/primitives'),
   shadows:    require('./src/shadows'),
 
   registerAll: function () {
     this.controls.registerAll();
     this.loaders.registerAll();
-    this.math.registerAll();
     this.misc.registerAll();
     this.physics.registerAll();
     this.primitives.registerAll();

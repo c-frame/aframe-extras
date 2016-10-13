@@ -28,6 +28,7 @@
     "aframe": "^0.3.1"
   },
   "dependencies": {
+    "aframe-physics-system": "^1.0.2",
     "cannon": "^0.6.2",
     "three-to-cannon": "^1.0.0"
   },

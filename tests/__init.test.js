@@ -7,7 +7,6 @@ var AScene = require('aframe').AScene;
 var extras = require('../');
 
 extras.controls.registerAll();
-extras.math.registerAll();
 
 setup(function () {
   this.sinon = sinon.sandbox.create();
