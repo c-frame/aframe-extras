@@ -4,16 +4,14 @@ require('./').registerAll();
 module.exports = {
   controls:   require('./src/controls'),
   loaders:    require('./src/loaders'),
-  math:       require('./src/math'),
   misc:       require('./src/misc'),
-  physics:    require('./src/physics'),
+  physics:    require('aframe-physics-system'),
   primitives: require('./src/primitives'),
   shadows:    require('./src/shadows'),
 
   registerAll: function () {
     this.controls.registerAll();
     this.loaders.registerAll();
-    this.math.registerAll();
     this.misc.registerAll();
     this.physics.registerAll();
     this.primitives.registerAll();
@@ -21,167 +19,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":13,"./src/loaders":18,"./src/math":21,"./src/misc":26,"./src/physics":33,"./src/primitives":40,"./src/shadows":41}],3:[function(require,module,exports){
-/**
- * CANNON.shape2mesh
- *
- * Source: http://schteppe.github.io/cannon.js/build/cannon.demo.js
- * Author: @schteppe
- */
-var CANNON = require('cannon');
-
-CANNON.shape2mesh = function(body){
-    var obj = new THREE.Object3D();
-
-    for (var l = 0; l < body.shapes.length; l++) {
-        var shape = body.shapes[l];
-
-        var mesh;
-
-        switch(shape.type){
-
-        case CANNON.Shape.types.SPHERE:
-            var sphere_geometry = new THREE.SphereGeometry( shape.radius, 8, 8);
-            mesh = new THREE.Mesh( sphere_geometry, this.currentMaterial );
-            break;
-
-        case CANNON.Shape.types.PARTICLE:
-            mesh = new THREE.Mesh( this.particleGeo, this.particleMaterial );
-            var s = this.settings;
-            mesh.scale.set(s.particleSize,s.particleSize,s.particleSize);
-            break;
-
-        case CANNON.Shape.types.PLANE:
-            var geometry = new THREE.PlaneGeometry(10, 10, 4, 4);
-            mesh = new THREE.Object3D();
-            var submesh = new THREE.Object3D();
-            var ground = new THREE.Mesh( geometry, this.currentMaterial );
-            ground.scale.set(100, 100, 100);
-            submesh.add(ground);
-
-            ground.castShadow = true;
-            ground.receiveShadow = true;
-
-            mesh.add(submesh);
-            break;
-
-        case CANNON.Shape.types.BOX:
-            var box_geometry = new THREE.BoxGeometry(  shape.halfExtents.x*2,
-                                                        shape.halfExtents.y*2,
-                                                        shape.halfExtents.z*2 );
-            mesh = new THREE.Mesh( box_geometry, this.currentMaterial );
-            break;
-
-        case CANNON.Shape.types.CONVEXPOLYHEDRON:
-            var geo = new THREE.Geometry();
-
-            // Add vertices
-            for (var i = 0; i < shape.vertices.length; i++) {
-                var v = shape.vertices[i];
-                geo.vertices.push(new THREE.Vector3(v.x, v.y, v.z));
-            }
-
-            for(var i=0; i < shape.faces.length; i++){
-                var face = shape.faces[i];
-
-                // add triangles
-                var a = face[0];
-                for (var j = 1; j < face.length - 1; j++) {
-                    var b = face[j];
-                    var c = face[j + 1];
-                    geo.faces.push(new THREE.Face3(a, b, c));
-                }
-            }
-            geo.computeBoundingSphere();
-            geo.computeFaceNormals();
-            mesh = new THREE.Mesh( geo, this.currentMaterial );
-            break;
-
-        case CANNON.Shape.types.HEIGHTFIELD:
-            var geometry = new THREE.Geometry();
-
-            var v0 = new CANNON.Vec3();
-            var v1 = new CANNON.Vec3();
-            var v2 = new CANNON.Vec3();
-            for (var xi = 0; xi < shape.data.length - 1; xi++) {
-                for (var yi = 0; yi < shape.data[xi].length - 1; yi++) {
-                    for (var k = 0; k < 2; k++) {
-                        shape.getConvexTrianglePillar(xi, yi, k===0);
-                        v0.copy(shape.pillarConvex.vertices[0]);
-                        v1.copy(shape.pillarConvex.vertices[1]);
-                        v2.copy(shape.pillarConvex.vertices[2]);
-                        v0.vadd(shape.pillarOffset, v0);
-                        v1.vadd(shape.pillarOffset, v1);
-                        v2.vadd(shape.pillarOffset, v2);
-                        geometry.vertices.push(
-                            new THREE.Vector3(v0.x, v0.y, v0.z),
-                            new THREE.Vector3(v1.x, v1.y, v1.z),
-                            new THREE.Vector3(v2.x, v2.y, v2.z)
-                        );
-                        var i = geometry.vertices.length - 3;
-                        geometry.faces.push(new THREE.Face3(i, i+1, i+2));
-                    }
-                }
-            }
-            geometry.computeBoundingSphere();
-            geometry.computeFaceNormals();
-            mesh = new THREE.Mesh(geometry, this.currentMaterial);
-            break;
-
-        case CANNON.Shape.types.TRIMESH:
-            var geometry = new THREE.Geometry();
-
-            var v0 = new CANNON.Vec3();
-            var v1 = new CANNON.Vec3();
-            var v2 = new CANNON.Vec3();
-            for (var i = 0; i < shape.indices.length / 3; i++) {
-                shape.getTriangleVertices(i, v0, v1, v2);
-                geometry.vertices.push(
-                    new THREE.Vector3(v0.x, v0.y, v0.z),
-                    new THREE.Vector3(v1.x, v1.y, v1.z),
-                    new THREE.Vector3(v2.x, v2.y, v2.z)
-                );
-                var j = geometry.vertices.length - 3;
-                geometry.faces.push(new THREE.Face3(j, j+1, j+2));
-            }
-            geometry.computeBoundingSphere();
-            geometry.computeFaceNormals();
-            mesh = new THREE.Mesh(geometry, this.currentMaterial);
-            break;
-
-        default:
-            throw "Visual type not recognized: "+shape.type;
-        }
-
-        mesh.receiveShadow = true;
-        mesh.castShadow = true;
-        if(mesh.children){
-            for(var i=0; i<mesh.children.length; i++){
-                mesh.children[i].castShadow = true;
-                mesh.children[i].receiveShadow = true;
-                if(mesh.children[i]){
-                    for(var j=0; j<mesh.children[i].length; j++){
-                        mesh.children[i].children[j].castShadow = true;
-                        mesh.children[i].children[j].receiveShadow = true;
-                    }
-                }
-            }
-        }
-
-        var o = body.shapeOffsets[l];
-        var q = body.shapeOrientations[l];
-        mesh.position.set(o.x, o.y, o.z);
-        mesh.quaternion.set(q.x, q.y, q.z, q.w);
-
-        obj.add(mesh);
-    }
-
-    return obj;
-};
-
-module.exports = CANNON.shape2mesh;
-
-},{"cannon":45}],4:[function(require,module,exports){
+},{"./src/controls":22,"./src/loaders":27,"./src/misc":32,"./src/primitives":40,"./src/shadows":41,"aframe-physics-system":7}],3:[function(require,module,exports){
 module.exports = Object.assign(function GamepadButton () {}, {
 	FACE_1: 0,
 	FACE_2: 1,
@@ -204,7 +42,7 @@ module.exports = Object.assign(function GamepadButton () {}, {
 	VENDOR: 16,
 });
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 function GamepadButtonEvent (type, index, details) {
   this.type = type;
   this.index = index;
@@ -214,7 +52,7 @@ function GamepadButtonEvent (type, index, details) {
 
 module.exports = GamepadButtonEvent;
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /**
  * @author Wei Meng / http://about.me/menway
  *
@@ -694,7 +532,7 @@ THREE.PLYLoader.prototype = {
 
 };
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /**
  * Polyfill for the additional KeyboardEvent properties defined in the D3E and
  * D4E draft specifications, by @inexorabletash.
@@ -1427,7 +1265,743 @@ THREE.PLYLoader.prototype = {
 
 } (window));
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+var CANNON = require('cannon'),
+    math = require('./src/components/math');
+
+module.exports = {
+  'dynamic-body':   require('./src/components/body/dynamic-body'),
+  'static-body':    require('./src/components/body/static-body'),
+  'system':         require('./src/system/physics'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    math.registerAll();
+    if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics',           this.system);
+    if (!AFRAME.components['dynamic-body'])   AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
+    if (!AFRAME.components['static-body'])    AFRAME.registerComponent('static-body',    this['static-body']);
+
+    this._registered = true;
+  }
+};
+
+// Export CANNON.js.
+window.CANNON = window.CANNON || CANNON;
+
+},{"./src/components/body/dynamic-body":10,"./src/components/body/static-body":11,"./src/components/math":12,"./src/system/physics":16,"cannon":45}],8:[function(require,module,exports){
+/**
+ * CANNON.shape2mesh
+ *
+ * Source: http://schteppe.github.io/cannon.js/build/cannon.demo.js
+ * Author: @schteppe
+ */
+var CANNON = require('cannon');
+
+CANNON.shape2mesh = function(body){
+    var obj = new THREE.Object3D();
+
+    for (var l = 0; l < body.shapes.length; l++) {
+        var shape = body.shapes[l];
+
+        var mesh;
+
+        switch(shape.type){
+
+        case CANNON.Shape.types.SPHERE:
+            var sphere_geometry = new THREE.SphereGeometry( shape.radius, 8, 8);
+            mesh = new THREE.Mesh( sphere_geometry, this.currentMaterial );
+            break;
+
+        case CANNON.Shape.types.PARTICLE:
+            mesh = new THREE.Mesh( this.particleGeo, this.particleMaterial );
+            var s = this.settings;
+            mesh.scale.set(s.particleSize,s.particleSize,s.particleSize);
+            break;
+
+        case CANNON.Shape.types.PLANE:
+            var geometry = new THREE.PlaneGeometry(10, 10, 4, 4);
+            mesh = new THREE.Object3D();
+            var submesh = new THREE.Object3D();
+            var ground = new THREE.Mesh( geometry, this.currentMaterial );
+            ground.scale.set(100, 100, 100);
+            submesh.add(ground);
+
+            ground.castShadow = true;
+            ground.receiveShadow = true;
+
+            mesh.add(submesh);
+            break;
+
+        case CANNON.Shape.types.BOX:
+            var box_geometry = new THREE.BoxGeometry(  shape.halfExtents.x*2,
+                                                        shape.halfExtents.y*2,
+                                                        shape.halfExtents.z*2 );
+            mesh = new THREE.Mesh( box_geometry, this.currentMaterial );
+            break;
+
+        case CANNON.Shape.types.CONVEXPOLYHEDRON:
+            var geo = new THREE.Geometry();
+
+            // Add vertices
+            for (var i = 0; i < shape.vertices.length; i++) {
+                var v = shape.vertices[i];
+                geo.vertices.push(new THREE.Vector3(v.x, v.y, v.z));
+            }
+
+            for(var i=0; i < shape.faces.length; i++){
+                var face = shape.faces[i];
+
+                // add triangles
+                var a = face[0];
+                for (var j = 1; j < face.length - 1; j++) {
+                    var b = face[j];
+                    var c = face[j + 1];
+                    geo.faces.push(new THREE.Face3(a, b, c));
+                }
+            }
+            geo.computeBoundingSphere();
+            geo.computeFaceNormals();
+            mesh = new THREE.Mesh( geo, this.currentMaterial );
+            break;
+
+        case CANNON.Shape.types.HEIGHTFIELD:
+            var geometry = new THREE.Geometry();
+
+            var v0 = new CANNON.Vec3();
+            var v1 = new CANNON.Vec3();
+            var v2 = new CANNON.Vec3();
+            for (var xi = 0; xi < shape.data.length - 1; xi++) {
+                for (var yi = 0; yi < shape.data[xi].length - 1; yi++) {
+                    for (var k = 0; k < 2; k++) {
+                        shape.getConvexTrianglePillar(xi, yi, k===0);
+                        v0.copy(shape.pillarConvex.vertices[0]);
+                        v1.copy(shape.pillarConvex.vertices[1]);
+                        v2.copy(shape.pillarConvex.vertices[2]);
+                        v0.vadd(shape.pillarOffset, v0);
+                        v1.vadd(shape.pillarOffset, v1);
+                        v2.vadd(shape.pillarOffset, v2);
+                        geometry.vertices.push(
+                            new THREE.Vector3(v0.x, v0.y, v0.z),
+                            new THREE.Vector3(v1.x, v1.y, v1.z),
+                            new THREE.Vector3(v2.x, v2.y, v2.z)
+                        );
+                        var i = geometry.vertices.length - 3;
+                        geometry.faces.push(new THREE.Face3(i, i+1, i+2));
+                    }
+                }
+            }
+            geometry.computeBoundingSphere();
+            geometry.computeFaceNormals();
+            mesh = new THREE.Mesh(geometry, this.currentMaterial);
+            break;
+
+        case CANNON.Shape.types.TRIMESH:
+            var geometry = new THREE.Geometry();
+
+            var v0 = new CANNON.Vec3();
+            var v1 = new CANNON.Vec3();
+            var v2 = new CANNON.Vec3();
+            for (var i = 0; i < shape.indices.length / 3; i++) {
+                shape.getTriangleVertices(i, v0, v1, v2);
+                geometry.vertices.push(
+                    new THREE.Vector3(v0.x, v0.y, v0.z),
+                    new THREE.Vector3(v1.x, v1.y, v1.z),
+                    new THREE.Vector3(v2.x, v2.y, v2.z)
+                );
+                var j = geometry.vertices.length - 3;
+                geometry.faces.push(new THREE.Face3(j, j+1, j+2));
+            }
+            geometry.computeBoundingSphere();
+            geometry.computeFaceNormals();
+            mesh = new THREE.Mesh(geometry, this.currentMaterial);
+            break;
+
+        default:
+            throw "Visual type not recognized: "+shape.type;
+        }
+
+        mesh.receiveShadow = true;
+        mesh.castShadow = true;
+        if(mesh.children){
+            for(var i=0; i<mesh.children.length; i++){
+                mesh.children[i].castShadow = true;
+                mesh.children[i].receiveShadow = true;
+                if(mesh.children[i]){
+                    for(var j=0; j<mesh.children[i].length; j++){
+                        mesh.children[i].children[j].castShadow = true;
+                        mesh.children[i].children[j].receiveShadow = true;
+                    }
+                }
+            }
+        }
+
+        var o = body.shapeOffsets[l];
+        var q = body.shapeOrientations[l];
+        mesh.position.set(o.x, o.y, o.z);
+        mesh.quaternion.set(q.x, q.y, q.z, q.w);
+
+        obj.add(mesh);
+    }
+
+    return obj;
+};
+
+module.exports = CANNON.shape2mesh;
+
+},{"cannon":45}],9:[function(require,module,exports){
+var CANNON = require('cannon'),
+    mesh2shape = require('three-to-cannon');
+
+require('../../../lib/CANNON-shape2mesh');
+
+module.exports = {
+  schema: {
+    shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull']},
+    cylinderAxis: {default: 'y', oneOf: ['x', 'y', 'z']},
+    sphereRadius: {default: NaN}
+  },
+
+  /**
+   * Initializes a body component, assigning it to the physics system and binding listeners for
+   * parsing the elements geometry.
+   */
+  init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+
+    if (this.el.sceneEl.hasLoaded) {
+      this.initBody();
+    } else {
+      this.el.sceneEl.addEventListener('loaded', this.initBody.bind(this));
+    }
+  },
+
+  /**
+   * Parses an element's geometry and component metadata to create a CANNON.Body instance for the
+   * component.
+   */
+  initBody: function () {
+    var shape,
+        el = this.el,
+        data = this.data,
+        pos = el.getComputedAttribute('position'),
+        options = data.shape === 'auto' ? undefined : AFRAME.utils.extend({}, this.data, {
+          type: mesh2shape.Type[data.shape.toUpperCase()]
+        });
+
+    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
+    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
+    // scale="0.5 0.5 0.5" will be ignored.
+    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
+    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
+    this.el.object3D.updateMatrixWorld(true);
+    shape = mesh2shape(this.el.object3D, options);
+
+    if (!shape) {
+      this.el.addEventListener('model-loaded', this.initBody.bind(this));
+      return;
+    }
+
+    this.body = new CANNON.Body({
+      mass: data.mass || 0,
+      material: this.system.material,
+      position: new CANNON.Vec3(pos.x, pos.y, pos.z),
+      linearDamping: data.linearDamping,
+      angularDamping: data.angularDamping
+    });
+    this.body.addShape(shape, shape.offset, shape.orientation);
+
+    // Apply rotation
+    var rot = el.getComputedAttribute('rotation');
+    this.body.quaternion.setFromEuler(
+      THREE.Math.degToRad(rot.x),
+      THREE.Math.degToRad(rot.y),
+      THREE.Math.degToRad(rot.z),
+      'XYZ'
+    ).normalize();
+
+    // Show wireframe
+    if (this.system.debug) {
+      this.createWireframe(this.body, shape);
+    }
+
+    this.el.body = this.body;
+    this.body.el = this.el;
+    this.isLoaded = true;
+
+    // If component wasn't initialized when play() was called, finish up.
+    if (this.isPlaying) {
+      this._play();
+    }
+
+    this.el.emit('body-loaded', {body: this.el.body});
+  },
+
+  /**
+   * Registers the component with the physics system, if ready.
+   */
+  play: function () {
+    if (this.isLoaded) this._play();
+  },
+
+  /**
+   * Internal helper to register component with physics system.
+   */
+  _play: function () {
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
+    this.system.addBody(this.body);
+    if (this.wireframe) this.el.sceneEl.object3D.add(this.wireframe);
+
+    this.syncToPhysics();
+  },
+
+  /**
+   * Unregisters the component with the physics system.
+   */
+  pause: function () {
+    if (!this.isLoaded) return;
+
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
+    this.system.removeBody(this.body);
+    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
+  },
+
+  /**
+   * Removes the component and all physics and scene side effects.
+   */
+  remove: function () {
+    this.pause();
+    delete this.body.el;
+    delete this.body;
+    delete this.el.body;
+    delete this.wireframe;
+  },
+
+  /**
+   * Creates a wireframe for the body, for debugging.
+   * TODO(donmccurdy) – Refactor this into a standalone utility or component.
+   * @param  {CANNON.Body} body
+   * @param  {CANNON.Shape} shape
+   */
+  createWireframe: function (body, shape) {
+    var offset = shape.offset,
+        orientation = shape.orientation,
+        mesh = CANNON.shape2mesh(body).children[0];
+    this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
+
+    if (offset) {
+      this.wireframe.offset = offset.clone();
+    }
+
+    if (orientation) {
+      orientation.inverse(orientation);
+      this.wireframe.orientation = new THREE.Quaternion(
+        orientation.x,
+        orientation.y,
+        orientation.z,
+        orientation.w
+      );
+    }
+
+    this.syncWireframe();
+  },
+
+  /**
+   * Updates the debugging wireframe's position and rotation.
+   */
+  syncWireframe: function () {
+    var offset,
+        wireframe = this.wireframe;
+
+    if (!this.wireframe) return;
+
+    // Apply rotation. If the shape required custom orientation, also apply
+    // that on the wireframe.
+    wireframe.quaternion.copy(this.body.quaternion);
+    if (wireframe.orientation) {
+      wireframe.quaternion.multiply(wireframe.orientation);
+    }
+
+    // Apply position. If the shape required custom offset, also apply that on
+    // the wireframe.
+    wireframe.position.copy(this.body.position);
+    if (wireframe.offset) {
+      offset = wireframe.offset.clone().applyQuaternion(wireframe.quaternion);
+      wireframe.position.add(offset);
+    }
+
+    wireframe.updateMatrix();
+  },
+
+  /**
+   * Updates the CANNON.Body instance's position, velocity, and rotation, based on the scene.
+   */
+  syncToPhysics: (function () {
+    var q =  new THREE.Quaternion(),
+        v = new THREE.Vector3();
+    return function () {
+      var el = this.el,
+          parentEl = el.parentEl,
+          body = this.body;
+
+      if (!body) return;
+
+      if (el.components.velocity) body.velocity.copy(el.getComputedAttribute('velocity'));
+
+      if (parentEl.isScene) {
+        body.quaternion.copy(el.object3D.quaternion);
+        body.position.copy(el.object3D.position);
+      } else {
+        el.object3D.getWorldQuaternion(q);
+        body.quaternion.copy(q);
+        el.object3D.getWorldPosition(v);
+        body.position.copy(v);
+      }
+
+      if (this.wireframe) this.syncWireframe();
+    };
+  }()),
+
+  /**
+   * Updates the scene object's position and rotation, based on the physics simulation.
+   */
+  syncFromPhysics: (function () {
+    var v = new THREE.Vector3(),
+        q1 = new THREE.Quaternion(),
+        q2 = new THREE.Quaternion();
+    return function () {
+      var el = this.el,
+          parentEl = el.parentEl,
+          body = this.body;
+
+      if (!body) return;
+
+      if (parentEl.isScene) {
+        el.setAttribute('quaternion', body.quaternion);
+        el.setAttribute('position', body.position);
+      } else {
+        // TODO - Nested rotation doesn't seem to be working as expected.
+        q1.copy(body.quaternion);
+        parentEl.object3D.getWorldQuaternion(q2);
+        q1.multiply(q2.inverse());
+        el.setAttribute('quaternion', {x: q1.x, y: q1.y, z: q1.z, w: q1.w});
+
+        v.copy(body.position);
+        parentEl.object3D.worldToLocal(v);
+        el.setAttribute('position', {x: v.x, y: v.y, z: v.z});
+      }
+
+      if (this.wireframe) this.syncWireframe();
+    };
+  }())
+};
+
+},{"../../../lib/CANNON-shape2mesh":8,"cannon":45,"three-to-cannon":17}],10:[function(require,module,exports){
+var Body = require('./body');
+
+/**
+ * Dynamic body.
+ *
+ * Moves according to physics simulation, and may collide with other objects.
+ */
+module.exports = AFRAME.utils.extend({}, Body, {
+  dependencies: ['quaternion', 'velocity'],
+
+  schema: AFRAME.utils.extend({}, Body.schema, {
+    mass:           { default: 5 },
+    linearDamping:  { default: 0.01 },
+    angularDamping: { default: 0.01 }
+  }),
+
+  step: function () {
+    this.syncFromPhysics();
+  }
+});
+
+},{"./body":9}],11:[function(require,module,exports){
+var Body = require('./body');
+
+/**
+ * Static body.
+ *
+ * Solid body with a fixed position. Unaffected by gravity and collisions, but
+ * other objects may collide with it.
+ */
+module.exports = AFRAME.utils.extend({}, Body, {
+  step: function () {
+    this.syncToPhysics();
+  }
+});
+
+},{"./body":9}],12:[function(require,module,exports){
+module.exports = {
+  'velocity':   require('./velocity'),
+  'quaternion': require('./quaternion'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    if (!AFRAME.components['velocity'])    AFRAME.registerComponent('velocity',   this.velocity);
+    if (!AFRAME.components['quaternion'])  AFRAME.registerComponent('quaternion', this.quaternion);
+
+    this._registered = true;
+  }
+};
+
+},{"./quaternion":13,"./velocity":14}],13:[function(require,module,exports){
+/**
+ * Quaternion.
+ *
+ * Represents orientation of object in three dimensions. Similar to `rotation`
+ * component, but avoids problems of gimbal lock.
+ *
+ * See: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+ */
+module.exports = {
+  schema: {type: 'vec4'},
+
+  play: function () {
+    var el = this.el,
+        q = el.object3D.quaternion;
+    if (el.hasAttribute('rotation')) {
+      el.components.rotation.update();
+      el.setAttribute('quaternion', {x: q.x, y: q.y, z: q.z, w: q.w});
+      el.removeAttribute('rotation');
+      this.update();
+    }
+  },
+
+  update: function () {
+    var data = this.data;
+    this.el.object3D.quaternion.set(data.x, data.y, data.z, data.w);
+  }
+};
+
+},{}],14:[function(require,module,exports){
+/**
+ * Velocity, in m/s.
+ */
+module.exports = {
+  schema: {type: 'vec3'},
+
+  init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+
+    if (this.system) {
+      this.system.addBehavior(this, this.system.Phase.RENDER);
+    }
+  },
+
+  remove: function () {
+    if (this.system) {
+      this.system.removeBehavior(this, this.system.Phase.RENDER);
+    }
+  },
+
+  tick: function (t, dt) {
+    if (!dt) return;
+    if (this.system) return;
+    this.step(t, dt);
+  },
+
+  step: function (t, dt) {
+    if (!dt) return;
+
+    var physics = this.el.sceneEl.systems.physics || {data: {maxInterval: 1 / 60}},
+
+        // TODO - There's definitely a bug with getComputedAttribute and el.data.
+        velocity = this.el.getAttribute('velocity') || {x: 0, y: 0, z: 0},
+        position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
+
+    dt = Math.min(dt, physics.data.maxInterval * 1000);
+
+    this.el.setAttribute('position', {
+      x: position.x + velocity.x * dt / 1000,
+      y: position.y + velocity.y * dt / 1000,
+      z: position.z + velocity.z * dt / 1000
+    });
+  }
+};
+
+},{}],15:[function(require,module,exports){
+module.exports = {
+  GRAVITY: -9.8,
+  MAX_INTERVAL: 4 / 60,
+  ITERATIONS: 10,
+  CONTACT_MATERIAL: {
+    friction:     0.01,
+    restitution:  0.3,
+    contactEquationStiffness: 1e8,
+    contactEquationRelaxation: 3,
+    frictionEquationStiffness: 1e8,
+    frictionEquationRegularization: 3
+  }
+};
+
+},{}],16:[function(require,module,exports){
+var CANNON = require('cannon'),
+    CONSTANTS = require('../constants'),
+    C_GRAV = CONSTANTS.GRAVITY,
+    C_MAT = CONSTANTS.CONTACT_MATERIAL;
+
+/**
+ * Physics system.
+ */
+module.exports = {
+  schema: {
+    gravity:                        { default: C_GRAV },
+    iterations:                     { default: CONSTANTS.ITERATIONS },
+    friction:                       { default: C_MAT.friction },
+    restitution:                    { default: C_MAT.restitution },
+    contactEquationStiffness:       { default: C_MAT.contactEquationStiffness },
+    contactEquationRelaxation:      { default: C_MAT.contactEquationRelaxation },
+    frictionEquationStiffness:      { default: C_MAT.frictionEquationStiffness },
+    frictionEquationRegularization: { default: C_MAT.frictionEquationRegularization },
+
+    // Never step more than four frames at once. Effectively pauses the scene
+    // when out of focus, and prevents weird "jumps" when focus returns.
+    maxInterval:                    { default: 4 / 60 },
+
+    // If true, show wireframes around physics bodies.
+    debug:                          { default: false },
+  },
+
+  /**
+   * Update phases, used to separate physics simulation from updates to A-Frame scene.
+   * @enum {string}
+   */
+  Phase: {
+    SIMULATE: 'sim',
+    RENDER:   'render'
+  },
+
+  /**
+   * Initializes the physics system.
+   */
+  init: function () {
+    var data = this.data;
+
+    // If true, show wireframes around physics bodies.
+    this.debug = data.debug;
+
+    this.children = {};
+    this.children[this.Phase.SIMULATE] = [];
+    this.children[this.Phase.RENDER] = [];
+
+    this.listeners = {};
+
+    this.world = new CANNON.World();
+    this.world.quatNormalizeSkip = 0;
+    this.world.quatNormalizeFast = false;
+    // this.world.solver.setSpookParams(300,10);
+    this.world.solver.iterations = data.iterations;
+    this.world.gravity.set(0, data.gravity, 0);
+    this.world.broadphase = new CANNON.NaiveBroadphase();
+
+    this.material = new CANNON.Material({name: 'defaultMaterial'});
+    this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
+        friction: data.friction,
+        restitution: data.restitution,
+        contactEquationStiffness: data.contactEquationStiffness,
+        contactEquationRelaxation: data.contactEquationRelaxation,
+        frictionEquationStiffness: data.frictionEquationStiffness,
+        frictionEquationRegularization: data.frictionEquationRegularization
+    });
+    this.world.addContactMaterial(this.contactMaterial);
+  },
+
+  /**
+   * Updates the physics world on each tick of the A-Frame scene. It would be
+   * entirely possible to separate the two – updating physics more or less
+   * frequently than the scene – if greater precision or performance were
+   * necessary.
+   * @param  {number} t
+   * @param  {number} dt
+   */
+  tick: function (t, dt) {
+    if (!dt) return;
+
+    this.world.step(Math.min(dt / 1000, this.data.maxInterval));
+
+    var i;
+    for (i = 0; i < this.children[this.Phase.SIMULATE].length; i++) {
+      this.children[this.Phase.SIMULATE][i].step(t, dt);
+    }
+
+    for (i = 0; i < this.children[this.Phase.RENDER].length; i++) {
+      this.children[this.Phase.RENDER][i].step(t, dt);
+    }
+  },
+
+  /**
+   * Adds a body to the scene, and binds collision events to the element.
+   * @param {CANNON.Body} body
+   */
+  addBody: function (body) {
+    this.listeners[body.id] = function (e) { body.el.emit('collide', e); };
+    body.addEventListener('collide', this.listeners[body.id]);
+    this.world.addBody(body);
+  },
+
+  /**
+   * Removes a body, and its listeners, from the scene.
+   * @param {CANNON.Body} body
+   */
+  removeBody: function (body) {
+    body.removeEventListener('collide', this.listeners[body.id]);
+    delete this.listeners[body.id];
+    this.world.removeBody(body);
+  },
+
+  /**
+   * Adds a component instance to the system, to be invoked on each tick during
+   * the given phase.
+   * @param {Component} component
+   * @param {string} phase
+   */
+  addBehavior: function (component, phase) {
+    this.children[phase].push(component);
+  },
+
+  /**
+   * Removes a component instance from the system.
+   * @param {Component} component
+   * @param {string} phase
+   */
+  removeBehavior: function (component, phase) {
+    this.children[phase].splice(this.children[phase].indexOf(component), 1);
+  },
+
+  /**
+   * Sets an option on the physics system, affecting future simulation steps.
+   * @param {string} opt
+   * @param {mixed} value
+   */
+  update: function (previousData) {
+    var data = this.data;
+
+    if (data.debug !== previousData.debug) {
+      console.warn('[physics] `debug` cannot be changed dynamically.');
+    }
+
+    if (data.maxInterval !== previousData.maxInterval); // noop;
+
+    if (data.gravity !== previousData.gravity) this.world.gravity.set(0, data.gravity, 0);
+
+    this.contactMaterial.friction = data.friction;
+    this.contactMaterial.restitution = data.restitution;
+    this.contactMaterial.contactEquationStiffness = data.contactEquationStiffness;
+    this.contactMaterial.contactEquationRelaxation = data.contactEquationRelaxation;
+    this.contactMaterial.frictionEquationStiffness = data.frictionEquationStiffness;
+    this.contactMaterial.frictionEquationRegularization = data.frictionEquationRegularization;
+  }
+};
+
+},{"../constants":15,"cannon":45}],17:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./lib/THREE.quickhull');
 
@@ -1771,7 +2345,7 @@ function getMeshes (object) {
   return meshes;
 }
 
-},{"./lib/THREE.quickhull":9,"cannon":45}],9:[function(require,module,exports){
+},{"./lib/THREE.quickhull":18,"cannon":45}],18:[function(require,module,exports){
 /**
 
   QuickHull
@@ -2223,7 +2797,7 @@ module.exports = (function(){
 
 }())
 
-},{}],10:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var EPS = 0.1;
 
 module.exports = {
@@ -2289,7 +2863,7 @@ module.exports = {
   }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * Gamepad controls for A-Frame.
  *
@@ -2545,7 +3119,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],12:[function(require,module,exports){
+},{"../../lib/GamepadButton":3,"../../lib/GamepadButtonEvent":4}],21:[function(require,module,exports){
 var radToDeg = THREE.Math.radToDeg,
     isMobile = AFRAME.utils.isMobile();
 
@@ -2628,8 +3202,8 @@ function isNullVector (vector) {
   return vector.x === 0 && vector.y === 0 && vector.z === 0;
 }
 
-},{}],13:[function(require,module,exports){
-var math = require('../math');
+},{}],22:[function(require,module,exports){
+var physics = require('aframe-physics-system');
 
 module.exports = {
   'checkpoint-controls': require('./checkpoint-controls'),
@@ -2645,7 +3219,7 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
 
-    math.registerAll();
+    physics.registerAll();
     if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
     if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
     if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
@@ -2658,7 +3232,7 @@ module.exports = {
   }
 };
 
-},{"../math":21,"./checkpoint-controls":10,"./gamepad-controls":11,"./hmd-controls":12,"./keyboard-controls":14,"./mouse-controls":15,"./touch-controls":16,"./universal-controls":17}],14:[function(require,module,exports){
+},{"./checkpoint-controls":19,"./gamepad-controls":20,"./hmd-controls":21,"./keyboard-controls":23,"./mouse-controls":24,"./touch-controls":25,"./universal-controls":26,"aframe-physics-system":7}],23:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -2809,7 +3383,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":7}],15:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":6}],24:[function(require,module,exports){
 /**
  * Mouse + Pointerlock controls.
  *
@@ -2949,7 +3523,7 @@ module.exports = {
   }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports = {
   schema: {
     enabled: { default: true }
@@ -3019,7 +3593,7 @@ module.exports = {
   }
 };
 
-},{}],17:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /**
  * Universal Controls
  *
@@ -3217,7 +3791,7 @@ module.exports = {
   }
 };
 
-},{}],18:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = {
   'ply-model': require('./ply-model'),
   'three-model': require('./three-model'),
@@ -3241,7 +3815,7 @@ module.exports = {
   }
 };
 
-},{"./ply-model":19,"./three-model":20}],19:[function(require,module,exports){
+},{"./ply-model":28,"./three-model":29}],28:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -3322,7 +3896,7 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":6}],20:[function(require,module,exports){
+},{"../../lib/PLYLoader":5}],29:[function(require,module,exports){
 var DEFAULT_ANIMATION = '__auto__';
 
 /**
@@ -3463,99 +4037,7 @@ module.exports = {
   }
 };
 
-},{}],21:[function(require,module,exports){
-module.exports = {
-  'velocity':   require('./velocity'),
-  'quaternion': require('./quaternion'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    if (!AFRAME.components['velocity'])    AFRAME.registerComponent('velocity',   this.velocity);
-    if (!AFRAME.components['quaternion'])  AFRAME.registerComponent('quaternion', this.quaternion);
-
-    this._registered = true;
-  }
-};
-
-},{"./quaternion":22,"./velocity":23}],22:[function(require,module,exports){
-/**
- * Quaternion.
- *
- * Represents orientation of object in three dimensions. Similar to `rotation`
- * component, but avoids problems of gimbal lock.
- *
- * See: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
- */
-module.exports = {
-  schema: {type: 'vec4'},
-
-  play: function () {
-    var el = this.el,
-        q = el.object3D.quaternion;
-    if (el.hasAttribute('rotation')) {
-      el.components.rotation.update();
-      el.setAttribute('quaternion', {x: q.x, y: q.y, z: q.z, w: q.w});
-      el.removeAttribute('rotation');
-      this.update();
-    }
-  },
-
-  update: function () {
-    var data = this.data;
-    this.el.object3D.quaternion.set(data.x, data.y, data.z, data.w);
-  }
-};
-
-},{}],23:[function(require,module,exports){
-/**
- * Velocity, in m/s.
- */
-module.exports = {
-  schema: {type: 'vec3'},
-
-  init: function () {
-    this.system = this.el.sceneEl.systems.physics;
-
-    if (this.system) {
-      this.system.addBehavior(this, this.system.Phase.RENDER);
-    }
-  },
-
-  remove: function () {
-    if (this.system) {
-      this.system.removeBehavior(this, this.system.Phase.RENDER);
-    }
-  },
-
-  tick: function (t, dt) {
-    if (!dt) return;
-    if (this.system) return;
-    this.step(t, dt);
-  },
-
-  step: function (t, dt) {
-    if (!dt) return;
-
-    var physics = this.el.sceneEl.systems.physics || {data: {maxInterval: 1 / 60}},
-
-        // TODO - There's definitely a bug with getComputedAttribute and el.data.
-        velocity = this.el.getAttribute('velocity') || {x: 0, y: 0, z: 0},
-        position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
-
-    dt = Math.min(dt, physics.data.maxInterval * 1000);
-
-    this.el.setAttribute('position', {
-      x: position.x + velocity.x * dt / 1000,
-      y: position.y + velocity.y * dt / 1000,
-      z: position.z + velocity.z * dt / 1000
-    });
-  }
-};
-
-},{}],24:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports = {
   schema: {
     defaultRotation: {type: 'vec3'},
@@ -3581,7 +4063,7 @@ module.exports = {
   }
 };
 
-},{}],25:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -3653,15 +4135,15 @@ module.exports = {
   }
 };
 
-},{}],26:[function(require,module,exports){
-var math = require('../math'),
-    physics = require('../physics');
+},{}],32:[function(require,module,exports){
+var physics = require('aframe-physics-system');
 
 module.exports = {
   'checkpoint':      require('./checkpoint'),
-  'grab':      require('./grab'),
+  'grab':            require('./grab'),
   'jump-ability':    require('./jump-ability'),
-  'sphere-collider':      require('./sphere-collider'),
+  'kinematic-body':  require('./kinematic-body'),
+  'sphere-collider': require('./sphere-collider'),
   'toggle-velocity': require('./toggle-velocity'),
 
   registerAll: function (AFRAME) {
@@ -3669,11 +4151,11 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
 
-    math.registerAll();
     physics.registerAll();
     if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
     if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
     if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
+    if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
     if (!AFRAME.components['sphere-collider']) AFRAME.registerComponent('sphere-collider', this['sphere-collider']);
     if (!AFRAME.components['toggle-velocity']) AFRAME.registerComponent('toggle-velocity', this['toggle-velocity']);
 
@@ -3681,7 +4163,7 @@ module.exports = {
   }
 };
 
-},{"../math":21,"../physics":33,"./checkpoint":24,"./grab":25,"./jump-ability":27,"./sphere-collider":28,"./toggle-velocity":29}],27:[function(require,module,exports){
+},{"./checkpoint":30,"./grab":31,"./jump-ability":33,"./kinematic-body":34,"./sphere-collider":35,"./toggle-velocity":36,"aframe-physics-system":7}],33:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -3745,449 +4227,7 @@ module.exports = {
   }
 };
 
-},{}],28:[function(require,module,exports){
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Implement bounding sphere collision detection for entities with a mesh.
- * Sets the specified state on the intersected entities.
- *
- * @property {string} objects - Selector of the entities to test for collision.
- * @property {string} state - State to set on collided entities.
- *
- */
-module.exports = {
-  schema: {
-    objects: {default: ''},
-    state: {default: 'collided'},
-    radius: {default: 0.05}
-  },
-
-  init: function () {
-    this.els = [];
-    this.collisions = [];
-  },
-
-  /**
-   * Update list of entities to test for collision.
-   */
-  update: function () {
-    var data = this.data;
-    var objectEls;
-
-    // Push entities into list of els to intersect.
-    if (data.objects) {
-      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
-    } else {
-      // If objects not defined, intersect with everything.
-      objectEls = this.el.sceneEl.children;
-    }
-    // Convert from NodeList to Array
-    this.els = Array.prototype.slice.call(objectEls);
-  },
-
-  tick: (function () {
-    var position = new THREE.Vector3(),
-        meshPosition = new THREE.Vector3();
-    return function () {
-      var el = this.el,
-          data = this.data,
-          mesh = el.getObject3D('mesh'),
-          collisions = [];
-
-      if (!mesh) { return; }
-
-      position.copy(el.getComputedAttribute('position'));
-
-      // Update collisions.
-      this.els.forEach(intersect);
-      // Emit events.
-      collisions.forEach(handleHit);
-      // No collisions.
-      if (collisions.length === 0) { el.emit('hit', {el: null}); }
-      // Updated the state of the elements that are not intersected anymore.
-      this.collisions.filter(function (el) {
-        return collisions.indexOf(el) === -1;
-      }).forEach(function removeState (el) {
-        el.removeState(data.state);
-      });
-      // Store new collisions
-      this.collisions = collisions;
-
-      // AABB collision detection
-      function intersect (el) {
-        var radius,
-            mesh = el.getObject3D('mesh');
-
-        if (!mesh) return;
-
-        mesh.getWorldPosition(meshPosition);
-        mesh.geometry.computeBoundingSphere();
-        radius = mesh.geometry.boundingSphere.radius;
-        if (position.distanceTo(meshPosition) < radius + data.radius) {
-          collisions.push(el);
-        }
-      }
-
-      function handleHit (hitEl) {
-        hitEl.emit('hit');
-        hitEl.addState(data.state);
-        el.emit('hit', {el: hitEl});
-      }
-    };
-  })()
-};
-
-},{}],29:[function(require,module,exports){
-/**
- * Toggle velocity.
- *
- * Moves an object back and forth along an axis, within a min/max extent.
- */
-module.exports = {
-  dependencies: ['velocity'],
-  schema: {
-    axis: { default: 'x', oneOf: ['x', 'y', 'z'] },
-    min: { default: 0 },
-    max: { default: 0 },
-    speed: { default: 1 }
-  },
-  init: function () {
-    var velocity = {x: 0, y: 0, z: 0};
-    velocity[this.data.axis] = this.data.speed;
-    this.el.setAttribute('velocity', velocity);
-
-    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
-  },
-  remove: function () {},
-  update: function () { this.tick(); },
-  tick: function () {
-    var data = this.data,
-        velocity = this.el.getAttribute('velocity'),
-        position = this.el.getAttribute('position');
-    if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
-      velocity[data.axis] = -data.speed;
-      this.el.setAttribute('velocity', velocity);
-    } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
-      velocity[data.axis] = data.speed;
-      this.el.setAttribute('velocity', velocity);
-    }
-  },
-};
-
-},{}],30:[function(require,module,exports){
-var CANNON = require('cannon'),
-    mesh2shape = require('three-to-cannon');
-
-require('../../lib/CANNON-shape2mesh');
-
-module.exports = {
-  schema: {
-    shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull']},
-    cylinderAxis: {default: 'y', oneOf: ['x', 'y', 'z']},
-    sphereRadius: {default: NaN}
-  },
-
-  /**
-   * Initializes a body component, assigning it to the physics system and binding listeners for
-   * parsing the elements geometry.
-   */
-  init: function () {
-    this.system = this.el.sceneEl.systems.physics;
-
-    if (this.el.sceneEl.hasLoaded) {
-      this.initBody();
-    } else {
-      this.el.sceneEl.addEventListener('loaded', this.initBody.bind(this));
-    }
-  },
-
-  /**
-   * Parses an element's geometry and component metadata to create a CANNON.Body instance for the
-   * component.
-   */
-  initBody: function () {
-    var shape,
-        el = this.el,
-        data = this.data,
-        pos = el.getComputedAttribute('position'),
-        options = data.shape === 'auto' ? undefined : AFRAME.utils.extend({}, this.data, {
-          type: mesh2shape.Type[data.shape.toUpperCase()]
-        });
-
-    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
-    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
-    // scale="0.5 0.5 0.5" will be ignored.
-    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
-    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
-    this.el.object3D.updateMatrixWorld(true);
-    shape = mesh2shape(this.el.object3D, options);
-
-    if (!shape) {
-      this.el.addEventListener('model-loaded', this.initBody.bind(this));
-      return;
-    }
-
-    this.body = new CANNON.Body({
-      mass: data.mass || 0,
-      material: this.system.material,
-      position: new CANNON.Vec3(pos.x, pos.y, pos.z),
-      linearDamping: data.linearDamping,
-      angularDamping: data.angularDamping
-    });
-    this.body.addShape(shape, shape.offset, shape.orientation);
-
-    // Apply rotation
-    var rot = el.getComputedAttribute('rotation');
-    this.body.quaternion.setFromEuler(
-      THREE.Math.degToRad(rot.x),
-      THREE.Math.degToRad(rot.y),
-      THREE.Math.degToRad(rot.z),
-      'XYZ'
-    ).normalize();
-
-    // Show wireframe
-    if (this.system.debug) {
-      this.createWireframe(this.body, shape);
-    }
-
-    this.el.body = this.body;
-    this.body.el = this.el;
-    this.isLoaded = true;
-
-    // If component wasn't initialized when play() was called, finish up.
-    if (this.isPlaying) {
-      this._play();
-    }
-
-    this.el.emit('body-loaded', {body: this.el.body});
-  },
-
-  /**
-   * Registers the component with the physics system, if ready.
-   */
-  play: function () {
-    if (this.isLoaded) this._play();
-  },
-
-  /**
-   * Internal helper to register component with physics system.
-   */
-  _play: function () {
-    this.system.addBehavior(this, this.system.Phase.SIMULATE);
-    this.system.addBody(this.body);
-    if (this.wireframe) this.el.sceneEl.object3D.add(this.wireframe);
-
-    this.syncToPhysics();
-  },
-
-  /**
-   * Unregisters the component with the physics system.
-   */
-  pause: function () {
-    if (!this.isLoaded) return;
-
-    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
-    this.system.removeBody(this.body);
-    if (this.wireframe) this.el.sceneEl.object3D.remove(this.wireframe);
-  },
-
-  /**
-   * Removes the component and all physics and scene side effects.
-   */
-  remove: function () {
-    this.pause();
-    delete this.body.el;
-    delete this.body;
-    delete this.el.body;
-    delete this.wireframe;
-  },
-
-  /**
-   * Creates a wireframe for the body, for debugging.
-   * TODO(donmccurdy) – Refactor this into a standalone utility or component.
-   * @param  {CANNON.Body} body
-   * @param  {CANNON.Shape} shape
-   */
-  createWireframe: function (body, shape) {
-    var offset = shape.offset,
-        orientation = shape.orientation,
-        mesh = CANNON.shape2mesh(body).children[0];
-    this.wireframe = new THREE.EdgesHelper(mesh, 0xff0000);
-
-    if (offset) {
-      this.wireframe.offset = offset.clone();
-    }
-
-    if (orientation) {
-      orientation.inverse(orientation);
-      this.wireframe.orientation = new THREE.Quaternion(
-        orientation.x,
-        orientation.y,
-        orientation.z,
-        orientation.w
-      );
-    }
-
-    this.syncWireframe();
-  },
-
-  /**
-   * Updates the debugging wireframe's position and rotation.
-   */
-  syncWireframe: function () {
-    var offset,
-        wireframe = this.wireframe;
-
-    if (!this.wireframe) return;
-
-    // Apply rotation. If the shape required custom orientation, also apply
-    // that on the wireframe.
-    wireframe.quaternion.copy(this.body.quaternion);
-    if (wireframe.orientation) {
-      wireframe.quaternion.multiply(wireframe.orientation);
-    }
-
-    // Apply position. If the shape required custom offset, also apply that on
-    // the wireframe.
-    wireframe.position.copy(this.body.position);
-    if (wireframe.offset) {
-      offset = wireframe.offset.clone().applyQuaternion(wireframe.quaternion);
-      wireframe.position.add(offset);
-    }
-
-    wireframe.updateMatrix();
-  },
-
-  /**
-   * Updates the CANNON.Body instance's position, velocity, and rotation, based on the scene.
-   */
-  syncToPhysics: (function () {
-    var q =  new THREE.Quaternion(),
-        v = new THREE.Vector3();
-    return function () {
-      var el = this.el,
-          parentEl = el.parentEl,
-          body = this.body;
-
-      if (!body) return;
-
-      if (el.components.velocity) body.velocity.copy(el.getComputedAttribute('velocity'));
-
-      if (parentEl.isScene) {
-        body.quaternion.copy(el.object3D.quaternion);
-        body.position.copy(el.object3D.position);
-      } else {
-        el.object3D.getWorldQuaternion(q);
-        body.quaternion.copy(q);
-        el.object3D.getWorldPosition(v);
-        body.position.copy(v);
-      }
-
-      if (this.wireframe) this.syncWireframe();
-    };
-  }()),
-
-  /**
-   * Updates the scene object's position and rotation, based on the physics simulation.
-   */
-  syncFromPhysics: (function () {
-    var v = new THREE.Vector3(),
-        q1 = new THREE.Quaternion(),
-        q2 = new THREE.Quaternion();
-    return function () {
-      var el = this.el,
-          parentEl = el.parentEl,
-          body = this.body;
-
-      if (!body) return;
-
-      if (parentEl.isScene) {
-        el.setAttribute('quaternion', body.quaternion);
-        el.setAttribute('position', body.position);
-      } else {
-        // TODO - Nested rotation doesn't seem to be working as expected.
-        q1.copy(body.quaternion);
-        parentEl.object3D.getWorldQuaternion(q2);
-        q1.multiply(q2.inverse());
-        el.setAttribute('quaternion', {x: q1.x, y: q1.y, z: q1.z, w: q1.w});
-
-        v.copy(body.position);
-        parentEl.object3D.worldToLocal(v);
-        el.setAttribute('position', {x: v.x, y: v.y, z: v.z});
-      }
-
-      if (this.wireframe) this.syncWireframe();
-    };
-  }())
-};
-
-},{"../../lib/CANNON-shape2mesh":3,"cannon":45,"three-to-cannon":8}],31:[function(require,module,exports){
-module.exports = {
-  GRAVITY: -9.8,
-  MAX_INTERVAL: 4 / 60,
-  ITERATIONS: 10,
-  CONTACT_MATERIAL: {
-    friction:     0.01,
-    restitution:  0.3,
-    contactEquationStiffness: 1e8,
-    contactEquationRelaxation: 3,
-    frictionEquationStiffness: 1e8,
-    frictionEquationRegularization: 3
-  }
-};
-
-},{}],32:[function(require,module,exports){
-var Body = require('./body');
-
-/**
- * Dynamic body.
- *
- * Moves according to physics simulation, and may collide with other objects.
- */
-module.exports = AFRAME.utils.extend({}, Body, {
-  dependencies: ['quaternion', 'velocity'],
-
-  schema: AFRAME.utils.extend({}, Body.schema, {
-    mass:           { default: 5 },
-    linearDamping:  { default: 0.01 },
-    angularDamping: { default: 0.01 }
-  }),
-
-  step: function () {
-    this.syncFromPhysics();
-  }
-});
-
-},{"./body":30}],33:[function(require,module,exports){
-var CANNON = require('cannon'),
-    math = require('../math');
-
-module.exports = {
-  'dynamic-body':   require('./dynamic-body'),
-  'kinematic-body': require('./kinematic-body'),
-  'static-body':    require('./static-body'),
-  'system':         require('./system/physics'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    math.registerAll();
-    if (!AFRAME.systems.physics)              AFRAME.registerSystem('physics',           this.system);
-    if (!AFRAME.components['dynamic-body'])   AFRAME.registerComponent('dynamic-body',   this['dynamic-body']);
-    if (!AFRAME.components['kinematic-body']) AFRAME.registerComponent('kinematic-body', this['kinematic-body']);
-    if (!AFRAME.components['static-body'])    AFRAME.registerComponent('static-body',    this['static-body']);
-
-    this._registered = true;
-  }
-};
-
-// Export CANNON.js.
-window.CANNON = window.CANNON || CANNON;
-
-},{"../math":21,"./dynamic-body":32,"./kinematic-body":34,"./static-body":35,"./system/physics":36,"cannon":45}],34:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -4387,180 +4427,136 @@ module.exports = {
 };
 
 },{"cannon":45}],35:[function(require,module,exports){
-var Body = require('./body');
-
 /**
- * Static body.
+ * Based on aframe/examples/showcase/tracked-controls.
  *
- * Solid body with a fixed position. Unaffected by gravity and collisions, but
- * other objects may collide with it.
- */
-module.exports = AFRAME.utils.extend({}, Body, {
-  step: function () {
-    this.syncToPhysics();
-  }
-});
-
-},{"./body":30}],36:[function(require,module,exports){
-var CANNON = require('cannon'),
-    CONSTANTS = require('../constants'),
-    C_GRAV = CONSTANTS.GRAVITY,
-    C_MAT = CONSTANTS.CONTACT_MATERIAL;
-
-/**
- * Physics system.
+ * Implement bounding sphere collision detection for entities with a mesh.
+ * Sets the specified state on the intersected entities.
+ *
+ * @property {string} objects - Selector of the entities to test for collision.
+ * @property {string} state - State to set on collided entities.
+ *
  */
 module.exports = {
   schema: {
-    gravity:                        { default: C_GRAV },
-    iterations:                     { default: CONSTANTS.ITERATIONS },
-    friction:                       { default: C_MAT.friction },
-    restitution:                    { default: C_MAT.restitution },
-    contactEquationStiffness:       { default: C_MAT.contactEquationStiffness },
-    contactEquationRelaxation:      { default: C_MAT.contactEquationRelaxation },
-    frictionEquationStiffness:      { default: C_MAT.frictionEquationStiffness },
-    frictionEquationRegularization: { default: C_MAT.frictionEquationRegularization },
-
-    // Never step more than four frames at once. Effectively pauses the scene
-    // when out of focus, and prevents weird "jumps" when focus returns.
-    maxInterval:                    { default: 4 / 60 },
-
-    // If true, show wireframes around physics bodies.
-    debug:                          { default: false },
+    objects: {default: ''},
+    state: {default: 'collided'},
+    radius: {default: 0.05}
   },
 
-  /**
-   * Update phases, used to separate physics simulation from updates to A-Frame scene.
-   * @enum {string}
-   */
-  Phase: {
-    SIMULATE: 'sim',
-    RENDER:   'render'
-  },
-
-  /**
-   * Initializes the physics system.
-   */
   init: function () {
+    this.els = [];
+    this.collisions = [];
+  },
+
+  /**
+   * Update list of entities to test for collision.
+   */
+  update: function () {
     var data = this.data;
+    var objectEls;
 
-    // If true, show wireframes around physics bodies.
-    this.debug = data.debug;
-
-    this.children = {};
-    this.children[this.Phase.SIMULATE] = [];
-    this.children[this.Phase.RENDER] = [];
-
-    this.listeners = {};
-
-    this.world = new CANNON.World();
-    this.world.quatNormalizeSkip = 0;
-    this.world.quatNormalizeFast = false;
-    // this.world.solver.setSpookParams(300,10);
-    this.world.solver.iterations = data.iterations;
-    this.world.gravity.set(0, data.gravity, 0);
-    this.world.broadphase = new CANNON.NaiveBroadphase();
-
-    this.material = new CANNON.Material({name: 'defaultMaterial'});
-    this.contactMaterial = new CANNON.ContactMaterial(this.material, this.material, {
-        friction: data.friction,
-        restitution: data.restitution,
-        contactEquationStiffness: data.contactEquationStiffness,
-        contactEquationRelaxation: data.contactEquationRelaxation,
-        frictionEquationStiffness: data.frictionEquationStiffness,
-        frictionEquationRegularization: data.frictionEquationRegularization
-    });
-    this.world.addContactMaterial(this.contactMaterial);
-  },
-
-  /**
-   * Updates the physics world on each tick of the A-Frame scene. It would be
-   * entirely possible to separate the two – updating physics more or less
-   * frequently than the scene – if greater precision or performance were
-   * necessary.
-   * @param  {number} t
-   * @param  {number} dt
-   */
-  tick: function (t, dt) {
-    if (!dt) return;
-
-    this.world.step(Math.min(dt / 1000, this.data.maxInterval));
-
-    var i;
-    for (i = 0; i < this.children[this.Phase.SIMULATE].length; i++) {
-      this.children[this.Phase.SIMULATE][i].step(t, dt);
+    // Push entities into list of els to intersect.
+    if (data.objects) {
+      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
+    } else {
+      // If objects not defined, intersect with everything.
+      objectEls = this.el.sceneEl.children;
     }
-
-    for (i = 0; i < this.children[this.Phase.RENDER].length; i++) {
-      this.children[this.Phase.RENDER][i].step(t, dt);
-    }
+    // Convert from NodeList to Array
+    this.els = Array.prototype.slice.call(objectEls);
   },
 
-  /**
-   * Adds a body to the scene, and binds collision events to the element.
-   * @param {CANNON.Body} body
-   */
-  addBody: function (body) {
-    this.listeners[body.id] = function (e) { body.el.emit('collide', e); };
-    body.addEventListener('collide', this.listeners[body.id]);
-    this.world.addBody(body);
-  },
+  tick: (function () {
+    var position = new THREE.Vector3(),
+        meshPosition = new THREE.Vector3();
+    return function () {
+      var el = this.el,
+          data = this.data,
+          mesh = el.getObject3D('mesh'),
+          collisions = [];
 
-  /**
-   * Removes a body, and its listeners, from the scene.
-   * @param {CANNON.Body} body
-   */
-  removeBody: function (body) {
-    body.removeEventListener('collide', this.listeners[body.id]);
-    delete this.listeners[body.id];
-    this.world.removeBody(body);
-  },
+      if (!mesh) { return; }
 
-  /**
-   * Adds a component instance to the system, to be invoked on each tick during
-   * the given phase.
-   * @param {Component} component
-   * @param {string} phase
-   */
-  addBehavior: function (component, phase) {
-    this.children[phase].push(component);
-  },
+      position.copy(el.getComputedAttribute('position'));
 
-  /**
-   * Removes a component instance from the system.
-   * @param {Component} component
-   * @param {string} phase
-   */
-  removeBehavior: function (component, phase) {
-    this.children[phase].splice(this.children[phase].indexOf(component), 1);
-  },
+      // Update collisions.
+      this.els.forEach(intersect);
+      // Emit events.
+      collisions.forEach(handleHit);
+      // No collisions.
+      if (collisions.length === 0) { el.emit('hit', {el: null}); }
+      // Updated the state of the elements that are not intersected anymore.
+      this.collisions.filter(function (el) {
+        return collisions.indexOf(el) === -1;
+      }).forEach(function removeState (el) {
+        el.removeState(data.state);
+      });
+      // Store new collisions
+      this.collisions = collisions;
 
-  /**
-   * Sets an option on the physics system, affecting future simulation steps.
-   * @param {string} opt
-   * @param {mixed} value
-   */
-  update: function (previousData) {
-    var data = this.data;
+      // AABB collision detection
+      function intersect (el) {
+        var radius,
+            mesh = el.getObject3D('mesh');
 
-    if (data.debug !== previousData.debug) {
-      console.warn('[physics] `debug` cannot be changed dynamically.');
-    }
+        if (!mesh) return;
 
-    if (data.maxInterval !== previousData.maxInterval); // noop;
+        mesh.getWorldPosition(meshPosition);
+        mesh.geometry.computeBoundingSphere();
+        radius = mesh.geometry.boundingSphere.radius;
+        if (position.distanceTo(meshPosition) < radius + data.radius) {
+          collisions.push(el);
+        }
+      }
 
-    if (data.gravity !== previousData.gravity) this.world.gravity.set(0, data.gravity, 0);
-
-    this.contactMaterial.friction = data.friction;
-    this.contactMaterial.restitution = data.restitution;
-    this.contactMaterial.contactEquationStiffness = data.contactEquationStiffness;
-    this.contactMaterial.contactEquationRelaxation = data.contactEquationRelaxation;
-    this.contactMaterial.frictionEquationStiffness = data.frictionEquationStiffness;
-    this.contactMaterial.frictionEquationRegularization = data.frictionEquationRegularization;
-  }
+      function handleHit (hitEl) {
+        hitEl.emit('hit');
+        hitEl.addState(data.state);
+        el.emit('hit', {el: hitEl});
+      }
+    };
+  })()
 };
 
-},{"../constants":31,"cannon":45}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
+/**
+ * Toggle velocity.
+ *
+ * Moves an object back and forth along an axis, within a min/max extent.
+ */
+module.exports = {
+  dependencies: ['velocity'],
+  schema: {
+    axis: { default: 'x', oneOf: ['x', 'y', 'z'] },
+    min: { default: 0 },
+    max: { default: 0 },
+    speed: { default: 1 }
+  },
+  init: function () {
+    var velocity = {x: 0, y: 0, z: 0};
+    velocity[this.data.axis] = this.data.speed;
+    this.el.setAttribute('velocity', velocity);
+
+    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
+  },
+  remove: function () {},
+  update: function () { this.tick(); },
+  tick: function () {
+    var data = this.data,
+        velocity = this.el.getAttribute('velocity'),
+        position = this.el.getAttribute('position');
+    if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
+      velocity[data.axis] = -data.speed;
+      this.el.setAttribute('velocity', velocity);
+    } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
+      velocity[data.axis] = data.speed;
+      this.el.setAttribute('velocity', velocity);
+    }
+  },
+};
+
+},{}],37:[function(require,module,exports){
 /**
  * Flat grid.
  *
