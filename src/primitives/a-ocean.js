@@ -73,11 +73,11 @@ module.exports.Component = {
     }
 
     this.mesh = new THREE.Mesh(geometry, material.material);
-    el.object3D.add(this.mesh);
+    el.setObject3D('mesh', this.mesh);
   },
 
   remove: function () {
-    this.el.object3D.remove(this.mesh);
+    this.el.removeObject3D('mesh');
   },
 
   tick: function (t, dt) {
