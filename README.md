@@ -24,8 +24,9 @@ For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full
 
 | A-Frame   | Extras                |
 |-----------|-----------------------|
-| >= v0.3.0 | aframe-extras/v2.6.1  |
-| < v0.2.0  | */v1.17.0 |
+| v0.4.X | aframe-extras/v2.7.0     |
+| v0.3.X | */v2.6.1                 |
+| v0.2.X | */v1.17.0                |
 
 ## Usage (NPM)
 
