@@ -55,8 +55,8 @@ module.exports = {
         position = this.position,
         targetPosition = this.targetPosition;
 
-    position.copy(this.el.getComputedAttribute('position'));
-    targetPosition.copy(this.checkpoint.getComputedAttribute('position'));
+    position.copy(this.el.getAttribute('position'));
+    targetPosition.copy(this.checkpoint.getAttribute('position'));
     // TODO - Cleverer ways around this?
     targetPosition.y = position.y;
     offset.copy(targetPosition).sub(position);

@@ -77,7 +77,7 @@ AFRAME.registerComponent('force-pushable', {
   forcePush: function () {
     var force,
         el = this.el,
-        pStart = this.pStart.copy(this.sourceEl.getComputedAttribute('position'));
+        pStart = this.pStart.copy(this.sourceEl.getAttribute('position'));
 
     // Compute direction of force, normalize, then scale.
     force = el.body.position.vsub(pStart);
@@ -126,7 +126,7 @@ AFRAME.registerComponent('force-float', {
 
       // Lift targets slightly.
       targets = [].slice.call(targets).forEach(function (el) {
-        var position = new CANNON.Vec3().copy(el.getComputedAttribute('position')),
+        var position = new CANNON.Vec3().copy(el.getAttribute('position')),
             impulse = new CANNON.Vec3(
               0.25 * data.force * Math.random(),
               1.00 * data.force * Math.random() + 1.5,
