@@ -2356,8 +2356,8 @@ module.exports = {
         position = this.position,
         targetPosition = this.targetPosition;
 
-    position.copy(this.el.getComputedAttribute('position'));
-    targetPosition.copy(this.checkpoint.getComputedAttribute('position'));
+    position.copy(this.el.getAttribute('position'));
+    targetPosition.copy(this.checkpoint.getAttribute('position'));
     // TODO - Cleverer ways around this?
     targetPosition.y = position.y;
     offset.copy(targetPosition).sub(position);
@@ -2622,7 +2622,7 @@ module.exports = {
 
 },{"../../lib/GamepadButton":2,"../../lib/GamepadButtonEvent":3}],19:[function(require,module,exports){
 var radToDeg = THREE.Math.radToDeg,
-    isMobile = AFRAME.utils.isMobile();
+    isMobile = (AFRAME.utils.isMobile || AFRAME.utils.device.isMobile)();
 
 module.exports = {
   schema: {
@@ -3254,7 +3254,7 @@ module.exports = {
       }
     }
 
-    velocity.copy(this.el.getComputedAttribute('velocity'));
+    velocity.copy(this.el.getAttribute('velocity'));
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
 

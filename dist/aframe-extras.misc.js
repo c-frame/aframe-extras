@@ -1879,7 +1879,7 @@ module.exports = {
       // 6. If the ground surface has a velocity, apply it directly to current
       // position, not velocity, to preserve relative velocity.
       if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        var groundVelocity = groundBody.el.getComputedAttribute('velocity');
+        var groundVelocity = groundBody.el.getAttribute('velocity');
         body.position.copy({
           x: body.position.x + groundVelocity.x * dt / 1000,
           y: body.position.y + groundVelocity.y * dt / 1000,
@@ -1973,7 +1973,7 @@ module.exports = {
 
       if (!mesh) { return; }
 
-      position.copy(el.getComputedAttribute('position'));
+      position.copy(el.getAttribute('position'));
 
       // Update collisions.
       this.els.forEach(intersect);
