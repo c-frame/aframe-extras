@@ -10,8 +10,8 @@
     "url": "git+https://github.com/donmccurdy/aframe-extras.git"
   },
   "scripts": {
-    "dev": "budo browser.js:examples/aframe-extras.js",
-    "dev:win": "live-server . --port=9966 --no-browser & watch-exec -c 'browserify browser.js -d -o examples/aframe-extras.js' -w src",
+    "dev": "budo --port=9000 browser.js:examples/aframe-extras.js",
+    "dev:win": "live-server . --port=9000 --no-browser & watch-exec -c 'browserify browser.js -d -o examples/aframe-extras.js' -w src",
     "build": "./scripts/build.js",
     "dist": "./scripts/dist.js",
     "test": "karma start ./tests/karma.conf.js",
