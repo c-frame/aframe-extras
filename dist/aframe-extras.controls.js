@@ -2417,13 +2417,6 @@ module.exports = {
     this.buttons = {};
 
     scene.addBehavior(this);
-
-    if (!this.getGamepad()) {
-      console.warn(
-        'Gamepad #%d not found. Connect controller and press any button to continue.',
-        this.data.controller
-      );
-    }
   },
 
   /**
