@@ -31,22 +31,29 @@
  */
 module.exports = {
   schema: {
-      angle:            { default: Math.PI / 3 },
-      castShadow:       { default: false },
-      color:            { default: '#FFF' },
-      groundColor:      { default: '#FFF' },
-      decay:            { default: 1 },
-      distance:         { default: 0.0 },
-      exponent:         { default: 10.0 },
-      intensity:        { default: 1.0 },
-      shadowBias:       { default: 0 },
-      shadowCameraFar:  { default: 5000 },
-      shadowCameraFov:  { default: 50 },
-      shadowCameraNear: { default: 0.5 },
-      shadowDarkness:   { default: 0.5 },
-      shadowMapHeight:  { default: 512 },
-      shadowMapWidth:   { default: 512 },
-      type:             { default: 'directional' }
+      angle:              { default: Math.PI / 3 },
+      castShadow:         { default: true },
+      color:              { default: '#FFF' },
+      groundColor:        { default: '#FFF' },
+      decay:              { default: 1 },
+      distance:           { default: 0.0 },
+      exponent:           { default: 10.0 },
+      intensity:          { default: 1.0 },
+      shadowBias:         { default: 0 },
+      shadowCameraFar:    { default: 5000 },
+      shadowCameraFov:    { default: 50 },
+      shadowCameraNear:   { default: 0.5 },
+      shadowCameraTop:    { default: 10 },
+      shadowCameraRight:  { default: 10 },
+      shadowCameraBottom: { default: -10 },
+      shadowCameraLeft:   { default: -10 },
+      shadowDarkness:     { default: 0.5 },
+      shadowMapHeight:    { default: 512 },
+      shadowMapWidth:     { default: 512 },
+      type:               {
+        default: 'directional',
+        oneOf: ['ambient', 'directional', 'hemisphere', 'point', 'spot']
+      }
   },
 
   init: function () {
@@ -126,12 +133,20 @@ module.exports = {
     if (!data.castShadow) { return light; }
 
     light.castShadow = data.castShadow;
-    light.shadow.camera.near = data.shadowCameraNear;
-    light.shadow.camera.far = data.shadowCameraFar;
-    light.shadow.camera.fov = data.shadowCameraFov;
     light.shadow.darkness = data.shadowDarkness;
     light.shadow.mapSize.height = data.shadowMapHeight;
     light.shadow.mapSize.width = data.shadowMapWidth;
+
+    light.shadow.camera.near = data.shadowCameraNear;
+    light.shadow.camera.far = data.shadowCameraFar;
+    if (light.shadow.camera instanceof THREE.OrthographicCamera) {
+      light.shadow.camera.top = data.shadowCameraTop;
+      light.shadow.camera.right = data.shadowCameraRight;
+      light.shadow.camera.bottom = data.shadowCameraBottom;
+      light.shadow.camera.left = data.shadowCameraLeft;
+    } else {
+      light.shadow.camera.fov = data.shadowCameraFov;
+    }
 
     return light;
   }
