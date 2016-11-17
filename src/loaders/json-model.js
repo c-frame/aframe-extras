@@ -12,7 +12,8 @@
  */
 module.exports = {
   schema: {
-    src: { type: 'src' }
+    src: { type: 'src' },
+    crossorigin: { default: '' }
   },
 
   init: function () {
@@ -26,6 +27,7 @@ module.exports = {
 
     this.remove();
     loader = new THREE.JSONLoader();
+    if (data.crossorigin) loader.crossOrigin = data.crossorigin;
     loader.load(data.src, function (geometry, materials) {
 
       // Attempt to automatically detect common material options.
