@@ -2916,13 +2916,6 @@ module.exports = {
     this.buttons = {};
 
     scene.addBehavior(this);
-
-    if (!this.getGamepad()) {
-      console.warn(
-        'Gamepad #%d not found. Connect controller and press any button to continue.',
-        this.data.controller
-      );
-    }
   },
 
   /**
@@ -3917,7 +3910,8 @@ module.exports = {
     loader:            { default: 'object', oneOf: ['object', 'json'] },
     enableAnimation:   { default: true },
     animation:         { default: DEFAULT_ANIMATION },
-    animationDuration: { default: 0 }
+    animationDuration: { default: 0 },
+    crossorigin:       { default: '' }
   },
 
   init: function () {
@@ -3941,6 +3935,7 @@ module.exports = {
       this.remove();
       if (data.loader === 'object') {
         loader = new THREE.ObjectLoader();
+        if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
         loader.load(data.src, function(loaded) {
           loaded.traverse( function(object) {
             if (object instanceof THREE.SkinnedMesh)
@@ -3952,6 +3947,7 @@ module.exports = {
         }.bind(this));
       } else if (data.loader === 'json') {
         loader = new THREE.JSONLoader();
+        if (data.crossorigin) loader.crossOrigin = data.crossorigin;
         loader.load(data.src, function (geometry, materials) {
 
           // Attempt to automatically detect common material options.
@@ -4816,22 +4812,29 @@ module.exports = {
  */
 module.exports = {
   schema: {
-      angle:            { default: Math.PI / 3 },
-      castShadow:       { default: false },
-      color:            { default: '#FFF' },
-      groundColor:      { default: '#FFF' },
-      decay:            { default: 1 },
-      distance:         { default: 0.0 },
-      exponent:         { default: 10.0 },
-      intensity:        { default: 1.0 },
-      shadowBias:       { default: 0 },
-      shadowCameraFar:  { default: 5000 },
-      shadowCameraFov:  { default: 50 },
-      shadowCameraNear: { default: 0.5 },
-      shadowDarkness:   { default: 0.5 },
-      shadowMapHeight:  { default: 512 },
-      shadowMapWidth:   { default: 512 },
-      type:             { default: 'directional' }
+      angle:              { default: Math.PI / 3 },
+      castShadow:         { default: true },
+      color:              { default: '#FFF' },
+      groundColor:        { default: '#FFF' },
+      decay:              { default: 1 },
+      distance:           { default: 0.0 },
+      exponent:           { default: 10.0 },
+      intensity:          { default: 1.0 },
+      shadowBias:         { default: 0 },
+      shadowCameraFar:    { default: 5000 },
+      shadowCameraFov:    { default: 50 },
+      shadowCameraNear:   { default: 0.5 },
+      shadowCameraTop:    { default: 10 },
+      shadowCameraRight:  { default: 10 },
+      shadowCameraBottom: { default: -10 },
+      shadowCameraLeft:   { default: -10 },
+      shadowDarkness:     { default: 0.5 },
+      shadowMapHeight:    { default: 512 },
+      shadowMapWidth:     { default: 512 },
+      type:               {
+        default: 'directional',
+        oneOf: ['ambient', 'directional', 'hemisphere', 'point', 'spot']
+      }
   },
 
   init: function () {
@@ -4911,12 +4914,20 @@ module.exports = {
     if (!data.castShadow) { return light; }
 
     light.castShadow = data.castShadow;
-    light.shadow.camera.near = data.shadowCameraNear;
-    light.shadow.camera.far = data.shadowCameraFar;
-    light.shadow.camera.fov = data.shadowCameraFov;
     light.shadow.darkness = data.shadowDarkness;
     light.shadow.mapSize.height = data.shadowMapHeight;
     light.shadow.mapSize.width = data.shadowMapWidth;
+
+    light.shadow.camera.near = data.shadowCameraNear;
+    light.shadow.camera.far = data.shadowCameraFar;
+    if (light.shadow.camera instanceof THREE.OrthographicCamera) {
+      light.shadow.camera.top = data.shadowCameraTop;
+      light.shadow.camera.right = data.shadowCameraRight;
+      light.shadow.camera.bottom = data.shadowCameraBottom;
+      light.shadow.camera.left = data.shadowCameraLeft;
+    } else {
+      light.shadow.camera.fov = data.shadowCameraFov;
+    }
 
     return light;
   }
