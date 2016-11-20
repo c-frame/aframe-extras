@@ -4,30 +4,30 @@
  * Source: https://github.com/aframevr/aframe-core/pull/348
  *
  * @namespace light
- * @param {number} [angle=PI / 3] - Maximum extent of light from its direction,
-          in radians. For spot lights.
- * @param {bool} [castShadow=false] - Whether light will cast shadows.
-          Only applies to directional, point, and spot lights.
+ * @param {number} [angle=PI / 3] - Maximum extent of light from its direction, in radians. For spot
+ *     lights.
+ * @param {bool} [castShadow=false] - Whether light will cast shadows. Only applies to directional,
+ *     point, and spot lights.
  * @param {string} [color=#FFF] - Light color. For every light.
- * @param {number} [decay=1] - Amount the light dims along the distance of the
-          light. For point and spot lights.
- * @param {number} [exponent=10.0] - Rapidity of falloff of light from its
-          target direction. For spot lights.
- * @param {string} [groundColor=#FFF] - Ground light color.
-          For hemisphere lights.
- * @param {number} [intensity=1.0] - Light strength.
-          For every light except ambient.
- * @param {number} [shadowBias=0] - How much to add or subtract from the
-          normalized depth when deciding whether a surface is in shadow.
- * @param {number} [shadowCameraFar=5000] - Orthographic shadow camera frustum
-          parameter.
- * @param {number} [shadowCameraNear=50] - Orthographic shadow camera frustum
-          parameter.
+ * @param {number} [decay=1] - Amount the light dims along the distance of the light. For point and
+ *     spot lights.
+ * @param {number} [exponent=10.0] - Rapidity of falloff of light from its target direction. For
+ *     spot lights.
+ * @param {string} [groundColor=#FFF] - Ground light color. For hemisphere lights.
+ * @param {number} [intensity=1.0] - Light strength. For every light except ambient.
+ * @param {number} [shadowBias=0] - How much to add or subtract from the normalized depth when
+ *     deciding whether a surface is in shadow.
+ * @param {number} [shadowCameraFar=5000] - Orthographic shadow camera frustum parameter.
+ * @param {number} [shadowCameraNear=50] - Orthographic shadow camera frustum parameter.
+ * @param {number} [shadowCameraTop=10] - Orthographic shadow camera frustum parameter.
+ * @param {number} [shadowCameraRight=10] - Orthographic shadow camera frustum parameter.
+ * @param {number} [shadowCameraBottom=-10] - Orthographic shadow camera frustum parameter.
+ * @param {number} [shadowCameraLeft=-10] - Orthographic shadow camera frustum parameter.
  * @param {number} [shadowDarkness=0.5] - Darkness of shadow cast, from 0 to 1.
  * @param {number} [shadowMapHeight=512] - Shadow map texture height in pixels.
  * @param {number} [shadowMapWidth=512] - Shadow map texture height in pixels.
- * @param {string} [type=directional] - Light type (i.e., ambient, directional,
-          hemisphere, point, spot).
+ * @param {string} [type=directional] - Light type (i.e., ambient, directional, hemisphere, point,
+ *     spot).
  */
 module.exports = {
   schema: {
