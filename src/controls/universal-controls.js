@@ -34,13 +34,17 @@ module.exports = {
    */
 
   init: function () {
+    var rotation = this.el.getAttribute('rotation');
+
     // Movement
     this.velocity = new THREE.Vector3();
 
     // Rotation
     this.pitch = new THREE.Object3D();
+    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
     this.yaw = new THREE.Object3D();
     this.yaw.position.y = 10;
+    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
     this.yaw.add(this.pitch);
     this.heading = new THREE.Euler(0, 0, 0, 'YXZ');
 
