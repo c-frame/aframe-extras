@@ -26,7 +26,7 @@ REGISTRY.forEach((mod) => {
     createPackage(package, dir),
     createDist(package, dir)
   ]).then(() => {
-    execSync(`cd ${dir} && echo '  ⇢  Publishing...';`, {stdio:[0,1,2]});
+    execSync(`cd ${dir} && npm publish;`, {stdio:[0,1,2]});
     console.log(chalk.green('  ⇢  📦  Published "%s" to NPM.'), package.name);
     console.log('');
   });
@@ -61,8 +61,10 @@ function createDist (package, dir) {
   inputStream.push(null);
 
   writeStream.on('close', () => {
-    fs.createWriteStream(`${dir}/dist/${package.name}.min.js`)
-      .end(uglifyJS.minify([`${dir}/dist/${package.name}.js`]).code);
+    fs.outputFileSync(
+      `${dir}/dist/${package.name}.min.js`,
+      uglifyJS.minify([`${dir}/dist/${package.name}.js`]).code
+    );
     console.log(chalk.yellow('  ⇢  Bundled "%s".'), package.name);
     deferred.resolve();
   });
@@ -79,5 +81,8 @@ process.on('exit', (err) => {
   const n = REGISTRY.length;
   console.log('  ...');
   if (err) console.log(chalk.red('  ⇢  Failed to publish modules.'));
-  else console.log(chalk.green('  ⇢  🍻   %d/%d modules published.'), n, n);
+  else {
+    console.log(chalk.green('  ⇢  🍻   %d/%d modules published.'), n, n);
+    fs.emptydirSync(PUBLISH_DIR);
+  }
 });

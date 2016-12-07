@@ -22,7 +22,8 @@
     "preversion": "npm run test:once",
     "preversion:readme": "replace 'aframe-extras/v\\d+\\.\\d+\\.\\d+' \"aframe-extras/v$npm_package_version\" ./README.md",
     "version": "npm run preversion:readme && npm run dist && git add -A dist README.md",
-    "postversion": "git push && git push --tags && npm publish"
+    "postversion": "git push && git push --tags && npm publish",
+    "postpublish": "./scripts/publish.js"
   },
   "peerDependencies": {
     "aframe": "^0.3.1"
