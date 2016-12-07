@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/loaders').registerAll();
-},{"./src/loaders":3}],2:[function(require,module,exports){
+},{"./src/loaders":4}],2:[function(require,module,exports){
 /**
  * @author Wei Meng / http://about.me/menway
  *
@@ -481,7 +481,96 @@ THREE.PLYLoader.prototype = {
 };
 
 },{}],3:[function(require,module,exports){
+var DEFAULT_CLIP = '__auto__';
+
+/**
+ * animation-mixer
+ *
+ * Player for animation clips. Intended to be compatible with any model format that supports
+ * skeletal or morph animations.
+ */
 module.exports = {
+  schema: {
+    clip:  {default: DEFAULT_CLIP},
+    duration: {default: 0}
+  },
+
+  init: function () {
+    this.model =        /* {THREE.Mesh}            */ null;
+    this.mixer =        /* {THREE.AnimationMixer}  */ null;
+    this.activeAction = /* {THREE.AnimationAction} */ null;
+
+    var model = this.el.getObject3D('mesh');
+
+    if (model) {
+      this.load(model);
+    } else {
+      this.el.addEventListener('model-loaded', function(e) {
+        this.load(e.detail.model);
+      }.bind(this));
+    }
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.mixer = new THREE.AnimationMixer(model);
+    if (this.data.clip) this.update({});
+  },
+
+  remove: function () {
+    if (this.mixer) this.mixer.stopAllAction();
+  },
+
+  update: function (previousData) {
+    if (!previousData) return;
+
+    var data = this.data;
+
+    if (data.clip !== previousData.clip) {
+      if (this.activeAction) this.activeAction.stop();
+      if (data.clip) this.playClip(data.clip);
+    }
+
+    if (!this.activeAction) return;
+
+    if (data.duration) {
+      this.activeAction.setDuration(data.duration);
+    }
+  },
+
+  playClip: function (clipName) {
+    if (!this.mixer) return;
+
+    var clip,
+        data = this.data,
+        model = this.model,
+        animations = model.animations || (model.geometry || {}).animations || [];
+
+    if (!animations.length) { return; }
+
+    clip = clipName === DEFAULT_CLIP
+      ? animations[0]
+      : THREE.AnimationClip.findByName(animations, data.clip);
+
+    if (!clip) {
+      console.error('[animation-mixer] Clip "%s" not found.', data.clip);
+      return;
+    }
+
+    this.activeAction = this.mixer.clipAction(clip, model);
+    this.activeAction.play();
+  },
+
+  tick: function (t, dt) {
+    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
+  }
+};
+
+},{}],4:[function(require,module,exports){
+module.exports = {
+  'animation-mixer': require('./animation-mixer'),
+  'json-model': require('./json-model'),
+  'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
   'three-model': require('./three-model'),
 
@@ -490,12 +579,30 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
 
+    // THREE.AnimationMixer
+    if (!AFRAME.components['animation-mixer']) {
+      AFRAME.registerComponent('animation-mixer', this['animation-mixer']);
+    }
+
+    // THREE.PlyLoader
     if (!AFRAME.systems['ply-model']) {
       AFRAME.registerSystem('ply-model', this['ply-model'].System);
     }
     if (!AFRAME.components['ply-model']) {
       AFRAME.registerComponent('ply-model', this['ply-model'].Component);
     }
+
+    // THREE.JsonLoader
+    if (!AFRAME.components['json-model']) {
+      AFRAME.registerComponent('json-model', this['json-model']);
+    }
+
+    // THREE.ObjectLoader
+    if (!AFRAME.components['object-model']) {
+      AFRAME.registerComponent('object-model', this['object-model']);
+    }
+
+    // (deprecated) THREE.JsonLoader and THREE.ObjectLoader
     if (!AFRAME.components['three-model']) {
       AFRAME.registerComponent('three-model', this['three-model']);
     }
@@ -504,7 +611,122 @@ module.exports = {
   }
 };
 
-},{"./ply-model":4,"./three-model":5}],4:[function(require,module,exports){
+},{"./animation-mixer":3,"./json-model":5,"./object-model":6,"./ply-model":7,"./three-model":8}],5:[function(require,module,exports){
+/**
+ * json-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.JsonLoader, which typically
+ * includes only a single mesh.
+ *
+ * Check the console for errors, if in doubt. You may need to use `object-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+module.exports = {
+  schema: {
+    src:         { type: 'src' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    var loader,
+        data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.JSONLoader();
+    if (data.crossorigin) loader.crossOrigin = data.crossorigin;
+    loader.load(data.src, function (geometry, materials) {
+
+      // Attempt to automatically detect common material options.
+      materials.forEach(function (mat) {
+        mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
+        mat.skinning = !!(geometry.bones || []).length;
+        mat.morphTargets = !!(geometry.morphTargets || []).length;
+        mat.morphNormals = !!(geometry.morphNormals || []).length;
+      });
+
+      var model = (geometry.bones || []).length
+        ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
+        : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+      this.load(model);
+    }.bind(this));
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'json', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+};
+
+},{}],6:[function(require,module,exports){
+/**
+ * object-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
+ * includes multiple meshes or an entire scene.
+ *
+ * Check the console for errors, if in doubt. You may need to use `json-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+module.exports = {
+  schema: {
+    src:         { type: 'src' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    var loader,
+        data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.ObjectLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, function(object) {
+
+      // Enable skinning, if applicable.
+      object.traverse(function(o) {
+        if (o instanceof THREE.SkinnedMesh && o.material) {
+          o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
+        }
+      });
+
+      this.load(object);
+    }.bind(this));
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'json', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+};
+
+},{}],7:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -585,7 +807,7 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":2}],5:[function(require,module,exports){
+},{"../../lib/PLYLoader":2}],8:[function(require,module,exports){
 var DEFAULT_ANIMATION = '__auto__';
 
 /**
@@ -601,6 +823,8 @@ var DEFAULT_ANIMATION = '__auto__';
  * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
  */
 module.exports = {
+  deprecated: true,
+
   schema: {
     src:               { type: 'src' },
     loader:            { default: 'object', oneOf: ['object', 'json'] },
@@ -613,6 +837,7 @@ module.exports = {
   init: function () {
     this.model = null;
     this.mixer = null;
+    console.warn('[three-model] Component is deprecated. Use json-model or object-model instead.');
   },
 
   update: function (previousData) {
