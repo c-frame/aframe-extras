@@ -1,7 +1,17 @@
 [
   {
-    "name": "aframe-three-model",
+    "name": "aframe-extras.json-model",
     "description": "Wrapper for THREE.JSONLoader.",
-    "main": "src/loaders/three-model"
+    "main": "src/loaders/json-model"
+  },
+  {
+    "name": "aframe-extras.object-model",
+    "description": "Wrapper for THREE.JSONLoader.",
+    "main": "src/loaders/object-model"
+  },
+  {
+    "name": "aframe-extras.animation-mixer",
+    "description": "Wrapper for THREE.AnimationMixer.",
+    "main": "src/loaders/animation-mixer"
   }
 ]

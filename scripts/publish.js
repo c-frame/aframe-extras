@@ -26,8 +26,9 @@ REGISTRY.forEach((mod) => {
     createPackage(package, dir),
     createDist(package, dir)
   ]).then(() => {
-    execSync(`cd ${dir} && echo '  ⇢  [mock publish]';`, {stdio:[0,1,2]});
-    console.log(chalk.green('  ⇢  Published "%s" to NPM.'), package.name);
+    execSync(`cd ${dir} && echo '  ⇢  Publishing...';`, {stdio:[0,1,2]});
+    console.log(chalk.green('  ⇢  📦  Published "%s" to NPM.'), package.name);
+    console.log('');
   });
 });
 
@@ -78,5 +79,5 @@ process.on('exit', (err) => {
   const n = REGISTRY.length;
   console.log('  ...');
   if (err) console.log(chalk.red('  ⇢  Failed to publish modules.'));
-  else console.log(chalk.green('  ⇢  %d/%d modules published. 🍻   '), n, n);
+  else console.log(chalk.green('  ⇢  🍻   %d/%d modules published.'), n, n);
 });
