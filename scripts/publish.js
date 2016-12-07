@@ -24,6 +24,7 @@ REGISTRY.forEach((mod) => {
 
   Promise.all([
     createPackage(package, dir),
+    createReadme(package, dir),
     createDist(package, dir)
   ]).then(() => {
     execSync(`cd ${dir} && npm publish;`, {stdio:[0,1,2]});
@@ -44,6 +45,16 @@ function createPackage (package, dir) {
     peerDependencies: package.peerDependencies,
     keywords:         package.keywords,
   }, null, (e) => { throw e; });
+
+  return Promise.resolve();
+}
+
+function createReadme (package, dir) {
+  fs.outputFileSync(`${dir}/README.md`,`
+# ${package.name}
+
+${package.description}
+  `);
 
   return Promise.resolve();
 }
