@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+
+const chalk = require('chalk'),
+    fs = require('fs-extra'),
+    browserify = require('browserify'),
+    uglifyJS = require('uglify-js'),
+    Readable = require('stream').Readable,
+    execSync = require('child_process').execSync;
+
+const REGISTRY = require('../registry.json'),
+      PACKAGE = require('../package.json');
+
+const PUBLISH_DIR = './tmp';
+
+fs.emptydirSync(PUBLISH_DIR);
+
+REGISTRY.forEach((mod) => {
+  const package = Object.assign({}, PACKAGE, mod),
+        dir = `${PUBLISH_DIR}/${package.name}`;
+
+  fs.mkdirSync(dir);
+  fs.mkdirSync(dir + '/dist');
+  fs.copySync(`./${package.main}.js`, `./${dir}/index.js`);
+
+  Promise.all([
+    createPackage(package, dir),
+    createDist(package, dir)
+  ]).then(() => {
+    execSync(`cd ${dir} && echo '  ⇢  [mock publish]';`, {stdio:[0,1,2]});
+    console.log(chalk.green('  ⇢  Published "%s" to NPM.'), package.name);
+  });
+});
+
+function createPackage (package, dir) {
+  fs.outputJsonSync(`${dir}/package.json`, {
+    name:             package.name,
+    version:          package.version,
+    description:      package.description,
+    author:           package.author,
+    license:          package.license,
+    main:             'index.js',
+    repository:       package.repository,
+    peerDependencies: package.peerDependencies,
+    keywords:         package.keywords,
+  }, null, (e) => { throw e; });
+
+  return Promise.resolve();
+}
+
+function createDist (package, dir) {
+  const deferred = Promise.defer(),
+        inputStream = new Readable(),
+        writeStream = fs.createWriteStream(`${dir}/dist/${package.name}.js`);
+
+  inputStream.push(`
+  AFRAME.registerComponent(
+    '${package.name}',
+    require('${dir}/index.js')
+  );`);
+  inputStream.push(null);
+
+  writeStream.on('close', () => {
+    fs.createWriteStream(`${dir}/dist/${package.name}.min.js`)
+      .end(uglifyJS.minify([`${dir}/dist/${package.name}.js`]).code);
+    console.log(chalk.yellow('  ⇢  Bundled "%s".'), package.name);
+    deferred.resolve();
+  });
+
+  browserify()
+    .add(inputStream)
+    .bundle()
+    .pipe(writeStream);
+
+  return deferred.promise;
+}
+
+process.on('exit', (err) => {
+  const n = REGISTRY.length;
+  console.log('  ...');
+  if (err) console.log(chalk.red('  ⇢  Failed to publish modules.'));
+  else console.log(chalk.green('  ⇢  %d/%d modules published. 🍻   '), n, n);
+});

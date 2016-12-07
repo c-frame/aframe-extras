@@ -1,28 +1,28 @@
 #!/usr/bin/env node
 
-var chalk = require('chalk'),
+const chalk = require('chalk'),
     path = require('path'),
     fs = require('fs-extra'),
     browserify = require('browserify'),
     uglifyJS = require('uglify-js'),
     Readable = require('stream').Readable;
 
-var DIST_DIR = 'dist',
+const DIST_DIR = 'dist',
     COMPONENTS_DIR = 'components',
     PACKAGES = ['controls', 'loaders', 'misc', 'primitives', 'shadows'],
     COMPONENTS = ['loaders/three-model', 'misc/grab', 'misc/sphere-collider'];
 
-var streams = {};
+const streams = {};
 
 // Full build.
-var stream = new Readable();
+const stream = new Readable();
 stream.push(`require('./').registerAll();`);
 stream.push(null);
 streams['aframe-extras.js'] = stream;
 
 // Individual packages.
 PACKAGES.forEach((name) => {
-  var stream = new Readable();
+  const stream = new Readable();
   stream.push(`require('./src/${name}').registerAll();`);
   stream.push(null);
   streams[`aframe-extras.${name}.js`] = stream;
@@ -30,7 +30,7 @@ PACKAGES.forEach((name) => {
 
 // Individual components.
 COMPONENTS.forEach((name => {
-  var stream = new Readable(),
+  const stream = new Readable(),
       basename = path.basename(name);
   stream.push(`AFRAME.registerComponent('${basename}', require('./src/${name}'));`);
   stream.push(null);
@@ -43,7 +43,7 @@ console.log(chalk.green('Dist...'));
 fs.emptydirSync(DIST_DIR);
 fs.mkdirSync(path.join(DIST_DIR, COMPONENTS_DIR));
 Object.keys(streams).forEach((fileName) => {
-  var subDir = streams[fileName]._isComponent ? COMPONENTS_DIR : '',
+  const subDir = streams[fileName]._isComponent ? COMPONENTS_DIR : '',
       fullDir = path.join(DIST_DIR, subDir, fileName),
       writeStream = fs.createWriteStream(fullDir);
 

@@ -1,0 +1,7 @@
+[
+  {
+    "name": "aframe-three-model",
+    "description": "Wrapper for THREE.JSONLoader.",
+    "main": "src/loaders/three-model"
+  }
+]
