@@ -6,7 +6,7 @@
   },
   {
     "name": "aframe-extras.object-model",
-    "description": "Wrapper for THREE.JSONLoader.",
+    "description": "Wrapper for THREE.ObjectLoader.",
     "main": "src/loaders/object-model"
   },
   {
