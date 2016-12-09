@@ -72,10 +72,10 @@ src
 │   ├── touch-controls.js
 │   └── universal-controls.js
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
-│   ├── animation-mixer.js
-│   ├── fbx-model.js
-│   ├── json-model.js
-│   ├── object-model.js
+│   ├── animation-mixer.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
+│   ├── json-model.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── object-model.js         <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   └── ply-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
