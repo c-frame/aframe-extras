@@ -73,6 +73,7 @@ src
 │   └── universal-controls.js
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
 │   ├── animation-mixer.js
+│   ├── fbx-model.js
 │   ├── json-model.js
 │   ├── object-model.js
 │   └── ply-model.js

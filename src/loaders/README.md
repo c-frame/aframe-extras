@@ -4,7 +4,8 @@ Loaders for various 3D model types. All are trivial wrappers around one of the [
 
 - **json-model**: Loader for THREE.js .JSON format, generally containing a single mesh.
 - **object-model**: Loader for THREE.js .JSON format, generally containing multiple meshes or an entire scene.
-- **ply-model**: Loader for .PLY format. Works well with occlusion and shadow baked models exported from [MagicaVoxel](https://ephtracy.github.io/).
+- **ply-model**: Loader for PLY format. Works well with occlusion and shadow baked models exported from [MagicaVoxel](https://ephtracy.github.io/).
+- **fbx-model**: <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub> Loader for FBX format.
 
 Unsure whether to use `json-model` or `object-model`? Check the console for errors. See also: [Clara.io | THREE.js Export](https://clara.io/learn/user-guide/data_exchange/threejs_export).
 

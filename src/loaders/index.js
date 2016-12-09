@@ -1,5 +1,6 @@
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
+  'fbx-model': require('./fbx-model'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
@@ -21,6 +22,11 @@ module.exports = {
     }
     if (!AFRAME.components['ply-model']) {
       AFRAME.registerComponent('ply-model', this['ply-model'].Component);
+    }
+
+    // THREE.FBXLoader
+    if (!AFRAME.components['fbx-model']) {
+      AFRAME.registerComponent('fbx-model', this['fbx-model']);
     }
 
     // THREE.JsonLoader
