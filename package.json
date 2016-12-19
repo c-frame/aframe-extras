@@ -26,20 +26,20 @@
     "postpublish": "./scripts/publish.js"
   },
   "peerDependencies": {
-    "aframe": "^0.3.1"
+    "aframe": "^0.4.0"
   },
   "dependencies": {
-    "aframe-physics-system": "^1.0.2",
-    "cannon": "^0.6.2",
-    "three-to-cannon": "^1.0.0"
+    "aframe-physics-system": "^1.1.0",
+    "cannon": "^0.6.2"
   },
   "devDependencies": {
-    "aframe": "^0.3.1",
+    "aframe": "^0.4.0",
     "browserify": "^13.0.0",
     "budo": "^9.0.0",
     "chai": "^3.5.0",
     "chai-shallow-deep-equal": "^1.3.0",
     "chalk": "^1.1.1",
+    "envify": "^4.0.0",
     "fs-extra": "^0.30.0",
     "karma": "^1.2.0",
     "karma-browserify": "^5.1.0",

@@ -1,5 +1,5 @@
 var radToDeg = THREE.Math.radToDeg,
-    isMobile = (AFRAME.utils.isMobile || AFRAME.utils.device.isMobile)();
+    isMobile = AFRAME.utils.device.isMobile();
 
 module.exports = {
   schema: {
