@@ -3736,7 +3736,7 @@ THREE.FBXLoader = require('../../lib/FBXLoader');
 /**
  * fbx-model
  *
- * Loader for FBX format.
+ * Loader for FBX format. Supports ASCII, but *not* binary, models.
  */
 module.exports = {
   schema: {
