@@ -14,8 +14,7 @@
  * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
  * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
  */
-var CANNON = require('cannon');
-
+var CANNON = window.CANNON;
 var EPS = 0.000001;
 
 module.exports = {
@@ -58,12 +57,14 @@ module.exports = {
     );
 
     this.body.el = this.el;
+    this.el.body = this.body;
     this.system.addBody(this.body);
   },
 
   remove: function () {
     this.system.removeBody(this.body);
     this.system.removeBehavior(this, this.system.Phase.SIMULATE);
+    delete this.el.body;
   },
 
   /*******************************************************************
@@ -139,7 +140,7 @@ module.exports = {
         if (!data.enableSlopes) {
           groundNormal.set(0, 1, 0);
         } else if (groundNormal.y < 1 - EPS) {
-          groundNormal = this.raycastToGround(groundBody, groundNormal);
+          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
         }
 
         // 4. Project trajectory onto the top-most ground object, unless
