@@ -153,6 +153,7 @@ module.exports = {
     if (!data.castShadow) { return light; }
 
     light.castShadow = data.castShadow;
+    light.shadow.bias = data.shadowBias;
     light.shadow.darkness = data.shadowDarkness;
     light.shadow.mapSize.height = data.shadowMapHeight;
     light.shadow.mapSize.width = data.shadowMapWidth;
