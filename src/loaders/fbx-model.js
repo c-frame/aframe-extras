@@ -7,7 +7,7 @@ THREE.FBXLoader = require('../../lib/FBXLoader');
  */
 module.exports = {
   schema: {
-    src:         { type: 'src' },
+    src:         { type: 'asset' },
     crossorigin: { default: '' }
   },
 

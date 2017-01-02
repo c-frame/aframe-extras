@@ -39,7 +39,7 @@ module.exports.System = {
 module.exports.Component = {
   schema: {
     skipCache: {type: 'boolean', default: false},
-    src: {type: 'src'}
+    src: {type: 'asset'}
   },
 
   init: function () {
