@@ -21664,7 +21664,7 @@ THREE.FBXLoader = require('../../lib/FBXLoader');
  */
 module.exports = {
   schema: {
-    src:         { type: 'src' },
+    src:         { type: 'asset' },
     crossorigin: { default: '' }
   },
 
@@ -21760,7 +21760,7 @@ module.exports = {
  */
 module.exports = {
   schema: {
-    src:         { type: 'src' },
+    src:         { type: 'asset' },
     crossorigin: { default: '' }
   },
 
@@ -21820,7 +21820,7 @@ module.exports = {
  */
 module.exports = {
   schema: {
-    src:         { type: 'src' },
+    src:         { type: 'asset' },
     crossorigin: { default: '' }
   },
 
@@ -21902,7 +21902,7 @@ module.exports.System = {
 module.exports.Component = {
   schema: {
     skipCache: {type: 'boolean', default: false},
-    src: {type: 'src'}
+    src: {type: 'asset'}
   },
 
   init: function () {
@@ -21960,7 +21960,7 @@ module.exports = {
   deprecated: true,
 
   schema: {
-    src:               { type: 'src' },
+    src:               { type: 'asset' },
     loader:            { default: 'object', oneOf: ['object', 'json'] },
     enableAnimation:   { default: true },
     animation:         { default: DEFAULT_ANIMATION },

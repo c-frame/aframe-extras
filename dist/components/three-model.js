@@ -19,7 +19,7 @@ module.exports = {
   deprecated: true,
 
   schema: {
-    src:               { type: 'src' },
+    src:               { type: 'asset' },
     loader:            { default: 'object', oneOf: ['object', 'json'] },
     enableAnimation:   { default: true },
     animation:         { default: DEFAULT_ANIMATION },
