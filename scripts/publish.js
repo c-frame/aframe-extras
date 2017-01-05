@@ -60,13 +60,14 @@ ${package.description}
 }
 
 function createDist (package, dir) {
-  const deferred = Promise.defer(),
+  const componentName = package.name.replace(/^[\w-]+\./, ''),
+        deferred = Promise.defer(),
         inputStream = new Readable(),
         writeStream = fs.createWriteStream(`${dir}/dist/${package.name}.js`);
 
   inputStream.push(`
   AFRAME.registerComponent(
-    '${package.name}',
+    '${componentName}',
     require('${dir}/index.js')
   );`);
   inputStream.push(null);
