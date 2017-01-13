@@ -49,11 +49,13 @@
     "karma-mocha": "^1.1.1",
     "karma-mocha-reporter": "^2.1.0",
     "karma-sinon-chai": "^1.1.0",
+    "live-server": "^1.2.0",
     "mocha": "^3.0.2",
     "replace": "^0.3.0",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
-    "uglify-js": "^2.6.2"
+    "uglify-js": "^2.6.2",
+    "watch-exec": "^1.2.2"
   },
   "keywords": [
     "aframe",
