@@ -29,10 +29,12 @@
       <a-grid></a-grid>
 
       <!-- Checkpoints -->
-      <a-cylinder checkpoint radius="1" height="0.1" position="0 0 -5.2" color="#39BB82"></a-cylinder>
-      <a-cylinder checkpoint radius="1" height="0.1" position="3 0 0" color="#39BB82"></a-cylinder>
-      <a-cylinder checkpoint radius="1" height="0.1" position="-3 0 0" color="#39BB82"></a-cylinder>
-
+      <a-entity position="1 0 1">
+        <a-cylinder checkpoint radius="1" height="0.1" position="0 0 -5.2" color="#39BB82"></a-cylinder>
+        <a-cylinder checkpoint radius="1" height="0.1" position="3 0 0" color="#39BB82"></a-cylinder>
+        <a-cylinder checkpoint radius="1" height="0.1" position="-3 0 0" color="#39BB82"></a-cylinder>
+      </a-entity>
+      
       <!-- Lighting -->
       <a-light type="ambient" color="#fff"></a-light>
     </a-scene>
