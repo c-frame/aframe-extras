@@ -11,7 +11,7 @@ module.exports = {
   },
 
   play: function () { this.el.addEventListener('click', this.fire); },
-  pause: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.removeEventListener('click', this.fire); },
   remove: function () { this.pause(); },
 
   fire: function () {
