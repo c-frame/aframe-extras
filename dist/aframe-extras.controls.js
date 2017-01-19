@@ -1595,60 +1595,59 @@ module.exports={
   "_args": [
     [
       {
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "escapedName": "cannon",
-        "name": "cannon",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted",
         "hosted": {
-          "type": "github",
+          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
+          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
           "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
           "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-        }
+          "type": "github"
+        },
+        "name": "cannon",
+        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
+        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+        "scope": null,
+        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+        "type": "hosted"
       },
-      "/Users/cason/projects/opensource/aframe-extras/node_modules/aframe-physics-system"
+      "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system"
     ]
   ],
   "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
   "_id": "cannon@0.6.2",
   "_inCache": true,
+  "_installable": true,
   "_location": "/cannon",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "escapedName": "cannon",
-    "name": "cannon",
-    "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted",
     "hosted": {
-      "type": "github",
+      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
+      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
       "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
       "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-    }
+      "type": "github"
+    },
+    "name": "cannon",
+    "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "scope": null,
+    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "type": "hosted"
   },
   "_requiredBy": [
     "/aframe-physics-system"
   ],
   "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "634ffffa1171064dcdf8b5534832231a1967c189",
+  "_shasum": "f472d09c5bc75499b38a3a799d2c6083547a5b6a",
   "_shrinkwrap": null,
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-  "_where": "/Users/cason/projects/opensource/aframe-extras/node_modules/aframe-physics-system",
+  "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",
   "author": {
-    "name": "Stefan Hedman",
     "email": "schteppe@gmail.com",
+    "name": "Stefan Hedman",
     "url": "http://steffe.se"
   },
   "bugs": {
@@ -16974,7 +16973,7 @@ module.exports = {
         targetPosition = this.targetPosition;
 
     position.copy(this.el.getAttribute('position'));
-    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
+    targetPosition.copy(this.checkpoint.getAttribute('position'));
     // TODO - Cleverer ways around this?
     targetPosition.y = position.y;
     offset.copy(targetPosition).sub(position);
