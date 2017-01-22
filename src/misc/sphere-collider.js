@@ -49,7 +49,7 @@ module.exports = {
 
       if (!mesh) { return; }
 
-      position.copy(el.getAttribute('position'));
+      position.copy(el.object3D.getWorldPosition());
 
       // Update collisions.
       this.els.forEach(intersect);
