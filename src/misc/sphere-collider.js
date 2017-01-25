@@ -50,6 +50,7 @@ module.exports = {
       if (!mesh) { return; }
 
       position.copy(el.object3D.getWorldPosition());
+      mesh.getWorldPosition(position);
 
       // Update collisions.
       this.els.forEach(intersect);
