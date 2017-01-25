@@ -68,10 +68,11 @@ module.exports = {
 
       // AABB collision detection
       function intersect (el) {
-        var radius,
-            mesh = el.getObject3D('mesh');
+        var radius, mesh;
+        if ( !el.getObject3D ) { return; }
+        mesh = el.getObject3D('mesh');
 
-        if (!mesh) return;
+        if (!mesh || !mesh.geometry) return;
 
         mesh.getWorldPosition(meshPosition);
         mesh.geometry.computeBoundingSphere();
