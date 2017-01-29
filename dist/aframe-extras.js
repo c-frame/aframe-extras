@@ -20636,7 +20636,7 @@ module.exports = {
         targetPosition = this.targetPosition;
 
     position.copy(this.el.getAttribute('position'));
-    targetPosition.copy(this.checkpoint.getAttribute('position'));
+    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
     // TODO - Cleverer ways around this?
     targetPosition.y = position.y;
     offset.copy(targetPosition).sub(position);
@@ -22102,7 +22102,7 @@ module.exports = {
   },
 
   play: function () { this.el.addEventListener('click', this.fire); },
-  pause: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.removeEventListener('click', this.fire); },
   remove: function () { this.pause(); },
 
   fire: function () {
@@ -22530,7 +22530,7 @@ module.exports = {
 
       if (!mesh) { return; }
 
-      position.copy(el.getAttribute('position'));
+      position.copy(el.object3D.getWorldPosition());
 
       // Update collisions.
       this.els.forEach(intersect);
