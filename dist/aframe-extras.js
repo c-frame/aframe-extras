@@ -22535,21 +22535,23 @@ module.exports = {
       // Update collisions.
       this.els.forEach(intersect);
       // Emit events.
-      collisions.forEach(handleHit);
+      collisions.sort(function (a, b) {
+        return a.distance > b.distance ? 1 : -1;
+      }).forEach(handleHit);
       // No collisions.
       if (collisions.length === 0) { el.emit('hit', {el: null}); }
       // Updated the state of the elements that are not intersected anymore.
-      this.collisions.filter(function (el) {
-        return collisions.indexOf(el) === -1;
-      }).forEach(function removeState (el) {
-        el.removeState(data.state);
+      this.collisions.filter(function (collision) {
+        return collisions.indexOf(collision) === -1;
+      }).forEach(function removeState (collision) {
+        collision.el.removeState(data.state);
       });
       // Store new collisions
       this.collisions = collisions;
 
-      // AABB collision detection
+      // Bounding sphere collision detection
       function intersect (el) {
-        var radius, mesh;
+        var radius, mesh, distance;
 
         if (!el.isEntity) { return; }
 
@@ -22560,15 +22562,16 @@ module.exports = {
         mesh.getWorldPosition(meshPosition);
         mesh.geometry.computeBoundingSphere();
         radius = mesh.geometry.boundingSphere.radius;
-        if (position.distanceTo(meshPosition) < radius + data.radius) {
-          collisions.push(el);
+        distance = position.distanceTo(meshPosition);
+        if (distance < radius + data.radius) {
+          collisions.push({el: el, distance: distance});
         }
       }
 
-      function handleHit (hitEl) {
-        hitEl.emit('hit');
-        hitEl.addState(data.state);
-        el.emit('hit', {el: hitEl});
+      function handleHit (collision) {
+        collision.el.emit('hit');
+        collision.el.addState(data.state);
+        el.emit('hit', {el: collision.el});
       }
     };
   })()
