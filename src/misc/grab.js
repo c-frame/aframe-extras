@@ -7,6 +7,8 @@
  */
 module.exports = {
   init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+
     this.GRABBED_STATE = 'grabbed';
 
     this.grabbing = false;
@@ -52,7 +54,7 @@ module.exports = {
     if (!hitEl) { return; }
     hitEl.removeState(this.GRABBED_STATE);
     this.hitEl = undefined;
-    this.physics.world.removeConstraint(this.constraint);
+    this.system.removeConstraint(this.constraint);
     this.constraint = null;
   },
 
@@ -65,6 +67,6 @@ module.exports = {
     hitEl.addState(this.GRABBED_STATE);
     this.hitEl = hitEl;
     this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
-    this.physics.world.addConstraint(this.constraint);
+    this.system.addConstraint(this.constraint);
   }
 };
