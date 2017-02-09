@@ -875,7 +875,7 @@ module.exports={
     "/aframe-physics-system"
   ],
   "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "f472d09c5bc75499b38a3a799d2c6083547a5b6a",
+  "_shasum": "978d8979085b17fd0222913a2d349424b94a6e35",
   "_shrinkwrap": null,
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",
@@ -15524,6 +15524,14 @@ function createCylinderShape (geometry) {
     params.height,
     params.radialSegments
   );
+
+  // Include metadata for serialization.
+  shape._type = CANNON.Shape.types.CYLINDER; // Patch schteppe/cannon.js#329.
+  shape.radiusTop = params.radiusTop;
+  shape.radiusBottom = params.radiusBottom;
+  shape.height = params.height;
+  shape.numSegments = params.radialSegments;
+
   shape.orientation = new CANNON.Quaternion();
   shape.orientation.setFromEuler(THREE.Math.degToRad(-90), 0, 0, 'XYZ').normalize();
   return shape;
@@ -15551,6 +15559,14 @@ function createBoundingCylinderShape (object, options) {
 
   // Create shape.
   shape = new CANNON.Cylinder(radius, radius, height, 12);
+
+  // Include metadata for serialization.
+  shape._type = CANNON.Shape.types.CYLINDER; // Patch schteppe/cannon.js#329.
+  shape.radiusTop = radius;
+  shape.radiusBottom = radius;
+  shape.height = height;
+  shape.numSegments = 12;
+
   shape.orientation = new CANNON.Quaternion();
   shape.orientation.setFromEuler(
     majorAxis === 'y' ? PI_2 : 0,
@@ -15591,9 +15607,13 @@ function createSphereShape (geometry) {
  * @return {CANNON.Shape}
  */
 function createBoundingSphereShape (object, options) {
+  if (options.sphereRadius) {
+    return new CANNON.Sphere(options.sphereRadius);
+  }
   var geometry = getGeometry(object);
+  if (!geometry) return null;
   geometry.computeBoundingSphere();
-  return new CANNON.Sphere(options.sphereRadius || geometry.boundingSphere.radius);
+  return new CANNON.Sphere(geometry.boundingSphere.radius);
 }
 
 /**
