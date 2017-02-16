@@ -18,7 +18,7 @@ Extend with custom controls:
 
 ```html
 <a-entity camera
-          universal-controls="movementControls: custom gamepad;"
+          universal-controls="movementControls: custom, gamepad;"
           custom-controls></a-entity>
 ```
 
