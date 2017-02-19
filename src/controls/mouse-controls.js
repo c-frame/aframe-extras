@@ -110,12 +110,13 @@ module.exports = {
   },
 
   onMouseDown: function (event) {
-    var canvasEl = this.el.sceneEl.canvas;
+    var canvasEl = this.el.sceneEl.canvas,
+        isEditing = (AFRAME.INSPECTOR || {}).opened;
 
     this.mouseDown = true;
     this.previousMouseEvent = event;
 
-    if (this.data.pointerlockEnabled && !this.pointerLocked) {
+    if (this.data.pointerlockEnabled && !this.pointerLocked && !isEditing) {
       if (canvasEl.requestPointerLock) {
         canvasEl.requestPointerLock();
       } else if (canvasEl.mozRequestPointerLock) {
