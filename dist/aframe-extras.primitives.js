@@ -65,7 +65,7 @@ module.exports.Component = {
     speedVariance: {default: 2},
 
     // Material.
-    color: {default: 0x7AD2F7},
+    color: {default: '#7AD2F7', type: 'color'},
     opacity: {default: 0.8}
   },
 

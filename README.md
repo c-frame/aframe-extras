@@ -10,13 +10,13 @@ Add-ons and helpers for A-Frame VR.
 In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.2.6/dist/aframe-extras.min.js"></script>
+<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.2.7/dist/aframe-extras.min.js"></script>
 ```
 
-CDN builds for aframe-extras/v3.2.6:
+CDN builds for aframe-extras/v3.2.7:
 
-- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.2.6/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.2.6/dist/aframe-extras.min.js) *(production)*
+- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.2.7/dist/aframe-extras.js) *(development)*
+- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.2.7/dist/aframe-extras.min.js) *(production)*
 
 For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full list of packages below](#add-ons).
 
@@ -24,7 +24,7 @@ For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full
 
 | A-Frame   | Extras                |
 |-----------|-----------------------|
-| v0.4.X | aframe-extras/v3.2.6     |
+| v0.4.X | aframe-extras/v3.2.7     |
 | v0.3.X | */v2.6.1                 |
 | v0.2.X | */v1.17.0                |
 
