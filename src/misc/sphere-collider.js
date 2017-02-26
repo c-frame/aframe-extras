@@ -61,7 +61,7 @@ module.exports = {
       if (collisions.length === 0) { el.emit('hit', {el: null}); }
       // Updated the state of the elements that are not intersected anymore.
       this.collisions.filter(function (collision) {
-        return collisions.indexOf(collision) === -1;
+        return !collisions.some(function (newCollision) { return collision.el === newCollision.el; });
       }).forEach(function removeState (collision) {
         collision.el.removeState(data.state);
       });

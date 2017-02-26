@@ -6,7 +6,7 @@ window.debug = true;
 var AScene = require('aframe').AScene;
 var extras = require('../');
 
-extras.controls.registerAll();
+extras.registerAll();
 
 setup(function () {
   this.sinon = sinon.sandbox.create();
