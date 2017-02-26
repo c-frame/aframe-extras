@@ -12,16 +12,39 @@ module.exports = {
   schema: {
     objects: {default: ''},
     state: {default: 'collided'},
-    radius: {default: 0.05}
+    radius: {default: 0.05},
+    watch: {default: true}
   },
 
   init: function () {
+    /** @type {MutationObserver} */
+    this.observer = null;
     /** @type {Array<Element>} Elements to watch for collisions. */
     this.els = [];
     /** @type {Array<Element>} Elements currently in collision state. */
     this.collisions = [];
 
     this.handleHit = this.handleHit.bind(this);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  play: function () {
+    var sceneEl = this.el.sceneEl;
+
+    if (this.data.watch) {
+      this.observer = new MutationObserver(this.update.bind(this, null));
+      this.observer.observe(sceneEl, {childList: true, subtree: true});
+    }
+  },
+
+  pause: function () {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
   },
 
   /**
