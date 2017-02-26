@@ -16,8 +16,12 @@ module.exports = {
   },
 
   init: function () {
+    /** @type {Array<Element>} Elements to watch for collisions. */
     this.els = [];
+    /** @type {Array<Element>} Elements currently in collision state. */
     this.collisions = [];
+
+    this.handleHit = this.handleHit.bind(this);
   },
 
   /**
@@ -40,7 +44,8 @@ module.exports = {
 
   tick: (function () {
     var position = new THREE.Vector3(),
-        meshPosition = new THREE.Vector3();
+        meshPosition = new THREE.Vector3(),
+        distanceMap = new Map();
     return function () {
       var el = this.el,
           data = this.data,
@@ -49,22 +54,29 @@ module.exports = {
 
       if (!mesh) { return; }
 
+      distanceMap.clear();
       position.copy(el.object3D.getWorldPosition());
 
-      // Update collisions.
+      // Update collision list.
       this.els.forEach(intersect);
-      // Emit events.
-      collisions.sort(function (a, b) {
-        return a.distance > b.distance ? 1 : -1;
-      }).forEach(handleHit);
-      // No collisions.
+
+      // Emit events and add collision states, in order of distance.
+      collisions
+        .sort(function (a, b) {
+          return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
+        })
+        .forEach(this.handleHit);
+
+      // Remove collision state from current element.
       if (collisions.length === 0) { el.emit('hit', {el: null}); }
-      // Updated the state of the elements that are not intersected anymore.
-      this.collisions.filter(function (collision) {
-        return !collisions.some(function (newCollision) { return collision.el === newCollision.el; });
-      }).forEach(function removeState (collision) {
-        collision.el.removeState(data.state);
+
+      // Remove collision state from other elements.
+      this.collisions.filter(function (el) {
+        return !distanceMap.has(el);
+      }).forEach(function removeState (el) {
+        el.removeState(data.state);
       });
+
       // Store new collisions
       this.collisions = collisions;
 
@@ -83,15 +95,16 @@ module.exports = {
         radius = mesh.geometry.boundingSphere.radius;
         distance = position.distanceTo(meshPosition);
         if (distance < radius + data.radius) {
-          collisions.push({el: el, distance: distance});
+          collisions.push(el);
+          distanceMap.set(el, distance);
         }
       }
-
-      function handleHit (collision) {
-        collision.el.emit('hit');
-        collision.el.addState(data.state);
-        el.emit('hit', {el: collision.el});
-      }
     };
-  })()
+  })(),
+
+  handleHit: function (targetEl) {
+    targetEl.emit('hit');
+    targetEl.addState(this.data.state);
+    this.el.emit('hit', {el: targetEl});
+  }
 };
