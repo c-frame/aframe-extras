@@ -20657,8 +20657,6 @@ module.exports = {
 
     position.copy(this.el.getAttribute('position'));
     targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
-    // TODO - Cleverer ways around this?
-    targetPosition.y = position.y;
     offset.copy(targetPosition).sub(position);
   }
 };
