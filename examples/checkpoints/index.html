@@ -14,14 +14,14 @@
       </a-assets>
 
       <!-- Player -->
-      <a-entity camera
-                universal-controls="movementControls: checkpoint"
-                checkpoint-controls="mode: animate"
-                position="0 1.764 0">
-        <a-entity cursor="maxDistance: 30"
-                  position="0 0 -1"
-                  geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03;"
-                  material="color: #CCC; shader: flat;">
+      <a-entity universal-controls="movementControls: checkpoint"
+                checkpoint-controls="mode: animate">
+        <a-entity camera="userHeight: 1.6">
+          <a-entity cursor="maxDistance: 30"
+                    position="0 0 -1"
+                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03;"
+                    material="color: #CCC; shader: flat;">
+          </a-entity>
         </a-entity>
       </a-entity>
 

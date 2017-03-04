@@ -9,7 +9,7 @@
   <body>
     <a-scene physics="debug: true">
       <!-- Player -->
-      <a-entity camera look-controls></a-entity>
+      <a-entity camera="userHeight: 1.6" look-controls></a-entity>
       <a-entity static-body="shape: sphere; sphereRadius: 0.02;" vive-controls="hand: left" sphere-collider="objects: .cube;" grab></a-entity>
       <a-entity static-body="shape: sphere; sphereRadius: 0.02;" vive-controls="hand: right" sphere-collider="objects: .cube;" grab></a-entity>
 

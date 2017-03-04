@@ -144,10 +144,9 @@ AFRAME.registerComponent('force-float', {
   <body>
     <a-scene rain-of-entities force-float="selector: [force-pushable]">
       <!-- Player -->
-      <a-entity camera
+      <a-entity camera="userHeight: 1.6"
                 universal-controls="movementEnabled: false"
-                kinematic-body
-                position="0 1.764 0">
+                kinematic-body>
         <a-entity cursor="maxDistance: 75"
                   position="0 0 -1"
                   geometry="primitive: circle; radius: 0.01; segments: 4;"
