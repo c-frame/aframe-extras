@@ -17,6 +17,13 @@ module.exports = {
     this.bindMethods();
   },
 
+  update: function (previousData) {
+    var data = this.data;
+    if (previousData.pointerlockEnabled && !data.pointerlockEnabled && this.pointerLocked) {
+      document.exitPointerLock();
+    }
+  },
+
   play: function () {
     this.addEventListeners();
   },
