@@ -21176,6 +21176,8 @@ module.exports = {
 };
 
 },{"../../lib/keyboard.polyfill":7}],83:[function(require,module,exports){
+document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+
 /**
  * Mouse + Pointerlock controls.
  *
