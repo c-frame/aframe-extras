@@ -57,6 +57,7 @@ module.exports = {
 
     position.copy(this.el.getAttribute('position'));
     targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
+    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
     offset.copy(targetPosition).sub(position);
   }
 };

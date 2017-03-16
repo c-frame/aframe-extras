@@ -9,7 +9,9 @@
   <body>
     <a-scene fog="type: exponential; color: #FFF; density: 0.06;">
       <!-- Camera -->
-      <a-entity camera universal-controls="movementEnabled: false" position="0 1.764 0"></a-entity>
+      <a-entity camera="userHeight: 1.6"
+                universal-controls="movementEnabled: false">
+      </a-entity>
 
       <!-- Ocean -->
       <a-ocean width="50" depth="50" density="40"></a-ocean>

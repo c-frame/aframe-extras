@@ -14,14 +14,13 @@
       </a-assets>
 
       <!-- Player -->
-      <a-entity universal-controls="movementControls: checkpoint"
+      <a-entity camera="userHeight: 1.6"
+                universal-controls="movementControls: checkpoint"
                 checkpoint-controls="mode: animate">
-        <a-entity camera="userHeight: 1.6">
-          <a-entity cursor="maxDistance: 30"
-                    position="0 0 -1"
-                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03;"
-                    material="color: #CCC; shader: flat;">
-          </a-entity>
+        <a-entity cursor
+                  position="0 0 -1"
+                  geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03;"
+                  material="color: #CCC; shader: flat;">
         </a-entity>
       </a-entity>
 
@@ -30,9 +29,9 @@
 
       <!-- Checkpoints -->
       <a-entity position="1 0 1">
-        <a-cylinder checkpoint radius="1" height="0.1" position="0 0 -5.2" color="#39BB82"></a-cylinder>
-        <a-cylinder checkpoint radius="1" height="0.1" position="3 0 0" color="#39BB82"></a-cylinder>
-        <a-cylinder checkpoint radius="1" height="0.1" position="-3 0 0" color="#39BB82"></a-cylinder>
+        <a-cylinder checkpoint="offset: 0 1.6 0" radius="1" height="0.1" position="0 0 -5.2" color="#39BB82"></a-cylinder>
+        <a-cylinder checkpoint="offset: 0 1.6 0" radius="1" height="0.1" position="3 0 0" color="#39BB82"></a-cylinder>
+        <a-cylinder checkpoint="offset: 0 1.6 0" radius="1" height="0.1" position="-3 0 0" color="#39BB82"></a-cylinder>
       </a-entity>
 
       <!-- Lighting -->
