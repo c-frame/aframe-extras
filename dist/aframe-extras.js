@@ -21195,6 +21195,13 @@ module.exports = {
     this.bindMethods();
   },
 
+  update: function (previousData) {
+    var data = this.data;
+    if (previousData.pointerlockEnabled && !data.pointerlockEnabled && this.pointerLocked) {
+      document.exitPointerLock();
+    }
+  },
+
   play: function () {
     this.addEventListeners();
   },
@@ -21424,6 +21431,11 @@ module.exports = {
 
   init: function () {
     var rotation = this.el.getAttribute('rotation');
+
+    if (this.el.hasAttribute('look-controls') && this.data.rotationEnabled) {
+      console.error('[universal-controls] The `universal-controls` component is a replacement '
+        + 'for `look-controls`, and cannot be used in combination with it.');
+    }
 
     // Movement
     this.velocity = new THREE.Vector3();
