@@ -1,3 +1,5 @@
+document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+
 /**
  * Mouse + Pointerlock controls.
  *
