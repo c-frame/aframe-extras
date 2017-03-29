@@ -28,9 +28,9 @@ THREE.js models often need to be scaled down. Example:
 THREE.js models also support animation, through the `animation-mixer` component. The first animation will play by default, or you can specify
 an animation and its duration:
 
-| Property          | Default | Description                                         |
-|-------------------|---------|-----------------------------------------------------|
-| clip     | AUTO | Name of the animation clip to play, if there are more than one. |
-| duration | AUTO | Duration of the animation, in seconds.                          |
+| Property | Default | Description                                               |
+|----------|---------|-----------------------------------------------------------|
+| clip     | *       | Name of the animation clip(s) to play. Accepts wildcards. |
+| duration | AUTO    | Duration of the animation, in seconds.                    |
 
-A list of available animations can usually be found by inspecting the model file or its documentation.
+A list of available animations can usually be found by inspecting the model file or its documentation. All animations will play by default. To play only a specific set of animations, use wildcards: `animation-mixer="clip: run_*"`.
