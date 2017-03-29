@@ -21603,24 +21603,26 @@ module.exports = {
 };
 
 },{}],86:[function(require,module,exports){
-var DEFAULT_CLIP = '__auto__';
-
 /**
  * animation-mixer
  *
  * Player for animation clips. Intended to be compatible with any model format that supports
- * skeletal or morph animations.
+ * skeletal or morph animations through THREE.AnimationMixer.
+ * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
  */
 module.exports = {
   schema: {
-    clip:  {default: DEFAULT_CLIP},
+    clip:  {default: '*'},
     duration: {default: 0}
   },
 
   init: function () {
-    this.model =        /* {THREE.Mesh}            */ null;
-    this.mixer =        /* {THREE.AnimationMixer}  */ null;
-    this.activeAction = /* {THREE.AnimationAction} */ null;
+    /** @type {THREE.Mesh} */
+    this.model = null;
+    /** @type {THREE.AnimationMixer} */
+    this.mixer = null;
+    /** @type {Array<THREE.AnimationAction>} */
+    this.activeActions = [];
 
     var model = this.el.getObject3D('mesh');
 
@@ -21646,47 +21648,62 @@ module.exports = {
   update: function (previousData) {
     if (!previousData) return;
 
-    var data = this.data;
+    var data = this.data,
+        activeActions = this.activeActions;
 
     if (data.clip !== previousData.clip) {
-      if (this.activeAction) this.activeAction.stop();
+      if (activeActions.length) this.mixer.stopAllAction();
       if (data.clip) this.playClip(data.clip);
     }
 
-    if (!this.activeAction) return;
+    if (!activeActions.length) return;
 
     if (data.duration) {
-      this.activeAction.setDuration(data.duration);
+      for (var action, i = 0; (action = activeActions[i]); i++) {
+        action.setDuration(data.duration);
+      }
     }
   },
 
   playClip: function (clipName) {
     if (!this.mixer) return;
 
-    var clip,
-        data = this.data,
-        model = this.model,
-        animations = model.animations || (model.geometry || {}).animations || [];
+    var model = this.model,
+        clips = model.animations || (model.geometry || {}).animations || [];
 
-    if (!animations.length) { return; }
+    if (!clips.length) return;
 
-    clip = clipName === DEFAULT_CLIP
-      ? animations[0]
-      : THREE.AnimationClip.findByName(animations, data.clip);
+    var re = wildcardToRegExp(clipName);
 
-    if (!clip) {
-      console.error('[animation-mixer] Clip "%s" not found.', data.clip);
-      return;
+    this.activeActions.length = 0;
+    for (var clip, action, i = 0; (clip = clips[i]); i++) {
+      if (clip.name.match(re)) {
+        action = this.mixer.clipAction(clip, model);
+        action.play();
+        this.activeActions.push(action);
+      }
     }
-
-    this.activeAction = this.mixer.clipAction(clip, model);
-    this.activeAction.play();
   },
 
   tick: function (t, dt) {
     if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
   }
 };
+
+/**
+ * Creates a RegExp from the given string, converting asterisks to .* expressions,
+ * and escaping all other characters.
+ */
+function wildcardToRegExp (s) {
+  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
+}
+
+/**
+ * RegExp-escapes all characters in the given string.
+ */
+function regExpEscape (s) {
+  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+}
 
 },{}],87:[function(require,module,exports){
 THREE.FBXLoader = require('../../lib/FBXLoader');
