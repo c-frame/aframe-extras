@@ -3,7 +3,7 @@
  *
  * Defaults to 75x75.
  */
-module.exports = {
+var Primitive = module.exports = {
   defaultComponents: {
     geometry: {
       primitive: 'plane',
@@ -22,3 +22,13 @@ module.exports = {
     src: 'material.src'
   }
 };
+
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerPrimitive('a-grid', Primitive);
+    registered = true;
+  };
+}());

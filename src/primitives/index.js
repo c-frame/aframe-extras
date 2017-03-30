@@ -5,17 +5,10 @@ module.exports = {
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
-
     AFRAME = AFRAME || window.AFRAME;
-
-    AFRAME.registerPrimitive('a-grid',  this['a-grid']);
-
-    AFRAME.registerComponent('ocean', this['a-ocean'].Component);
-    AFRAME.registerPrimitive('a-ocean', this['a-ocean'].Primitive);
-
-    AFRAME.registerComponent('tube', this['a-tube'].Component);
-    AFRAME.registerPrimitive('a-tube', this['a-tube'].Primitive);
-
+    this['a-grid'].registerAll(AFRAME);
+    this['a-ocean'].registerAll(AFRAME);
+    this['a-tube'].registerAll(AFRAME);
     this._registered = true;
   }
 };

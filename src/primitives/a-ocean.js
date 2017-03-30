@@ -4,7 +4,7 @@
  * Based on a Codrops tutorial:
  * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
  */
-module.exports.Primitive = {
+var Primitive = module.exports.Primitive = {
   defaultComponents: {
     ocean: {},
     rotation: {x: -90, y: 0, z: 0}
@@ -18,7 +18,7 @@ module.exports.Primitive = {
   }
 };
 
-module.exports.Component = {
+var Component = module.exports.Component = {
   schema: {
     // Dimensions of the ocean area.
     width: {default: 10, min: 0},
@@ -92,3 +92,14 @@ module.exports.Component = {
     this.mesh.geometry.verticesNeedUpdate = true;
   }
 };
+
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerComponent('ocean', Component);
+    AFRAME.registerPrimitive('a-ocean', Primitive);
+    registered = true;
+  };
+}());
