@@ -65,11 +65,15 @@ function createDist (package, dir) {
         inputStream = new Readable(),
         writeStream = fs.createWriteStream(`${dir}/dist/${package.name}.js`);
 
-  inputStream.push(`
-  AFRAME.registerComponent(
-    '${componentName}',
-    require('${dir}/index.js')
-  );`);
+  if (package.bundle) {
+    inputStream.push(`require('${dir}/index.js').registerAll();`);
+  } else {
+    inputStream.push(`
+    AFRAME.registerComponent(
+      '${componentName}',
+      require('${dir}/index.js')
+    );`);
+  }
   inputStream.push(null);
 
   writeStream.on('close', () => {
