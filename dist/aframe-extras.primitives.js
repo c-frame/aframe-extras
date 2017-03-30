@@ -6,7 +6,7 @@ require('./src/primitives').registerAll();
  *
  * Defaults to 75x75.
  */
-module.exports = {
+var Primitive = module.exports = {
   defaultComponents: {
     geometry: {
       primitive: 'plane',
@@ -26,6 +26,16 @@ module.exports = {
   }
 };
 
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerPrimitive('a-grid', Primitive);
+    registered = true;
+  };
+}());
+
 },{}],3:[function(require,module,exports){
 /**
  * Flat-shaded ocean primitive.
@@ -33,7 +43,7 @@ module.exports = {
  * Based on a Codrops tutorial:
  * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
  */
-module.exports.Primitive = {
+var Primitive = module.exports.Primitive = {
   defaultComponents: {
     ocean: {},
     rotation: {x: -90, y: 0, z: 0}
@@ -47,7 +57,7 @@ module.exports.Primitive = {
   }
 };
 
-module.exports.Component = {
+var Component = module.exports.Component = {
   schema: {
     // Dimensions of the ocean area.
     width: {default: 10, min: 0},
@@ -122,6 +132,17 @@ module.exports.Component = {
   }
 };
 
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerComponent('ocean', Component);
+    AFRAME.registerPrimitive('a-ocean', Primitive);
+    registered = true;
+  };
+}());
+
 },{}],4:[function(require,module,exports){
 /**
  * Tube following a custom path.
@@ -132,7 +153,7 @@ module.exports.Component = {
  * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
  * ```
  */
-module.exports.Primitive = {
+var Primitive = module.exports.Primitive = {
   defaultComponents: {
     tube:           {},
   },
@@ -145,7 +166,7 @@ module.exports.Primitive = {
   }
 };
 
-module.exports.Component = {
+var Component = module.exports.Component = {
   schema: {
     path:           {default: []},
     segments:       {default: 64},
@@ -186,6 +207,17 @@ module.exports.Component = {
   }
 };
 
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerComponent('tube', Component);
+    AFRAME.registerPrimitive('a-tube', Primitive);
+    registered = true;
+  };
+}());
+
 },{}],5:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
@@ -194,17 +226,10 @@ module.exports = {
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
-
     AFRAME = AFRAME || window.AFRAME;
-
-    AFRAME.registerPrimitive('a-grid',  this['a-grid']);
-
-    AFRAME.registerComponent('ocean', this['a-ocean'].Component);
-    AFRAME.registerPrimitive('a-ocean', this['a-ocean'].Primitive);
-
-    AFRAME.registerComponent('tube', this['a-tube'].Component);
-    AFRAME.registerPrimitive('a-tube', this['a-tube'].Primitive);
-
+    this['a-grid'].registerAll(AFRAME);
+    this['a-ocean'].registerAll(AFRAME);
+    this['a-tube'].registerAll(AFRAME);
     this._registered = true;
   }
 };
