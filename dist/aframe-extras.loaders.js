@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/loaders').registerAll();
-},{"./src/loaders":6}],2:[function(require,module,exports){
+},{"./src/loaders":8}],2:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  * @author Kyle-Larson https://github.com/Kyle-Larson
@@ -3646,6 +3646,83 @@ THREE.PLYLoader.prototype = {
 
 },{}],4:[function(require,module,exports){
 /**
+ * Source: https://github.com/Adobe-Marketing-Cloud/fetch-script
+ */
+
+function getScriptId() {
+  return 'script_' + Date.now() + '_' + Math.ceil(Math.random() * 100000);
+}
+
+function createScript(url, id) {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.id = id;
+  script.src = url;
+
+  return script;
+}
+
+function removeScript(id) {
+  const script = document.getElementById(id);
+  const parent = script.parentNode;
+
+  try {
+    parent && parent.removeChild(script);
+  } catch (e) {
+    // ignore
+  }
+}
+
+function appendScript(script) {
+  const firstScript = document.getElementsByTagName('script')[0];
+  firstScript.parentNode.insertBefore(script, firstScript);
+}
+
+function fetchScriptInternal(url, options, Promise) {
+  return new Promise(function(resolve, reject) {
+    const timeout = options.timeout || 5000;
+    const scriptId = getScriptId();
+    const script = createScript(url, scriptId);
+
+    const timeoutId = setTimeout(function() {
+      reject(new Error('Script request to ' + url + ' timed out'));
+
+      removeScript(scriptId);
+    }, timeout);
+
+    const disableTimeout = function(timeoutId) { clearTimeout(timeoutId); };
+
+    script.addEventListener('load', function(e) {
+      resolve({ok: true});
+
+      disableTimeout(timeoutId);
+      removeScript(scriptId);
+    });
+
+    script.addEventListener('error', function(e) {
+      reject(new Error('Script request to ' + url + ' failed ' + e));
+
+      disableTimeout(timeoutId);
+      removeScript(scriptId);
+    });
+
+    appendScript(script);
+  });
+}
+
+function fetchScript(settings) {
+  settings = settings || {};
+  return function (url, options) {
+    options = options || {};
+    return fetchScriptInternal(url, options, settings.Promise || Promise);
+  };
+}
+
+module.exports = fetchScript;
+
+},{}],5:[function(require,module,exports){
+/**
  * animation-mixer
  *
  * Player for animation clips. Intended to be compatible with any model format that supports
@@ -3747,7 +3824,7 @@ function regExpEscape (s) {
   return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 THREE.FBXLoader = require('../../lib/FBXLoader');
 
 /**
@@ -3787,10 +3864,64 @@ module.exports = {
   }
 };
 
-},{"../../lib/FBXLoader":2}],6:[function(require,module,exports){
+},{"../../lib/FBXLoader":2}],7:[function(require,module,exports){
+var fetchScript = require('../../lib/fetch-script')();
+
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/dev/examples/js/loaders/GLTF2Loader.js';
+
+/**
+ * Upcoming (and NOT YET STABLE) loader for glTF 2.0 models.
+ * Pulls THREE.GLTF2Loader directly from three.js 'dev' branch.
+ */
+module.exports = {
+  schema: {type: 'model'},
+
+  init: function () {
+    this.model = null;
+    this.loader = null;
+    this.loaderPromise = loadLoader().then(function () {
+      this.loader = new THREE.GLTF2Loader();
+    }.bind(this));
+  },
+
+  update: function () {
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+
+    if (!src) { return; }
+
+    this.remove();
+
+    this.loaderPromise.then(function () {
+      this.loader.load(src, function gltfLoaded (gltfModel) {
+        self.model = gltfModel.scene;
+        self.model.animations = gltfModel.animations;
+        el.setObject3D('mesh', self.model);
+        el.emit('model-loaded', {format: 'gltf', model: self.model});
+      });
+    }.bind(this));
+  },
+
+  remove: function () {
+    if (!this.model) { return; }
+    this.el.removeObject3D('mesh');
+  }
+};
+
+var loadLoader = (function () {
+  var promise;
+  return function () {
+    promise = promise || fetchScript(LOADER_SRC);
+    return promise;
+  };
+}());
+
+},{"../../lib/fetch-script":4}],8:[function(require,module,exports){
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
+  'gltf2-model-next': require('./gltf2-model-next'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
@@ -3819,6 +3950,11 @@ module.exports = {
       AFRAME.registerComponent('fbx-model', this['fbx-model']);
     }
 
+    // THREE.GLTF2Loader (_unstable_)
+    if (!AFRAME.components['gltf2-model-next']) {
+      AFRAME.registerComponent('gltf2-model-next', this['gltf2-model-next']);
+    }
+
     // THREE.JsonLoader
     if (!AFRAME.components['json-model']) {
       AFRAME.registerComponent('json-model', this['json-model']);
@@ -3838,7 +3974,7 @@ module.exports = {
   }
 };
 
-},{"./animation-mixer":4,"./fbx-model":5,"./json-model":7,"./object-model":8,"./ply-model":9,"./three-model":10}],7:[function(require,module,exports){
+},{"./animation-mixer":5,"./fbx-model":6,"./gltf2-model-next":7,"./json-model":9,"./object-model":10,"./ply-model":11,"./three-model":12}],9:[function(require,module,exports){
 /**
  * json-model
  *
@@ -3898,7 +4034,7 @@ module.exports = {
   }
 };
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /**
  * object-model
  *
@@ -3953,7 +4089,7 @@ module.exports = {
   }
 };
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -4034,7 +4170,7 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":3}],10:[function(require,module,exports){
+},{"../../lib/PLYLoader":3}],12:[function(require,module,exports){
 var DEFAULT_ANIMATION = '__auto__';
 
 /**

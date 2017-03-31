@@ -19,7 +19,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":81,"./src/loaders":88,"./src/misc":95,"./src/primitives":103,"./src/shadows":104,"aframe-physics-system":8}],3:[function(require,module,exports){
+},{"./src/controls":82,"./src/loaders":90,"./src/misc":97,"./src/primitives":105,"./src/shadows":106,"aframe-physics-system":9}],3:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  * @author Kyle-Larson https://github.com/Kyle-Larson
@@ -3698,6 +3698,83 @@ THREE.PLYLoader.prototype = {
 
 },{}],7:[function(require,module,exports){
 /**
+ * Source: https://github.com/Adobe-Marketing-Cloud/fetch-script
+ */
+
+function getScriptId() {
+  return 'script_' + Date.now() + '_' + Math.ceil(Math.random() * 100000);
+}
+
+function createScript(url, id) {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.id = id;
+  script.src = url;
+
+  return script;
+}
+
+function removeScript(id) {
+  const script = document.getElementById(id);
+  const parent = script.parentNode;
+
+  try {
+    parent && parent.removeChild(script);
+  } catch (e) {
+    // ignore
+  }
+}
+
+function appendScript(script) {
+  const firstScript = document.getElementsByTagName('script')[0];
+  firstScript.parentNode.insertBefore(script, firstScript);
+}
+
+function fetchScriptInternal(url, options, Promise) {
+  return new Promise(function(resolve, reject) {
+    const timeout = options.timeout || 5000;
+    const scriptId = getScriptId();
+    const script = createScript(url, scriptId);
+
+    const timeoutId = setTimeout(function() {
+      reject(new Error('Script request to ' + url + ' timed out'));
+
+      removeScript(scriptId);
+    }, timeout);
+
+    const disableTimeout = function(timeoutId) { clearTimeout(timeoutId); };
+
+    script.addEventListener('load', function(e) {
+      resolve({ok: true});
+
+      disableTimeout(timeoutId);
+      removeScript(scriptId);
+    });
+
+    script.addEventListener('error', function(e) {
+      reject(new Error('Script request to ' + url + ' failed ' + e));
+
+      disableTimeout(timeoutId);
+      removeScript(scriptId);
+    });
+
+    appendScript(script);
+  });
+}
+
+function fetchScript(settings) {
+  settings = settings || {};
+  return function (url, options) {
+    options = options || {};
+    return fetchScriptInternal(url, options, settings.Promise || Promise);
+  };
+}
+
+module.exports = fetchScript;
+
+},{}],8:[function(require,module,exports){
+/**
  * Polyfill for the additional KeyboardEvent properties defined in the D3E and
  * D4E draft specifications, by @inexorabletash.
  *
@@ -4429,7 +4506,7 @@ THREE.PLYLoader.prototype = {
 
 } (window));
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var CANNON = require('cannon'),
     math = require('./src/components/math');
 
@@ -4457,7 +4534,7 @@ module.exports = {
 // Export CANNON.js.
 window.CANNON = window.CANNON || CANNON;
 
-},{"./src/components/body/dynamic-body":11,"./src/components/body/static-body":12,"./src/components/constraint":13,"./src/components/math":14,"./src/system/physics":18,"cannon":20}],9:[function(require,module,exports){
+},{"./src/components/body/dynamic-body":12,"./src/components/body/static-body":13,"./src/components/constraint":14,"./src/components/math":15,"./src/system/physics":19,"cannon":21}],10:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -4617,7 +4694,7 @@ CANNON.shape2mesh = function(body){
 
 module.exports = CANNON.shape2mesh;
 
-},{"cannon":20}],10:[function(require,module,exports){
+},{"cannon":21}],11:[function(require,module,exports){
 var CANNON = require('cannon'),
     mesh2shape = require('three-to-cannon');
 
@@ -4868,7 +4945,7 @@ module.exports = {
   }())
 };
 
-},{"../../../lib/CANNON-shape2mesh":9,"cannon":20,"three-to-cannon":76}],11:[function(require,module,exports){
+},{"../../../lib/CANNON-shape2mesh":10,"cannon":21,"three-to-cannon":77}],12:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -4890,7 +4967,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":10}],12:[function(require,module,exports){
+},{"./body":11}],13:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -4905,7 +4982,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":10}],13:[function(require,module,exports){
+},{"./body":11}],14:[function(require,module,exports){
 var CANNON = require('cannon');
 
 module.exports = {
@@ -4987,7 +5064,7 @@ module.exports = {
   }
 };
 
-},{"cannon":20}],14:[function(require,module,exports){
+},{"cannon":21}],15:[function(require,module,exports){
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
@@ -5004,7 +5081,7 @@ module.exports = {
   }
 };
 
-},{"./quaternion":15,"./velocity":16}],15:[function(require,module,exports){
+},{"./quaternion":16,"./velocity":17}],16:[function(require,module,exports){
 /**
  * Quaternion.
  *
@@ -5033,7 +5110,7 @@ module.exports = {
   }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Velocity, in m/s.
  */
@@ -5079,7 +5156,7 @@ module.exports = {
   }
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = {
   GRAVITY: -9.8,
   MAX_INTERVAL: 4 / 60,
@@ -5094,7 +5171,7 @@ module.exports = {
   }
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var CANNON = require('cannon'),
     CONSTANTS = require('../constants'),
     C_GRAV = CONSTANTS.GRAVITY,
@@ -5253,7 +5330,7 @@ module.exports = {
   }
 };
 
-},{"../constants":17,"cannon":20}],19:[function(require,module,exports){
+},{"../constants":18,"cannon":21}],20:[function(require,module,exports){
 module.exports={
   "_args": [
     [
@@ -5360,7 +5437,7 @@ module.exports={
   "version": "0.6.2"
 }
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // Export classes
 module.exports = {
     version :                       require('../package.json').version,
@@ -5415,7 +5492,7 @@ module.exports = {
     World :                         require('./world/World'),
 };
 
-},{"../package.json":19,"./collision/AABB":21,"./collision/ArrayCollisionMatrix":22,"./collision/Broadphase":23,"./collision/GridBroadphase":24,"./collision/NaiveBroadphase":25,"./collision/ObjectCollisionMatrix":26,"./collision/Ray":28,"./collision/RaycastResult":29,"./collision/SAPBroadphase":30,"./constraints/ConeTwistConstraint":31,"./constraints/Constraint":32,"./constraints/DistanceConstraint":33,"./constraints/HingeConstraint":34,"./constraints/LockConstraint":35,"./constraints/PointToPointConstraint":36,"./equations/ContactEquation":38,"./equations/Equation":39,"./equations/FrictionEquation":40,"./equations/RotationalEquation":41,"./equations/RotationalMotorEquation":42,"./material/ContactMaterial":43,"./material/Material":44,"./math/Mat3":46,"./math/Quaternion":47,"./math/Transform":48,"./math/Vec3":49,"./objects/Body":50,"./objects/RaycastVehicle":51,"./objects/RigidVehicle":52,"./objects/SPHSystem":53,"./objects/Spring":54,"./shapes/Box":56,"./shapes/ConvexPolyhedron":57,"./shapes/Cylinder":58,"./shapes/Heightfield":59,"./shapes/Particle":60,"./shapes/Plane":61,"./shapes/Shape":62,"./shapes/Sphere":63,"./shapes/Trimesh":64,"./solver/GSSolver":65,"./solver/Solver":66,"./solver/SplitSolver":67,"./utils/EventTarget":68,"./utils/Pool":70,"./utils/Vec3Pool":73,"./world/Narrowphase":74,"./world/World":75}],21:[function(require,module,exports){
+},{"../package.json":20,"./collision/AABB":22,"./collision/ArrayCollisionMatrix":23,"./collision/Broadphase":24,"./collision/GridBroadphase":25,"./collision/NaiveBroadphase":26,"./collision/ObjectCollisionMatrix":27,"./collision/Ray":29,"./collision/RaycastResult":30,"./collision/SAPBroadphase":31,"./constraints/ConeTwistConstraint":32,"./constraints/Constraint":33,"./constraints/DistanceConstraint":34,"./constraints/HingeConstraint":35,"./constraints/LockConstraint":36,"./constraints/PointToPointConstraint":37,"./equations/ContactEquation":39,"./equations/Equation":40,"./equations/FrictionEquation":41,"./equations/RotationalEquation":42,"./equations/RotationalMotorEquation":43,"./material/ContactMaterial":44,"./material/Material":45,"./math/Mat3":47,"./math/Quaternion":48,"./math/Transform":49,"./math/Vec3":50,"./objects/Body":51,"./objects/RaycastVehicle":52,"./objects/RigidVehicle":53,"./objects/SPHSystem":54,"./objects/Spring":55,"./shapes/Box":57,"./shapes/ConvexPolyhedron":58,"./shapes/Cylinder":59,"./shapes/Heightfield":60,"./shapes/Particle":61,"./shapes/Plane":62,"./shapes/Shape":63,"./shapes/Sphere":64,"./shapes/Trimesh":65,"./solver/GSSolver":66,"./solver/Solver":67,"./solver/SplitSolver":68,"./utils/EventTarget":69,"./utils/Pool":71,"./utils/Vec3Pool":74,"./world/Narrowphase":75,"./world/World":76}],22:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 var Utils = require('../utils/Utils');
 
@@ -5738,7 +5815,7 @@ AABB.prototype.overlapsRay = function(ray){
 
     return true;
 };
-},{"../math/Vec3":49,"../utils/Utils":72}],22:[function(require,module,exports){
+},{"../math/Vec3":50,"../utils/Utils":73}],23:[function(require,module,exports){
 module.exports = ArrayCollisionMatrix;
 
 /**
@@ -5811,7 +5888,7 @@ ArrayCollisionMatrix.prototype.setNumObjects = function(n) {
     this.matrix.length = n*(n-1)>>1;
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var Body = require('../objects/Body');
 var Vec3 = require('../math/Vec3');
 var Quaternion = require('../math/Quaternion');
@@ -6019,7 +6096,7 @@ Broadphase.prototype.aabbQuery = function(world, aabb, result){
     console.warn('.aabbQuery is not implemented in this Broadphase subclass.');
     return [];
 };
-},{"../math/Quaternion":47,"../math/Vec3":49,"../objects/Body":50,"../shapes/Plane":61,"../shapes/Shape":62}],24:[function(require,module,exports){
+},{"../math/Quaternion":48,"../math/Vec3":50,"../objects/Body":51,"../shapes/Plane":62,"../shapes/Shape":63}],25:[function(require,module,exports){
 module.exports = GridBroadphase;
 
 var Broadphase = require('./Broadphase');
@@ -6249,7 +6326,7 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
     this.makePairsUnique(pairs1,pairs2);
 };
 
-},{"../math/Vec3":49,"../shapes/Shape":62,"./Broadphase":23}],25:[function(require,module,exports){
+},{"../math/Vec3":50,"../shapes/Shape":63,"./Broadphase":24}],26:[function(require,module,exports){
 module.exports = NaiveBroadphase;
 
 var Broadphase = require('./Broadphase');
@@ -6324,7 +6401,7 @@ NaiveBroadphase.prototype.aabbQuery = function(world, aabb, result){
 
     return result;
 };
-},{"./AABB":21,"./Broadphase":23}],26:[function(require,module,exports){
+},{"./AABB":22,"./Broadphase":24}],27:[function(require,module,exports){
 module.exports = ObjectCollisionMatrix;
 
 /**
@@ -6397,7 +6474,7 @@ ObjectCollisionMatrix.prototype.reset = function() {
 ObjectCollisionMatrix.prototype.setNumObjects = function(n) {
 };
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = OverlapKeeper;
 
 /**
@@ -6493,7 +6570,7 @@ OverlapKeeper.prototype.getDiff = function(additions, removals) {
         }
     }
 };
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports = Ray;
 
 var Vec3 = require('../math/Vec3');
@@ -7319,7 +7396,7 @@ function distanceFromIntersection(from, direction, position) {
 }
 
 
-},{"../collision/AABB":21,"../collision/RaycastResult":29,"../math/Quaternion":47,"../math/Transform":48,"../math/Vec3":49,"../shapes/Box":56,"../shapes/ConvexPolyhedron":57,"../shapes/Shape":62}],29:[function(require,module,exports){
+},{"../collision/AABB":22,"../collision/RaycastResult":30,"../math/Quaternion":48,"../math/Transform":49,"../math/Vec3":50,"../shapes/Box":57,"../shapes/ConvexPolyhedron":58,"../shapes/Shape":63}],30:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 
 module.exports = RaycastResult;
@@ -7442,7 +7519,7 @@ RaycastResult.prototype.set = function(
 	this.body = body;
 	this.distance = distance;
 };
-},{"../math/Vec3":49}],30:[function(require,module,exports){
+},{"../math/Vec3":50}],31:[function(require,module,exports){
 var Shape = require('../shapes/Shape');
 var Broadphase = require('../collision/Broadphase');
 
@@ -7766,7 +7843,7 @@ SAPBroadphase.prototype.aabbQuery = function(world, aabb, result){
 
     return result;
 };
-},{"../collision/Broadphase":23,"../shapes/Shape":62}],31:[function(require,module,exports){
+},{"../collision/Broadphase":24,"../shapes/Shape":63}],32:[function(require,module,exports){
 module.exports = ConeTwistConstraint;
 
 var Constraint = require('./Constraint');
@@ -7857,7 +7934,7 @@ ConeTwistConstraint.prototype.update = function(){
 };
 
 
-},{"../equations/ConeEquation":37,"../equations/ContactEquation":38,"../equations/RotationalEquation":41,"../math/Vec3":49,"./Constraint":32,"./PointToPointConstraint":36}],32:[function(require,module,exports){
+},{"../equations/ConeEquation":38,"../equations/ContactEquation":39,"../equations/RotationalEquation":42,"../math/Vec3":50,"./Constraint":33,"./PointToPointConstraint":37}],33:[function(require,module,exports){
 module.exports = Constraint;
 
 var Utils = require('../utils/Utils');
@@ -7950,7 +8027,7 @@ Constraint.prototype.disable = function(){
 
 Constraint.idCounter = 0;
 
-},{"../utils/Utils":72}],33:[function(require,module,exports){
+},{"../utils/Utils":73}],34:[function(require,module,exports){
 module.exports = DistanceConstraint;
 
 var Constraint = require('./Constraint');
@@ -8007,7 +8084,7 @@ DistanceConstraint.prototype.update = function(){
     normal.mult(halfDist, eq.ri);
     normal.mult(-halfDist, eq.rj);
 };
-},{"../equations/ContactEquation":38,"./Constraint":32}],34:[function(require,module,exports){
+},{"../equations/ContactEquation":39,"./Constraint":33}],35:[function(require,module,exports){
 module.exports = HingeConstraint;
 
 var Constraint = require('./Constraint');
@@ -8143,7 +8220,7 @@ HingeConstraint.prototype.update = function(){
 };
 
 
-},{"../equations/ContactEquation":38,"../equations/RotationalEquation":41,"../equations/RotationalMotorEquation":42,"../math/Vec3":49,"./Constraint":32,"./PointToPointConstraint":36}],35:[function(require,module,exports){
+},{"../equations/ContactEquation":39,"../equations/RotationalEquation":42,"../equations/RotationalMotorEquation":43,"../math/Vec3":50,"./Constraint":33,"./PointToPointConstraint":37}],36:[function(require,module,exports){
 module.exports = LockConstraint;
 
 var Constraint = require('./Constraint');
@@ -8237,7 +8314,7 @@ LockConstraint.prototype.update = function(){
 };
 
 
-},{"../equations/ContactEquation":38,"../equations/RotationalEquation":41,"../equations/RotationalMotorEquation":42,"../math/Vec3":49,"./Constraint":32,"./PointToPointConstraint":36}],36:[function(require,module,exports){
+},{"../equations/ContactEquation":39,"../equations/RotationalEquation":42,"../equations/RotationalMotorEquation":43,"../math/Vec3":50,"./Constraint":33,"./PointToPointConstraint":37}],37:[function(require,module,exports){
 module.exports = PointToPointConstraint;
 
 var Constraint = require('./Constraint');
@@ -8330,7 +8407,7 @@ PointToPointConstraint.prototype.update = function(){
     z.ri.copy(x.ri);
     z.rj.copy(x.rj);
 };
-},{"../equations/ContactEquation":38,"../math/Vec3":49,"./Constraint":32}],37:[function(require,module,exports){
+},{"../equations/ContactEquation":39,"../math/Vec3":50,"./Constraint":33}],38:[function(require,module,exports){
 module.exports = ConeEquation;
 
 var Vec3 = require('../math/Vec3');
@@ -8409,7 +8486,7 @@ ConeEquation.prototype.computeB = function(h){
 };
 
 
-},{"../math/Mat3":46,"../math/Vec3":49,"./Equation":39}],38:[function(require,module,exports){
+},{"../math/Mat3":47,"../math/Vec3":50,"./Equation":40}],39:[function(require,module,exports){
 module.exports = ContactEquation;
 
 var Equation = require('./Equation');
@@ -8546,7 +8623,7 @@ ContactEquation.prototype.getImpactVelocityAlongNormal = function(){
 };
 
 
-},{"../math/Mat3":46,"../math/Vec3":49,"./Equation":39}],39:[function(require,module,exports){
+},{"../math/Mat3":47,"../math/Vec3":50,"./Equation":40}],40:[function(require,module,exports){
 module.exports = Equation;
 
 var JacobianElement = require('../math/JacobianElement'),
@@ -8810,7 +8887,7 @@ Equation.prototype.computeC = function(){
     return this.computeGiMGt() + this.eps;
 };
 
-},{"../math/JacobianElement":45,"../math/Vec3":49}],40:[function(require,module,exports){
+},{"../math/JacobianElement":46,"../math/Vec3":50}],41:[function(require,module,exports){
 module.exports = FrictionEquation;
 
 var Equation = require('./Equation');
@@ -8871,7 +8948,7 @@ FrictionEquation.prototype.computeB = function(h){
     return B;
 };
 
-},{"../math/Mat3":46,"../math/Vec3":49,"./Equation":39}],41:[function(require,module,exports){
+},{"../math/Mat3":47,"../math/Vec3":50,"./Equation":40}],42:[function(require,module,exports){
 module.exports = RotationalEquation;
 
 var Vec3 = require('../math/Vec3');
@@ -8942,7 +9019,7 @@ RotationalEquation.prototype.computeB = function(h){
 };
 
 
-},{"../math/Mat3":46,"../math/Vec3":49,"./Equation":39}],42:[function(require,module,exports){
+},{"../math/Mat3":47,"../math/Vec3":50,"./Equation":40}],43:[function(require,module,exports){
 module.exports = RotationalMotorEquation;
 
 var Vec3 = require('../math/Vec3');
@@ -9014,7 +9091,7 @@ RotationalMotorEquation.prototype.computeB = function(h){
     return B;
 };
 
-},{"../math/Mat3":46,"../math/Vec3":49,"./Equation":39}],43:[function(require,module,exports){
+},{"../math/Mat3":47,"../math/Vec3":50,"./Equation":40}],44:[function(require,module,exports){
 var Utils = require('../utils/Utils');
 
 module.exports = ContactMaterial;
@@ -9095,7 +9172,7 @@ function ContactMaterial(m1, m2, options){
 
 ContactMaterial.idCounter = 0;
 
-},{"../utils/Utils":72}],44:[function(require,module,exports){
+},{"../utils/Utils":73}],45:[function(require,module,exports){
 module.exports = Material;
 
 /**
@@ -9145,7 +9222,7 @@ function Material(options){
 
 Material.idCounter = 0;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = JacobianElement;
 
 var Vec3 = require('./Vec3');
@@ -9189,7 +9266,7 @@ JacobianElement.prototype.multiplyVectors = function(spatial,rotational){
     return spatial.dot(this.spatial) + rotational.dot(this.rotational);
 };
 
-},{"./Vec3":49}],46:[function(require,module,exports){
+},{"./Vec3":50}],47:[function(require,module,exports){
 module.exports = Mat3;
 
 var Vec3 = require('./Vec3');
@@ -9613,7 +9690,7 @@ Mat3.prototype.transpose = function( target ) {
     return target;
 };
 
-},{"./Vec3":49}],47:[function(require,module,exports){
+},{"./Vec3":50}],48:[function(require,module,exports){
 module.exports = Quaternion;
 
 var Vec3 = require('./Vec3');
@@ -10103,7 +10180,7 @@ Quaternion.prototype.integrate = function(angularVelocity, dt, angularFactor, ta
 
     return target;
 };
-},{"./Vec3":49}],48:[function(require,module,exports){
+},{"./Vec3":50}],49:[function(require,module,exports){
 var Vec3 = require('./Vec3');
 var Quaternion = require('./Quaternion');
 
@@ -10208,7 +10285,7 @@ Transform.vectorToLocalFrame = function(position, quaternion, worldVector, resul
     return result;
 };
 
-},{"./Quaternion":47,"./Vec3":49}],49:[function(require,module,exports){
+},{"./Quaternion":48,"./Vec3":50}],50:[function(require,module,exports){
 module.exports = Vec3;
 
 var Mat3 = require('./Mat3');
@@ -10692,7 +10769,7 @@ Vec3.prototype.isAntiparallelTo = function(v,precision){
 Vec3.prototype.clone = function(){
     return new Vec3(this.x, this.y, this.z);
 };
-},{"./Mat3":46}],50:[function(require,module,exports){
+},{"./Mat3":47}],51:[function(require,module,exports){
 module.exports = Body;
 
 var EventTarget = require('../utils/EventTarget');
@@ -11608,7 +11685,7 @@ Body.prototype.integrate = function(dt, quatNormalize, quatNormalizeFast){
     this.updateInertiaWorld();
 };
 
-},{"../collision/AABB":21,"../material/Material":44,"../math/Mat3":46,"../math/Quaternion":47,"../math/Vec3":49,"../shapes/Box":56,"../shapes/Shape":62,"../utils/EventTarget":68}],51:[function(require,module,exports){
+},{"../collision/AABB":22,"../material/Material":45,"../math/Mat3":47,"../math/Quaternion":48,"../math/Vec3":50,"../shapes/Box":57,"../shapes/Shape":63,"../utils/EventTarget":69}],52:[function(require,module,exports){
 var Body = require('./Body');
 var Vec3 = require('../math/Vec3');
 var Quaternion = require('../math/Quaternion');
@@ -12312,7 +12389,7 @@ function resolveSingleBilateral(body1, pos1, body2, pos2, normal, impulse){
 
     return impulse;
 }
-},{"../collision/Ray":28,"../collision/RaycastResult":29,"../math/Quaternion":47,"../math/Vec3":49,"../objects/WheelInfo":55,"./Body":50}],52:[function(require,module,exports){
+},{"../collision/Ray":29,"../collision/RaycastResult":30,"../math/Quaternion":48,"../math/Vec3":50,"../objects/WheelInfo":56,"./Body":51}],53:[function(require,module,exports){
 var Body = require('./Body');
 var Sphere = require('../shapes/Sphere');
 var Box = require('../shapes/Box');
@@ -12534,7 +12611,7 @@ RigidVehicle.prototype.getWheelSpeed = function(wheelIndex){
     return w.dot(worldAxis);
 };
 
-},{"../constraints/HingeConstraint":34,"../math/Vec3":49,"../shapes/Box":56,"../shapes/Sphere":63,"./Body":50}],53:[function(require,module,exports){
+},{"../constraints/HingeConstraint":35,"../math/Vec3":50,"../shapes/Box":57,"../shapes/Sphere":64,"./Body":51}],54:[function(require,module,exports){
 module.exports = SPHSystem;
 
 var Shape = require('../shapes/Shape');
@@ -12749,7 +12826,7 @@ SPHSystem.prototype.nablaw = function(r){
     return nabla;
 };
 
-},{"../material/Material":44,"../math/Quaternion":47,"../math/Vec3":49,"../objects/Body":50,"../shapes/Particle":60,"../shapes/Shape":62}],54:[function(require,module,exports){
+},{"../material/Material":45,"../math/Quaternion":48,"../math/Vec3":50,"../objects/Body":51,"../shapes/Particle":61,"../shapes/Shape":63}],55:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 
 module.exports = Spring;
@@ -12944,7 +13021,7 @@ Spring.prototype.applyForce = function(){
     bodyB.torque.vadd(rj_x_f,bodyB.torque);
 };
 
-},{"../math/Vec3":49}],55:[function(require,module,exports){
+},{"../math/Vec3":50}],56:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 var Transform = require('../math/Transform');
 var RaycastResult = require('../collision/RaycastResult');
@@ -13227,7 +13304,7 @@ WheelInfo.prototype.updateWheel = function(chassis){
         this.clippedInvContactDotSuspension = 1.0;
     }
 };
-},{"../collision/RaycastResult":29,"../math/Transform":48,"../math/Vec3":49,"../utils/Utils":72}],56:[function(require,module,exports){
+},{"../collision/RaycastResult":30,"../math/Transform":49,"../math/Vec3":50,"../utils/Utils":73}],57:[function(require,module,exports){
 module.exports = Box;
 
 var Shape = require('./Shape');
@@ -13464,7 +13541,7 @@ Box.prototype.calculateWorldAABB = function(pos,quat,min,max){
     // });
 };
 
-},{"../math/Vec3":49,"./ConvexPolyhedron":57,"./Shape":62}],57:[function(require,module,exports){
+},{"../math/Vec3":50,"./ConvexPolyhedron":58,"./Shape":63}],58:[function(require,module,exports){
 module.exports = ConvexPolyhedron;
 
 var Shape = require('./Shape');
@@ -14392,7 +14469,7 @@ ConvexPolyhedron.project = function(hull, axis, pos, quat, result){
     result[1] = min;
 };
 
-},{"../math/Quaternion":47,"../math/Transform":48,"../math/Vec3":49,"./Shape":62}],58:[function(require,module,exports){
+},{"../math/Quaternion":48,"../math/Transform":49,"../math/Vec3":50,"./Shape":63}],59:[function(require,module,exports){
 module.exports = Cylinder;
 
 var Shape = require('./Shape');
@@ -14474,7 +14551,7 @@ function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
 
 Cylinder.prototype = new ConvexPolyhedron();
 
-},{"../math/Quaternion":47,"../math/Vec3":49,"./ConvexPolyhedron":57,"./Shape":62}],59:[function(require,module,exports){
+},{"../math/Quaternion":48,"../math/Vec3":50,"./ConvexPolyhedron":58,"./Shape":63}],60:[function(require,module,exports){
 var Shape = require('./Shape');
 var ConvexPolyhedron = require('./ConvexPolyhedron');
 var Vec3 = require('../math/Vec3');
@@ -15159,7 +15236,7 @@ Heightfield.prototype.setHeightsFromImage = function(image, scale){
     this.updateMinValue();
     this.update();
 };
-},{"../math/Vec3":49,"../utils/Utils":72,"./ConvexPolyhedron":57,"./Shape":62}],60:[function(require,module,exports){
+},{"../math/Vec3":50,"../utils/Utils":73,"./ConvexPolyhedron":58,"./Shape":63}],61:[function(require,module,exports){
 module.exports = Particle;
 
 var Shape = require('./Shape');
@@ -15206,7 +15283,7 @@ Particle.prototype.calculateWorldAABB = function(pos,quat,min,max){
     max.copy(pos);
 };
 
-},{"../math/Vec3":49,"./Shape":62}],61:[function(require,module,exports){
+},{"../math/Vec3":50,"./Shape":63}],62:[function(require,module,exports){
 module.exports = Plane;
 
 var Shape = require('./Shape');
@@ -15269,7 +15346,7 @@ Plane.prototype.calculateWorldAABB = function(pos, quat, min, max){
 Plane.prototype.updateBoundingSphereRadius = function(){
     this.boundingSphereRadius = Number.MAX_VALUE;
 };
-},{"../math/Vec3":49,"./Shape":62}],62:[function(require,module,exports){
+},{"../math/Vec3":50,"./Shape":63}],63:[function(require,module,exports){
 module.exports = Shape;
 
 var Shape = require('./Shape');
@@ -15373,7 +15450,7 @@ Shape.types = {
 };
 
 
-},{"../material/Material":44,"../math/Quaternion":47,"../math/Vec3":49,"./Shape":62}],63:[function(require,module,exports){
+},{"../material/Material":45,"../math/Quaternion":48,"../math/Vec3":50,"./Shape":63}],64:[function(require,module,exports){
 module.exports = Sphere;
 
 var Shape = require('./Shape');
@@ -15432,7 +15509,7 @@ Sphere.prototype.calculateWorldAABB = function(pos,quat,min,max){
     }
 };
 
-},{"../math/Vec3":49,"./Shape":62}],64:[function(require,module,exports){
+},{"../math/Vec3":50,"./Shape":63}],65:[function(require,module,exports){
 module.exports = Trimesh;
 
 var Shape = require('./Shape');
@@ -15994,7 +16071,7 @@ Trimesh.createTorus = function (radius, tube, radialSegments, tubularSegments, a
     return new Trimesh(vertices, indices);
 };
 
-},{"../collision/AABB":21,"../math/Quaternion":47,"../math/Transform":48,"../math/Vec3":49,"../utils/Octree":69,"./Shape":62}],65:[function(require,module,exports){
+},{"../collision/AABB":22,"../math/Quaternion":48,"../math/Transform":49,"../math/Vec3":50,"../utils/Octree":70,"./Shape":63}],66:[function(require,module,exports){
 module.exports = GSSolver;
 
 var Vec3 = require('../math/Vec3');
@@ -16136,7 +16213,7 @@ GSSolver.prototype.solve = function(dt,world){
     return iter;
 };
 
-},{"../math/Quaternion":47,"../math/Vec3":49,"./Solver":66}],66:[function(require,module,exports){
+},{"../math/Quaternion":48,"../math/Vec3":50,"./Solver":67}],67:[function(require,module,exports){
 module.exports = Solver;
 
 /**
@@ -16197,7 +16274,7 @@ Solver.prototype.removeAllEquations = function(){
 };
 
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports = SplitSolver;
 
 var Vec3 = require('../math/Vec3');
@@ -16352,7 +16429,7 @@ SplitSolver.prototype.solve = function(dt,world){
 function sortById(a, b){
     return b.id - a.id;
 }
-},{"../math/Quaternion":47,"../math/Vec3":49,"../objects/Body":50,"./Solver":66}],68:[function(require,module,exports){
+},{"../math/Quaternion":48,"../math/Vec3":50,"../objects/Body":51,"./Solver":67}],69:[function(require,module,exports){
 /**
  * Base class for objects that dispatches events.
  * @class EventTarget
@@ -16453,7 +16530,7 @@ EventTarget.prototype = {
     }
 };
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 var AABB = require('../collision/AABB');
 var Vec3 = require('../math/Vec3');
 
@@ -16688,7 +16765,7 @@ OctreeNode.prototype.removeEmptyNodes = function() {
     }
 };
 
-},{"../collision/AABB":21,"../math/Vec3":49}],70:[function(require,module,exports){
+},{"../collision/AABB":22,"../math/Vec3":50}],71:[function(require,module,exports){
 module.exports = Pool;
 
 /**
@@ -16765,7 +16842,7 @@ Pool.prototype.resize = function (size) {
 };
 
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 module.exports = TupleDictionary;
 
 /**
@@ -16832,7 +16909,7 @@ TupleDictionary.prototype.reset = function() {
     }
 };
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 function Utils(){}
 
 module.exports = Utils;
@@ -16857,7 +16934,7 @@ Utils.defaults = function(options, defaults){
     return options;
 };
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 module.exports = Vec3Pool;
 
 var Vec3 = require('../math/Vec3');
@@ -16883,7 +16960,7 @@ Vec3Pool.prototype.constructObject = function(){
     return new Vec3();
 };
 
-},{"../math/Vec3":49,"./Pool":70}],74:[function(require,module,exports){
+},{"../math/Vec3":50,"./Pool":71}],75:[function(require,module,exports){
 module.exports = Narrowphase;
 
 var AABB = require('../collision/AABB');
@@ -18745,7 +18822,7 @@ Narrowphase.prototype.sphereHeightfield = function (
     }
 };
 
-},{"../collision/AABB":21,"../collision/Ray":28,"../equations/ContactEquation":38,"../equations/FrictionEquation":40,"../math/Quaternion":47,"../math/Transform":48,"../math/Vec3":49,"../objects/Body":50,"../shapes/ConvexPolyhedron":57,"../shapes/Shape":62,"../solver/Solver":66,"../utils/Vec3Pool":73}],75:[function(require,module,exports){
+},{"../collision/AABB":22,"../collision/Ray":29,"../equations/ContactEquation":39,"../equations/FrictionEquation":41,"../math/Quaternion":48,"../math/Transform":49,"../math/Vec3":50,"../objects/Body":51,"../shapes/ConvexPolyhedron":58,"../shapes/Shape":63,"../solver/Solver":67,"../utils/Vec3Pool":74}],76:[function(require,module,exports){
 /* global performance */
 
 module.exports = World;
@@ -19779,7 +19856,7 @@ World.prototype.clearForces = function(){
     }
 };
 
-},{"../collision/AABB":21,"../collision/ArrayCollisionMatrix":22,"../collision/NaiveBroadphase":25,"../collision/OverlapKeeper":27,"../collision/Ray":28,"../collision/RaycastResult":29,"../equations/ContactEquation":38,"../equations/FrictionEquation":40,"../material/ContactMaterial":43,"../material/Material":44,"../math/Quaternion":47,"../math/Vec3":49,"../objects/Body":50,"../shapes/Shape":62,"../solver/GSSolver":65,"../utils/EventTarget":68,"../utils/TupleDictionary":71,"./Narrowphase":74}],76:[function(require,module,exports){
+},{"../collision/AABB":22,"../collision/ArrayCollisionMatrix":23,"../collision/NaiveBroadphase":26,"../collision/OverlapKeeper":28,"../collision/Ray":29,"../collision/RaycastResult":30,"../equations/ContactEquation":39,"../equations/FrictionEquation":41,"../material/ContactMaterial":44,"../material/Material":45,"../math/Quaternion":48,"../math/Vec3":50,"../objects/Body":51,"../shapes/Shape":63,"../solver/GSSolver":66,"../utils/EventTarget":69,"../utils/TupleDictionary":72,"./Narrowphase":75}],77:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./lib/THREE.quickhull');
 
@@ -20145,7 +20222,7 @@ function getMeshes (object) {
   return meshes;
 }
 
-},{"./lib/THREE.quickhull":77,"cannon":20}],77:[function(require,module,exports){
+},{"./lib/THREE.quickhull":78,"cannon":21}],78:[function(require,module,exports){
 /**
 
   QuickHull
@@ -20597,7 +20674,7 @@ module.exports = (function(){
 
 }())
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 var EPS = 0.1;
 
 module.exports = {
@@ -20662,7 +20739,7 @@ module.exports = {
   }
 };
 
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 /**
  * Gamepad controls for A-Frame.
  *
@@ -20911,7 +20988,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],80:[function(require,module,exports){
+},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],81:[function(require,module,exports){
 var radToDeg = THREE.Math.radToDeg,
     isMobile = AFRAME.utils.device.isMobile();
 
@@ -20994,7 +21071,7 @@ function isNullVector (vector) {
   return vector.x === 0 && vector.y === 0 && vector.z === 0;
 }
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var physics = require('aframe-physics-system');
 
 module.exports = {
@@ -21024,7 +21101,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint-controls":78,"./gamepad-controls":79,"./hmd-controls":80,"./keyboard-controls":82,"./mouse-controls":83,"./touch-controls":84,"./universal-controls":85,"aframe-physics-system":8}],82:[function(require,module,exports){
+},{"./checkpoint-controls":79,"./gamepad-controls":80,"./hmd-controls":81,"./keyboard-controls":83,"./mouse-controls":84,"./touch-controls":85,"./universal-controls":86,"aframe-physics-system":9}],83:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -21175,7 +21252,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":7}],83:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":8}],84:[function(require,module,exports){
 document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
 
 /**
@@ -21325,7 +21402,7 @@ module.exports = {
   }
 };
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 module.exports = {
   schema: {
     enabled: { default: true }
@@ -21395,7 +21472,7 @@ module.exports = {
   }
 };
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 /**
  * Universal Controls
  *
@@ -21602,7 +21679,7 @@ module.exports = {
   }
 };
 
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 /**
  * animation-mixer
  *
@@ -21705,7 +21782,7 @@ function regExpEscape (s) {
   return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 }
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 THREE.FBXLoader = require('../../lib/FBXLoader');
 
 /**
@@ -21745,10 +21822,64 @@ module.exports = {
   }
 };
 
-},{"../../lib/FBXLoader":3}],88:[function(require,module,exports){
+},{"../../lib/FBXLoader":3}],89:[function(require,module,exports){
+var fetchScript = require('../../lib/fetch-script')();
+
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/dev/examples/js/loaders/GLTF2Loader.js';
+
+/**
+ * Upcoming (and NOT YET STABLE) loader for glTF 2.0 models.
+ * Pulls THREE.GLTF2Loader directly from three.js 'dev' branch.
+ */
+module.exports = {
+  schema: {type: 'model'},
+
+  init: function () {
+    this.model = null;
+    this.loader = null;
+    this.loaderPromise = loadLoader().then(function () {
+      this.loader = new THREE.GLTF2Loader();
+    }.bind(this));
+  },
+
+  update: function () {
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+
+    if (!src) { return; }
+
+    this.remove();
+
+    this.loaderPromise.then(function () {
+      this.loader.load(src, function gltfLoaded (gltfModel) {
+        self.model = gltfModel.scene;
+        self.model.animations = gltfModel.animations;
+        el.setObject3D('mesh', self.model);
+        el.emit('model-loaded', {format: 'gltf', model: self.model});
+      });
+    }.bind(this));
+  },
+
+  remove: function () {
+    if (!this.model) { return; }
+    this.el.removeObject3D('mesh');
+  }
+};
+
+var loadLoader = (function () {
+  var promise;
+  return function () {
+    promise = promise || fetchScript(LOADER_SRC);
+    return promise;
+  };
+}());
+
+},{"../../lib/fetch-script":7}],90:[function(require,module,exports){
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
+  'gltf2-model-next': require('./gltf2-model-next'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
@@ -21777,6 +21908,11 @@ module.exports = {
       AFRAME.registerComponent('fbx-model', this['fbx-model']);
     }
 
+    // THREE.GLTF2Loader (_unstable_)
+    if (!AFRAME.components['gltf2-model-next']) {
+      AFRAME.registerComponent('gltf2-model-next', this['gltf2-model-next']);
+    }
+
     // THREE.JsonLoader
     if (!AFRAME.components['json-model']) {
       AFRAME.registerComponent('json-model', this['json-model']);
@@ -21796,7 +21932,7 @@ module.exports = {
   }
 };
 
-},{"./animation-mixer":86,"./fbx-model":87,"./json-model":89,"./object-model":90,"./ply-model":91,"./three-model":92}],89:[function(require,module,exports){
+},{"./animation-mixer":87,"./fbx-model":88,"./gltf2-model-next":89,"./json-model":91,"./object-model":92,"./ply-model":93,"./three-model":94}],91:[function(require,module,exports){
 /**
  * json-model
  *
@@ -21856,7 +21992,7 @@ module.exports = {
   }
 };
 
-},{}],90:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 /**
  * object-model
  *
@@ -21911,7 +22047,7 @@ module.exports = {
   }
 };
 
-},{}],91:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -21992,7 +22128,7 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":6}],92:[function(require,module,exports){
+},{"../../lib/PLYLoader":6}],94:[function(require,module,exports){
 var DEFAULT_ANIMATION = '__auto__';
 
 /**
@@ -22139,7 +22275,7 @@ module.exports = {
   }
 };
 
-},{}],93:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 module.exports = {
   schema: {
     offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
@@ -22173,7 +22309,7 @@ module.exports = {
   }
 };
 
-},{}],94:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -22245,7 +22381,7 @@ module.exports = {
   }
 };
 
-},{}],95:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 var physics = require('aframe-physics-system');
 
 module.exports = {
@@ -22273,7 +22409,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint":93,"./grab":94,"./jump-ability":96,"./kinematic-body":97,"./sphere-collider":98,"./toggle-velocity":99,"aframe-physics-system":8}],96:[function(require,module,exports){
+},{"./checkpoint":95,"./grab":96,"./jump-ability":98,"./kinematic-body":99,"./sphere-collider":100,"./toggle-velocity":101,"aframe-physics-system":9}],98:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -22337,7 +22473,7 @@ module.exports = {
   }
 };
 
-},{}],97:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -22537,7 +22673,7 @@ module.exports = {
   }
 };
 
-},{}],98:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -22672,7 +22808,7 @@ module.exports = {
   }
 };
 
-},{}],99:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -22709,7 +22845,7 @@ module.exports = {
   },
 };
 
-},{}],100:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -22745,7 +22881,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],101:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 /**
  * Flat-shaded ocean primitive.
  *
@@ -22852,7 +22988,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],102:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 /**
  * Tube following a custom path.
  *
@@ -22927,7 +23063,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],103:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
   'a-ocean':        require('./a-ocean'),
@@ -22943,7 +23079,7 @@ module.exports = {
   }
 };
 
-},{"./a-grid":100,"./a-ocean":101,"./a-tube":102}],104:[function(require,module,exports){
+},{"./a-grid":102,"./a-ocean":103,"./a-tube":104}],106:[function(require,module,exports){
 module.exports = {
   'shadow':       require('./shadow'),
   'shadow-light': require('./shadow-light'),
@@ -22960,7 +23096,7 @@ module.exports = {
   }
 };
 
-},{"./shadow":106,"./shadow-light":105}],105:[function(require,module,exports){
+},{"./shadow":108,"./shadow-light":107}],107:[function(require,module,exports){
 /**
  * Light component.
  *
@@ -23116,7 +23252,7 @@ module.exports = {
   }
 };
 
-},{}],106:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 /**
  * Shadow component.
  *
