@@ -1,6 +1,7 @@
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
+  'gltf2-model-next': require('./gltf2-model-next'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
@@ -27,6 +28,11 @@ module.exports = {
     // THREE.FBXLoader
     if (!AFRAME.components['fbx-model']) {
       AFRAME.registerComponent('fbx-model', this['fbx-model']);
+    }
+
+    // THREE.GLTF2Loader (_unstable_)
+    if (!AFRAME.components['gltf2-model-next']) {
+      AFRAME.registerComponent('gltf2-model-next', this['gltf2-model-next']);
     }
 
     // THREE.JsonLoader
