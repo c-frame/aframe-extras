@@ -7,3 +7,4 @@ Various other components.
 - **jump-ability**: Allows player to jump using keyboard or gamepad, when physics is enabled. *Not VR-friendly*.
 - **sphere-collider**: Detects collisions with specified objects. Required for `grab`.
 - **toggle-velocity**: Animates an object back and forth between two points, at a constant velocity.
+- **cube-env-map**: Applies a CubeTexture as the envMap of an entity, without otherwise modifying the preset materials. Usage: `cube-env-map="path: assets/folder/; extension: jpg;"`. Assumes naming scheme: negx, posx, ... 

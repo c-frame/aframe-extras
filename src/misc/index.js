@@ -2,6 +2,7 @@ var physics = require('aframe-physics-system');
 
 module.exports = {
   'checkpoint':      require('./checkpoint'),
+  'cube-env-map':    require('./cube-env-map'),
   'grab':            require('./grab'),
   'jump-ability':    require('./jump-ability'),
   'kinematic-body':  require('./kinematic-body'),
@@ -15,6 +16,7 @@ module.exports = {
 
     physics.registerAll();
     if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
+    if (!AFRAME.components['cube-env-map'])    AFRAME.registerComponent('cube-env-map',    this['cube-env-map']);
     if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
     if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
     if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
