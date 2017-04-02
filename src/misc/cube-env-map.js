@@ -6,7 +6,8 @@ module.exports = {
   schema: {
     path: {default: ''},
     extension: {default: 'jpg'},
-    format: {default: 'RGBFormat'}
+    format: {default: 'RGBFormat'},
+    enableBackground: {default: false}
   },
 
   init: function () {
@@ -18,6 +19,10 @@ module.exports = {
       data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
     ]);
     this.texture.format = THREE[data.format];
+
+    if (data.enableBackground) {
+      this.el.sceneEl.object3D.background = this.texture;
+    }
 
     this.applyEnvMap();
     this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
