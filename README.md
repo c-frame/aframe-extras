@@ -81,7 +81,7 @@ src
 │   └── ply-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
-│   ├── cube-env-map.js
+│   ├── cube-env-map.js         <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── grab.js
 │   ├── jump-ability.js
 │   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
