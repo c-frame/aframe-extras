@@ -4,7 +4,6 @@ module.exports = {
   misc:       require('./src/misc'),
   physics:    require('aframe-physics-system'),
   primitives: require('./src/primitives'),
-  shadows:    require('./src/shadows'),
 
   registerAll: function () {
     this.controls.registerAll();
@@ -12,6 +11,5 @@ module.exports = {
     this.misc.registerAll();
     this.physics.registerAll();
     this.primitives.registerAll();
-    this.shadows.registerAll();
   }
 };
