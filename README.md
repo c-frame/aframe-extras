@@ -88,11 +88,9 @@ src
 │   ├── sphere-collider.js
 │   └── toggle-velocity.js
 ├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
-├── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
-│   ├── a-grid.js
-│   ├── a-ocean.js
-│   └── a-tube.js
-└── <b>shadows/</b> (<a href="/src/shadows">Documentation</a>)    <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-    ├── shadow-light.js
-    └── shadow.js
+└── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
+    ├── a-grid.js
+    ├── a-ocean.js
+    └── a-tube.js
+
 </pre>
