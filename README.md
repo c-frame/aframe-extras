@@ -73,17 +73,19 @@ src
 │   ├── touch-controls.js
 │   └── universal-controls.js
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
-│   ├── animation-mixer.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── animation-mixer.js
 │   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── json-model.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   ├── object-model.js         <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── gltf-model-next.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── json-model.js
+│   ├── object-model.js
 │   └── ply-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
-│   ├── grab.js                 <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── cube-env-map.js
+│   ├── grab.js
 │   ├── jump-ability.js
 │   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── sphere-collider.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── sphere-collider.js
 │   └── toggle-velocity.js
 ├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
 ├── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
