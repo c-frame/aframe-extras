@@ -7,7 +7,6 @@ module.exports = {
   misc:       require('./src/misc'),
   physics:    require('aframe-physics-system'),
   primitives: require('./src/primitives'),
-  shadows:    require('./src/shadows'),
 
   registerAll: function () {
     this.controls.registerAll();
@@ -15,11 +14,10 @@ module.exports = {
     this.misc.registerAll();
     this.physics.registerAll();
     this.primitives.registerAll();
-    this.shadows.registerAll();
   }
 };
 
-},{"./src/controls":82,"./src/loaders":90,"./src/misc":97,"./src/primitives":105,"./src/shadows":106,"aframe-physics-system":9}],3:[function(require,module,exports){
+},{"./src/controls":82,"./src/loaders":90,"./src/misc":98,"./src/primitives":106,"aframe-physics-system":9}],3:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  * @author Kyle-Larson https://github.com/Kyle-Larson
@@ -21879,7 +21877,7 @@ var loadLoader = (function () {
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
-  'gltf2-model-next': require('./gltf2-model-next'),
+  'gltf-model-next': require('./gltf-model-next'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
@@ -21909,8 +21907,8 @@ module.exports = {
     }
 
     // THREE.GLTF2Loader (_unstable_)
-    if (!AFRAME.components['gltf2-model-next']) {
-      AFRAME.registerComponent('gltf2-model-next', this['gltf2-model-next']);
+    if (!AFRAME.components['gltf-model-next']) {
+      AFRAME.registerComponent('gltf-model-next', this['gltf-model-next']);
     }
 
     // THREE.JsonLoader
@@ -21932,7 +21930,7 @@ module.exports = {
   }
 };
 
-},{"./animation-mixer":87,"./fbx-model":88,"./gltf2-model-next":89,"./json-model":91,"./object-model":92,"./ply-model":93,"./three-model":94}],91:[function(require,module,exports){
+},{"./animation-mixer":87,"./fbx-model":88,"./gltf-model-next":89,"./json-model":91,"./object-model":92,"./ply-model":93,"./three-model":94}],91:[function(require,module,exports){
 /**
  * json-model
  *
@@ -22311,6 +22309,52 @@ module.exports = {
 
 },{}],96:[function(require,module,exports){
 /**
+ * Specifies an envMap on an entity, without replacing any existing material
+ * properties.
+ */
+module.exports = {
+  schema: {
+    path: {default: ''},
+    extension: {default: 'jpg'},
+    format: {default: 'RGBFormat'},
+    enableBackground: {default: false}
+  },
+
+  init: function () {
+    var data = this.data;
+
+    this.texture = new THREE.CubeTextureLoader().load([
+      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
+      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
+      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
+    ]);
+    this.texture.format = THREE[data.format];
+
+    if (data.enableBackground) {
+      this.el.sceneEl.object3D.background = this.texture;
+    }
+
+    this.applyEnvMap();
+    this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
+  },
+
+  applyEnvMap: function () {
+    var mesh = this.el.getObject3D('mesh');
+    var envMap = this.texture;
+
+    if (!mesh) return;
+
+    mesh.traverse(function (node) {
+      if (node.material && 'envMap' in node.material) {
+        node.material.envMap = envMap;
+        node.material.needsUpdate = true;
+      }
+    });
+  }
+};
+
+},{}],97:[function(require,module,exports){
+/**
  * Based on aframe/examples/showcase/tracked-controls.
  *
  * Handles events coming from the hand-controls.
@@ -22381,11 +22425,12 @@ module.exports = {
   }
 };
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 var physics = require('aframe-physics-system');
 
 module.exports = {
   'checkpoint':      require('./checkpoint'),
+  'cube-env-map':    require('./cube-env-map'),
   'grab':            require('./grab'),
   'jump-ability':    require('./jump-ability'),
   'kinematic-body':  require('./kinematic-body'),
@@ -22399,6 +22444,7 @@ module.exports = {
 
     physics.registerAll();
     if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
+    if (!AFRAME.components['cube-env-map'])    AFRAME.registerComponent('cube-env-map',    this['cube-env-map']);
     if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
     if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
     if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
@@ -22409,7 +22455,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint":95,"./grab":96,"./jump-ability":98,"./kinematic-body":99,"./sphere-collider":100,"./toggle-velocity":101,"aframe-physics-system":9}],98:[function(require,module,exports){
+},{"./checkpoint":95,"./cube-env-map":96,"./grab":97,"./jump-ability":99,"./kinematic-body":100,"./sphere-collider":101,"./toggle-velocity":102,"aframe-physics-system":9}],99:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -22473,7 +22519,7 @@ module.exports = {
   }
 };
 
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -22673,7 +22719,7 @@ module.exports = {
   }
 };
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -22808,7 +22854,7 @@ module.exports = {
   }
 };
 
-},{}],101:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -22845,7 +22891,7 @@ module.exports = {
   },
 };
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -22881,7 +22927,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],103:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 /**
  * Flat-shaded ocean primitive.
  *
@@ -22988,7 +23034,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],104:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 /**
  * Tube following a custom path.
  *
@@ -23063,7 +23109,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],105:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 module.exports = {
   'a-grid':        require('./a-grid'),
   'a-ocean':        require('./a-ocean'),
@@ -23079,212 +23125,4 @@ module.exports = {
   }
 };
 
-},{"./a-grid":102,"./a-ocean":103,"./a-tube":104}],106:[function(require,module,exports){
-module.exports = {
-  'shadow':       require('./shadow'),
-  'shadow-light': require('./shadow-light'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    if (!AFRAME.components['shadow'])       AFRAME.registerComponent('shadow',        this['shadow']);
-    if (!AFRAME.components['shadow-light']) AFRAME.registerComponent('shadow-light',  this['shadow-light']);
-
-    this._registered = true;
-  }
-};
-
-},{"./shadow":108,"./shadow-light":107}],107:[function(require,module,exports){
-/**
- * Light component.
- *
- * Source: https://github.com/aframevr/aframe-core/pull/348
- *
- * @namespace light
- * @param {number} [angle=PI / 3] - Maximum extent of light from its direction, in radians. For spot
- *     lights.
- * @param {bool} [castShadow=false] - Whether light will cast shadows. Only applies to directional,
- *     point, and spot lights.
- * @param {string} [color=#FFF] - Light color. For every light.
- * @param {number} [decay=1] - Amount the light dims along the distance of the light. For point and
- *     spot lights.
- * @param {number} [exponent=10.0] - Rapidity of falloff of light from its target direction. For
- *     spot lights.
- * @param {string} [groundColor=#FFF] - Ground light color. For hemisphere lights.
- * @param {number} [intensity=1.0] - Light strength. For every light except ambient.
- * @param {number} [shadowBias=0] - How much to add or subtract from the normalized depth when
- *     deciding whether a surface is in shadow.
- * @param {number} [shadowCameraFar=5000] - Orthographic shadow camera frustum parameter.
- * @param {number} [shadowCameraNear=50] - Orthographic shadow camera frustum parameter.
- * @param {number} [shadowCameraTop=10] - Orthographic shadow camera frustum parameter.
- * @param {number} [shadowCameraRight=10] - Orthographic shadow camera frustum parameter.
- * @param {number} [shadowCameraBottom=-10] - Orthographic shadow camera frustum parameter.
- * @param {number} [shadowCameraLeft=-10] - Orthographic shadow camera frustum parameter.
- * @param {number} [shadowDarkness=0.5] - Darkness of shadow cast, from 0 to 1.
- * @param {number} [shadowMapHeight=512] - Shadow map texture height in pixels.
- * @param {number} [shadowMapWidth=512] - Shadow map texture height in pixels.
- * @param {string} [type=directional] - Light type (i.e., ambient, directional, hemisphere, point,
- *     spot).
- */
-module.exports = {
-  schema: {
-      angle:              { default: Math.PI / 3 },
-      castShadow:         { default: true },
-      color:              { default: '#FFF' },
-      groundColor:        { default: '#FFF' },
-      decay:              { default: 1 },
-      distance:           { default: 0.0 },
-      exponent:           { default: 10.0 },
-      intensity:          { default: 1.0 },
-      shadowBias:         { default: 0 },
-      shadowCameraFar:    { default: 5000 },
-      shadowCameraFov:    { default: 50 },
-      shadowCameraNear:   { default: 0.5 },
-      shadowCameraTop:    { default: 10 },
-      shadowCameraRight:  { default: 10 },
-      shadowCameraBottom: { default: -10 },
-      shadowCameraLeft:   { default: -10 },
-      shadowDarkness:     { default: 0.5 },
-      shadowMapHeight:    { default: 512 },
-      shadowMapWidth:     { default: 512 },
-      type:               {
-        default: 'directional',
-        oneOf: ['ambient', 'directional', 'hemisphere', 'point', 'spot']
-      }
-  },
-
-  init: function () {
-    var el = this.el;
-    this.light = this.getLight();
-    el.object3D.add(this.light);
-    el.sceneEl.systems.light.registerLight(el);
-    if (!el.sceneEl.hasLoaded) {
-      el.sceneEl.addEventListener('loaded', this.play.bind(this));
-    }
-  },
-
-  update: function (previousData) {
-    previousData = previousData || {};
-    if (!Object.keys(previousData).length) { return; }
-    this.el.object3D.remove(this.light);
-    this.light = this.getLight();
-    this.el.object3D.add(this.light);
-  },
-
-  play: function () {
-    var el = this.el,
-        renderer = el.sceneEl.renderer;
-    if (renderer && !renderer.shadowMap.enabled) {
-      renderer.shadowMap.enabled = true;
-    }
-  },
-
-  /**
-   * Creates a new three.js light object given the current attributes of the
-   * component.
-   *
-   * @namespace light
-   */
-  getLight: function () {
-    var data = this.data;
-    var color = new THREE.Color(data.color).getHex();
-    var intensity = data.intensity;
-    var type = data.type;
-
-    if (type) {
-      type = type.toLowerCase();
-    }
-    switch (type) {
-      case 'ambient': {
-        return new THREE.AmbientLight(color);
-      }
-      case 'directional': {
-        return this.setShadow(new THREE.DirectionalLight(color, intensity));
-      }
-      case 'hemisphere': {
-        return new THREE.HemisphereLight(color, data.groundColor,
-                                         intensity);
-      }
-      case 'point': {
-        return this.setShadow(
-          new THREE.PointLight(color, intensity, data.distance, data.decay));
-      }
-      case 'spot': {
-        return this.setShadow(
-          new THREE.SpotLight(color, intensity, data.distance, data.angle,
-                              data.exponent, data.decay));
-      }
-      default: {
-        return new THREE.AmbientLight(color);
-      }
-    }
-  },
-
-  /**
-   * Copy over shadow-related data from the component onto the light.
-   *
-   * @param {object} light
-   */
-  setShadow: function (light) {
-    var data = this.data;
-    if (!data.castShadow) { return light; }
-
-    light.castShadow = data.castShadow;
-    light.shadow.bias = data.shadowBias;
-    light.shadow.darkness = data.shadowDarkness;
-    light.shadow.mapSize.height = data.shadowMapHeight;
-    light.shadow.mapSize.width = data.shadowMapWidth;
-
-    light.shadow.camera.near = data.shadowCameraNear;
-    light.shadow.camera.far = data.shadowCameraFar;
-    if (light.shadow.camera instanceof THREE.OrthographicCamera) {
-      light.shadow.camera.top = data.shadowCameraTop;
-      light.shadow.camera.right = data.shadowCameraRight;
-      light.shadow.camera.bottom = data.shadowCameraBottom;
-      light.shadow.camera.left = data.shadowCameraLeft;
-    } else {
-      light.shadow.camera.fov = data.shadowCameraFov;
-    }
-
-    return light;
-  }
-};
-
-},{}],108:[function(require,module,exports){
-/**
- * Shadow component.
- *
- * Source: https://github.com/aframevr/aframe-core/pull/348
- *
- * @namespace shadow
- * @param {bool} [cast=false] - whether object will cast shadows.
- * @param {bool} [receive=false] - whether object will receive shadows.
- */
-module.exports = {
-  schema: {
-    cast:     { default: false },
-    receive:  { default: false }
-  },
-
-  init: function () {
-    this.el.addEventListener('model-loaded', this.update.bind(this));
-  },
-
-  update: function () {
-    var data = this.data;
-
-    // Applied recursively to support imported models.
-    this.el.object3D.traverse(function(node) {
-      if (node instanceof THREE.Mesh) {
-        node.castShadow = data.cast;
-        node.receiveShadow = data.receive;
-      }
-    });
-  },
-
-  remove: function () {}
-};
-
-},{}]},{},[1]);
+},{"./a-grid":103,"./a-ocean":104,"./a-tube":105}]},{},[1]);

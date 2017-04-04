@@ -3921,7 +3921,7 @@ var loadLoader = (function () {
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
-  'gltf2-model-next': require('./gltf2-model-next'),
+  'gltf-model-next': require('./gltf-model-next'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
@@ -3951,8 +3951,8 @@ module.exports = {
     }
 
     // THREE.GLTF2Loader (_unstable_)
-    if (!AFRAME.components['gltf2-model-next']) {
-      AFRAME.registerComponent('gltf2-model-next', this['gltf2-model-next']);
+    if (!AFRAME.components['gltf-model-next']) {
+      AFRAME.registerComponent('gltf-model-next', this['gltf-model-next']);
     }
 
     // THREE.JsonLoader
@@ -3974,7 +3974,7 @@ module.exports = {
   }
 };
 
-},{"./animation-mixer":5,"./fbx-model":6,"./gltf2-model-next":7,"./json-model":9,"./object-model":10,"./ply-model":11,"./three-model":12}],9:[function(require,module,exports){
+},{"./animation-mixer":5,"./fbx-model":6,"./gltf-model-next":7,"./json-model":9,"./object-model":10,"./ply-model":11,"./three-model":12}],9:[function(require,module,exports){
 /**
  * json-model
  *

@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/misc').registerAll();
-},{"./src/misc":74}],2:[function(require,module,exports){
+},{"./src/misc":75}],2:[function(require,module,exports){
 var CANNON = require('cannon'),
     math = require('./src/components/math');
 
@@ -16204,6 +16204,52 @@ module.exports = {
 
 },{}],73:[function(require,module,exports){
 /**
+ * Specifies an envMap on an entity, without replacing any existing material
+ * properties.
+ */
+module.exports = {
+  schema: {
+    path: {default: ''},
+    extension: {default: 'jpg'},
+    format: {default: 'RGBFormat'},
+    enableBackground: {default: false}
+  },
+
+  init: function () {
+    var data = this.data;
+
+    this.texture = new THREE.CubeTextureLoader().load([
+      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
+      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
+      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
+    ]);
+    this.texture.format = THREE[data.format];
+
+    if (data.enableBackground) {
+      this.el.sceneEl.object3D.background = this.texture;
+    }
+
+    this.applyEnvMap();
+    this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
+  },
+
+  applyEnvMap: function () {
+    var mesh = this.el.getObject3D('mesh');
+    var envMap = this.texture;
+
+    if (!mesh) return;
+
+    mesh.traverse(function (node) {
+      if (node.material && 'envMap' in node.material) {
+        node.material.envMap = envMap;
+        node.material.needsUpdate = true;
+      }
+    });
+  }
+};
+
+},{}],74:[function(require,module,exports){
+/**
  * Based on aframe/examples/showcase/tracked-controls.
  *
  * Handles events coming from the hand-controls.
@@ -16274,11 +16320,12 @@ module.exports = {
   }
 };
 
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var physics = require('aframe-physics-system');
 
 module.exports = {
   'checkpoint':      require('./checkpoint'),
+  'cube-env-map':    require('./cube-env-map'),
   'grab':            require('./grab'),
   'jump-ability':    require('./jump-ability'),
   'kinematic-body':  require('./kinematic-body'),
@@ -16292,6 +16339,7 @@ module.exports = {
 
     physics.registerAll();
     if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
+    if (!AFRAME.components['cube-env-map'])    AFRAME.registerComponent('cube-env-map',    this['cube-env-map']);
     if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
     if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
     if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
@@ -16302,7 +16350,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint":72,"./grab":73,"./jump-ability":75,"./kinematic-body":76,"./sphere-collider":77,"./toggle-velocity":78,"aframe-physics-system":2}],75:[function(require,module,exports){
+},{"./checkpoint":72,"./cube-env-map":73,"./grab":74,"./jump-ability":76,"./kinematic-body":77,"./sphere-collider":78,"./toggle-velocity":79,"aframe-physics-system":2}],76:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -16366,7 +16414,7 @@ module.exports = {
   }
 };
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -16566,7 +16614,7 @@ module.exports = {
   }
 };
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -16701,7 +16749,7 @@ module.exports = {
   }
 };
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
