@@ -196,7 +196,7 @@ require('../../../lib/CANNON-shape2mesh');
 
 module.exports = {
   schema: {
-    shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'none']},
+    shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull']},
     cylinderAxis: {default: 'y', oneOf: ['x', 'y', 'z']},
     sphereRadius: {default: NaN}
   },
@@ -223,7 +223,23 @@ module.exports = {
     var shape,
         el = this.el,
         data = this.data,
-        pos = el.getAttribute('position');
+        pos = el.getAttribute('position'),
+        options = data.shape === 'auto' ? undefined : AFRAME.utils.extend({}, this.data, {
+          type: mesh2shape.Type[data.shape.toUpperCase()]
+        });
+
+    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
+    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
+    // scale="0.5 0.5 0.5" will be ignored.
+    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
+    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
+    this.el.object3D.updateMatrixWorld(true);
+    shape = mesh2shape(this.el.object3D, options);
+
+    if (!shape) {
+      this.el.addEventListener('model-loaded', this.initBody.bind(this));
+      return;
+    }
 
     this.body = new CANNON.Body({
       mass: data.mass || 0,
@@ -232,33 +248,7 @@ module.exports = {
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
-
-    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
-    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
-    // scale="0.5 0.5 0.5" will be ignored.
-    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
-    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
-    this.el.object3D.updateMatrixWorld(true);
-
-    if(data.shape !== 'none') {
-      var options = data.shape === 'auto' ? undefined : AFRAME.utils.extend({}, this.data, {
-        type: mesh2shape.Type[data.shape.toUpperCase()]
-      });
-
-      shape = mesh2shape(this.el.object3D, options);
-
-      if (!shape) {
-        this.el.addEventListener('model-loaded', this.initBody.bind(this));
-        return;
-      }
-
-      this.body.addShape(shape, shape.offset, shape.orientation);
-
-      // Show wireframe
-      if (this.system.debug) {
-        this.createWireframe(this.body, shape);
-      }
-    }
+    this.body.addShape(shape, shape.offset, shape.orientation);
 
     // Apply rotation
     var rot = el.getAttribute('rotation');
@@ -268,6 +258,11 @@ module.exports = {
       THREE.Math.degToRad(rot.z),
       'XYZ'
     ).normalize();
+
+    // Show wireframe
+    if (this.system.debug) {
+      this.createWireframe(this.body, shape);
+    }
 
     this.el.body = this.body;
     this.body.el = this.el;
@@ -834,60 +829,59 @@ module.exports={
   "_args": [
     [
       {
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "escapedName": "cannon",
-        "name": "cannon",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted",
         "hosted": {
-          "type": "github",
+          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
+          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
           "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
           "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-        }
+          "type": "github"
+        },
+        "name": "cannon",
+        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
+        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+        "scope": null,
+        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+        "type": "hosted"
       },
-      "/home/banada/aframe/aframe-extras/node_modules/aframe-physics-system"
+      "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system"
     ]
   ],
   "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
   "_id": "cannon@0.6.2",
   "_inCache": true,
+  "_installable": true,
   "_location": "/cannon",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "escapedName": "cannon",
-    "name": "cannon",
-    "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted",
     "hosted": {
-      "type": "github",
+      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
+      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
+      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
       "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
       "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-    }
+      "type": "github"
+    },
+    "name": "cannon",
+    "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "scope": null,
+    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "type": "hosted"
   },
   "_requiredBy": [
     "/aframe-physics-system"
   ],
   "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "92295d487fb563fa63dc07963791a9ba2bd52221",
+  "_shasum": "978d8979085b17fd0222913a2d349424b94a6e35",
   "_shrinkwrap": null,
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-  "_where": "/home/banada/aframe/aframe-extras/node_modules/aframe-physics-system",
+  "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",
   "author": {
-    "name": "Stefan Hedman",
     "email": "schteppe@gmail.com",
+    "name": "Stefan Hedman",
     "url": "http://steffe.se"
   },
   "bugs": {
@@ -15453,10 +15447,11 @@ CANNON.mesh2shape.Type = Type;
  * @return {CANNON.Shape}
  */
 function createBoundingBoxShape (object) {
-  var shape, localPosition, worldPosition,
-      box = new THREE.Box3();
+  var box, shape, localPosition, worldPosition,
+      helper = new THREE.BoundingBoxHelper(object);
 
-  box.setFromObject(object);
+  helper.update();
+  box = helper.box;
 
   if (!isFinite(box.min.lengthSq())) return null;
 
@@ -15469,7 +15464,7 @@ function createBoundingBoxShape (object) {
   object.updateMatrixWorld();
   worldPosition = new THREE.Vector3();
   worldPosition.setFromMatrixPosition(object.matrixWorld);
-  localPosition = box.translate(worldPosition.negate()).getCenter();
+  localPosition = helper.position.sub(worldPosition);
   if (localPosition.lengthSq()) {
     shape.offset = localPosition;
   }
