@@ -32,15 +32,23 @@ src
 │   ├── jump-ability.js
 │   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
 │   ├── mesh-smooth.js          <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── proximity-emitter.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   └── sphere-collider.js
 ├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
 │   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   └── nav-controller.js       <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-└── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
-    ├── a-grid.js
-    ├── a-hex-grid.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-    ├── a-ocean.js
-    └── a-tube.js
+├── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
+│   ├── a-grid.js
+│   ├── a-hex-grid.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── a-ocean.js
+│   └── a-tube.js
+└── <b>state-machine/</b> (<a href="/src/state-machine">Documentation</a>) <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+    ├── a-state.js
+    ├── end-set.js
+    ├── index.js
+    ├── start-set.js
+    ├── state-machine.js
+    └── transition.js
 </pre>
 
 ## Usage (Scripts)

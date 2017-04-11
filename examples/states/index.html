@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • States</title>
+    <script src="../aframe-extras.js"></script>
+  </head>
+  <body>
+    <a-scene physics>
+      <!-- Player -->
+      <a-entity camera="userHeight: 1.6"
+                universal-controls>
+      </a-entity>
+
+      <!-- Ground -->
+      <a-grid></a-grid>
+
+      <!-- Obstacles -->
+      <a-box id="box1" color="#39BB82"
+             position="8 2.5 -5"
+             static-body
+             proximity-emitter="filter: [camera]; distance: 4; event: proximity;"
+             state-machine="initial: cleared">
+        <a-state name="cleared"
+                 state-added="set: color; to: #39BB82;"
+                 transition="state: active;
+                             on: proximitystart;">
+        </a-state>
+        <a-state name="active"
+                 state-added="set: color; to: #FF0000;"
+                 transition="state: cleared;
+                             on: proximityend;">
+        </a-state>
+      </a-box>
+      <a-box id="box2"
+             color="#39BB82"
+             position="8 2.5 5"
+             static-body
+             proximity-emitter="filter: [camera]; distance: 4; event: proximity;"
+             state-machine="initial: cleared">
+        <a-state name="cleared"
+                 state-added="set: color; to: #39BB82;"
+                 transition="state: active;
+                             on: proximitystart;">
+        </a-state>
+        <a-state name="active"
+                 state-added="set: color; to: #0000FF;"
+                 transition="state: cleared;
+                             on: proximityend;">
+        </a-state>
+      </a-box>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#bbb"></a-light>
+      <a-light color="#ccc" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ccc" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
+    </a-scene>
+  </body>
+</html>
