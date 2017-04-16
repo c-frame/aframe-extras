@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>Sandbox • VR Examples</title>
+    <meta name="description" content="WebVR projects, demos, and examples by Don McCurdy.">
+    <meta name="author" content="Don McCurdy">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Raleway:400,300,100,600">
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="skeleton.css">
@@ -12,22 +15,90 @@
   </head>
   <body>
     <div class="container" style="margin-top: 2em">
-      <h2>sandbox / vr</h2>
+      <h1>WebVR Resources</h1>
+      <p>by Don McCurdy (<a target="_blank" href="https://twitter.com/donrmccurdy">@donrmccurdy</a>)</p>
+
+      <h3>Projects</h3>
       <ul>
-        <li><a href="animation/">animation/</a></li>
-        <li><a href="bumpmap/">bumpmap/</a></li>
-        <li><a href="checkpoints/">checkpoints/</a></li>
-        <li><a href="force-push/">force-push/</a></li>
-        <li><a href="island/">island/</a></li>
-        <li><a href="monument/">monument/</a></li>
-        <li><a href="platforms/">platforms/</a></li>
-        <li><a href="playground/">playground/</a></li>
-        <li><a href="scythian/">scythian/</a></li>
-        <li><a href="vive/">vive/</a></li>
-        <li><a href="walking/">walking/</a></li>
-        <li><a href="walls/">walls/</a></li>
-        <li><a href="water/">water/</a></li>
+        <li>
+          <a target="_blank" href="https://github.com/donmccurdy/aframe-extras">A-Frame Extras</a>
+          — Add-ons and helpers for A-Frame VR.
+        </li>
+        <li>
+          <a target="_blank" href="https://github.com/donmccurdy/aframe-physics-system">A-Frame Physics System</a>
+          — Physics system for A-Frame VR, built on CANNON.js.
+        </li>
+        <li>
+          <a target="_blank" href="https://github.com/openleap/aframe-leap-hands">A-Frame Leap Hands</a>
+          — A-Frame VR component for Leap Motion.
+        </li>
+        <li>
+          <a target="_blank" href="https://proxy-controls.donmccurdy.com/">Proxy Controls</a>
+          — Connect input devices from your desktop to your mobile phone with WebRTC.
+        </li>
+        <li>
+          <a target="_blank" href="https://gltf-viewer.donmccurdy.com/">glTF Viewer</a>
+          — Preview glTF models using three.js and a drag-and-drop interface.
+        </li>
       </ul>
+
+      <h3>Examples</h3>
+      <table class="u-full-width">
+        <thead>
+          <tr>
+            <th>Scene</th>
+            <th>Tags</th>
+            <th>VR-friendly?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="animation/">Animation</a></td>
+            <td>animation, models</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="checkpoints/">Checkpoints</a></td>
+            <td>cursor, locomotion</td>
+            <td>✅</td>
+          </tr>
+         <tr>
+            <td><a href="force-push/">Force push</a></td>
+            <td>physics, cursor</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="vive/">Vive</a></td>
+            <td>physics, tracked controls</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="water/">Water</a></td>
+            <td>animation</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="island/">Island</a></td>
+            <td>models</td>
+            <td>❌</td>
+          </tr>
+          <tr>
+            <td><a href="platforms/">Platforms</a></td>
+            <td>physics, locomotion</td>
+            <td>❌</td>
+          </tr>
+          <tr>
+            <td><a href="playground/">Playground</a></td>
+            <td>physics</td>
+            <td>❌</td>
+          </tr>
+          <tr>
+            <td><a href="walls/">Walls</a></td>
+            <td>physics, locomotion</td>
+            <td>❌</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </body>
 </html>
