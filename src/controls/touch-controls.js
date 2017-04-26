@@ -6,6 +6,7 @@ module.exports = {
   init: function () {
     this.dVelocity = new THREE.Vector3();
     this.bindMethods();
+    this.fingerCount = 0;
   },
 
   play: function () {
@@ -47,7 +48,7 @@ module.exports = {
   },
 
   getVelocityDelta: function () {
-    this.dVelocity.z = this.isMoving ? -1 : 0;
+    this.dVelocity.z = this.isMoving ? (this.fingerCount==2 ? 1 : -1) : 0;
     return this.dVelocity.clone();
   },
 
@@ -58,11 +59,13 @@ module.exports = {
 
   onTouchStart: function (e) {
     this.isMoving = true;
+    this.fingerCount++;
     e.preventDefault();
   },
 
   onTouchEnd: function (e) {
     this.isMoving = false;
+    this.fingerCount--;
     e.preventDefault();
   }
 };
