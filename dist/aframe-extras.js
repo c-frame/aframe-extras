@@ -4700,7 +4700,7 @@ require('../../../lib/CANNON-shape2mesh');
 
 module.exports = {
   schema: {
-    shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull']},
+    shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'none']},
     cylinderAxis: {default: 'y', oneOf: ['x', 'y', 'z']},
     sphereRadius: {default: NaN}
   },
@@ -4727,23 +4727,7 @@ module.exports = {
     var shape,
         el = this.el,
         data = this.data,
-        pos = el.getAttribute('position'),
-        options = data.shape === 'auto' ? undefined : AFRAME.utils.extend({}, this.data, {
-          type: mesh2shape.Type[data.shape.toUpperCase()]
-        });
-
-    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
-    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
-    // scale="0.5 0.5 0.5" will be ignored.
-    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
-    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
-    this.el.object3D.updateMatrixWorld(true);
-    shape = mesh2shape(this.el.object3D, options);
-
-    if (!shape) {
-      this.el.addEventListener('model-loaded', this.initBody.bind(this));
-      return;
-    }
+        pos = el.getAttribute('position');
 
     this.body = new CANNON.Body({
       mass: data.mass || 0,
@@ -4752,7 +4736,33 @@ module.exports = {
       linearDamping: data.linearDamping,
       angularDamping: data.angularDamping
     });
-    this.body.addShape(shape, shape.offset, shape.orientation);
+
+    // Matrix World must be updated at root level, if scale is to be applied – updateMatrixWorld()
+    // only checks an object's parent, not the rest of the ancestors. Hence, a wrapping entity with
+    // scale="0.5 0.5 0.5" will be ignored.
+    // Reference: https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js#L511-L541
+    // Potential fix: https://github.com/mrdoob/three.js/pull/7019
+    this.el.object3D.updateMatrixWorld(true);
+
+    if(data.shape !== 'none') {
+      var options = data.shape === 'auto' ? undefined : AFRAME.utils.extend({}, this.data, {
+        type: mesh2shape.Type[data.shape.toUpperCase()]
+      });
+
+      shape = mesh2shape(this.el.object3D, options);
+
+      if (!shape) {
+        this.el.addEventListener('model-loaded', this.initBody.bind(this));
+        return;
+      }
+
+      this.body.addShape(shape, shape.offset, shape.orientation);
+
+      // Show wireframe
+      if (this.system.debug) {
+        this.createWireframe(this.body, shape);
+      }
+    }
 
     // Apply rotation
     var rot = el.getAttribute('rotation');
@@ -4762,11 +4772,6 @@ module.exports = {
       THREE.Math.degToRad(rot.z),
       'XYZ'
     ).normalize();
-
-    // Show wireframe
-    if (this.system.debug) {
-      this.createWireframe(this.body, shape);
-    }
 
     this.el.body = this.body;
     this.body.el = this.el;
@@ -5009,11 +5014,11 @@ module.exports = {
 
     // Offset of the hinge or point-to-point constraint, defined locally in the body.
     pivot: {type: 'vec3'},
-    pivotTarget: {type: 'vec3'},
+    targetPivot: {type: 'vec3'},
 
     // An axis that each body can rotate around, defined locally to that body.
-    axis: {type: 'vec3'},
-    axisTarget: {type: 'vec3'},
+    axis: {type: 'vec3', default: { x: 0, y: 0, z: 1 }},
+    targetAxis: {type: 'vec3', default: { x: 0, y: 0, z: 1}}
   },
 
   init: function () {
@@ -5030,8 +5035,7 @@ module.exports = {
 
   update: function () {
     var el = this.el,
-        data = this.data,
-        options = AFRAME.utils.extend({}, data.options);
+        data = this.data;
 
     this.remove();
 
@@ -5040,25 +5044,66 @@ module.exports = {
       return;
     }
 
-    switch (data.type) {
-      case 'distance':
-        this.constraint = new CANNON.DistanceConstraint(
-          el.body,
-          data.target.body,
-          options.distance || undefined,
-          options.maxForce
-        );
-        break;
-      case 'lock':
-        this.constraint = new CANNON.LockConstraint(el.body, data.target.body, options);
-        break;
-      case 'coneTwist':
-      case 'hinge':
-      case 'pointToPoint':
-        throw new Error('[constraint] Unimplemented type.');
-    }
-
+    this.constraint = this.createConstraint();
     this.system.world.addConstraint(this.constraint);
+  },
+
+  /**
+   * Creates a new constraint, given current component data. The CANNON.js constructors are a bit
+   * different for each constraint type.
+   * @return {CANNON.Constraint}
+   */
+  createConstraint: function () {
+    var data = this.data,
+        pivot = new CANNON.Vec3(data.pivot.x, data.pivot.y, data.pivot.z),
+        targetPivot = new CANNON.Vec3(data.targetPivot.x, data.targetPivot.y, data.targetPivot.z),
+        axis = new CANNON.Vec3(data.axis.x, data.axis.y, data.axis.z),
+        targetAxis= new CANNON.Vec3(data.targetAxis.x, data.targetAxis.y, data.targetAxis.z);
+
+    switch (data.type) {
+      case 'lock':
+        return new CANNON.LockConstraint(
+          this.el.body,
+          data.target.body,
+          {maxForce: data.maxForce}
+        );
+      case 'distance':
+        return new CANNON.DistanceConstraint(
+          this.el.body,
+          data.target.body,
+          data.distance,
+          data.maxForce
+        );
+      case 'hinge':
+        return new CANNON.HingeConstraint(
+          this.el.body,
+          data.target.body, {
+            pivotA: pivot,
+            pivotB: targetPivot,
+            axisA: axis,
+            axisB: targetAxis,
+            maxForce: data.maxForce
+          });
+      case 'coneTwist':
+        return new CANNON.ConeTwistConstraint(
+          this.el.body,
+          data.target.body, {
+            pivotA: pivot,
+            pivotB: targetPivot,
+            axisA: axis,
+            axisB: targetAxis,
+            maxForce: data.maxForce
+          });
+      case 'pointToPoint':
+        return new CANNON.PointToPointConstraint(
+          this.el.body,
+          pivot,
+          data.target.body,
+          targetPivot,
+          data.maxForce);
+      default:
+        throw new Error('[constraint] Unexpected type: ' + data.type);
+    }
   }
 };
 
@@ -5379,7 +5424,7 @@ module.exports={
     "/aframe-physics-system"
   ],
   "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "978d8979085b17fd0222913a2d349424b94a6e35",
+  "_shasum": "57d93629128bb64d9fe23af26d2df82d68b09d7f",
   "_shrinkwrap": null,
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",
@@ -19951,11 +19996,10 @@ CANNON.mesh2shape.Type = Type;
  * @return {CANNON.Shape}
  */
 function createBoundingBoxShape (object) {
-  var box, shape, localPosition, worldPosition,
-      helper = new THREE.BoundingBoxHelper(object);
+  var shape, localPosition, worldPosition,
+      box = new THREE.Box3();
 
-  helper.update();
-  box = helper.box;
+  box.setFromObject(object);
 
   if (!isFinite(box.min.lengthSq())) return null;
 
@@ -19968,7 +20012,7 @@ function createBoundingBoxShape (object) {
   object.updateMatrixWorld();
   worldPosition = new THREE.Vector3();
   worldPosition.setFromMatrixPosition(object.matrixWorld);
-  localPosition = helper.position.sub(worldPosition);
+  localPosition = box.translate(worldPosition.negate()).getCenter();
   if (localPosition.lengthSq()) {
     shape.offset = localPosition;
   }
@@ -21688,7 +21732,8 @@ module.exports = {
 module.exports = {
   schema: {
     clip:  {default: '*'},
-    duration: {default: 0}
+    duration: {default: 0},
+    crossFadeDuration: {default: 0}
   },
 
   init: function () {
@@ -21727,8 +21772,8 @@ module.exports = {
         activeActions = this.activeActions;
 
     if (data.clip !== previousData.clip) {
-      if (activeActions.length) this.mixer.stopAllAction();
-      if (data.clip) this.playClip(data.clip);
+      if (activeActions.length) this.stopAction();
+      if (data.clip) this.playAction();
     }
 
     if (!activeActions.length) return;
@@ -21740,21 +21785,34 @@ module.exports = {
     }
   },
 
-  playClip: function (clipName) {
+  stopAction: function () {
+    var data = this.data;
+    for (var i = 0; i < this.activeActions.length; i++) {
+      data.crossFadeDuration
+        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
+        : this.activeActions[i].stop();
+    }
+    this.activeActions.length = 0;
+  },
+
+  playAction: function () {
     if (!this.mixer) return;
 
     var model = this.model,
+        data = this.data,
         clips = model.animations || (model.geometry || {}).animations || [];
 
     if (!clips.length) return;
 
-    var re = wildcardToRegExp(clipName);
+    var re = wildcardToRegExp(data.clip);
 
-    this.activeActions.length = 0;
-    for (var clip, action, i = 0; (clip = clips[i]); i++) {
+    for (var clip, i = 0; (clip = clips[i]); i++) {
       if (clip.name.match(re)) {
-        action = this.mixer.clipAction(clip, model);
-        action.play();
+        var action = this.mixer.clipAction(clip, model);
+        action.enabled = true;
+        action
+          .fadeIn(data.crossFadeDuration)
+          .play();
         this.activeActions.push(action);
       }
     }

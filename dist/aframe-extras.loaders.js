@@ -3732,7 +3732,8 @@ module.exports = fetchScript;
 module.exports = {
   schema: {
     clip:  {default: '*'},
-    duration: {default: 0}
+    duration: {default: 0},
+    crossFadeDuration: {default: 0}
   },
 
   init: function () {
@@ -3771,8 +3772,8 @@ module.exports = {
         activeActions = this.activeActions;
 
     if (data.clip !== previousData.clip) {
-      if (activeActions.length) this.mixer.stopAllAction();
-      if (data.clip) this.playClip(data.clip);
+      if (activeActions.length) this.stopAction();
+      if (data.clip) this.playAction();
     }
 
     if (!activeActions.length) return;
@@ -3784,21 +3785,34 @@ module.exports = {
     }
   },
 
-  playClip: function (clipName) {
+  stopAction: function () {
+    var data = this.data;
+    for (var i = 0; i < this.activeActions.length; i++) {
+      data.crossFadeDuration
+        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
+        : this.activeActions[i].stop();
+    }
+    this.activeActions.length = 0;
+  },
+
+  playAction: function () {
     if (!this.mixer) return;
 
     var model = this.model,
+        data = this.data,
         clips = model.animations || (model.geometry || {}).animations || [];
 
     if (!clips.length) return;
 
-    var re = wildcardToRegExp(clipName);
+    var re = wildcardToRegExp(data.clip);
 
-    this.activeActions.length = 0;
-    for (var clip, action, i = 0; (clip = clips[i]); i++) {
+    for (var clip, i = 0; (clip = clips[i]); i++) {
       if (clip.name.match(re)) {
-        action = this.mixer.clipAction(clip, model);
-        action.play();
+        var action = this.mixer.clipAction(clip, model);
+        action.enabled = true;
+        action
+          .fadeIn(data.crossFadeDuration)
+          .play();
         this.activeActions.push(action);
       }
     }
