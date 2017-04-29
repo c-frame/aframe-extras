@@ -65,7 +65,7 @@ module.exports = {
     var data = this.data;
     for (var i = 0; i < this.activeActions.length; i++) {
       data.crossFadeDuration
-        ? this.activeActions[i].fadeOut(data.crossFadeDuration / 1000)
+        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
         : this.activeActions[i].stop();
     }
     this.activeActions.length = 0;
@@ -87,7 +87,7 @@ module.exports = {
         var action = this.mixer.clipAction(clip, model);
         action.enabled = true;
         action
-          .fadeIn(data.crossFadeDuration / 1000)
+          .fadeIn(data.crossFadeDuration)
           .play();
         this.activeActions.push(action);
       }
