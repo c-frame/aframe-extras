@@ -28,10 +28,21 @@ THREE.js models often need to be scaled down. Example:
 THREE.js models also support animation, through the `animation-mixer` component. The first animation will play by default, or you can specify
 an animation and its duration:
 
-| Property          | Default | Description                                               |
-|-------------------|---------|-----------------------------------------------------------|
-| clip              | *       | Name of the animation clip(s) to play. Accepts wildcards. |
-| duration          | AUTO    | Duration of the animation, in seconds.                    |
-| crossFadeDuration | 0       | Duration of cross-fades between clips, in seconds.        |
+| Property          | Default  | Description                                               |
+|-------------------|----------|-----------------------------------------------------------|
+| clip              | *        | Name of the animation clip(s) to play. Accepts wildcards. |
+| duration          | AUTO     | Duration of the animation, in seconds.                    |
+| crossFadeDuration | 0        | Duration of cross-fades between clips, in seconds.        |
+| loop              | repeat   | `once`, `repeat`, or `pingpong`. In `repeat` and `pingpong` modes, the clip plays once plus the specified number of repetitions. For `pingpong`, every second clip plays in reverse. |
+| repetitions       | Infinity | Number of times to play the clip, in addition to the first play. Repetitons are ignored for `loop: once`. |
 
 A list of available animations can usually be found by inspecting the model file or its documentation. All animations will play by default. To play only a specific set of animations, use wildcards: `animation-mixer="clip: run_*"`.
+
+### Animation Events
+
+The `animation-mixer` component emits events at certain points in the animation cycle.
+
+| Event              | Details               | Description                                                    |
+|--------------------|-----------------------|----------------------------------------------------------------|
+| animation-loop     | `action`, `loopDelta` | Emitted when a single loop of the animation clip has finished. |
+| animation-finished | `action`, `direction` | Emitted when all loops of an animation clip have finished.     |
