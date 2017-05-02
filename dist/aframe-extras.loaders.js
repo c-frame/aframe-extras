@@ -3722,6 +3722,12 @@ function fetchScript(settings) {
 module.exports = fetchScript;
 
 },{}],5:[function(require,module,exports){
+var LoopMode = {
+  once: THREE.LoopOnce,
+  repeat: THREE.LoopRepeat,
+  pingpong: THREE.LoopPingPong
+};
+
 /**
  * animation-mixer
  *
@@ -3733,7 +3739,9 @@ module.exports = {
   schema: {
     clip:  {default: '*'},
     duration: {default: 0},
-    crossFadeDuration: {default: 0}
+    crossFadeDuration: {default: 0},
+    loop: {default: 'repeat', oneOf: Object.keys(LoopMode)},
+    repetitions: {default: Infinity, min: 0}
   },
 
   init: function () {
@@ -3756,8 +3764,15 @@ module.exports = {
   },
 
   load: function (model) {
+    var el = this.el;
     this.model = model;
     this.mixer = new THREE.AnimationMixer(model);
+    this.mixer.addEventListener('loop', function (e) {
+      el.emit('animation-loop', {action: e.action, loopDelta: e.loopDelta});
+    }.bind(this));
+    this.mixer.addEventListener('finished', function (e) {
+      el.emit('animation-finished', {action: e.action, direction: e.direction});
+    }.bind(this));
     if (this.data.clip) this.update({});
   },
 
@@ -3768,20 +3783,10 @@ module.exports = {
   update: function (previousData) {
     if (!previousData) return;
 
-    var data = this.data,
-        activeActions = this.activeActions;
+    this.stopAction();
 
-    if (data.clip !== previousData.clip) {
-      if (activeActions.length) this.stopAction();
-      if (data.clip) this.playAction();
-    }
-
-    if (!activeActions.length) return;
-
-    if (data.duration) {
-      for (var action, i = 0; (action = activeActions[i]); i++) {
-        action.setDuration(data.duration);
-      }
+    if (this.data.clip) {
+      this.playAction();
     }
   },
 
@@ -3810,7 +3815,9 @@ module.exports = {
       if (clip.name.match(re)) {
         var action = this.mixer.clipAction(clip, model);
         action.enabled = true;
+        if (data.duration) action.setDuration(data.duration);
         action
+          .setLoop(LoopMode[data.loop], data.repetitions)
           .fadeIn(data.crossFadeDuration)
           .play();
         this.activeActions.push(action);
