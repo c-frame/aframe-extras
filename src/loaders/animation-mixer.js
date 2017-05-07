@@ -17,7 +17,8 @@ module.exports = {
     duration: {default: 0},
     crossFadeDuration: {default: 0},
     loop: {default: 'repeat', oneOf: Object.keys(LoopMode)},
-    repetitions: {default: Infinity, min: 0}
+    repetitions: {default: Infinity, min: 0},
+    useSkinnedMeshRoot: {default: false}
   },
 
   init: function () {
@@ -37,10 +38,22 @@ module.exports = {
         this.load(e.detail.model);
       }.bind(this));
     }
+
+    this.el.addEventListener('animation-loaded', this.onAnimationLoaded.bind(this));
   },
 
   load: function (model) {
     var el = this.el;
+    var data = this.data;
+
+    // Allow the (presumably only) SkinnedMesh to be used as the animation
+    // root, to support Mixamo-style exports.
+    if (data.useSkinnedMeshRoot) {
+      model.traverse(function (node) {
+        if (node.isSkinnedMesh) model = node;
+      });
+    }
+
     this.model = model;
     this.mixer = new THREE.AnimationMixer(model);
     this.mixer.addEventListener('loop', function (e) {
@@ -49,7 +62,8 @@ module.exports = {
     this.mixer.addEventListener('finished', function (e) {
       el.emit('animation-finished', {action: e.action, direction: e.direction});
     }.bind(this));
-    if (this.data.clip) this.update({});
+
+    if (data.clip) this.update({});
   },
 
   remove: function () {
@@ -79,9 +93,8 @@ module.exports = {
   playAction: function () {
     if (!this.mixer) return;
 
-    var model = this.model,
-        data = this.data,
-        clips = model.animations || (model.geometry || {}).animations || [];
+    var data = this.data,
+        clips = this.getClips();
 
     if (!clips.length) return;
 
@@ -89,20 +102,42 @@ module.exports = {
 
     for (var clip, i = 0; (clip = clips[i]); i++) {
       if (clip.name.match(re)) {
-        var action = this.mixer.clipAction(clip, model);
-        action.enabled = true;
-        if (data.duration) action.setDuration(data.duration);
-        action
-          .setLoop(LoopMode[data.loop], data.repetitions)
-          .fadeIn(data.crossFadeDuration)
-          .play();
-        this.activeActions.push(action);
+        this.playOneAction_(clip);
       }
     }
   },
 
+  playOneAction_: function (clip) {
+    var data = this.data;
+    var action = this.mixer.clipAction(clip, this.model);
+    action.enabled = true;
+    if (data.duration) action.setDuration(data.duration);
+    action
+      .setLoop(LoopMode[data.loop], data.repetitions)
+      .fadeIn(data.crossFadeDuration)
+      .play();
+    this.activeActions.push(action);
+  },
+
   tick: function (t, dt) {
     if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
+  },
+
+  getClips: function () {
+    var model = this.el.getObject3D('mesh');
+    if (!model) return [];
+    if (model.animations) return model.animations;
+    if ((model.geometry||{}).animations) return model.geometry.animations;
+    if ((model.children[0]||{}).animations) return model.children[0].animations;
+    return [];
+  },
+
+  onAnimationLoaded: function (e) {
+    var clip = e.detail.clip;
+    var re = wildcardToRegExp(this.data.clip);
+    if (clip.name.match(re) && this.mixer) {
+      this.playOneAction_(clip);
+    }
   }
 };
 

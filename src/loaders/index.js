@@ -1,5 +1,6 @@
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
+  'fbx-animation': require('./fbx-animation'),
   'fbx-model': require('./fbx-model'),
   'gltf-model-next': require('./gltf-model-next'),
   'json-model': require('./json-model'),
@@ -23,6 +24,11 @@ module.exports = {
     }
     if (!AFRAME.components['ply-model']) {
       AFRAME.registerComponent('ply-model', this['ply-model'].Component);
+    }
+
+    // THREE.FBXAnimationLoader
+    if (!AFRAME.components['fbx-animation']) {
+      AFRAME.registerComponent('fbx-animation', this['fbx-animation']);
     }
 
     // THREE.FBXLoader
