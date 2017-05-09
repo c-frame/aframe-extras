@@ -1,4 +1,4 @@
-THREE.FBXLoader = require('../../lib/FBXLoader');
+THREE.FBXLoader = require('../../lib/FBXLoader2');
 
 /**
  * fbx-model
