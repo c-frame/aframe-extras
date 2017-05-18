@@ -24,9 +24,10 @@ module.exports = {
     rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
     movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
+    movementEasingY:      { default: 0  }, // m/s2
     movementAcceleration: { default: 80 }, // m/s2
     rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
-    fly:                  { default: false }
+    fly:                  { default: false },
   },
 
   /*******************************************************************
@@ -168,6 +169,7 @@ module.exports = {
 
     velocity.copy(this.el.getAttribute('velocity'));
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
+    velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
 
     if (dVelocity && data.movementEnabled) {
