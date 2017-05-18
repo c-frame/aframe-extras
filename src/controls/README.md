@@ -22,6 +22,30 @@ Extend with custom controls:
           custom-controls></a-entity>
 ```
 
+To implement your custom controls, define a component and override one or more methods:
+
+| Type     | Required | Method |
+|----------|----------|--------|
+| Rotation | Yes      | isRotationActive() : boolean |
+| Rotation | No       | getRotationDelta(deltaMS : number) : THREE.Vector3 |
+| Rotation | No       | getRotation() : THREE.Vector3 |
+| Movement | Yes      | isVelocityActive() : boolean |
+| Movement | No       | getVelocityDelta(deltaMS : number) : THREE.Vector3 |
+| Movement | No       | getPositionDelta(deltaMS : number) : THREE.Vector3 |
+
+Example:
+
+```js
+AFRAME.registerCompononent('custom-controls', {
+  isVelocityActive: function () {
+    return Math.random() < 0.25;
+  },
+  getPositionDelta: function () {
+    return new THREE.Vector3(1, 0, 0);
+  }
+});
+```
+
 ## Input devices:
 
 - **checkpoint-controls**: Teleport or animate between checkpoints. See also: [checkpoint](/src/misc/checkpoint.js).
