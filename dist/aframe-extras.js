@@ -21240,13 +21240,17 @@ module.exports = {
   },
 
   onKeyDown: function (event) {
-    this.localKeys[event.code] = true;
-    this.emit(event);
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      this.localKeys[event.code] = true;
+      this.emit(event);
+    }
   },
 
   onKeyUp: function (event) {
-    delete this.localKeys[event.code];
-    this.emit(event);
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      delete this.localKeys[event.code];
+      this.emit(event);
+    }
   },
 
   onBlur: function () {
