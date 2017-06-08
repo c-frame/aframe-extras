@@ -5,16 +5,40 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Hex Grid</title>
     <script src="../aframe-extras.js"></script>
+    <script src="https://rawgit.com/fernandojsg/aframe-teleport-controls/master/dist/aframe-teleport-controls.min.js"></script>
   </head>
   <body>
     <a-scene fog="type: exponential; color: #F2AE72; density: 0.03;">
-      <a-box color="#F5F5F5" position="-6 0 -7"></a-box>
-      <a-hexgrid src="hexmap.json"
+      <!-- Spinning gem. -->
+      <a-box rotation="45 0 45"
+             position="-6 0.5 -7"
+             scale="0.6 0.6 0.6"
+             color="#F5F5F5" >
+        <a-animation attribute="rotation"
+                     easing="linear"
+                     dur="10000"
+                     fill="forwards"
+                     to="45 360 45"
+                     repeat="indefinite"></a-animation>
+      </a-box>
+
+      <!-- Hex grid. -->
+      <a-hexgrid id="grid"
+                 src="hexmap.json"
                  material="color: #47BF92"
                  scale="0.2 0.2 0.2"
                  position="0 -2.5 0"></a-hexgrid>
+
+      <!-- Water. -->
       <a-ocean color="#77E3EE" position="0 -1.5 0" width="150" depth="150"></a-ocean>
+
+      <!-- Sky. -->
       <a-sky color="#F2AE72"></a-sky>
+
+      <!-- Controls. -->
+      <a-entity vive-controls="hand: left"></a-entity>
+      <a-entity vive-controls="hand: right"
+                teleport-controls="landingMaxAngle: 360; collisionEntities: #grid;"></a-entity>
     </a-scene>
   </body>
 </html>
