@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Hex Grid</title>
+    <script src="../aframe-extras.js"></script>
+  </head>
+  <body>
+    <a-scene fog="type: exponential; color: #F2AE72; density: 0.03;">
+      <a-box color="#F5F5F5" position="-6 0 -7"></a-box>
+      <a-hexgrid src="hexmap.json"
+                 material="color: #47BF92"
+                 scale="0.2 0.2 0.2"
+                 position="0 -2.5 0"></a-hexgrid>
+      <a-ocean color="#77E3EE" position="0 -1.5 0" width="150" depth="150"></a-ocean>
+      <a-sky color="#F2AE72"></a-sky>
+    </a-scene>
+  </body>
+</html>

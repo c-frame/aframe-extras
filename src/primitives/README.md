@@ -3,6 +3,7 @@
 Reusable entities / primitives.
 
 - `<a-grid/>`: Flat grid, with subdivisions at regular intervals.
+- `<a-hexmap/>`: Hexagon map loaded from a JSON file, using [von-grid](https://github.com/vonWolfehaus/von-grid).
 - `<a-ocean/>`: Ocean with animated waves.
 - `<a-tube/>`: Tube following a custom path.
 
@@ -16,6 +17,10 @@ Basic:
 <a-ocean></a-ocean>
 
 <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5" material="color: red"></a-tube>
+
+<!-- Generate a hexmap here: http://vonwolfehaus.github.io/von-grid/editor/ -->
+<a-hexgrid src="hexmap.json"
+           material="color: #47BF92"></a-hexgrid>
 ```
 
 Custom:
