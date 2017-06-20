@@ -22,8 +22,8 @@ var Component = module.exports.Component = {
     var data = this.data;
     if (data.src) {
       fetch(data.src)
-        .then((response) => response.json())
-        .then((json) => this.addMesh(json));
+        .then(function (response) { response.json(); })
+        .then(function (json) { this.addMesh(json); });
     } else {
       this.addMesh(defaultHexGrid);
     }
