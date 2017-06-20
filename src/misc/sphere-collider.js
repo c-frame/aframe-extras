@@ -68,18 +68,22 @@ module.exports = {
   tick: (function () {
     var position = new THREE.Vector3(),
         meshPosition = new THREE.Vector3(),
+        meshScale = new THREE.Vector3(),
+        colliderScale = new THREE.Vector3(),
         distanceMap = new Map();
     return function () {
       var el = this.el,
           data = this.data,
           mesh = el.getObject3D('mesh'),
+          colliderRadius,
           collisions = [];
 
       if (!mesh) { return; }
 
       distanceMap.clear();
       position.copy(el.object3D.getWorldPosition());
-
+      el.object3D.getWorldScale(colliderScale);
+      colliderRadius = data.radius * scaleFactor(colliderScale);
       // Update collision list.
       this.els.forEach(intersect);
 
@@ -105,7 +109,7 @@ module.exports = {
 
       // Bounding sphere collision detection
       function intersect (el) {
-        var radius, mesh, distance;
+        var radius, mesh, distance, scale;
 
         if (!el.isEntity) { return; }
 
@@ -117,10 +121,15 @@ module.exports = {
         mesh.geometry.computeBoundingSphere();
         radius = mesh.geometry.boundingSphere.radius;
         distance = position.distanceTo(meshPosition);
-        if (distance < radius + data.radius) {
+        scale = scaleFactor(mesh.getWorldScale(meshScale));
+        if (distance < radius * scale + colliderRadius) {
           collisions.push(el);
           distanceMap.set(el, distance);
         }
+      }
+      // use max of scale factors to maintain bounding sphere collision
+      function scaleFactor (scaleVec) {
+        return Math.max.apply(null, Object.values(scaleVec));
       }
     };
   })(),
