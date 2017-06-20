@@ -2,6 +2,13 @@ var fetchScript = require('../../lib/fetch-script')();
 
 var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/dev/examples/js/loaders/GLTF2Loader.js';
 
+// Monkeypatch while waiting for three.js r86.
+if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
+
+  THREE.PropertyBinding.sanitizeNodeName = function (s) { return s; };
+
+}
+
 /**
  * Upcoming (and NOT YET STABLE) loader for glTF 2.0 models.
  * Pulls THREE.GLTF2Loader directly from three.js 'dev' branch.
