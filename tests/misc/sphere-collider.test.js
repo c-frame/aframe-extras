@@ -45,5 +45,25 @@ suite('sphere-collider', function () {
       collider.tick();
       expect(collidee.is(collider.data.state)).to.be.false;
     });
+    test('collision radius accounts for collidee scale', function () {
+      // Obj3d needs forced update to pickup A-Frame attrs in test context
+      collidee.object3D.updateMatrixWorld(true);
+      collider.tick();
+      expect(collidee.is(collider.data.state)).to.be.false;
+      collidee.setAttribute('scale', '10 10  10');
+      collidee.object3D.updateMatrixWorld(true);
+      collider.tick();
+      expect(collidee.is(collider.data.state)).to.be.true;
+    });
+    test('collision radius accounts for collider scale', function () {
+      // Obj3d needs forced update to pickup A-Frame attrs in test context
+      collidee.object3D.updateMatrixWorld(true);
+      collider.tick();
+      expect(collidee.is(collider.data.state)).to.be.false;
+      collider.el.setAttribute('scale', '160 1 1');
+      collider.el.object3D.updateMatrixWorld(true);
+      collider.tick();
+      expect(collidee.is(collider.data.state)).to.be.true;
+    });
   });
 });
