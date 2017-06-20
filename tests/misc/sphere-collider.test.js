@@ -1,3 +1,4 @@
+/* global suite, setup, test, expect */
 var entityFactory = require('../helpers').entityFactory;
 
 suite('sphere-collider', function () {
@@ -28,7 +29,7 @@ suite('sphere-collider', function () {
       process.nextTick(function () {
         expect(collider.el.components['sphere-collider']).to.not.be.ok;
         done();
-      })
+      });
     });
   });
 
@@ -44,5 +45,5 @@ suite('sphere-collider', function () {
       collider.tick();
       expect(collidee.is(collider.data.state)).to.be.false;
     });
-  }); 
+  });
 });
