@@ -129,7 +129,7 @@ module.exports = {
       }
       // use max of scale factors to maintain bounding sphere collision
       function scaleFactor (scaleVec) {
-        return Math.max.apply(null, Object.values(scaleVec));
+        return Math.max.apply(null, scaleVec.toArray());
       }
     };
   })(),
