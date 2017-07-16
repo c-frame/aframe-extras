@@ -12,8 +12,8 @@ Unsure whether to use `json-model` or `object-model`? Check the console for erro
 ## Usage
 
 ```html
-<a-entity json-model="src: url(my-model.json);">
-</a-entity>
+<a-entity json-model="src: url(my-model.json);"></a-entity>
+<a-entity gltf-model-next="src: url(my-model.gltf);"></a-entity>
 ```
 
 THREE.js models often need to be scaled down. Example:
