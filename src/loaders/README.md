@@ -2,6 +2,7 @@
 
 Loaders for various 3D model types. All are trivial wrappers around one of the [many THREE.js loader classes](https://github.com/mrdoob/three.js/tree/master/examples/js/loaders).
 
+- **gltf-model-next**: <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub> Loader for glTF 2.0 format. Hot-loads an unstable version of `THREE.GLTF2Loader` at runtime, and may change or break without warning.
 - **json-model**: Loader for THREE.js .JSON format, generally containing a single mesh.
 - **object-model**: Loader for THREE.js .JSON format, generally containing multiple meshes or an entire scene.
 - **ply-model**: Loader for PLY format. Works well with occlusion and shadow baked models exported from [MagicaVoxel](https://ephtracy.github.io/).
@@ -12,7 +13,10 @@ Unsure whether to use `json-model` or `object-model`? Check the console for erro
 ## Usage
 
 ```html
+<!-- three.js JSON -->
 <a-entity json-model="src: url(my-model.json);"></a-entity>
+
+<!-- glTF 2.0 -->
 <a-entity gltf-model-next="src: url(my-model.gltf);"></a-entity>
 ```
 
