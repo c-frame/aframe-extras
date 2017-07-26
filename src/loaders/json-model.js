@@ -13,7 +13,8 @@
 module.exports = {
   schema: {
     src:         { type: 'asset' },
-    crossorigin: { default: '' }
+    crossorigin: { default: '' },
+    computeVertexNormals: { default: false }
   },
 
   init: function () {
@@ -41,6 +42,10 @@ module.exports = {
       var model = (geometry.bones || []).length
         ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
         : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+      if(data.computeVertexNormals) {
+        geometry.computeVertexNormals();
+      }
 
       this.load(model);
     }.bind(this));
