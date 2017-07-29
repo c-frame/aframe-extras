@@ -112,20 +112,24 @@ module.exports = {
 
       // Bounding sphere collision detection
       function intersect (el) {
-        var radius, mesh, distance, scale;
+        var radius, mesh, distance, box, extent, size;
 
         if (!el.isEntity) { return; }
 
         mesh = el.getObject3D('mesh');
 
-        if (!mesh || !mesh.geometry) { return; }
+        if (!mesh) { return; }
 
-        mesh.getWorldPosition(meshPosition);
-        mesh.geometry.computeBoundingSphere();
-        radius = mesh.geometry.boundingSphere.radius;
+        box = new THREE.Box3().setFromObject(mesh);
+        size = box.getSize();
+        extent = Math.max(size.x, size.y, size.z) / 2;
+        radius = Math.sqrt(2 * extent * extent);
+        box.getCenter(meshPosition);
+
+        if (!radius) { return; }
+
         distance = position.distanceTo(meshPosition);
-        scale = scaleFactor(mesh.getWorldScale(meshScale));
-        if (distance < radius * scale + colliderRadius) {
+        if (distance < radius + colliderRadius) {
           collisions.push(el);
           distanceMap.set(el, distance);
         }

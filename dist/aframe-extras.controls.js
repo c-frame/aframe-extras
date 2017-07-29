@@ -1322,22 +1322,28 @@ module.exports = {
         axis = new CANNON.Vec3(data.axis.x, data.axis.y, data.axis.z),
         targetAxis= new CANNON.Vec3(data.targetAxis.x, data.targetAxis.y, data.targetAxis.z);
 
+    var constraint;
+
     switch (data.type) {
       case 'lock':
-        return new CANNON.LockConstraint(
+        constraint = new CANNON.LockConstraint(
           this.el.body,
           data.target.body,
           {maxForce: data.maxForce}
         );
+        break;
+
       case 'distance':
-        return new CANNON.DistanceConstraint(
+        constraint = new CANNON.DistanceConstraint(
           this.el.body,
           data.target.body,
           data.distance,
           data.maxForce
         );
+        break;
+
       case 'hinge':
-        return new CANNON.HingeConstraint(
+        constraint = new CANNON.HingeConstraint(
           this.el.body,
           data.target.body, {
             pivotA: pivot,
@@ -1346,8 +1352,10 @@ module.exports = {
             axisB: targetAxis,
             maxForce: data.maxForce
           });
+        break;
+
       case 'coneTwist':
-        return new CANNON.ConeTwistConstraint(
+        constraint = new CANNON.ConeTwistConstraint(
           this.el.body,
           data.target.body, {
             pivotA: pivot,
@@ -1356,16 +1364,23 @@ module.exports = {
             axisB: targetAxis,
             maxForce: data.maxForce
           });
+        break;
+
       case 'pointToPoint':
-        return new CANNON.PointToPointConstraint(
+        constraint = new CANNON.PointToPointConstraint(
           this.el.body,
           pivot,
           data.target.body,
           targetPivot,
           data.maxForce);
+        break;
+
       default:
         throw new Error('[constraint] Unexpected type: ' + data.type);
     }
+
+    constraint.collideConnected = data.collideConnected;
+    return constraint;
   }
 };
 
@@ -1687,7 +1702,7 @@ module.exports={
     "/aframe-physics-system"
   ],
   "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "01b2607f648bfec4c702aa2ba8409d95ebfe11dd",
+  "_shasum": "1feaace5aa9b5582c190748b160b2c8383e059fd",
   "_shrinkwrap": null,
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",

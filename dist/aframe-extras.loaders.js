@@ -3893,7 +3893,9 @@ var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/dev/examples/js/loaders/GLT
 // Monkeypatch while waiting for three.js r86.
 if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
 
-  THREE.PropertyBinding.sanitizeNodeName = function (s) { return s; };
+  THREE.PropertyBinding.sanitizeNodeName = function (s) {
+    return s.replace(/\./g, '_');
+  };
 
 }
 
