@@ -17,7 +17,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":82,"./src/loaders":90,"./src/misc":98,"./src/primitives":107,"aframe-physics-system":11}],3:[function(require,module,exports){
+},{"./src/controls":82,"./src/loaders":90,"./src/misc":98,"./src/primitives":108,"aframe-physics-system":11}],3:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  * @author Kyle-Larson https://github.com/Kyle-Larson
@@ -5025,7 +5025,7 @@ module.exports = {
   }())
 };
 
-},{"../../../lib/CANNON-shape2mesh":12,"cannon":23,"three-to-cannon":108}],14:[function(require,module,exports){
+},{"../../../lib/CANNON-shape2mesh":12,"cannon":23,"three-to-cannon":109}],14:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -21790,6 +21790,7 @@ module.exports = {
   'grab':            require('./grab'),
   'jump-ability':    require('./jump-ability'),
   'kinematic-body':  require('./kinematic-body'),
+  'mesh-smooth':     require('./mesh-smooth'),
   'sphere-collider': require('./sphere-collider'),
   'toggle-velocity': require('./toggle-velocity'),
 
@@ -21804,6 +21805,7 @@ module.exports = {
     if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
     if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
     if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
+    if (!AFRAME.components['mesh-smooth'])     AFRAME.registerComponent('mesh-smooth',     this['mesh-smooth']);
     if (!AFRAME.components['sphere-collider']) AFRAME.registerComponent('sphere-collider', this['sphere-collider']);
     if (!AFRAME.components['toggle-velocity']) AFRAME.registerComponent('toggle-velocity', this['toggle-velocity']);
 
@@ -21811,7 +21813,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint":95,"./cube-env-map":96,"./grab":97,"./jump-ability":99,"./kinematic-body":100,"./sphere-collider":101,"./toggle-velocity":102,"aframe-physics-system":11}],99:[function(require,module,exports){
+},{"./checkpoint":95,"./cube-env-map":96,"./grab":97,"./jump-ability":99,"./kinematic-body":100,"./mesh-smooth":101,"./sphere-collider":102,"./toggle-velocity":103,"aframe-physics-system":11}],99:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -22077,6 +22079,21 @@ module.exports = {
 
 },{}],101:[function(require,module,exports){
 /**
+ * Apply this component to models that looks "blocky", to have Three.js compute
+ * vertex normals on the fly for a "smoother" look.
+ */
+module.exports = {
+  init: function () {
+    this.el.addEventListener('model-loaded', function (e) {
+      e.detail.model.traverse(function (node) {
+        if (node.isMesh) node.geometry.computeVertexNormals();
+      });
+    })
+  }
+}
+
+},{}],102:[function(require,module,exports){
+/**
  * Based on aframe/examples/showcase/tracked-controls.
  *
  * Implement bounding sphere collision detection for entities with a mesh.
@@ -22223,7 +22240,7 @@ module.exports = {
   }
 };
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -22260,7 +22277,7 @@ module.exports = {
   },
 };
 
-},{}],103:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -22296,7 +22313,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],104:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 var vg = require('../../lib/hex-grid.min.js');
 var defaultHexGrid = require('../../lib/default-hex-grid.json');
 
@@ -22361,7 +22378,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],105:[function(require,module,exports){
+},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],106:[function(require,module,exports){
 /**
  * Flat-shaded ocean primitive.
  *
@@ -22468,7 +22485,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],106:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 /**
  * Tube following a custom path.
  *
@@ -22543,7 +22560,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module.exports = {
   'a-grid':     require('./a-grid'),
   'a-hexgrid': require('./a-hexgrid'),
@@ -22561,7 +22578,7 @@ module.exports = {
   }
 };
 
-},{"./a-grid":103,"./a-hexgrid":104,"./a-ocean":105,"./a-tube":106}],108:[function(require,module,exports){
+},{"./a-grid":104,"./a-hexgrid":105,"./a-ocean":106,"./a-tube":107}],109:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./lib/THREE.quickhull');
 
@@ -22926,7 +22943,7 @@ function getMeshes (object) {
   return meshes;
 }
 
-},{"./lib/THREE.quickhull":109,"cannon":111}],109:[function(require,module,exports){
+},{"./lib/THREE.quickhull":110,"cannon":112}],110:[function(require,module,exports){
 /**
 
   QuickHull
@@ -23378,7 +23395,7 @@ module.exports = (function(){
 
 }())
 
-},{}],110:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 module.exports={
   "_args": [
     [
@@ -23485,116 +23502,116 @@ module.exports={
   "version": "0.6.2"
 }
 
-},{}],111:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"../package.json":110,"./collision/AABB":112,"./collision/ArrayCollisionMatrix":113,"./collision/Broadphase":114,"./collision/GridBroadphase":115,"./collision/NaiveBroadphase":116,"./collision/ObjectCollisionMatrix":117,"./collision/Ray":119,"./collision/RaycastResult":120,"./collision/SAPBroadphase":121,"./constraints/ConeTwistConstraint":122,"./constraints/Constraint":123,"./constraints/DistanceConstraint":124,"./constraints/HingeConstraint":125,"./constraints/LockConstraint":126,"./constraints/PointToPointConstraint":127,"./equations/ContactEquation":129,"./equations/Equation":130,"./equations/FrictionEquation":131,"./equations/RotationalEquation":132,"./equations/RotationalMotorEquation":133,"./material/ContactMaterial":134,"./material/Material":135,"./math/Mat3":137,"./math/Quaternion":138,"./math/Transform":139,"./math/Vec3":140,"./objects/Body":141,"./objects/RaycastVehicle":142,"./objects/RigidVehicle":143,"./objects/SPHSystem":144,"./objects/Spring":145,"./shapes/Box":147,"./shapes/ConvexPolyhedron":148,"./shapes/Cylinder":149,"./shapes/Heightfield":150,"./shapes/Particle":151,"./shapes/Plane":152,"./shapes/Shape":153,"./shapes/Sphere":154,"./shapes/Trimesh":155,"./solver/GSSolver":156,"./solver/Solver":157,"./solver/SplitSolver":158,"./utils/EventTarget":159,"./utils/Pool":161,"./utils/Vec3Pool":164,"./world/Narrowphase":165,"./world/World":166,"dup":23}],112:[function(require,module,exports){
+},{"../package.json":111,"./collision/AABB":113,"./collision/ArrayCollisionMatrix":114,"./collision/Broadphase":115,"./collision/GridBroadphase":116,"./collision/NaiveBroadphase":117,"./collision/ObjectCollisionMatrix":118,"./collision/Ray":120,"./collision/RaycastResult":121,"./collision/SAPBroadphase":122,"./constraints/ConeTwistConstraint":123,"./constraints/Constraint":124,"./constraints/DistanceConstraint":125,"./constraints/HingeConstraint":126,"./constraints/LockConstraint":127,"./constraints/PointToPointConstraint":128,"./equations/ContactEquation":130,"./equations/Equation":131,"./equations/FrictionEquation":132,"./equations/RotationalEquation":133,"./equations/RotationalMotorEquation":134,"./material/ContactMaterial":135,"./material/Material":136,"./math/Mat3":138,"./math/Quaternion":139,"./math/Transform":140,"./math/Vec3":141,"./objects/Body":142,"./objects/RaycastVehicle":143,"./objects/RigidVehicle":144,"./objects/SPHSystem":145,"./objects/Spring":146,"./shapes/Box":148,"./shapes/ConvexPolyhedron":149,"./shapes/Cylinder":150,"./shapes/Heightfield":151,"./shapes/Particle":152,"./shapes/Plane":153,"./shapes/Shape":154,"./shapes/Sphere":155,"./shapes/Trimesh":156,"./solver/GSSolver":157,"./solver/Solver":158,"./solver/SplitSolver":159,"./utils/EventTarget":160,"./utils/Pool":162,"./utils/Vec3Pool":165,"./world/Narrowphase":166,"./world/World":167,"dup":23}],113:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"../math/Vec3":140,"../utils/Utils":163,"dup":24}],113:[function(require,module,exports){
+},{"../math/Vec3":141,"../utils/Utils":164,"dup":24}],114:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"dup":25}],114:[function(require,module,exports){
+},{"dup":25}],115:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"../math/Quaternion":138,"../math/Vec3":140,"../objects/Body":141,"../shapes/Plane":152,"../shapes/Shape":153,"dup":26}],115:[function(require,module,exports){
+},{"../math/Quaternion":139,"../math/Vec3":141,"../objects/Body":142,"../shapes/Plane":153,"../shapes/Shape":154,"dup":26}],116:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"../math/Vec3":140,"../shapes/Shape":153,"./Broadphase":114,"dup":27}],116:[function(require,module,exports){
+},{"../math/Vec3":141,"../shapes/Shape":154,"./Broadphase":115,"dup":27}],117:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"./AABB":112,"./Broadphase":114,"dup":28}],117:[function(require,module,exports){
+},{"./AABB":113,"./Broadphase":115,"dup":28}],118:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],118:[function(require,module,exports){
+},{"dup":29}],119:[function(require,module,exports){
 arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],119:[function(require,module,exports){
+},{"dup":30}],120:[function(require,module,exports){
 arguments[4][31][0].apply(exports,arguments)
-},{"../collision/AABB":112,"../collision/RaycastResult":120,"../math/Quaternion":138,"../math/Transform":139,"../math/Vec3":140,"../shapes/Box":147,"../shapes/ConvexPolyhedron":148,"../shapes/Shape":153,"dup":31}],120:[function(require,module,exports){
+},{"../collision/AABB":113,"../collision/RaycastResult":121,"../math/Quaternion":139,"../math/Transform":140,"../math/Vec3":141,"../shapes/Box":148,"../shapes/ConvexPolyhedron":149,"../shapes/Shape":154,"dup":31}],121:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
-},{"../math/Vec3":140,"dup":32}],121:[function(require,module,exports){
+},{"../math/Vec3":141,"dup":32}],122:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
-},{"../collision/Broadphase":114,"../shapes/Shape":153,"dup":33}],122:[function(require,module,exports){
+},{"../collision/Broadphase":115,"../shapes/Shape":154,"dup":33}],123:[function(require,module,exports){
 arguments[4][34][0].apply(exports,arguments)
-},{"../equations/ConeEquation":128,"../equations/ContactEquation":129,"../equations/RotationalEquation":132,"../math/Vec3":140,"./Constraint":123,"./PointToPointConstraint":127,"dup":34}],123:[function(require,module,exports){
+},{"../equations/ConeEquation":129,"../equations/ContactEquation":130,"../equations/RotationalEquation":133,"../math/Vec3":141,"./Constraint":124,"./PointToPointConstraint":128,"dup":34}],124:[function(require,module,exports){
 arguments[4][35][0].apply(exports,arguments)
-},{"../utils/Utils":163,"dup":35}],124:[function(require,module,exports){
+},{"../utils/Utils":164,"dup":35}],125:[function(require,module,exports){
 arguments[4][36][0].apply(exports,arguments)
-},{"../equations/ContactEquation":129,"./Constraint":123,"dup":36}],125:[function(require,module,exports){
+},{"../equations/ContactEquation":130,"./Constraint":124,"dup":36}],126:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"../equations/ContactEquation":129,"../equations/RotationalEquation":132,"../equations/RotationalMotorEquation":133,"../math/Vec3":140,"./Constraint":123,"./PointToPointConstraint":127,"dup":37}],126:[function(require,module,exports){
+},{"../equations/ContactEquation":130,"../equations/RotationalEquation":133,"../equations/RotationalMotorEquation":134,"../math/Vec3":141,"./Constraint":124,"./PointToPointConstraint":128,"dup":37}],127:[function(require,module,exports){
 arguments[4][38][0].apply(exports,arguments)
-},{"../equations/ContactEquation":129,"../equations/RotationalEquation":132,"../equations/RotationalMotorEquation":133,"../math/Vec3":140,"./Constraint":123,"./PointToPointConstraint":127,"dup":38}],127:[function(require,module,exports){
+},{"../equations/ContactEquation":130,"../equations/RotationalEquation":133,"../equations/RotationalMotorEquation":134,"../math/Vec3":141,"./Constraint":124,"./PointToPointConstraint":128,"dup":38}],128:[function(require,module,exports){
 arguments[4][39][0].apply(exports,arguments)
-},{"../equations/ContactEquation":129,"../math/Vec3":140,"./Constraint":123,"dup":39}],128:[function(require,module,exports){
+},{"../equations/ContactEquation":130,"../math/Vec3":141,"./Constraint":124,"dup":39}],129:[function(require,module,exports){
 arguments[4][40][0].apply(exports,arguments)
-},{"../math/Mat3":137,"../math/Vec3":140,"./Equation":130,"dup":40}],129:[function(require,module,exports){
+},{"../math/Mat3":138,"../math/Vec3":141,"./Equation":131,"dup":40}],130:[function(require,module,exports){
 arguments[4][41][0].apply(exports,arguments)
-},{"../math/Mat3":137,"../math/Vec3":140,"./Equation":130,"dup":41}],130:[function(require,module,exports){
+},{"../math/Mat3":138,"../math/Vec3":141,"./Equation":131,"dup":41}],131:[function(require,module,exports){
 arguments[4][42][0].apply(exports,arguments)
-},{"../math/JacobianElement":136,"../math/Vec3":140,"dup":42}],131:[function(require,module,exports){
+},{"../math/JacobianElement":137,"../math/Vec3":141,"dup":42}],132:[function(require,module,exports){
 arguments[4][43][0].apply(exports,arguments)
-},{"../math/Mat3":137,"../math/Vec3":140,"./Equation":130,"dup":43}],132:[function(require,module,exports){
+},{"../math/Mat3":138,"../math/Vec3":141,"./Equation":131,"dup":43}],133:[function(require,module,exports){
 arguments[4][44][0].apply(exports,arguments)
-},{"../math/Mat3":137,"../math/Vec3":140,"./Equation":130,"dup":44}],133:[function(require,module,exports){
+},{"../math/Mat3":138,"../math/Vec3":141,"./Equation":131,"dup":44}],134:[function(require,module,exports){
 arguments[4][45][0].apply(exports,arguments)
-},{"../math/Mat3":137,"../math/Vec3":140,"./Equation":130,"dup":45}],134:[function(require,module,exports){
+},{"../math/Mat3":138,"../math/Vec3":141,"./Equation":131,"dup":45}],135:[function(require,module,exports){
 arguments[4][46][0].apply(exports,arguments)
-},{"../utils/Utils":163,"dup":46}],135:[function(require,module,exports){
+},{"../utils/Utils":164,"dup":46}],136:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"dup":47}],136:[function(require,module,exports){
+},{"dup":47}],137:[function(require,module,exports){
 arguments[4][48][0].apply(exports,arguments)
-},{"./Vec3":140,"dup":48}],137:[function(require,module,exports){
+},{"./Vec3":141,"dup":48}],138:[function(require,module,exports){
 arguments[4][49][0].apply(exports,arguments)
-},{"./Vec3":140,"dup":49}],138:[function(require,module,exports){
+},{"./Vec3":141,"dup":49}],139:[function(require,module,exports){
 arguments[4][50][0].apply(exports,arguments)
-},{"./Vec3":140,"dup":50}],139:[function(require,module,exports){
+},{"./Vec3":141,"dup":50}],140:[function(require,module,exports){
 arguments[4][51][0].apply(exports,arguments)
-},{"./Quaternion":138,"./Vec3":140,"dup":51}],140:[function(require,module,exports){
+},{"./Quaternion":139,"./Vec3":141,"dup":51}],141:[function(require,module,exports){
 arguments[4][52][0].apply(exports,arguments)
-},{"./Mat3":137,"dup":52}],141:[function(require,module,exports){
+},{"./Mat3":138,"dup":52}],142:[function(require,module,exports){
 arguments[4][53][0].apply(exports,arguments)
-},{"../collision/AABB":112,"../material/Material":135,"../math/Mat3":137,"../math/Quaternion":138,"../math/Vec3":140,"../shapes/Box":147,"../shapes/Shape":153,"../utils/EventTarget":159,"dup":53}],142:[function(require,module,exports){
+},{"../collision/AABB":113,"../material/Material":136,"../math/Mat3":138,"../math/Quaternion":139,"../math/Vec3":141,"../shapes/Box":148,"../shapes/Shape":154,"../utils/EventTarget":160,"dup":53}],143:[function(require,module,exports){
 arguments[4][54][0].apply(exports,arguments)
-},{"../collision/Ray":119,"../collision/RaycastResult":120,"../math/Quaternion":138,"../math/Vec3":140,"../objects/WheelInfo":146,"./Body":141,"dup":54}],143:[function(require,module,exports){
+},{"../collision/Ray":120,"../collision/RaycastResult":121,"../math/Quaternion":139,"../math/Vec3":141,"../objects/WheelInfo":147,"./Body":142,"dup":54}],144:[function(require,module,exports){
 arguments[4][55][0].apply(exports,arguments)
-},{"../constraints/HingeConstraint":125,"../math/Vec3":140,"../shapes/Box":147,"../shapes/Sphere":154,"./Body":141,"dup":55}],144:[function(require,module,exports){
+},{"../constraints/HingeConstraint":126,"../math/Vec3":141,"../shapes/Box":148,"../shapes/Sphere":155,"./Body":142,"dup":55}],145:[function(require,module,exports){
 arguments[4][56][0].apply(exports,arguments)
-},{"../material/Material":135,"../math/Quaternion":138,"../math/Vec3":140,"../objects/Body":141,"../shapes/Particle":151,"../shapes/Shape":153,"dup":56}],145:[function(require,module,exports){
+},{"../material/Material":136,"../math/Quaternion":139,"../math/Vec3":141,"../objects/Body":142,"../shapes/Particle":152,"../shapes/Shape":154,"dup":56}],146:[function(require,module,exports){
 arguments[4][57][0].apply(exports,arguments)
-},{"../math/Vec3":140,"dup":57}],146:[function(require,module,exports){
+},{"../math/Vec3":141,"dup":57}],147:[function(require,module,exports){
 arguments[4][58][0].apply(exports,arguments)
-},{"../collision/RaycastResult":120,"../math/Transform":139,"../math/Vec3":140,"../utils/Utils":163,"dup":58}],147:[function(require,module,exports){
+},{"../collision/RaycastResult":121,"../math/Transform":140,"../math/Vec3":141,"../utils/Utils":164,"dup":58}],148:[function(require,module,exports){
 arguments[4][59][0].apply(exports,arguments)
-},{"../math/Vec3":140,"./ConvexPolyhedron":148,"./Shape":153,"dup":59}],148:[function(require,module,exports){
+},{"../math/Vec3":141,"./ConvexPolyhedron":149,"./Shape":154,"dup":59}],149:[function(require,module,exports){
 arguments[4][60][0].apply(exports,arguments)
-},{"../math/Quaternion":138,"../math/Transform":139,"../math/Vec3":140,"./Shape":153,"dup":60}],149:[function(require,module,exports){
+},{"../math/Quaternion":139,"../math/Transform":140,"../math/Vec3":141,"./Shape":154,"dup":60}],150:[function(require,module,exports){
 arguments[4][61][0].apply(exports,arguments)
-},{"../math/Quaternion":138,"../math/Vec3":140,"./ConvexPolyhedron":148,"./Shape":153,"dup":61}],150:[function(require,module,exports){
+},{"../math/Quaternion":139,"../math/Vec3":141,"./ConvexPolyhedron":149,"./Shape":154,"dup":61}],151:[function(require,module,exports){
 arguments[4][62][0].apply(exports,arguments)
-},{"../math/Vec3":140,"../utils/Utils":163,"./ConvexPolyhedron":148,"./Shape":153,"dup":62}],151:[function(require,module,exports){
+},{"../math/Vec3":141,"../utils/Utils":164,"./ConvexPolyhedron":149,"./Shape":154,"dup":62}],152:[function(require,module,exports){
 arguments[4][63][0].apply(exports,arguments)
-},{"../math/Vec3":140,"./Shape":153,"dup":63}],152:[function(require,module,exports){
+},{"../math/Vec3":141,"./Shape":154,"dup":63}],153:[function(require,module,exports){
 arguments[4][64][0].apply(exports,arguments)
-},{"../math/Vec3":140,"./Shape":153,"dup":64}],153:[function(require,module,exports){
+},{"../math/Vec3":141,"./Shape":154,"dup":64}],154:[function(require,module,exports){
 arguments[4][65][0].apply(exports,arguments)
-},{"../material/Material":135,"../math/Quaternion":138,"../math/Vec3":140,"./Shape":153,"dup":65}],154:[function(require,module,exports){
+},{"../material/Material":136,"../math/Quaternion":139,"../math/Vec3":141,"./Shape":154,"dup":65}],155:[function(require,module,exports){
 arguments[4][66][0].apply(exports,arguments)
-},{"../math/Vec3":140,"./Shape":153,"dup":66}],155:[function(require,module,exports){
+},{"../math/Vec3":141,"./Shape":154,"dup":66}],156:[function(require,module,exports){
 arguments[4][67][0].apply(exports,arguments)
-},{"../collision/AABB":112,"../math/Quaternion":138,"../math/Transform":139,"../math/Vec3":140,"../utils/Octree":160,"./Shape":153,"dup":67}],156:[function(require,module,exports){
+},{"../collision/AABB":113,"../math/Quaternion":139,"../math/Transform":140,"../math/Vec3":141,"../utils/Octree":161,"./Shape":154,"dup":67}],157:[function(require,module,exports){
 arguments[4][68][0].apply(exports,arguments)
-},{"../math/Quaternion":138,"../math/Vec3":140,"./Solver":157,"dup":68}],157:[function(require,module,exports){
+},{"../math/Quaternion":139,"../math/Vec3":141,"./Solver":158,"dup":68}],158:[function(require,module,exports){
 arguments[4][69][0].apply(exports,arguments)
-},{"dup":69}],158:[function(require,module,exports){
+},{"dup":69}],159:[function(require,module,exports){
 arguments[4][70][0].apply(exports,arguments)
-},{"../math/Quaternion":138,"../math/Vec3":140,"../objects/Body":141,"./Solver":157,"dup":70}],159:[function(require,module,exports){
+},{"../math/Quaternion":139,"../math/Vec3":141,"../objects/Body":142,"./Solver":158,"dup":70}],160:[function(require,module,exports){
 arguments[4][71][0].apply(exports,arguments)
-},{"dup":71}],160:[function(require,module,exports){
+},{"dup":71}],161:[function(require,module,exports){
 arguments[4][72][0].apply(exports,arguments)
-},{"../collision/AABB":112,"../math/Vec3":140,"dup":72}],161:[function(require,module,exports){
+},{"../collision/AABB":113,"../math/Vec3":141,"dup":72}],162:[function(require,module,exports){
 arguments[4][73][0].apply(exports,arguments)
-},{"dup":73}],162:[function(require,module,exports){
+},{"dup":73}],163:[function(require,module,exports){
 arguments[4][74][0].apply(exports,arguments)
-},{"dup":74}],163:[function(require,module,exports){
+},{"dup":74}],164:[function(require,module,exports){
 arguments[4][75][0].apply(exports,arguments)
-},{"dup":75}],164:[function(require,module,exports){
+},{"dup":75}],165:[function(require,module,exports){
 arguments[4][76][0].apply(exports,arguments)
-},{"../math/Vec3":140,"./Pool":161,"dup":76}],165:[function(require,module,exports){
+},{"../math/Vec3":141,"./Pool":162,"dup":76}],166:[function(require,module,exports){
 arguments[4][77][0].apply(exports,arguments)
-},{"../collision/AABB":112,"../collision/Ray":119,"../equations/ContactEquation":129,"../equations/FrictionEquation":131,"../math/Quaternion":138,"../math/Transform":139,"../math/Vec3":140,"../objects/Body":141,"../shapes/ConvexPolyhedron":148,"../shapes/Shape":153,"../solver/Solver":157,"../utils/Vec3Pool":164,"dup":77}],166:[function(require,module,exports){
+},{"../collision/AABB":113,"../collision/Ray":120,"../equations/ContactEquation":130,"../equations/FrictionEquation":132,"../math/Quaternion":139,"../math/Transform":140,"../math/Vec3":141,"../objects/Body":142,"../shapes/ConvexPolyhedron":149,"../shapes/Shape":154,"../solver/Solver":158,"../utils/Vec3Pool":165,"dup":77}],167:[function(require,module,exports){
 arguments[4][78][0].apply(exports,arguments)
-},{"../collision/AABB":112,"../collision/ArrayCollisionMatrix":113,"../collision/NaiveBroadphase":116,"../collision/OverlapKeeper":118,"../collision/Ray":119,"../collision/RaycastResult":120,"../equations/ContactEquation":129,"../equations/FrictionEquation":131,"../material/ContactMaterial":134,"../material/Material":135,"../math/Quaternion":138,"../math/Vec3":140,"../objects/Body":141,"../shapes/Shape":153,"../solver/GSSolver":156,"../utils/EventTarget":159,"../utils/TupleDictionary":162,"./Narrowphase":165,"dup":78}]},{},[1]);
+},{"../collision/AABB":113,"../collision/ArrayCollisionMatrix":114,"../collision/NaiveBroadphase":117,"../collision/OverlapKeeper":119,"../collision/Ray":120,"../collision/RaycastResult":121,"../equations/ContactEquation":130,"../equations/FrictionEquation":132,"../material/ContactMaterial":135,"../material/Material":136,"../math/Quaternion":139,"../math/Vec3":141,"../objects/Body":142,"../shapes/Shape":154,"../solver/GSSolver":157,"../utils/EventTarget":160,"../utils/TupleDictionary":163,"./Narrowphase":166,"dup":78}]},{},[1]);
