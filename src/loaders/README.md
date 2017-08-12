@@ -2,7 +2,8 @@
 
 Loaders for various 3D model types. All are trivial wrappers around one of the [many THREE.js loader classes](https://github.com/mrdoob/three.js/tree/master/examples/js/loaders).
 
-- **gltf-model-next**: <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub> Loader for glTF 2.0 format. Hot-loads an unstable version of `THREE.GLTF2Loader` at runtime, and may change or break without warning.
+- **gltf-model-next**: Loader for glTF 2.0 format, planned for addition to A-Frame core with v0.7.0 release.
+- **gltf-model-legacy**: Loader for glTF 1.0 format, planned for _removal_ from A-Frame core with v0.7.0 release.
 - **json-model**: Loader for THREE.js .JSON format, generally containing a single mesh.
 - **object-model**: Loader for THREE.js .JSON format, generally containing multiple meshes or an entire scene.
 - **ply-model**: Loader for PLY format. Works well with occlusion and shadow baked models exported from [MagicaVoxel](https://ephtracy.github.io/).

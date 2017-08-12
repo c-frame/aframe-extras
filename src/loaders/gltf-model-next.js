@@ -1,7 +1,6 @@
 var fetchScript = require('../../lib/fetch-script')();
 
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/dev/examples/js/loaders/GLTF2Loader.js';
-
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTF2Loader.js';
 // Monkeypatch while waiting for three.js r86.
 if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
 
@@ -12,8 +11,8 @@ if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
 }
 
 /**
- * Upcoming (and NOT YET STABLE) loader for glTF 2.0 models.
- * Pulls THREE.GLTF2Loader directly from three.js 'dev' branch.
+ * Upcoming loader for glTF 2.0 models.
+ * Asynchronously loads THREE.GLTF2Loader from rawgit.
  */
 module.exports = {
   schema: {type: 'model'},
@@ -23,6 +22,7 @@ module.exports = {
     this.loader = null;
     this.loaderPromise = loadLoader().then(function () {
       this.loader = new THREE.GLTF2Loader();
+      this.loader.setCrossOrigin('Anonymous');
     }.bind(this));
   },
 
