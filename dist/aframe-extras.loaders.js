@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/loaders').registerAll();
-},{"./src/loaders":8}],2:[function(require,module,exports){
+},{"./src/loaders":9}],2:[function(require,module,exports){
 /**
  * @author yamahigashi https://github.com/yamahigashi
  * @author Kyle-Larson https://github.com/Kyle-Larson
@@ -3888,8 +3888,102 @@ module.exports = {
 },{"../../lib/FBXLoader":2}],7:[function(require,module,exports){
 var fetchScript = require('../../lib/fetch-script')();
 
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/dev/examples/js/loaders/GLTF2Loader.js';
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
 
+/**
+ * Legacy loader for glTF 1.0 models.
+ * Asynchronously loads THREE.GLTFLoader from rawgit.
+ */
+module.exports.Component = {
+  schema: {type: 'model'},
+
+  init: function () {
+    this.model = null;
+    this.loader = null;
+    this.loaderPromise = loadLoader().then(function () {
+      this.loader = new THREE.GLTFLoader();
+      this.loader.setCrossOrigin('Anonymous');
+    }.bind(this));
+  },
+
+  update: function () {
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+
+    if (!src) { return; }
+
+    this.remove();
+
+    this.loaderPromise.then(function () {
+      this.loader.load(src, function gltfLoaded (gltfModel) {
+        self.model = gltfModel.scene;
+        self.model.animations = gltfModel.animations;
+        self.system.registerModel(self.model);
+        el.setObject3D('mesh', self.model);
+        el.emit('model-loaded', {format: 'gltf', model: self.model});
+      });
+    }.bind(this));
+  },
+
+  remove: function () {
+    if (!this.model) { return; }
+    this.el.removeObject3D('mesh');
+    this.system.unregisterModel(this.model);
+  }
+};
+
+/**
+ * glTF model system.
+ */
+module.exports.System = {
+  init: function () {
+    this.models = [];
+  },
+
+  /**
+   * Updates shaders for all glTF models in the system.
+   */
+  tick: function () {
+    var sceneEl = this.sceneEl;
+    if (sceneEl.hasLoaded && this.models.length) {
+      THREE.GLTFLoader.Shaders.update(sceneEl.object3D, sceneEl.camera);
+    }
+  },
+
+  /**
+   * Registers a glTF asset.
+   * @param {object} gltf Asset containing a scene and (optional) animations and cameras.
+   */
+  registerModel: function (gltf) {
+    this.models.push(gltf);
+  },
+
+  /**
+   * Unregisters a glTF asset.
+   * @param  {object} gltf Asset containing a scene and (optional) animations and cameras.
+   */
+  unregisterModel: function (gltf) {
+    var models = this.models;
+    var index = models.indexOf(gltf);
+    if (index >= 0) {
+      models.splice(index, 1);
+    }
+  }
+};
+
+var loadLoader = (function () {
+  var promise;
+  return function () {
+    promise = promise || fetchScript(LOADER_SRC);
+    return promise;
+  };
+}());
+
+},{"../../lib/fetch-script":4}],8:[function(require,module,exports){
+var fetchScript = require('../../lib/fetch-script')();
+
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTF2Loader.js';
 // Monkeypatch while waiting for three.js r86.
 if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
 
@@ -3900,8 +3994,8 @@ if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
 }
 
 /**
- * Upcoming (and NOT YET STABLE) loader for glTF 2.0 models.
- * Pulls THREE.GLTF2Loader directly from three.js 'dev' branch.
+ * Upcoming loader for glTF 2.0 models.
+ * Asynchronously loads THREE.GLTF2Loader from rawgit.
  */
 module.exports = {
   schema: {type: 'model'},
@@ -3911,6 +4005,7 @@ module.exports = {
     this.loader = null;
     this.loaderPromise = loadLoader().then(function () {
       this.loader = new THREE.GLTF2Loader();
+      this.loader.setCrossOrigin('Anonymous');
     }.bind(this));
   },
 
@@ -3947,11 +4042,12 @@ var loadLoader = (function () {
   };
 }());
 
-},{"../../lib/fetch-script":4}],8:[function(require,module,exports){
+},{"../../lib/fetch-script":4}],9:[function(require,module,exports){
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
   'gltf-model-next': require('./gltf-model-next'),
+  'gltf-model-legacy': require('./gltf-model-legacy'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
@@ -3980,9 +4076,15 @@ module.exports = {
       AFRAME.registerComponent('fbx-model', this['fbx-model']);
     }
 
-    // THREE.GLTF2Loader (_unstable_)
+    // THREE.GLTF2Loader
     if (!AFRAME.components['gltf-model-next']) {
       AFRAME.registerComponent('gltf-model-next', this['gltf-model-next']);
+    }
+
+    // THREE.GLTFLoader
+    if (!AFRAME.components['gltf-model-legacy']) {
+      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy'].Component);
+      AFRAME.registerSystem('gltf-model-legacy', this['gltf-model-legacy'].System);
     }
 
     // THREE.JsonLoader
@@ -4004,7 +4106,7 @@ module.exports = {
   }
 };
 
-},{"./animation-mixer":5,"./fbx-model":6,"./gltf-model-next":7,"./json-model":9,"./object-model":10,"./ply-model":11,"./three-model":12}],9:[function(require,module,exports){
+},{"./animation-mixer":5,"./fbx-model":6,"./gltf-model-legacy":7,"./gltf-model-next":8,"./json-model":10,"./object-model":11,"./ply-model":12,"./three-model":13}],10:[function(require,module,exports){
 /**
  * json-model
  *
@@ -4064,7 +4166,7 @@ module.exports = {
   }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  * object-model
  *
@@ -4119,7 +4221,7 @@ module.exports = {
   }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -4200,7 +4302,7 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":3}],12:[function(require,module,exports){
+},{"../../lib/PLYLoader":3}],13:[function(require,module,exports){
 var DEFAULT_ANIMATION = '__auto__';
 
 /**
