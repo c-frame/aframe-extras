@@ -76,6 +76,7 @@ src
 │   ├── animation-mixer.js
 │   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
 │   ├── gltf-model-next.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── gltf-model-legacy.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── json-model.js
 │   ├── object-model.js
 │   └── ply-model.js
@@ -85,11 +86,13 @@ src
 │   ├── grab.js
 │   ├── jump-ability.js
 │   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
+│   ├── mesh-smooth.js          <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── sphere-collider.js
 │   └── toggle-velocity.js
 ├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
 └── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
     ├── a-grid.js
+    ├── a-hex-grid.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
     ├── a-ocean.js
     └── a-tube.js
 </pre>
