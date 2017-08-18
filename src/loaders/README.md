@@ -33,7 +33,7 @@ THREE.js models often need to be scaled down. Example:
 ![9ae34fd9-9ea5-44c5-9b95-2873484a1603-6702-0003a29fed9e49a0](https://cloud.githubusercontent.com/assets/1848368/25648601/845485de-2f82-11e7-8ae8-8e58c9dab9ff.gif)
 > Example by [Joe Campbell](https://github.com/rexraptor08) ([source](https://github.com/rexraptor08/animation-controls)).
 
-THREE.js models also support animation, through the `animation-mixer` component. The first animation will play by default, or you can specify
+glTF and three.js models also support animation, through the `animation-mixer` component. The first animation will play by default, or you can specify
 an animation and its duration:
 
 | Property          | Default  | Description                                               |
