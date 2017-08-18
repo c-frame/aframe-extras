@@ -3988,7 +3988,7 @@ var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLT
 if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
 
   THREE.PropertyBinding.sanitizeNodeName = function (s) {
-    return s.replace(/\./g, '_');
+    return s.replace( /\s/g, '_' ).replace( /[^\w-]/g, '' );
   };
 
 }
