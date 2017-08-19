@@ -10,6 +10,9 @@ module.exports = {
     this.path = [];
     this.raycaster = new THREE.Raycaster();
   },
+  remove: function () {
+    this.system.removeController(this);
+  },
   update: function () {
     this.path.length = 0;
   },
@@ -30,12 +33,14 @@ module.exports = {
       if (!this.path.length) {
         this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
         this.path = this.path || [];
+        el.emit('nav-start');
       }
 
       // If no path is found, exit.
       if (!this.path.length) {
         console.warn('[nav] Unable to find path to %o.', data.destination);
         this.el.setAttribute('nav-controller', {active: false});
+        el.emit('nav-end');
         return;
       }
 
@@ -54,6 +59,7 @@ module.exports = {
         // After discarding the last waypoint, exit pathfinding.
         if (!this.path.length) {
           this.el.setAttribute('nav-controller', {active: false});
+          el.emit('nav-end');
           return;
         } else {
           gazeTarget = this.path[0];

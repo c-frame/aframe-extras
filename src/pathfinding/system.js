@@ -10,7 +10,7 @@ module.exports = {
   init: function () {
     this.navMesh = null;
     this.nodes = null;
-    this.controllers = [];
+    this.controllers = new Set();
   },
 
   /**
@@ -36,7 +36,14 @@ module.exports = {
    * @param {NavController} ctrl
    */
   addController: function (ctrl) {
-    this.controllers.push(ctrl);
+    this.controllers.add(ctrl);
+  },
+
+  /**
+   * @param {NavController} ctrl
+   */
+  removeController: function (ctrl) {
+    this.controllers.remove(ctrl);
   },
 
   /**
