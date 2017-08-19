@@ -89,6 +89,9 @@ src
 │   ├── mesh-smooth.js          <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── sphere-collider.js
 │   └── toggle-velocity.js
+├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
+│   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   └── nav-controller.js       <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 ├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
 └── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
     ├── a-grid.js
