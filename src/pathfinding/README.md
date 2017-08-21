@@ -7,7 +7,7 @@ Set of components for pathfinding along a nav mesh, using [PatrolJS](https://git
 
 ## Creating a nav mesh
 
-TODO(donmccurdy): Document.
+[Blog post](https://medium.com/@donmccurdy/creating-a-nav-mesh-for-a-webvr-scene-b3fdb6bed918).
 
 ## Setting a destination
 
