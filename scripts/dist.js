@@ -9,7 +9,7 @@ const chalk = require('chalk'),
 
 const DIST_DIR = 'dist',
     COMPONENTS_DIR = 'components',
-    PACKAGES = ['controls', 'loaders', 'misc', 'primitives'],
+    PACKAGES = ['controls', 'loaders', 'misc', 'pathfinding', 'primitives'],
     COMPONENTS = ['loaders/three-model', 'misc/grab', 'misc/sphere-collider'];
 
 const streams = {};
