@@ -26,17 +26,17 @@ module.exports = {
     if (this.checkpoint === checkpoint) return;
 
     if (this.checkpoint) {
-      el.emit('navigation-end');
+      el.emit('navigation-end', {checkpoint: checkpoint});
     }
 
     this.checkpoint = checkpoint;
-    el.emit('navigation-start');
+    el.emit('navigation-start', {checkpoint: checkpoint});
 
     if (this.data.mode === 'teleport') {
       this.sync();
       this.el.setAttribute('position', this.targetPosition);
       this.checkpoint = null;
-      el.emit('navigation-end');
+      el.emit('navigation-end', {checkpoint: checkpoint});
     }
   },
 
@@ -50,12 +50,13 @@ module.exports = {
     var data = this.data,
         offset = this.offset,
         position = this.position,
-        targetPosition = this.targetPosition;
+        targetPosition = this.targetPosition,
+        checkpoint = this.checkpoint;
 
     this.sync();
     if (position.distanceTo(targetPosition) < EPS) {
       this.checkpoint = null;
-      this.el.emit('navigation-end');
+      this.el.emit('navigation-end', {checkpoint: checkpoint});
       return offset.set(0, 0, 0);
     }
     offset.setLength(data.animateSpeed);
