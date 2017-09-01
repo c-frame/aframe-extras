@@ -24750,12 +24750,23 @@ module.exports = {
   pause: function () { this.active = false; },
 
   setCheckpoint: function (checkpoint) {
+    var el = this.el;
+
     if (!this.active) return;
+    if (this.checkpoint === checkpoint) return;
+
+    if (this.checkpoint) {
+      el.emit('navigation-end');
+    }
 
     this.checkpoint = checkpoint;
+    el.emit('navigation-start');
+
     if (this.data.mode === 'teleport') {
       this.sync();
       this.el.setAttribute('position', this.targetPosition);
+      this.checkpoint = null;
+      el.emit('navigation-end');
     }
   },
 
@@ -24774,6 +24785,7 @@ module.exports = {
     this.sync();
     if (position.distanceTo(targetPosition) < EPS) {
       this.checkpoint = null;
+      this.el.emit('navigation-end');
       return offset.set(0, 0, 0);
     }
     offset.setLength(data.animateSpeed);
