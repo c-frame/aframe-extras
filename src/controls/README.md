@@ -48,7 +48,7 @@ AFRAME.registerCompononent('custom-controls', {
 
 ## Input devices:
 
-- **checkpoint-controls**: Teleport or animate between checkpoints. See also: [checkpoint](/src/misc/checkpoint.js).
+- **checkpoint-controls**: Teleport or animate between checkpoints. See also: [checkpoint](/src/misc/checkpoint.js). Fires `navigation-start` and `navigation-end` events.
 - **gamepad-controls**: Gamepad position + (optional) rotation controls.
 - **hmd-controls**: HMD rotation / positional tracking controls.
 - **keyboard-controls**: WASD+Arrow key movement controls, with improved support for ZQSD and Dvorak layouts.
