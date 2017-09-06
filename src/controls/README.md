@@ -36,7 +36,7 @@ To implement your custom controls, define a component and override one or more m
 Example:
 
 ```js
-AFRAME.registerCompononent('custom-controls', {
+AFRAME.registerComponent('custom-controls', {
   isVelocityActive: function () {
     return Math.random() < 0.25;
   },
