@@ -25,6 +25,7 @@ module.exports = {
     this.collisions = [];
 
     this.handleHit = this.handleHit.bind(this);
+    this.handleHitEnd = this.handleHitEnd.bind(this);
   },
 
   remove: function () {
@@ -100,9 +101,7 @@ module.exports = {
       // Remove collision state from other elements.
       this.collisions.filter(function (el) {
         return !distanceMap.has(el);
-      }).forEach(function removeState (el) {
-        el.removeState(data.state);
-      });
+      }).forEach(this.handleHitEnd);
 
       // Store new collisions
       this.collisions = collisions;
@@ -142,5 +141,10 @@ module.exports = {
     targetEl.emit('hit');
     targetEl.addState(this.data.state);
     this.el.emit('hit', {el: targetEl});
+  },
+  handleHitEnd: function (targetEl) {
+    targetEl.emit('hitend');
+    targetEl.removeState(this.data.state);
+    this.el.emit('hitend', {el: targetEl});
   }
 };

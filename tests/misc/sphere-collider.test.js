@@ -21,7 +21,6 @@ suite('sphere-collider', function () {
 
   suite('lifecycle', function () {
     test('attaches', function () {
-      console.log(this.el.components);
       expect(collider).to.be.ok;
     });
     test('detaches', function (done) {
@@ -64,6 +63,24 @@ suite('sphere-collider', function () {
       collider.el.object3D.updateMatrixWorld(true);
       collider.tick();
       expect(collidee.is(collider.data.state)).to.be.true;
+    });
+    test('hit and hitend event emission', function () {
+      var hitSpy = this.sinon.spy(),
+          hitEndSpy = this.sinon.spy(),
+          targetHitSpy = this.sinon.spy(),
+          targetHitEndSpy = this.sinon.spy();
+      collider.el.addEventListener('hit', hitSpy);
+      collider.el.addEventListener('hitend', hitEndSpy);
+      collidee.addEventListener('hit', targetHitSpy);
+      collidee.addEventListener('hitend', targetHitEndSpy);
+      collidee.setAttribute('position', collider.el.getAttribute('position'));
+      collider.tick();
+      expect(hitSpy.calledWithMatch({detail: {el: collidee}})).to.be.true;
+      expect(targetHitSpy.called).to.be.true;
+      collider.el.setAttribute('position', '5 5 5');
+      collider.tick();
+      expect(hitEndSpy.calledWithMatch({detail: {el: collidee}})).to.be.true;
+      expect(targetHitEndSpy.called).to.be.true;
     });
   });
 });
