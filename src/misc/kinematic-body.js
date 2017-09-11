@@ -38,7 +38,7 @@ module.exports = {
 
   init: function () {
     this.system = this.el.sceneEl.systems.physics;
-    this.system.addBehavior(this, this.system.Phase.SIMULATE);
+    this.system.addComponent(this);
 
     var el = this.el,
         data = this.data,
@@ -63,12 +63,12 @@ module.exports = {
 
   remove: function () {
     this.system.removeBody(this.body);
-    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
+    this.system.removeComponent(this);
     delete this.el.body;
   },
 
   /*******************************************************************
-   * Tick
+   * Update
    */
 
   /**
@@ -81,7 +81,14 @@ module.exports = {
    *     If in contact with two ground surfaces (e.g. ground + ramp), choose
    *     the one that collides with current velocity, if any.
    */
-  step: (function () {
+  updateBefore: function (t, dt) {
+      if (!dt) return;
+
+      this.body.velocity.copy(this.el.getAttribute('velocity'));
+      this.body.position.copy(this.el.getAttribute('position'));
+  },
+
+  updateAfter: (function () {
     var velocity = new THREE.Vector3(),
         normalizedVelocity = new THREE.Vector3(),
         currentSurfaceNormal = new THREE.Vector3(),
@@ -94,16 +101,16 @@ module.exports = {
           data = this.data,
           didCollide = false,
           height, groundHeight = -Infinity,
-          groundBody;
+          groundBody,
+          contacts = this.system.getContacts();
 
       dt = Math.min(dt, this.system.data.maxInterval * 1000);
 
       groundNormal.set(0, 0, 0);
       velocity.copy(this.el.getAttribute('velocity'));
       body.velocity.copy(velocity);
-      body.position.copy(this.el.getAttribute('position'));
 
-      for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
+      for (var i = 0, contact; contact = contacts[i]; i++) {
         // 1. Find any collisions involving this element. Get the contact
         // normal, and make sure it's oriented _out_ of the other object.
         if (body.id === contact.bi.id) {
@@ -149,7 +156,7 @@ module.exports = {
       } else {
         // 5. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
-        velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
+        velocity.add(this.system.driver.world.gravity.scale(dt * 4.0 / 1000));
       }
 
       // 6. If the ground surface has a velocity, apply it directly to current
@@ -161,11 +168,12 @@ module.exports = {
           y: body.position.y + groundVelocity.y * dt / 1000,
           z: body.position.z + groundVelocity.z * dt / 1000
         });
-        this.el.setAttribute('position', body.position);
       }
 
       body.velocity.copy(velocity);
-      this.el.setAttribute('velocity', velocity);
+
+      this.el.setAttribute('velocity', body.velocity);
+      this.el.setAttribute('position', body.position);
     };
   }()),
 
