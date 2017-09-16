@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/controls').registerAll();
-},{"./src/controls":76}],2:[function(require,module,exports){
+},{"./src/controls":78}],2:[function(require,module,exports){
 module.exports = Object.assign(function GamepadButton () {}, {
 	FACE_1: 0,
 	FACE_2: 1,
@@ -1210,7 +1210,7 @@ module.exports = {
   }())
 };
 
-},{"../../../lib/CANNON-shape2mesh":6,"cannon":17,"three-to-cannon":81}],8:[function(require,module,exports){
+},{"../../../lib/CANNON-shape2mesh":6,"cannon":17,"three-to-cannon":73}],8:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -1652,58 +1652,26 @@ module.exports = {
 
 },{"../constants":14,"cannon":17}],16:[function(require,module,exports){
 module.exports={
-  "_args": [
-    [
-      {
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "escapedName": "cannon",
-        "name": "cannon",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted",
-        "hosted": {
-          "type": "github",
-          "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-        }
-      },
-      "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system"
-    ]
-  ],
-  "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
+  "_from": "github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_id": "cannon@0.6.2",
-  "_inCache": true,
+  "_inBundle": false,
+  "_integrity": "sha1-kuhwtr7Hd8jqU3mcndOx2tmf0RU=",
   "_location": "/cannon",
   "_phantomChildren": {},
   "_requested": {
+    "type": "git",
     "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "escapedName": "cannon",
     "name": "cannon",
+    "escapedName": "cannon",
     "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted",
-    "hosted": {
-      "type": "github",
-      "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-    }
+    "saveSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "fetchSpec": null,
+    "gitCommittish": "v0.6.2-dev1"
   },
   "_requiredBy": [
     "/aframe-physics-system"
   ],
-  "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "1feaace5aa9b5582c190748b160b2c8383e059fd",
-  "_shrinkwrap": null,
+  "_resolved": "github:donmccurdy/cannon.js#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",
   "author": {
@@ -1714,7 +1682,9 @@ module.exports={
   "bugs": {
     "url": "https://github.com/schteppe/cannon.js/issues"
   },
+  "bundleDependencies": false,
   "dependencies": {},
+  "deprecated": false,
   "description": "A lightweight 3D physics engine written in JavaScript.",
   "devDependencies": {
     "browserify": "*",
@@ -1732,7 +1702,6 @@ module.exports={
   "engines": {
     "node": "*"
   },
-  "gitHead": "022e8ba53fa83abf0ad8a0e4fd08623123838a17",
   "homepage": "https://github.com/schteppe/cannon.js",
   "keywords": [
     "cannon.js",
@@ -1748,9 +1717,6 @@ module.exports={
   ],
   "main": "./src/Cannon.js",
   "name": "cannon",
-  "optionalDependencies": {},
-  "readme": "# cannon.js\n\n### Lightweight 3D physics for the web\nInspired by [three.js](https://github.com/mrdoob/three.js) and [ammo.js](https://github.com/kripken/ammo.js), and driven by the fact that the web lacks a physics engine, here comes cannon.js.\nThe rigid body physics engine includes simple collision detection, various body shapes, contacts, friction and constraints.\n\n[Demos](http://schteppe.github.com/cannon.js) - [Documentation](http://schteppe.github.com/cannon.js/docs) - [Rendering hints](https://github.com/schteppe/cannon.js/tree/master/examples) - [NPM package](https://npmjs.org/package/cannon) - [CDN](https://cdnjs.com/libraries/cannon.js)\n\n### Browser install\n\nJust include [cannon.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.js) or [cannon.min.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.min.js) in your html and you're done:\n\n```html\n<script src=\"cannon.min.js\"></script>\n```\n\n### Node.js install\n\nInstall the cannon package via NPM:\n\n```bash\nnpm install --save cannon\n```\n\nAlternatively, point to the Github repo directly to get the very latest version:\n\n```bash\nnpm install --save schteppe/cannon.js\n```\n\n### Example\n\nThe sample code below creates a sphere on a plane, steps the simulation, and prints the sphere simulation to the console. Note that Cannon.js uses [SI units](http://en.wikipedia.org/wiki/International_System_of_Units) (metre, kilogram, second, etc.).\n\n```javascript\n// Setup our world\nvar world = new CANNON.World();\nworld.gravity.set(0, 0, -9.82); // m/s²\n\n// Create a sphere\nvar radius = 1; // m\nvar sphereBody = new CANNON.Body({\n   mass: 5, // kg\n   position: new CANNON.Vec3(0, 0, 10), // m\n   shape: new CANNON.Sphere(radius)\n});\nworld.addBody(sphereBody);\n\n// Create a plane\nvar groundBody = new CANNON.Body({\n    mass: 0 // mass == 0 makes the body static\n});\nvar groundShape = new CANNON.Plane();\ngroundBody.addShape(groundShape);\nworld.addBody(groundBody);\n\nvar fixedTimeStep = 1.0 / 60.0; // seconds\nvar maxSubSteps = 3;\n\n// Start the simulation loop\nvar lastTime;\n(function simloop(time){\n  requestAnimationFrame(simloop);\n  if(lastTime !== undefined){\n     var dt = (time - lastTime) / 1000;\n     world.step(fixedTimeStep, dt, maxSubSteps);\n  }\n  console.log(\"Sphere z position: \" + sphereBody.position.z);\n  lastTime = time;\n})();\n```\n\nIf you want to know how to use cannon.js with a rendering engine, for example Three.js, see the [Examples](examples).\n\n### Features\n* Rigid body dynamics\n* Discrete collision detection\n* Contacts, friction and restitution\n* Constraints\n   * PointToPoint (a.k.a. ball/socket joint)\n   * Distance\n   * Hinge (with optional motor)\n   * Lock\n   * ConeTwist\n* Gauss-Seidel constraint solver and an island split algorithm\n* Collision filters\n* Body sleeping\n* Experimental SPH / fluid support\n* Various shapes and collision algorithms (see table below)\n\n|             | [Sphere](http://schteppe.github.io/cannon.js/docs/classes/Sphere.html) | [Plane](http://schteppe.github.io/cannon.js/docs/classes/Plane.html) | [Box](http://schteppe.github.io/cannon.js/docs/classes/Box.html) | [Convex](http://schteppe.github.io/cannon.js/docs/classes/ConvexPolyhedron.html) | [Particle](http://schteppe.github.io/cannon.js/docs/classes/Particle.html) | [Heightfield](http://schteppe.github.io/cannon.js/docs/classes/Heightfield.html) | [Trimesh](http://schteppe.github.io/cannon.js/docs/classes/Trimesh.html) |\n| :-----------|:------:|:-----:|:---:|:------:|:--------:|:-----------:|:-------:|\n| Sphere      | Yes    | Yes   | Yes | Yes    | Yes      | Yes         | Yes     |\n| Plane       | -      | -     | Yes | Yes    | Yes      | -           | Yes     |\n| Box         | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Cylinder    | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Convex      | -      | -     | -   | Yes    | Yes      | Yes         | (todo)  |\n| Particle    | -      | -     | -   | -      | -        | (todo)      | (todo)  |\n| Heightfield | -      | -     | -   | -      | -        | -           | (todo)  |\n| Trimesh     | -      | -     | -   | -      | -        | -           | -       |\n\n### Todo\nThe simpler todos are marked with ```@todo``` in the code. Github Issues can and should also be used for todos.\n\n### Help\nCreate an [issue](https://github.com/schteppe/cannon.js/issues) if you need help.\n",
-  "readmeFilename": "README.markdown",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/schteppe/cannon.js.git"
@@ -16178,1030 +16144,6 @@ World.prototype.clearForces = function(){
 };
 
 },{"../collision/AABB":18,"../collision/ArrayCollisionMatrix":19,"../collision/NaiveBroadphase":22,"../collision/OverlapKeeper":24,"../collision/Ray":25,"../collision/RaycastResult":26,"../equations/ContactEquation":35,"../equations/FrictionEquation":37,"../material/ContactMaterial":40,"../material/Material":41,"../math/Quaternion":44,"../math/Vec3":46,"../objects/Body":47,"../shapes/Shape":59,"../solver/GSSolver":62,"../utils/EventTarget":65,"../utils/TupleDictionary":68,"./Narrowphase":71}],73:[function(require,module,exports){
-var EPS = 0.1;
-
-module.exports = {
-  schema: {
-    enabled: {default: true},
-    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
-    animateSpeed: {default: 3.0}
-  },
-
-  init: function () {
-    this.active = true;
-    this.checkpoint = null;
-
-    this.offset = new THREE.Vector3();
-    this.position = new THREE.Vector3();
-    this.targetPosition = new THREE.Vector3();
-  },
-
-  play: function () { this.active = true; },
-  pause: function () { this.active = false; },
-
-  setCheckpoint: function (checkpoint) {
-    var el = this.el;
-
-    if (!this.active) return;
-    if (this.checkpoint === checkpoint) return;
-
-    if (this.checkpoint) {
-      el.emit('navigation-end', {checkpoint: checkpoint});
-    }
-
-    this.checkpoint = checkpoint;
-    el.emit('navigation-start', {checkpoint: checkpoint});
-
-    if (this.data.mode === 'teleport') {
-      this.sync();
-      this.el.setAttribute('position', this.targetPosition);
-      this.checkpoint = null;
-      el.emit('navigation-end', {checkpoint: checkpoint});
-    }
-  },
-
-  isVelocityActive: function () {
-    return !!(this.active && this.checkpoint);
-  },
-
-  getVelocity: function () {
-    if (!this.active) return;
-
-    var data = this.data,
-        offset = this.offset,
-        position = this.position,
-        targetPosition = this.targetPosition,
-        checkpoint = this.checkpoint;
-
-    this.sync();
-    if (position.distanceTo(targetPosition) < EPS) {
-      this.checkpoint = null;
-      this.el.emit('navigation-end', {checkpoint: checkpoint});
-      return offset.set(0, 0, 0);
-    }
-    offset.setLength(data.animateSpeed);
-    return offset;
-  },
-
-  sync: function () {
-    var offset = this.offset,
-        position = this.position,
-        targetPosition = this.targetPosition;
-
-    position.copy(this.el.getAttribute('position'));
-    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
-    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
-    offset.copy(targetPosition).sub(position);
-  }
-};
-
-},{}],74:[function(require,module,exports){
-/**
- * Gamepad controls for A-Frame.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
- *
- * For more information about the Gamepad API, see:
- * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
- */
-
-var GamepadButton = require('../../lib/GamepadButton'),
-    GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
-
-var JOYSTICK_EPS = 0.2;
-
-module.exports = {
-
-  /*******************************************************************
-   * Statics
-   */
-
-  GamepadButton: GamepadButton,
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    // Controller 0-3
-    controller:        { default: 0, oneOf: [0, 1, 2, 3] },
-
-    // Enable/disable features
-    enabled:           { default: true },
-
-    // Debugging
-    debug:             { default: false }
-  },
-
-  /*******************************************************************
-   * Core
-   */
-
-  /**
-   * Called once when component is attached. Generally for initial setup.
-   */
-  init: function () {
-    var scene = this.el.sceneEl;
-    this.prevTime = window.performance.now();
-
-    // Button state
-    this.buttons = {};
-
-    scene.addBehavior(this);
-  },
-
-  /**
-   * Called when component is attached and when component data changes.
-   * Generally modifies the entity based on the data.
-   */
-  update: function () { this.tick(); },
-
-  /**
-   * Called on each iteration of main render loop.
-   */
-  tick: function () {
-    this.updateButtonState();
-  },
-
-  /**
-   * Called when a component is removed (e.g., via removeAttribute).
-   * Generally undoes all modifications to the entity.
-   */
-  remove: function () { },
-
-  /*******************************************************************
-   * Universal controls - movement
-   */
-
-  isVelocityActive: function () {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    var dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y;
-
-    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
-  },
-
-  getVelocityDelta: function () {
-    var dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y,
-        dVelocity = new THREE.Vector3();
-
-    if (Math.abs(inputX) > JOYSTICK_EPS) {
-      dVelocity.x += inputX;
-    }
-    if (Math.abs(inputY) > JOYSTICK_EPS) {
-      dVelocity.z += inputY;
-    }
-
-    return dVelocity;
-  },
-
-  /*******************************************************************
-   * Universal controls - rotation
-   */
-
-  isRotationActive: function () {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    var joystick1 = this.getJoystick(1);
-
-    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
-  },
-
-  getRotationDelta: function () {
-    var lookVector = this.getJoystick(1);
-    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
-    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
-    return lookVector;
-  },
-
-  /*******************************************************************
-   * Button events
-   */
-
-  updateButtonState: function () {
-    var gamepad = this.getGamepad();
-    if (this.data.enabled && gamepad) {
-
-      // Fire DOM events for button state changes.
-      for (var i = 0; i < gamepad.buttons.length; i++) {
-        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttondown', i, gamepad.buttons[i]));
-        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttonup', i, gamepad.buttons[i]));
-        }
-        this.buttons[i] = gamepad.buttons[i].pressed;
-      }
-
-    } else if (Object.keys(this.buttons)) {
-      // Reset state if controls are disabled or controller is lost.
-      this.buttons = {};
-    }
-  },
-
-  emit: function (event) {
-    // Emit original event.
-    this.el.emit(event.type, event);
-
-    // Emit convenience event, identifying button index.
-    this.el.emit(
-      event.type + ':' + event.index,
-      new GamepadButtonEvent(event.type, event.index, event)
-    );
-  },
-
-  /*******************************************************************
-   * Gamepad state
-   */
-
-  /**
-   * Returns the Gamepad instance attached to the component. If connected,
-   * a proxy-controls component may provide access to Gamepad input from a
-   * remote device.
-   *
-   * @return {Gamepad}
-   */
-  getGamepad: function () {
-    var localGamepad = navigator.getGamepads
-          && navigator.getGamepads()[this.data.controller],
-        proxyControls = this.el.sceneEl.components['proxy-controls'],
-        proxyGamepad = proxyControls && proxyControls.isConnected()
-          && proxyControls.getGamepad(this.data.controller);
-    return proxyGamepad || localGamepad;
-  },
-
-  /**
-   * Returns the state of the given button.
-   * @param  {number} index The button (0-N) for which to find state.
-   * @return {GamepadButton}
-   */
-  getButton: function (index) {
-    return this.getGamepad().buttons[index];
-  },
-
-  /**
-   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
-   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
-   * @param  {number} index The axis (0-N) for which to find state.
-   * @return {number} On the interval [-1,1].
-   */
-  getAxis: function (index) {
-    return this.getGamepad().axes[index];
-  },
-
-  /**
-   * Returns the state of the given joystick (0 or 1) as a THREE.Vector2.
-   * @param  {number} id The joystick (0, 1) for which to find state.
-   * @return {THREE.Vector2}
-   */
-  getJoystick: function (index) {
-    var gamepad = this.getGamepad();
-    switch (index) {
-      case 0: return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
-      case 1: return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
-      default: throw new Error('Unexpected joystick index "%d".', index);
-    }
-  },
-
-  /**
-   * Returns the state of the dpad as a THREE.Vector2.
-   * @return {THREE.Vector2}
-   */
-  getDpad: function () {
-    var gamepad = this.getGamepad();
-    if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
-      return new THREE.Vector2();
-    }
-    return new THREE.Vector2(
-      (gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0)
-      + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0),
-      (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0)
-      + (gamepad.buttons[GamepadButton.DPAD_DOWN].pressed ? 1 : 0)
-    );
-  },
-
-  /**
-   * Returns true if the gamepad is currently connected to the system.
-   * @return {boolean}
-   */
-  isConnected: function () {
-    var gamepad = this.getGamepad();
-    return !!(gamepad && gamepad.connected);
-  },
-
-  /**
-   * Returns a string containing some information about the controller. Result
-   * may vary across browsers, for a given controller.
-   * @return {string}
-   */
-  getID: function () {
-    return this.getGamepad().id;
-  }
-};
-
-},{"../../lib/GamepadButton":2,"../../lib/GamepadButtonEvent":3}],75:[function(require,module,exports){
-var radToDeg = THREE.Math.radToDeg,
-    isMobile = AFRAME.utils.device.isMobile();
-
-module.exports = {
-  schema: {
-    enabled: {default: true},
-    standing: {default: true}
-  },
-
-  init: function () {
-    this.isPositionCalibrated = false;
-    this.dolly = new THREE.Object3D();
-    this.hmdEuler = new THREE.Euler();
-    this.previousHMDPosition = new THREE.Vector3();
-    this.deltaHMDPosition = new THREE.Vector3();
-    this.vrControls = new THREE.VRControls(this.dolly);
-    this.rotation = new THREE.Vector3();
-  },
-
-  update: function () {
-    var data = this.data;
-    var vrControls = this.vrControls;
-    vrControls.standing = data.standing;
-    vrControls.update();
-  },
-
-  tick: function () {
-    this.vrControls.update();
-  },
-
-  remove: function () {
-    this.vrControls.dispose();
-  },
-
-  isRotationActive: function () {
-    var hmdEuler = this.hmdEuler;
-    if (!this.data.enabled || !(this.el.sceneEl.is('vr-mode') || isMobile)) {
-      return false;
-    }
-    hmdEuler.setFromQuaternion(this.dolly.quaternion, 'YXZ');
-    return !isNullVector(hmdEuler);
-  },
-
-  getRotation: function () {
-    var hmdEuler = this.hmdEuler;
-    return this.rotation.set(
-      radToDeg(hmdEuler.x),
-      radToDeg(hmdEuler.y),
-      radToDeg(hmdEuler.z)
-    );
-  },
-
-  isVelocityActive: function () {
-    var deltaHMDPosition = this.deltaHMDPosition;
-    var previousHMDPosition = this.previousHMDPosition;
-    var currentHMDPosition = this.calculateHMDPosition();
-    this.isPositionCalibrated = this.isPositionCalibrated || !isNullVector(previousHMDPosition);
-    if (!this.data.enabled || !this.el.sceneEl.is('vr-mode') || isMobile) {
-      return false;
-    }
-    deltaHMDPosition.copy(currentHMDPosition).sub(previousHMDPosition);
-    previousHMDPosition.copy(currentHMDPosition);
-    return this.isPositionCalibrated && !isNullVector(deltaHMDPosition);
-  },
-
-  getPositionDelta: function () {
-    return this.deltaHMDPosition;
-  },
-
-  calculateHMDPosition: function () {
-    var dolly = this.dolly;
-    var position = new THREE.Vector3();
-    dolly.updateMatrix();
-    position.setFromMatrixPosition(dolly.matrix);
-    return position;
-  }
-};
-
-function isNullVector (vector) {
-  return vector.x === 0 && vector.y === 0 && vector.z === 0;
-}
-
-},{}],76:[function(require,module,exports){
-var physics = require('aframe-physics-system');
-
-module.exports = {
-  'checkpoint-controls': require('./checkpoint-controls'),
-  'gamepad-controls':    require('./gamepad-controls'),
-  'hmd-controls':        require('./hmd-controls'),
-  'keyboard-controls':   require('./keyboard-controls'),
-  'mouse-controls':      require('./mouse-controls'),
-  'touch-controls':      require('./touch-controls'),
-  'universal-controls':  require('./universal-controls'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    physics.registerAll();
-    if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
-    if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
-    if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
-    if (!AFRAME.components['keyboard-controls'])    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
-    if (!AFRAME.components['mouse-controls'])       AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
-    if (!AFRAME.components['touch-controls'])       AFRAME.registerComponent('touch-controls',      this['touch-controls']);
-    if (!AFRAME.components['universal-controls'])   AFRAME.registerComponent('universal-controls',  this['universal-controls']);
-
-    this._registered = true;
-  }
-};
-
-},{"./checkpoint-controls":73,"./gamepad-controls":74,"./hmd-controls":75,"./keyboard-controls":77,"./mouse-controls":78,"./touch-controls":79,"./universal-controls":80,"aframe-physics-system":5}],77:[function(require,module,exports){
-require('../../lib/keyboard.polyfill');
-
-var MAX_DELTA = 0.2,
-    PROXY_FLAG = '__keyboard-controls-proxy';
-
-var KeyboardEvent = window.KeyboardEvent;
-
-/**
- * Keyboard Controls component.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
- *
- * Bind keyboard events to components, or control your entities with the WASD keys.
- *
- * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
- * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
- * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
- * when you care about which physical key was pressed, rather thanwhich character it corresponds
- * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
- * player in different directions, and that mapping should ideally be independent of keyboard
- * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
- *
- * @namespace wasd-controls
- * keys the entity moves and if you release it will stop. Easing simulates friction.
- * to the entity when pressing the keys.
- * @param {bool} [enabled=true] - To completely enable or disable the controls
- */
-module.exports = {
-  schema: {
-    enabled:           { default: true },
-    debug:             { default: false }
-  },
-
-  init: function () {
-    this.dVelocity = new THREE.Vector3();
-    this.localKeys = {};
-    this.listeners = {
-      keydown: this.onKeyDown.bind(this),
-      keyup: this.onKeyUp.bind(this),
-      blur: this.onBlur.bind(this)
-    };
-    this.attachEventListeners();
-  },
-
-  /*******************************************************************
-  * Movement
-  */
-
-  isVelocityActive: function () {
-    return this.data.enabled && !!Object.keys(this.getKeys()).length;
-  },
-
-  getVelocityDelta: function () {
-    var data = this.data,
-        keys = this.getKeys();
-
-    this.dVelocity.set(0, 0, 0);
-    if (data.enabled) {
-      if (keys.KeyW || keys.ArrowUp)    { this.dVelocity.z -= 1; }
-      if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
-      if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
-      if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
-    }
-
-    return this.dVelocity.clone();
-  },
-
-  /*******************************************************************
-  * Events
-  */
-
-  play: function () {
-    this.attachEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  attachEventListeners: function () {
-    window.addEventListener('keydown', this.listeners.keydown, false);
-    window.addEventListener('keyup', this.listeners.keyup, false);
-    window.addEventListener('blur', this.listeners.blur, false);
-  },
-
-  removeEventListeners: function () {
-    window.removeEventListener('keydown', this.listeners.keydown);
-    window.removeEventListener('keyup', this.listeners.keyup);
-    window.removeEventListener('blur', this.listeners.blur);
-  },
-
-  onKeyDown: function (event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      this.localKeys[event.code] = true;
-      this.emit(event);
-    }
-  },
-
-  onKeyUp: function (event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      delete this.localKeys[event.code];
-      this.emit(event);
-    }
-  },
-
-  onBlur: function () {
-    for (var code in this.localKeys) {
-      if (this.localKeys.hasOwnProperty(code)) {
-        delete this.localKeys[code];
-      }
-    }
-  },
-
-  emit: function (event) {
-    // TODO - keydown only initially?
-    // TODO - where the f is the spacebar
-
-    // Emit original event.
-    if (PROXY_FLAG in event) {
-      // TODO - Method never triggered.
-      this.el.emit(event.type, event);
-    }
-
-    // Emit convenience event, identifying key.
-    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
-    if (this.data.debug) console.log(event.type + ':' + event.code);
-  },
-
-  /*******************************************************************
-  * Accessors
-  */
-
-  isPressed: function (code) {
-    return code in this.getKeys();
-  },
-
-  getKeys: function () {
-    if (this.isProxied()) {
-      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
-    }
-    return this.localKeys;
-  },
-
-  isProxied: function () {
-    var proxyControls = this.el.sceneEl.components['proxy-controls'];
-    return proxyControls && proxyControls.isConnected();
-  }
-
-};
-
-},{"../../lib/keyboard.polyfill":4}],78:[function(require,module,exports){
-document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
-
-/**
- * Mouse + Pointerlock controls.
- *
- * Based on: https://github.com/aframevr/aframe/pull/1056
- */
-module.exports = {
-  schema: {
-    enabled: { default: true },
-    pointerlockEnabled: { default: true },
-    sensitivity: { default: 1 / 25 }
-  },
-
-  init: function () {
-    this.mouseDown = false;
-    this.pointerLocked = false;
-    this.lookVector = new THREE.Vector2();
-    this.bindMethods();
-  },
-
-  update: function (previousData) {
-    var data = this.data;
-    if (previousData.pointerlockEnabled && !data.pointerlockEnabled && this.pointerLocked) {
-      document.exitPointerLock();
-    }
-  },
-
-  play: function () {
-    this.addEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-    this.lookVector.set(0, 0);
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  bindMethods: function () {
-    this.onMouseDown = this.onMouseDown.bind(this);
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
-    this.onPointerLockChange = this.onPointerLockChange.bind(this);
-    this.onPointerLockChange = this.onPointerLockChange.bind(this);
-    this.onPointerLockChange = this.onPointerLockChange.bind(this);
-  },
-
-  addEventListeners: function () {
-    var sceneEl = this.el.sceneEl;
-    var canvasEl = sceneEl.canvas;
-    var data = this.data;
-
-    if (!canvasEl) {
-      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-      return;
-    }
-
-    canvasEl.addEventListener('mousedown', this.onMouseDown, false);
-    canvasEl.addEventListener('mousemove', this.onMouseMove, false);
-    canvasEl.addEventListener('mouseup', this.onMouseUp, false);
-    canvasEl.addEventListener('mouseout', this.onMouseUp, false);
-
-    if (data.pointerlockEnabled) {
-      document.addEventListener('pointerlockchange', this.onPointerLockChange, false);
-      document.addEventListener('mozpointerlockchange', this.onPointerLockChange, false);
-      document.addEventListener('pointerlockerror', this.onPointerLockError, false);
-    }
-  },
-
-  removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
-    if (canvasEl) {
-      canvasEl.removeEventListener('mousedown', this.onMouseDown, false);
-      canvasEl.removeEventListener('mousemove', this.onMouseMove, false);
-      canvasEl.removeEventListener('mouseup', this.onMouseUp, false);
-      canvasEl.removeEventListener('mouseout', this.onMouseUp, false);
-    }
-    document.removeEventListener('pointerlockchange', this.onPointerLockChange, false);
-    document.removeEventListener('mozpointerlockchange', this.onPointerLockChange, false);
-    document.removeEventListener('pointerlockerror', this.onPointerLockError, false);
-  },
-
-  isRotationActive: function () {
-    return this.data.enabled && (this.mouseDown || this.pointerLocked);
-  },
-
-  /**
-   * Returns the sum of all mouse movement since last call.
-   */
-  getRotationDelta: function () {
-    var dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
-    this.lookVector.set(0, 0);
-    return dRotation;
-  },
-
-  onMouseMove: function (event) {
-    var previousMouseEvent = this.previousMouseEvent;
-
-    if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) {
-      return;
-    }
-
-    var movementX = event.movementX || event.mozMovementX || 0;
-    var movementY = event.movementY || event.mozMovementY || 0;
-
-    if (!this.pointerLocked) {
-      movementX = event.screenX - previousMouseEvent.screenX;
-      movementY = event.screenY - previousMouseEvent.screenY;
-    }
-
-    this.lookVector.x += movementX;
-    this.lookVector.y += movementY;
-
-    this.previousMouseEvent = event;
-  },
-
-  onMouseDown: function (event) {
-    var canvasEl = this.el.sceneEl.canvas,
-        isEditing = (AFRAME.INSPECTOR || {}).opened;
-
-    this.mouseDown = true;
-    this.previousMouseEvent = event;
-
-    if (this.data.pointerlockEnabled && !this.pointerLocked && !isEditing) {
-      if (canvasEl.requestPointerLock) {
-        canvasEl.requestPointerLock();
-      } else if (canvasEl.mozRequestPointerLock) {
-        canvasEl.mozRequestPointerLock();
-      }
-    }
-  },
-
-  onMouseUp: function () {
-    this.mouseDown = false;
-  },
-
-  onPointerLockChange: function () {
-    this.pointerLocked = !!(document.pointerLockElement || document.mozPointerLockElement);
-  },
-
-  onPointerLockError: function () {
-    this.pointerLocked = false;
-  }
-};
-
-},{}],79:[function(require,module,exports){
-module.exports = {
-  schema: {
-    enabled: { default: true }
-  },
-
-  init: function () {
-    this.dVelocity = new THREE.Vector3();
-    this.bindMethods();
-  },
-
-  play: function () {
-    this.addEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-    this.dVelocity.set(0, 0, 0);
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  addEventListeners: function () {
-    var sceneEl = this.el.sceneEl;
-    var canvasEl = sceneEl.canvas;
-
-    if (!canvasEl) {
-      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-      return;
-    }
-
-    canvasEl.addEventListener('touchstart', this.onTouchStart);
-    canvasEl.addEventListener('touchend', this.onTouchEnd);
-  },
-
-  removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
-    if (!canvasEl) { return; }
-
-    canvasEl.removeEventListener('touchstart', this.onTouchStart);
-    canvasEl.removeEventListener('touchend', this.onTouchEnd);
-  },
-
-  isVelocityActive: function () {
-    return this.data.enabled && this.isMoving;
-  },
-
-  getVelocityDelta: function () {
-    this.dVelocity.z = this.isMoving ? -1 : 0;
-    return this.dVelocity.clone();
-  },
-
-  bindMethods: function () {
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-  },
-
-  onTouchStart: function (e) {
-    this.isMoving = true;
-    e.preventDefault();
-  },
-
-  onTouchEnd: function (e) {
-    this.isMoving = false;
-    e.preventDefault();
-  }
-};
-
-},{}],80:[function(require,module,exports){
-/**
- * Universal Controls
- *
- * @author Don McCurdy <dm@donmccurdy.com>
- */
-
-var COMPONENT_SUFFIX = '-controls',
-    MAX_DELTA = 0.2, // ms
-    PI_2 = Math.PI / 2;
-
-module.exports = {
-
-  /*******************************************************************
-   * Schema
-   */
-
-  dependencies: ['velocity', 'rotation'],
-
-  schema: {
-    enabled:              { default: true },
-    movementEnabled:      { default: true },
-    movementControls:     { default: ['gamepad', 'keyboard', 'touch', 'hmd'] },
-    rotationEnabled:      { default: true },
-    rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
-    movementSpeed:        { default: 5 }, // m/s
-    movementEasing:       { default: 15 }, // m/s2
-    movementEasingY:      { default: 0  }, // m/s2
-    movementAcceleration: { default: 80 }, // m/s2
-    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
-    fly:                  { default: false },
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function () {
-    var rotation = this.el.getAttribute('rotation');
-
-    if (this.el.hasAttribute('look-controls') && this.data.rotationEnabled) {
-      console.error('[universal-controls] The `universal-controls` component is a replacement '
-        + 'for `look-controls`, and cannot be used in combination with it.');
-    }
-
-    // Movement
-    this.velocity = new THREE.Vector3();
-
-    // Rotation
-    this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
-    this.yaw = new THREE.Object3D();
-    this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
-    this.yaw.add(this.pitch);
-    this.heading = new THREE.Euler(0, 0, 0, 'YXZ');
-
-    if (this.el.sceneEl.hasLoaded) {
-      this.injectControls();
-    } else {
-      this.el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
-    }
-  },
-
-  update: function () {
-    if (this.el.sceneEl.hasLoaded) {
-      this.injectControls();
-    }
-  },
-
-  injectControls: function () {
-    var i, name,
-        data = this.data;
-
-    for (i = 0; i < data.movementControls.length; i++) {
-      name = data.movementControls[i] + COMPONENT_SUFFIX;
-      if (!this.el.components[name]) {
-        this.el.setAttribute(name, '');
-      }
-    }
-
-    for (i = 0; i < data.rotationControls.length; i++) {
-      name = data.rotationControls[i] + COMPONENT_SUFFIX;
-      if (!this.el.components[name]) {
-        this.el.setAttribute(name, '');
-      }
-    }
-  },
-
-  /*******************************************************************
-   * Tick
-   */
-
-  tick: function (t, dt) {
-    if (!dt) { return; }
-
-    // Update rotation.
-    if (this.data.rotationEnabled) this.updateRotation(dt);
-
-    // Update velocity. If FPS is too low, reset.
-    if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
-      this.velocity.set(0, 0, 0);
-      this.el.setAttribute('velocity', this.velocity);
-    } else {
-      this.updateVelocity(dt);
-    }
-  },
-
-  /*******************************************************************
-   * Rotation
-   */
-
-  updateRotation: function (dt) {
-    var control, dRotation,
-        data = this.data;
-
-    for (var i = 0, l = data.rotationControls.length; i < l; i++) {
-      control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
-      if (control && control.isRotationActive()) {
-        if (control.getRotationDelta) {
-          dRotation = control.getRotationDelta(dt);
-          dRotation.multiplyScalar(data.rotationSensitivity);
-          this.yaw.rotation.y -= dRotation.x;
-          this.pitch.rotation.x -= dRotation.y;
-          this.pitch.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitch.rotation.x));
-          this.el.setAttribute('rotation', {
-            x: THREE.Math.radToDeg(this.pitch.rotation.x),
-            y: THREE.Math.radToDeg(this.yaw.rotation.y),
-            z: 0
-          });
-        } else if (control.getRotation) {
-          this.el.setAttribute('rotation', control.getRotation());
-        } else {
-          throw new Error('Incompatible rotation controls: %s', data.rotationControls[i]);
-        }
-        break;
-      }
-    }
-  },
-
-  /*******************************************************************
-   * Movement
-   */
-
-  updateVelocity: function (dt) {
-    var control, dVelocity,
-        velocity = this.velocity,
-        data = this.data;
-
-    if (data.movementEnabled) {
-      for (var i = 0, l = data.movementControls.length; i < l; i++) {
-        control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
-        if (control && control.isVelocityActive()) {
-          if (control.getVelocityDelta) {
-            dVelocity = control.getVelocityDelta(dt);
-          } else if (control.getVelocity) {
-            this.el.setAttribute('velocity', control.getVelocity());
-            return;
-          } else if (control.getPositionDelta) {
-            velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
-            this.el.setAttribute('velocity', velocity);
-            return;
-          } else {
-            throw new Error('Incompatible movement controls: ', data.movementControls[i]);
-          }
-          break;
-        }
-      }
-    }
-
-    velocity.copy(this.el.getAttribute('velocity'));
-    velocity.x -= velocity.x * data.movementEasing * dt / 1000;
-    velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
-    velocity.z -= velocity.z * data.movementEasing * dt / 1000;
-
-    if (dVelocity && data.movementEnabled) {
-      // Set acceleration
-      if (dVelocity.length() > 1) {
-        dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
-      } else {
-        dVelocity.multiplyScalar(this.data.movementAcceleration * dt / 1000);
-      }
-
-      // Rotate to heading
-      var rotation = this.el.getAttribute('rotation');
-      if (rotation) {
-        this.heading.set(
-          data.fly ? THREE.Math.degToRad(rotation.x) : 0,
-          THREE.Math.degToRad(rotation.y),
-          0
-        );
-        dVelocity.applyEuler(this.heading);
-      }
-
-      velocity.add(dVelocity);
-
-      // TODO - Several issues here:
-      // (1) Interferes w/ gravity.
-      // (2) Interferes w/ jumping.
-      // (3) Likely to interfere w/ relative position to moving platform.
-      // if (velocity.length() > data.movementSpeed) {
-      //   velocity.setLength(data.movementSpeed);
-      // }
-    }
-
-    this.el.setAttribute('velocity', velocity);
-  }
-};
-
-},{}],81:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./lib/THREE.quickhull');
 
@@ -17566,7 +16508,7 @@ function getMeshes (object) {
   return meshes;
 }
 
-},{"./lib/THREE.quickhull":82,"cannon":84}],82:[function(require,module,exports){
+},{"./lib/THREE.quickhull":74,"cannon":17}],74:[function(require,module,exports){
 /**
 
   QuickHull
@@ -18018,223 +16960,1028 @@ module.exports = (function(){
 
 }())
 
-},{}],83:[function(require,module,exports){
-module.exports={
-  "_args": [
-    [
-      {
-        "hosted": {
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "type": "github"
-        },
-        "name": "cannon",
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted"
-      },
-      "/Users/donmccurdy/Documents/Projects/three-to-cannon"
-    ]
-  ],
-  "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
-  "_id": "cannon@0.6.2",
-  "_inCache": true,
-  "_installable": true,
-  "_location": "/cannon",
-  "_phantomChildren": {},
-  "_requested": {
-    "hosted": {
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "type": "github"
-    },
-    "name": "cannon",
-    "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted"
+},{}],75:[function(require,module,exports){
+var EPS = 0.1;
+
+module.exports = {
+  schema: {
+    enabled: {default: true},
+    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
+    animateSpeed: {default: 3.0}
   },
-  "_requiredBy": [
-    "#USER"
-  ],
-  "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "b2d7815b32a84f8dc90ae863c66bcb44486855cb",
-  "_shrinkwrap": null,
-  "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-  "_where": "/Users/donmccurdy/Documents/Projects/three-to-cannon",
-  "author": {
-    "email": "schteppe@gmail.com",
-    "name": "Stefan Hedman",
-    "url": "http://steffe.se"
+
+  init: function () {
+    this.active = true;
+    this.checkpoint = null;
+
+    this.offset = new THREE.Vector3();
+    this.position = new THREE.Vector3();
+    this.targetPosition = new THREE.Vector3();
   },
-  "bugs": {
-    "url": "https://github.com/schteppe/cannon.js/issues"
-  },
-  "dependencies": {},
-  "description": "A lightweight 3D physics engine written in JavaScript.",
-  "devDependencies": {
-    "browserify": "*",
-    "grunt": "~0.4.0",
-    "grunt-browserify": "^2.1.4",
-    "grunt-contrib-concat": "~0.1.3",
-    "grunt-contrib-jshint": "~0.1.1",
-    "grunt-contrib-nodeunit": "^0.4.1",
-    "grunt-contrib-uglify": "^0.5.1",
-    "grunt-contrib-yuidoc": "^0.5.2",
-    "jshint": "latest",
-    "nodeunit": "^0.9.0",
-    "uglify-js": "latest"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "gitHead": "022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "homepage": "https://github.com/schteppe/cannon.js",
-  "keywords": [
-    "cannon.js",
-    "cannon",
-    "physics",
-    "engine",
-    "3d"
-  ],
-  "licenses": [
-    {
-      "type": "MIT"
+
+  play: function () { this.active = true; },
+  pause: function () { this.active = false; },
+
+  setCheckpoint: function (checkpoint) {
+    var el = this.el;
+
+    if (!this.active) return;
+    if (this.checkpoint === checkpoint) return;
+
+    if (this.checkpoint) {
+      el.emit('navigation-end', {checkpoint: checkpoint});
     }
-  ],
-  "main": "./src/Cannon.js",
-  "name": "cannon",
-  "optionalDependencies": {},
-  "readme": "# cannon.js\n\n### Lightweight 3D physics for the web\nInspired by [three.js](https://github.com/mrdoob/three.js) and [ammo.js](https://github.com/kripken/ammo.js), and driven by the fact that the web lacks a physics engine, here comes cannon.js.\nThe rigid body physics engine includes simple collision detection, various body shapes, contacts, friction and constraints.\n\n[Demos](http://schteppe.github.com/cannon.js) - [Documentation](http://schteppe.github.com/cannon.js/docs) - [Rendering hints](https://github.com/schteppe/cannon.js/tree/master/examples) - [NPM package](https://npmjs.org/package/cannon) - [CDN](https://cdnjs.com/libraries/cannon.js)\n\n### Browser install\n\nJust include [cannon.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.js) or [cannon.min.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.min.js) in your html and you're done:\n\n```html\n<script src=\"cannon.min.js\"></script>\n```\n\n### Node.js install\n\nInstall the cannon package via NPM:\n\n```bash\nnpm install --save cannon\n```\n\nAlternatively, point to the Github repo directly to get the very latest version:\n\n```bash\nnpm install --save schteppe/cannon.js\n```\n\n### Example\n\nThe sample code below creates a sphere on a plane, steps the simulation, and prints the sphere simulation to the console. Note that Cannon.js uses [SI units](http://en.wikipedia.org/wiki/International_System_of_Units) (metre, kilogram, second, etc.).\n\n```javascript\n// Setup our world\nvar world = new CANNON.World();\nworld.gravity.set(0, 0, -9.82); // m/s²\n\n// Create a sphere\nvar radius = 1; // m\nvar sphereBody = new CANNON.Body({\n   mass: 5, // kg\n   position: new CANNON.Vec3(0, 0, 10), // m\n   shape: new CANNON.Sphere(radius)\n});\nworld.addBody(sphereBody);\n\n// Create a plane\nvar groundBody = new CANNON.Body({\n    mass: 0 // mass == 0 makes the body static\n});\nvar groundShape = new CANNON.Plane();\ngroundBody.addShape(groundShape);\nworld.addBody(groundBody);\n\nvar fixedTimeStep = 1.0 / 60.0; // seconds\nvar maxSubSteps = 3;\n\n// Start the simulation loop\nvar lastTime;\n(function simloop(time){\n  requestAnimationFrame(simloop);\n  if(lastTime !== undefined){\n     var dt = (time - lastTime) / 1000;\n     world.step(fixedTimeStep, dt, maxSubSteps);\n  }\n  console.log(\"Sphere z position: \" + sphereBody.position.z);\n  lastTime = time;\n})();\n```\n\nIf you want to know how to use cannon.js with a rendering engine, for example Three.js, see the [Examples](examples).\n\n### Features\n* Rigid body dynamics\n* Discrete collision detection\n* Contacts, friction and restitution\n* Constraints\n   * PointToPoint (a.k.a. ball/socket joint)\n   * Distance\n   * Hinge (with optional motor)\n   * Lock\n   * ConeTwist\n* Gauss-Seidel constraint solver and an island split algorithm\n* Collision filters\n* Body sleeping\n* Experimental SPH / fluid support\n* Various shapes and collision algorithms (see table below)\n\n|             | [Sphere](http://schteppe.github.io/cannon.js/docs/classes/Sphere.html) | [Plane](http://schteppe.github.io/cannon.js/docs/classes/Plane.html) | [Box](http://schteppe.github.io/cannon.js/docs/classes/Box.html) | [Convex](http://schteppe.github.io/cannon.js/docs/classes/ConvexPolyhedron.html) | [Particle](http://schteppe.github.io/cannon.js/docs/classes/Particle.html) | [Heightfield](http://schteppe.github.io/cannon.js/docs/classes/Heightfield.html) | [Trimesh](http://schteppe.github.io/cannon.js/docs/classes/Trimesh.html) |\n| :-----------|:------:|:-----:|:---:|:------:|:--------:|:-----------:|:-------:|\n| Sphere      | Yes    | Yes   | Yes | Yes    | Yes      | Yes         | Yes     |\n| Plane       | -      | -     | Yes | Yes    | Yes      | -           | Yes     |\n| Box         | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Cylinder    | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Convex      | -      | -     | -   | Yes    | Yes      | Yes         | (todo)  |\n| Particle    | -      | -     | -   | -      | -        | (todo)      | (todo)  |\n| Heightfield | -      | -     | -   | -      | -        | -           | (todo)  |\n| Trimesh     | -      | -     | -   | -      | -        | -           | -       |\n\n### Todo\nThe simpler todos are marked with ```@todo``` in the code. Github Issues can and should also be used for todos.\n\n### Help\nCreate an [issue](https://github.com/schteppe/cannon.js/issues) if you need help.\n",
-  "readmeFilename": "README.markdown",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/schteppe/cannon.js.git"
+
+    this.checkpoint = checkpoint;
+    el.emit('navigation-start', {checkpoint: checkpoint});
+
+    if (this.data.mode === 'teleport') {
+      this.sync();
+      this.el.setAttribute('position', this.targetPosition);
+      this.checkpoint = null;
+      el.emit('navigation-end', {checkpoint: checkpoint});
+    }
   },
-  "version": "0.6.2"
+
+  isVelocityActive: function () {
+    return !!(this.active && this.checkpoint);
+  },
+
+  getVelocity: function () {
+    if (!this.active) return;
+
+    var data = this.data,
+        offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition,
+        checkpoint = this.checkpoint;
+
+    this.sync();
+    if (position.distanceTo(targetPosition) < EPS) {
+      this.checkpoint = null;
+      this.el.emit('navigation-end', {checkpoint: checkpoint});
+      return offset.set(0, 0, 0);
+    }
+    offset.setLength(data.animateSpeed);
+    return offset;
+  },
+
+  sync: function () {
+    var offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition;
+
+    position.copy(this.el.getAttribute('position'));
+    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
+    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
+    offset.copy(targetPosition).sub(position);
+  }
+};
+
+},{}],76:[function(require,module,exports){
+/**
+ * Gamepad controls for A-Frame.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
+ *
+ * For more information about the Gamepad API, see:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+ */
+
+var GamepadButton = require('../../lib/GamepadButton'),
+    GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
+
+var JOYSTICK_EPS = 0.2;
+
+module.exports = {
+
+  /*******************************************************************
+   * Statics
+   */
+
+  GamepadButton: GamepadButton,
+
+  /*******************************************************************
+   * Schema
+   */
+
+  schema: {
+    // Controller 0-3
+    controller:        { default: 0, oneOf: [0, 1, 2, 3] },
+
+    // Enable/disable features
+    enabled:           { default: true },
+
+    // Debugging
+    debug:             { default: false }
+  },
+
+  /*******************************************************************
+   * Core
+   */
+
+  /**
+   * Called once when component is attached. Generally for initial setup.
+   */
+  init: function () {
+    var scene = this.el.sceneEl;
+    this.prevTime = window.performance.now();
+
+    // Button state
+    this.buttons = {};
+
+    scene.addBehavior(this);
+  },
+
+  /**
+   * Called when component is attached and when component data changes.
+   * Generally modifies the entity based on the data.
+   */
+  update: function () { this.tick(); },
+
+  /**
+   * Called on each iteration of main render loop.
+   */
+  tick: function () {
+    this.updateButtonState();
+  },
+
+  /**
+   * Called when a component is removed (e.g., via removeAttribute).
+   * Generally undoes all modifications to the entity.
+   */
+  remove: function () { },
+
+  /*******************************************************************
+   * Universal controls - movement
+   */
+
+  isVelocityActive: function () {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y;
+
+    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
+  },
+
+  getVelocityDelta: function () {
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y,
+        dVelocity = new THREE.Vector3();
+
+    if (Math.abs(inputX) > JOYSTICK_EPS) {
+      dVelocity.x += inputX;
+    }
+    if (Math.abs(inputY) > JOYSTICK_EPS) {
+      dVelocity.z += inputY;
+    }
+
+    return dVelocity;
+  },
+
+  /*******************************************************************
+   * Universal controls - rotation
+   */
+
+  isRotationActive: function () {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    var joystick1 = this.getJoystick(1);
+
+    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
+  },
+
+  getRotationDelta: function () {
+    var lookVector = this.getJoystick(1);
+    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
+    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
+    return lookVector;
+  },
+
+  /*******************************************************************
+   * Button events
+   */
+
+  updateButtonState: function () {
+    var gamepad = this.getGamepad();
+    if (this.data.enabled && gamepad) {
+
+      // Fire DOM events for button state changes.
+      for (var i = 0; i < gamepad.buttons.length; i++) {
+        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
+          this.emit(new GamepadButtonEvent('gamepadbuttondown', i, gamepad.buttons[i]));
+        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
+          this.emit(new GamepadButtonEvent('gamepadbuttonup', i, gamepad.buttons[i]));
+        }
+        this.buttons[i] = gamepad.buttons[i].pressed;
+      }
+
+    } else if (Object.keys(this.buttons)) {
+      // Reset state if controls are disabled or controller is lost.
+      this.buttons = {};
+    }
+  },
+
+  emit: function (event) {
+    // Emit original event.
+    this.el.emit(event.type, event);
+
+    // Emit convenience event, identifying button index.
+    this.el.emit(
+      event.type + ':' + event.index,
+      new GamepadButtonEvent(event.type, event.index, event)
+    );
+  },
+
+  /*******************************************************************
+   * Gamepad state
+   */
+
+  /**
+   * Returns the Gamepad instance attached to the component. If connected,
+   * a proxy-controls component may provide access to Gamepad input from a
+   * remote device.
+   *
+   * @return {Gamepad}
+   */
+  getGamepad: function () {
+    var localGamepad = navigator.getGamepads
+          && navigator.getGamepads()[this.data.controller],
+        proxyControls = this.el.sceneEl.components['proxy-controls'],
+        proxyGamepad = proxyControls && proxyControls.isConnected()
+          && proxyControls.getGamepad(this.data.controller);
+    return proxyGamepad || localGamepad;
+  },
+
+  /**
+   * Returns the state of the given button.
+   * @param  {number} index The button (0-N) for which to find state.
+   * @return {GamepadButton}
+   */
+  getButton: function (index) {
+    return this.getGamepad().buttons[index];
+  },
+
+  /**
+   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
+   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
+   * @param  {number} index The axis (0-N) for which to find state.
+   * @return {number} On the interval [-1,1].
+   */
+  getAxis: function (index) {
+    return this.getGamepad().axes[index];
+  },
+
+  /**
+   * Returns the state of the given joystick (0 or 1) as a THREE.Vector2.
+   * @param  {number} id The joystick (0, 1) for which to find state.
+   * @return {THREE.Vector2}
+   */
+  getJoystick: function (index) {
+    var gamepad = this.getGamepad();
+    switch (index) {
+      case 0: return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
+      case 1: return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
+      default: throw new Error('Unexpected joystick index "%d".', index);
+    }
+  },
+
+  /**
+   * Returns the state of the dpad as a THREE.Vector2.
+   * @return {THREE.Vector2}
+   */
+  getDpad: function () {
+    var gamepad = this.getGamepad();
+    if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
+      return new THREE.Vector2();
+    }
+    return new THREE.Vector2(
+      (gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0)
+      + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0),
+      (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0)
+      + (gamepad.buttons[GamepadButton.DPAD_DOWN].pressed ? 1 : 0)
+    );
+  },
+
+  /**
+   * Returns true if the gamepad is currently connected to the system.
+   * @return {boolean}
+   */
+  isConnected: function () {
+    var gamepad = this.getGamepad();
+    return !!(gamepad && gamepad.connected);
+  },
+
+  /**
+   * Returns a string containing some information about the controller. Result
+   * may vary across browsers, for a given controller.
+   * @return {string}
+   */
+  getID: function () {
+    return this.getGamepad().id;
+  }
+};
+
+},{"../../lib/GamepadButton":2,"../../lib/GamepadButtonEvent":3}],77:[function(require,module,exports){
+var radToDeg = THREE.Math.radToDeg,
+    isMobile = AFRAME.utils.device.isMobile();
+
+module.exports = {
+  schema: {
+    enabled: {default: true},
+    standing: {default: true}
+  },
+
+  init: function () {
+    this.isPositionCalibrated = false;
+    this.dolly = new THREE.Object3D();
+    this.hmdEuler = new THREE.Euler();
+    this.previousHMDPosition = new THREE.Vector3();
+    this.deltaHMDPosition = new THREE.Vector3();
+    this.vrControls = new THREE.VRControls(this.dolly);
+    this.rotation = new THREE.Vector3();
+  },
+
+  update: function () {
+    var data = this.data;
+    var vrControls = this.vrControls;
+    vrControls.standing = data.standing;
+    vrControls.update();
+  },
+
+  tick: function () {
+    this.vrControls.update();
+  },
+
+  remove: function () {
+    this.vrControls.dispose();
+  },
+
+  isRotationActive: function () {
+    var hmdEuler = this.hmdEuler;
+    if (!this.data.enabled || !(this.el.sceneEl.is('vr-mode') || isMobile)) {
+      return false;
+    }
+    hmdEuler.setFromQuaternion(this.dolly.quaternion, 'YXZ');
+    return !isNullVector(hmdEuler);
+  },
+
+  getRotation: function () {
+    var hmdEuler = this.hmdEuler;
+    return this.rotation.set(
+      radToDeg(hmdEuler.x),
+      radToDeg(hmdEuler.y),
+      radToDeg(hmdEuler.z)
+    );
+  },
+
+  isVelocityActive: function () {
+    var deltaHMDPosition = this.deltaHMDPosition;
+    var previousHMDPosition = this.previousHMDPosition;
+    var currentHMDPosition = this.calculateHMDPosition();
+    this.isPositionCalibrated = this.isPositionCalibrated || !isNullVector(previousHMDPosition);
+    if (!this.data.enabled || !this.el.sceneEl.is('vr-mode') || isMobile) {
+      return false;
+    }
+    deltaHMDPosition.copy(currentHMDPosition).sub(previousHMDPosition);
+    previousHMDPosition.copy(currentHMDPosition);
+    return this.isPositionCalibrated && !isNullVector(deltaHMDPosition);
+  },
+
+  getPositionDelta: function () {
+    return this.deltaHMDPosition;
+  },
+
+  calculateHMDPosition: function () {
+    var dolly = this.dolly;
+    var position = new THREE.Vector3();
+    dolly.updateMatrix();
+    position.setFromMatrixPosition(dolly.matrix);
+    return position;
+  }
+};
+
+function isNullVector (vector) {
+  return vector.x === 0 && vector.y === 0 && vector.z === 0;
 }
 
-},{}],84:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"../package.json":83,"./collision/AABB":85,"./collision/ArrayCollisionMatrix":86,"./collision/Broadphase":87,"./collision/GridBroadphase":88,"./collision/NaiveBroadphase":89,"./collision/ObjectCollisionMatrix":90,"./collision/Ray":92,"./collision/RaycastResult":93,"./collision/SAPBroadphase":94,"./constraints/ConeTwistConstraint":95,"./constraints/Constraint":96,"./constraints/DistanceConstraint":97,"./constraints/HingeConstraint":98,"./constraints/LockConstraint":99,"./constraints/PointToPointConstraint":100,"./equations/ContactEquation":102,"./equations/Equation":103,"./equations/FrictionEquation":104,"./equations/RotationalEquation":105,"./equations/RotationalMotorEquation":106,"./material/ContactMaterial":107,"./material/Material":108,"./math/Mat3":110,"./math/Quaternion":111,"./math/Transform":112,"./math/Vec3":113,"./objects/Body":114,"./objects/RaycastVehicle":115,"./objects/RigidVehicle":116,"./objects/SPHSystem":117,"./objects/Spring":118,"./shapes/Box":120,"./shapes/ConvexPolyhedron":121,"./shapes/Cylinder":122,"./shapes/Heightfield":123,"./shapes/Particle":124,"./shapes/Plane":125,"./shapes/Shape":126,"./shapes/Sphere":127,"./shapes/Trimesh":128,"./solver/GSSolver":129,"./solver/Solver":130,"./solver/SplitSolver":131,"./utils/EventTarget":132,"./utils/Pool":134,"./utils/Vec3Pool":137,"./world/Narrowphase":138,"./world/World":139,"dup":17}],85:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"../math/Vec3":113,"../utils/Utils":136,"dup":18}],86:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"dup":19}],87:[function(require,module,exports){
-arguments[4][20][0].apply(exports,arguments)
-},{"../math/Quaternion":111,"../math/Vec3":113,"../objects/Body":114,"../shapes/Plane":125,"../shapes/Shape":126,"dup":20}],88:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"../math/Vec3":113,"../shapes/Shape":126,"./Broadphase":87,"dup":21}],89:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"./AABB":85,"./Broadphase":87,"dup":22}],90:[function(require,module,exports){
-arguments[4][23][0].apply(exports,arguments)
-},{"dup":23}],91:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"dup":24}],92:[function(require,module,exports){
-arguments[4][25][0].apply(exports,arguments)
-},{"../collision/AABB":85,"../collision/RaycastResult":93,"../math/Quaternion":111,"../math/Transform":112,"../math/Vec3":113,"../shapes/Box":120,"../shapes/ConvexPolyhedron":121,"../shapes/Shape":126,"dup":25}],93:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"../math/Vec3":113,"dup":26}],94:[function(require,module,exports){
-arguments[4][27][0].apply(exports,arguments)
-},{"../collision/Broadphase":87,"../shapes/Shape":126,"dup":27}],95:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"../equations/ConeEquation":101,"../equations/ContactEquation":102,"../equations/RotationalEquation":105,"../math/Vec3":113,"./Constraint":96,"./PointToPointConstraint":100,"dup":28}],96:[function(require,module,exports){
-arguments[4][29][0].apply(exports,arguments)
-},{"../utils/Utils":136,"dup":29}],97:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"../equations/ContactEquation":102,"./Constraint":96,"dup":30}],98:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"../equations/ContactEquation":102,"../equations/RotationalEquation":105,"../equations/RotationalMotorEquation":106,"../math/Vec3":113,"./Constraint":96,"./PointToPointConstraint":100,"dup":31}],99:[function(require,module,exports){
-arguments[4][32][0].apply(exports,arguments)
-},{"../equations/ContactEquation":102,"../equations/RotationalEquation":105,"../equations/RotationalMotorEquation":106,"../math/Vec3":113,"./Constraint":96,"./PointToPointConstraint":100,"dup":32}],100:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"../equations/ContactEquation":102,"../math/Vec3":113,"./Constraint":96,"dup":33}],101:[function(require,module,exports){
-arguments[4][34][0].apply(exports,arguments)
-},{"../math/Mat3":110,"../math/Vec3":113,"./Equation":103,"dup":34}],102:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"../math/Mat3":110,"../math/Vec3":113,"./Equation":103,"dup":35}],103:[function(require,module,exports){
-arguments[4][36][0].apply(exports,arguments)
-},{"../math/JacobianElement":109,"../math/Vec3":113,"dup":36}],104:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"../math/Mat3":110,"../math/Vec3":113,"./Equation":103,"dup":37}],105:[function(require,module,exports){
-arguments[4][38][0].apply(exports,arguments)
-},{"../math/Mat3":110,"../math/Vec3":113,"./Equation":103,"dup":38}],106:[function(require,module,exports){
-arguments[4][39][0].apply(exports,arguments)
-},{"../math/Mat3":110,"../math/Vec3":113,"./Equation":103,"dup":39}],107:[function(require,module,exports){
-arguments[4][40][0].apply(exports,arguments)
-},{"../utils/Utils":136,"dup":40}],108:[function(require,module,exports){
-arguments[4][41][0].apply(exports,arguments)
-},{"dup":41}],109:[function(require,module,exports){
-arguments[4][42][0].apply(exports,arguments)
-},{"./Vec3":113,"dup":42}],110:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./Vec3":113,"dup":43}],111:[function(require,module,exports){
-arguments[4][44][0].apply(exports,arguments)
-},{"./Vec3":113,"dup":44}],112:[function(require,module,exports){
-arguments[4][45][0].apply(exports,arguments)
-},{"./Quaternion":111,"./Vec3":113,"dup":45}],113:[function(require,module,exports){
-arguments[4][46][0].apply(exports,arguments)
-},{"./Mat3":110,"dup":46}],114:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"../collision/AABB":85,"../material/Material":108,"../math/Mat3":110,"../math/Quaternion":111,"../math/Vec3":113,"../shapes/Box":120,"../shapes/Shape":126,"../utils/EventTarget":132,"dup":47}],115:[function(require,module,exports){
-arguments[4][48][0].apply(exports,arguments)
-},{"../collision/Ray":92,"../collision/RaycastResult":93,"../math/Quaternion":111,"../math/Vec3":113,"../objects/WheelInfo":119,"./Body":114,"dup":48}],116:[function(require,module,exports){
-arguments[4][49][0].apply(exports,arguments)
-},{"../constraints/HingeConstraint":98,"../math/Vec3":113,"../shapes/Box":120,"../shapes/Sphere":127,"./Body":114,"dup":49}],117:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"../material/Material":108,"../math/Quaternion":111,"../math/Vec3":113,"../objects/Body":114,"../shapes/Particle":124,"../shapes/Shape":126,"dup":50}],118:[function(require,module,exports){
-arguments[4][51][0].apply(exports,arguments)
-},{"../math/Vec3":113,"dup":51}],119:[function(require,module,exports){
-arguments[4][52][0].apply(exports,arguments)
-},{"../collision/RaycastResult":93,"../math/Transform":112,"../math/Vec3":113,"../utils/Utils":136,"dup":52}],120:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"../math/Vec3":113,"./ConvexPolyhedron":121,"./Shape":126,"dup":53}],121:[function(require,module,exports){
-arguments[4][54][0].apply(exports,arguments)
-},{"../math/Quaternion":111,"../math/Transform":112,"../math/Vec3":113,"./Shape":126,"dup":54}],122:[function(require,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"../math/Quaternion":111,"../math/Vec3":113,"./ConvexPolyhedron":121,"./Shape":126,"dup":55}],123:[function(require,module,exports){
-arguments[4][56][0].apply(exports,arguments)
-},{"../math/Vec3":113,"../utils/Utils":136,"./ConvexPolyhedron":121,"./Shape":126,"dup":56}],124:[function(require,module,exports){
-arguments[4][57][0].apply(exports,arguments)
-},{"../math/Vec3":113,"./Shape":126,"dup":57}],125:[function(require,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"../math/Vec3":113,"./Shape":126,"dup":58}],126:[function(require,module,exports){
-arguments[4][59][0].apply(exports,arguments)
-},{"../material/Material":108,"../math/Quaternion":111,"../math/Vec3":113,"./Shape":126,"dup":59}],127:[function(require,module,exports){
-arguments[4][60][0].apply(exports,arguments)
-},{"../math/Vec3":113,"./Shape":126,"dup":60}],128:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"../collision/AABB":85,"../math/Quaternion":111,"../math/Transform":112,"../math/Vec3":113,"../utils/Octree":133,"./Shape":126,"dup":61}],129:[function(require,module,exports){
-arguments[4][62][0].apply(exports,arguments)
-},{"../math/Quaternion":111,"../math/Vec3":113,"./Solver":130,"dup":62}],130:[function(require,module,exports){
-arguments[4][63][0].apply(exports,arguments)
-},{"dup":63}],131:[function(require,module,exports){
-arguments[4][64][0].apply(exports,arguments)
-},{"../math/Quaternion":111,"../math/Vec3":113,"../objects/Body":114,"./Solver":130,"dup":64}],132:[function(require,module,exports){
-arguments[4][65][0].apply(exports,arguments)
-},{"dup":65}],133:[function(require,module,exports){
-arguments[4][66][0].apply(exports,arguments)
-},{"../collision/AABB":85,"../math/Vec3":113,"dup":66}],134:[function(require,module,exports){
-arguments[4][67][0].apply(exports,arguments)
-},{"dup":67}],135:[function(require,module,exports){
-arguments[4][68][0].apply(exports,arguments)
-},{"dup":68}],136:[function(require,module,exports){
-arguments[4][69][0].apply(exports,arguments)
-},{"dup":69}],137:[function(require,module,exports){
-arguments[4][70][0].apply(exports,arguments)
-},{"../math/Vec3":113,"./Pool":134,"dup":70}],138:[function(require,module,exports){
-arguments[4][71][0].apply(exports,arguments)
-},{"../collision/AABB":85,"../collision/Ray":92,"../equations/ContactEquation":102,"../equations/FrictionEquation":104,"../math/Quaternion":111,"../math/Transform":112,"../math/Vec3":113,"../objects/Body":114,"../shapes/ConvexPolyhedron":121,"../shapes/Shape":126,"../solver/Solver":130,"../utils/Vec3Pool":137,"dup":71}],139:[function(require,module,exports){
-arguments[4][72][0].apply(exports,arguments)
-},{"../collision/AABB":85,"../collision/ArrayCollisionMatrix":86,"../collision/NaiveBroadphase":89,"../collision/OverlapKeeper":91,"../collision/Ray":92,"../collision/RaycastResult":93,"../equations/ContactEquation":102,"../equations/FrictionEquation":104,"../material/ContactMaterial":107,"../material/Material":108,"../math/Quaternion":111,"../math/Vec3":113,"../objects/Body":114,"../shapes/Shape":126,"../solver/GSSolver":129,"../utils/EventTarget":132,"../utils/TupleDictionary":135,"./Narrowphase":138,"dup":72}]},{},[1]);
+},{}],78:[function(require,module,exports){
+var physics = require('aframe-physics-system');
+
+module.exports = {
+  'checkpoint-controls': require('./checkpoint-controls'),
+  'gamepad-controls':    require('./gamepad-controls'),
+  'hmd-controls':        require('./hmd-controls'),
+  'keyboard-controls':   require('./keyboard-controls'),
+  'mouse-controls':      require('./mouse-controls'),
+  'touch-controls':      require('./touch-controls'),
+  'universal-controls':  require('./universal-controls'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    physics.registerAll();
+    if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
+    if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
+    if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
+    if (!AFRAME.components['keyboard-controls'])    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
+    if (!AFRAME.components['mouse-controls'])       AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
+    if (!AFRAME.components['touch-controls'])       AFRAME.registerComponent('touch-controls',      this['touch-controls']);
+    if (!AFRAME.components['universal-controls'])   AFRAME.registerComponent('universal-controls',  this['universal-controls']);
+
+    this._registered = true;
+  }
+};
+
+},{"./checkpoint-controls":75,"./gamepad-controls":76,"./hmd-controls":77,"./keyboard-controls":79,"./mouse-controls":80,"./touch-controls":81,"./universal-controls":82,"aframe-physics-system":5}],79:[function(require,module,exports){
+require('../../lib/keyboard.polyfill');
+
+var MAX_DELTA = 0.2,
+    PROXY_FLAG = '__keyboard-controls-proxy';
+
+var KeyboardEvent = window.KeyboardEvent;
+
+/**
+ * Keyboard Controls component.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
+ *
+ * Bind keyboard events to components, or control your entities with the WASD keys.
+ *
+ * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
+ * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
+ * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
+ * when you care about which physical key was pressed, rather thanwhich character it corresponds
+ * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
+ * player in different directions, and that mapping should ideally be independent of keyboard
+ * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
+ *
+ * @namespace wasd-controls
+ * keys the entity moves and if you release it will stop. Easing simulates friction.
+ * to the entity when pressing the keys.
+ * @param {bool} [enabled=true] - To completely enable or disable the controls
+ */
+module.exports = {
+  schema: {
+    enabled:           { default: true },
+    debug:             { default: false }
+  },
+
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+    this.localKeys = {};
+    this.listeners = {
+      keydown: this.onKeyDown.bind(this),
+      keyup: this.onKeyUp.bind(this),
+      blur: this.onBlur.bind(this)
+    };
+    this.attachEventListeners();
+  },
+
+  /*******************************************************************
+  * Movement
+  */
+
+  isVelocityActive: function () {
+    return this.data.enabled && !!Object.keys(this.getKeys()).length;
+  },
+
+  getVelocityDelta: function () {
+    var data = this.data,
+        keys = this.getKeys();
+
+    this.dVelocity.set(0, 0, 0);
+    if (data.enabled) {
+      if (keys.KeyW || keys.ArrowUp)    { this.dVelocity.z -= 1; }
+      if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
+      if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
+      if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
+    }
+
+    return this.dVelocity.clone();
+  },
+
+  /*******************************************************************
+  * Events
+  */
+
+  play: function () {
+    this.attachEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  attachEventListeners: function () {
+    window.addEventListener('keydown', this.listeners.keydown, false);
+    window.addEventListener('keyup', this.listeners.keyup, false);
+    window.addEventListener('blur', this.listeners.blur, false);
+  },
+
+  removeEventListeners: function () {
+    window.removeEventListener('keydown', this.listeners.keydown);
+    window.removeEventListener('keyup', this.listeners.keyup);
+    window.removeEventListener('blur', this.listeners.blur);
+  },
+
+  onKeyDown: function (event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      this.localKeys[event.code] = true;
+      this.emit(event);
+    }
+  },
+
+  onKeyUp: function (event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      delete this.localKeys[event.code];
+      this.emit(event);
+    }
+  },
+
+  onBlur: function () {
+    for (var code in this.localKeys) {
+      if (this.localKeys.hasOwnProperty(code)) {
+        delete this.localKeys[code];
+      }
+    }
+  },
+
+  emit: function (event) {
+    // TODO - keydown only initially?
+    // TODO - where the f is the spacebar
+
+    // Emit original event.
+    if (PROXY_FLAG in event) {
+      // TODO - Method never triggered.
+      this.el.emit(event.type, event);
+    }
+
+    // Emit convenience event, identifying key.
+    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
+    if (this.data.debug) console.log(event.type + ':' + event.code);
+  },
+
+  /*******************************************************************
+  * Accessors
+  */
+
+  isPressed: function (code) {
+    return code in this.getKeys();
+  },
+
+  getKeys: function () {
+    if (this.isProxied()) {
+      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
+    }
+    return this.localKeys;
+  },
+
+  isProxied: function () {
+    var proxyControls = this.el.sceneEl.components['proxy-controls'];
+    return proxyControls && proxyControls.isConnected();
+  }
+
+};
+
+},{"../../lib/keyboard.polyfill":4}],80:[function(require,module,exports){
+document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+
+/**
+ * Mouse + Pointerlock controls.
+ *
+ * Based on: https://github.com/aframevr/aframe/pull/1056
+ */
+module.exports = {
+  schema: {
+    enabled: { default: true },
+    pointerlockEnabled: { default: true },
+    sensitivity: { default: 1 / 25 }
+  },
+
+  init: function () {
+    this.mouseDown = false;
+    this.pointerLocked = false;
+    this.lookVector = new THREE.Vector2();
+    this.bindMethods();
+  },
+
+  update: function (previousData) {
+    var data = this.data;
+    if (previousData.pointerlockEnabled && !data.pointerlockEnabled && this.pointerLocked) {
+      document.exitPointerLock();
+    }
+  },
+
+  play: function () {
+    this.addEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+    this.lookVector.set(0, 0);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  bindMethods: function () {
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+  },
+
+  addEventListeners: function () {
+    var sceneEl = this.el.sceneEl;
+    var canvasEl = sceneEl.canvas;
+    var data = this.data;
+
+    if (!canvasEl) {
+      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+      return;
+    }
+
+    canvasEl.addEventListener('mousedown', this.onMouseDown, false);
+    canvasEl.addEventListener('mousemove', this.onMouseMove, false);
+    canvasEl.addEventListener('mouseup', this.onMouseUp, false);
+    canvasEl.addEventListener('mouseout', this.onMouseUp, false);
+
+    if (data.pointerlockEnabled) {
+      document.addEventListener('pointerlockchange', this.onPointerLockChange, false);
+      document.addEventListener('mozpointerlockchange', this.onPointerLockChange, false);
+      document.addEventListener('pointerlockerror', this.onPointerLockError, false);
+    }
+  },
+
+  removeEventListeners: function () {
+    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    if (canvasEl) {
+      canvasEl.removeEventListener('mousedown', this.onMouseDown, false);
+      canvasEl.removeEventListener('mousemove', this.onMouseMove, false);
+      canvasEl.removeEventListener('mouseup', this.onMouseUp, false);
+      canvasEl.removeEventListener('mouseout', this.onMouseUp, false);
+    }
+    document.removeEventListener('pointerlockchange', this.onPointerLockChange, false);
+    document.removeEventListener('mozpointerlockchange', this.onPointerLockChange, false);
+    document.removeEventListener('pointerlockerror', this.onPointerLockError, false);
+  },
+
+  isRotationActive: function () {
+    return this.data.enabled && (this.mouseDown || this.pointerLocked);
+  },
+
+  /**
+   * Returns the sum of all mouse movement since last call.
+   */
+  getRotationDelta: function () {
+    var dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
+    this.lookVector.set(0, 0);
+    return dRotation;
+  },
+
+  onMouseMove: function (event) {
+    var previousMouseEvent = this.previousMouseEvent;
+
+    if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) {
+      return;
+    }
+
+    var movementX = event.movementX || event.mozMovementX || 0;
+    var movementY = event.movementY || event.mozMovementY || 0;
+
+    if (!this.pointerLocked) {
+      movementX = event.screenX - previousMouseEvent.screenX;
+      movementY = event.screenY - previousMouseEvent.screenY;
+    }
+
+    this.lookVector.x += movementX;
+    this.lookVector.y += movementY;
+
+    this.previousMouseEvent = event;
+  },
+
+  onMouseDown: function (event) {
+    var canvasEl = this.el.sceneEl.canvas,
+        isEditing = (AFRAME.INSPECTOR || {}).opened;
+
+    this.mouseDown = true;
+    this.previousMouseEvent = event;
+
+    if (this.data.pointerlockEnabled && !this.pointerLocked && !isEditing) {
+      if (canvasEl.requestPointerLock) {
+        canvasEl.requestPointerLock();
+      } else if (canvasEl.mozRequestPointerLock) {
+        canvasEl.mozRequestPointerLock();
+      }
+    }
+  },
+
+  onMouseUp: function () {
+    this.mouseDown = false;
+  },
+
+  onPointerLockChange: function () {
+    this.pointerLocked = !!(document.pointerLockElement || document.mozPointerLockElement);
+  },
+
+  onPointerLockError: function () {
+    this.pointerLocked = false;
+  }
+};
+
+},{}],81:[function(require,module,exports){
+module.exports = {
+  schema: {
+    enabled: { default: true }
+  },
+
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+    this.bindMethods();
+  },
+
+  play: function () {
+    this.addEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+    this.dVelocity.set(0, 0, 0);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  addEventListeners: function () {
+    var sceneEl = this.el.sceneEl;
+    var canvasEl = sceneEl.canvas;
+
+    if (!canvasEl) {
+      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+      return;
+    }
+
+    canvasEl.addEventListener('touchstart', this.onTouchStart);
+    canvasEl.addEventListener('touchend', this.onTouchEnd);
+  },
+
+  removeEventListeners: function () {
+    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    if (!canvasEl) { return; }
+
+    canvasEl.removeEventListener('touchstart', this.onTouchStart);
+    canvasEl.removeEventListener('touchend', this.onTouchEnd);
+  },
+
+  isVelocityActive: function () {
+    return this.data.enabled && this.isMoving;
+  },
+
+  getVelocityDelta: function () {
+    this.dVelocity.z = this.isMoving ? -1 : 0;
+    return this.dVelocity.clone();
+  },
+
+  bindMethods: function () {
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+  },
+
+  onTouchStart: function (e) {
+    this.isMoving = true;
+    e.preventDefault();
+  },
+
+  onTouchEnd: function (e) {
+    this.isMoving = false;
+    e.preventDefault();
+  }
+};
+
+},{}],82:[function(require,module,exports){
+/**
+ * Universal Controls
+ *
+ * @author Don McCurdy <dm@donmccurdy.com>
+ */
+
+var COMPONENT_SUFFIX = '-controls',
+    MAX_DELTA = 0.2, // ms
+    PI_2 = Math.PI / 2;
+
+module.exports = {
+
+  /*******************************************************************
+   * Schema
+   */
+
+  dependencies: ['velocity', 'rotation'],
+
+  schema: {
+    enabled:              { default: true },
+    movementEnabled:      { default: true },
+    movementControls:     { default: ['gamepad', 'keyboard', 'touch', 'hmd'] },
+    rotationEnabled:      { default: true },
+    rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
+    movementSpeed:        { default: 5 }, // m/s
+    movementEasing:       { default: 15 }, // m/s2
+    movementEasingY:      { default: 0  }, // m/s2
+    movementAcceleration: { default: 80 }, // m/s2
+    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
+    fly:                  { default: false },
+  },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
+  init: function () {
+    var rotation = this.el.getAttribute('rotation');
+
+    if (this.el.hasAttribute('look-controls') && this.data.rotationEnabled) {
+      console.error('[universal-controls] The `universal-controls` component is a replacement '
+        + 'for `look-controls`, and cannot be used in combination with it.');
+    }
+
+    // Movement
+    this.velocity = new THREE.Vector3();
+
+    // Rotation
+    this.pitch = new THREE.Object3D();
+    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+    this.yaw = new THREE.Object3D();
+    this.yaw.position.y = 10;
+    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
+    this.yaw.add(this.pitch);
+    this.heading = new THREE.Euler(0, 0, 0, 'YXZ');
+
+    if (this.el.sceneEl.hasLoaded) {
+      this.injectControls();
+    } else {
+      this.el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
+    }
+  },
+
+  update: function () {
+    if (this.el.sceneEl.hasLoaded) {
+      this.injectControls();
+    }
+  },
+
+  injectControls: function () {
+    var i, name,
+        data = this.data;
+
+    for (i = 0; i < data.movementControls.length; i++) {
+      name = data.movementControls[i] + COMPONENT_SUFFIX;
+      if (!this.el.components[name]) {
+        this.el.setAttribute(name, '');
+      }
+    }
+
+    for (i = 0; i < data.rotationControls.length; i++) {
+      name = data.rotationControls[i] + COMPONENT_SUFFIX;
+      if (!this.el.components[name]) {
+        this.el.setAttribute(name, '');
+      }
+    }
+  },
+
+  /*******************************************************************
+   * Tick
+   */
+
+  tick: function (t, dt) {
+    if (!dt) { return; }
+
+    // Update rotation.
+    if (this.data.rotationEnabled) this.updateRotation(dt);
+
+    // Update velocity. If FPS is too low, reset.
+    if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
+      this.velocity.set(0, 0, 0);
+      this.el.setAttribute('velocity', this.velocity);
+    } else {
+      this.updateVelocity(dt);
+    }
+  },
+
+  /*******************************************************************
+   * Rotation
+   */
+
+  updateRotation: function (dt) {
+    var control, dRotation,
+        data = this.data;
+
+    for (var i = 0, l = data.rotationControls.length; i < l; i++) {
+      control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
+      if (control && control.isRotationActive()) {
+        if (control.getRotationDelta) {
+          dRotation = control.getRotationDelta(dt);
+          dRotation.multiplyScalar(data.rotationSensitivity);
+          this.yaw.rotation.y -= dRotation.x;
+          this.pitch.rotation.x -= dRotation.y;
+          this.pitch.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitch.rotation.x));
+          this.el.setAttribute('rotation', {
+            x: THREE.Math.radToDeg(this.pitch.rotation.x),
+            y: THREE.Math.radToDeg(this.yaw.rotation.y),
+            z: 0
+          });
+        } else if (control.getRotation) {
+          this.el.setAttribute('rotation', control.getRotation());
+        } else {
+          throw new Error('Incompatible rotation controls: %s', data.rotationControls[i]);
+        }
+        break;
+      }
+    }
+  },
+
+  /*******************************************************************
+   * Movement
+   */
+
+  updateVelocity: function (dt) {
+    var control, dVelocity,
+        velocity = this.velocity,
+        data = this.data;
+
+    if (data.movementEnabled) {
+      for (var i = 0, l = data.movementControls.length; i < l; i++) {
+        control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
+        if (control && control.isVelocityActive()) {
+          if (control.getVelocityDelta) {
+            dVelocity = control.getVelocityDelta(dt);
+          } else if (control.getVelocity) {
+            this.el.setAttribute('velocity', control.getVelocity());
+            return;
+          } else if (control.getPositionDelta) {
+            velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
+            this.el.setAttribute('velocity', velocity);
+            return;
+          } else {
+            throw new Error('Incompatible movement controls: ', data.movementControls[i]);
+          }
+          break;
+        }
+      }
+    }
+
+    velocity.copy(this.el.getAttribute('velocity'));
+    velocity.x -= velocity.x * data.movementEasing * dt / 1000;
+    velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
+    velocity.z -= velocity.z * data.movementEasing * dt / 1000;
+
+    if (dVelocity && data.movementEnabled) {
+      // Set acceleration
+      if (dVelocity.length() > 1) {
+        dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
+      } else {
+        dVelocity.multiplyScalar(this.data.movementAcceleration * dt / 1000);
+      }
+
+      // Rotate to heading
+      var rotation = this.el.getAttribute('rotation');
+      if (rotation) {
+        this.heading.set(
+          data.fly ? THREE.Math.degToRad(rotation.x) : 0,
+          THREE.Math.degToRad(rotation.y),
+          0
+        );
+        dVelocity.applyEuler(this.heading);
+      }
+
+      velocity.add(dVelocity);
+
+      // TODO - Several issues here:
+      // (1) Interferes w/ gravity.
+      // (2) Interferes w/ jumping.
+      // (3) Likely to interfere w/ relative position to moving platform.
+      // if (velocity.length() > data.movementSpeed) {
+      //   velocity.setLength(data.movementSpeed);
+      // }
+    }
+
+    this.el.setAttribute('velocity', velocity);
+  }
+};
+
+},{}]},{},[1]);
