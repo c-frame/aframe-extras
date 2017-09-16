@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/misc').registerAll();
-},{"./src/misc":73}],2:[function(require,module,exports){
+},{"./src/misc":75}],2:[function(require,module,exports){
 var CANNON = require('cannon'),
     math = require('./src/components/math');
 
@@ -444,7 +444,7 @@ module.exports = {
   }())
 };
 
-},{"../../../lib/CANNON-shape2mesh":3,"cannon":14,"three-to-cannon":79}],5:[function(require,module,exports){
+},{"../../../lib/CANNON-shape2mesh":3,"cannon":14,"three-to-cannon":70}],5:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -886,58 +886,26 @@ module.exports = {
 
 },{"../constants":11,"cannon":14}],13:[function(require,module,exports){
 module.exports={
-  "_args": [
-    [
-      {
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "escapedName": "cannon",
-        "name": "cannon",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted",
-        "hosted": {
-          "type": "github",
-          "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-        }
-      },
-      "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system"
-    ]
-  ],
-  "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
+  "_from": "github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_id": "cannon@0.6.2",
-  "_inCache": true,
+  "_inBundle": false,
+  "_integrity": "sha1-kuhwtr7Hd8jqU3mcndOx2tmf0RU=",
   "_location": "/cannon",
   "_phantomChildren": {},
   "_requested": {
+    "type": "git",
     "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "escapedName": "cannon",
     "name": "cannon",
+    "escapedName": "cannon",
     "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted",
-    "hosted": {
-      "type": "github",
-      "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-    }
+    "saveSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "fetchSpec": null,
+    "gitCommittish": "v0.6.2-dev1"
   },
   "_requiredBy": [
     "/aframe-physics-system"
   ],
-  "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "1feaace5aa9b5582c190748b160b2c8383e059fd",
-  "_shrinkwrap": null,
+  "_resolved": "github:donmccurdy/cannon.js#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",
   "author": {
@@ -948,7 +916,9 @@ module.exports={
   "bugs": {
     "url": "https://github.com/schteppe/cannon.js/issues"
   },
+  "bundleDependencies": false,
   "dependencies": {},
+  "deprecated": false,
   "description": "A lightweight 3D physics engine written in JavaScript.",
   "devDependencies": {
     "browserify": "*",
@@ -966,7 +936,6 @@ module.exports={
   "engines": {
     "node": "*"
   },
-  "gitHead": "022e8ba53fa83abf0ad8a0e4fd08623123838a17",
   "homepage": "https://github.com/schteppe/cannon.js",
   "keywords": [
     "cannon.js",
@@ -982,9 +951,6 @@ module.exports={
   ],
   "main": "./src/Cannon.js",
   "name": "cannon",
-  "optionalDependencies": {},
-  "readme": "# cannon.js\n\n### Lightweight 3D physics for the web\nInspired by [three.js](https://github.com/mrdoob/three.js) and [ammo.js](https://github.com/kripken/ammo.js), and driven by the fact that the web lacks a physics engine, here comes cannon.js.\nThe rigid body physics engine includes simple collision detection, various body shapes, contacts, friction and constraints.\n\n[Demos](http://schteppe.github.com/cannon.js) - [Documentation](http://schteppe.github.com/cannon.js/docs) - [Rendering hints](https://github.com/schteppe/cannon.js/tree/master/examples) - [NPM package](https://npmjs.org/package/cannon) - [CDN](https://cdnjs.com/libraries/cannon.js)\n\n### Browser install\n\nJust include [cannon.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.js) or [cannon.min.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.min.js) in your html and you're done:\n\n```html\n<script src=\"cannon.min.js\"></script>\n```\n\n### Node.js install\n\nInstall the cannon package via NPM:\n\n```bash\nnpm install --save cannon\n```\n\nAlternatively, point to the Github repo directly to get the very latest version:\n\n```bash\nnpm install --save schteppe/cannon.js\n```\n\n### Example\n\nThe sample code below creates a sphere on a plane, steps the simulation, and prints the sphere simulation to the console. Note that Cannon.js uses [SI units](http://en.wikipedia.org/wiki/International_System_of_Units) (metre, kilogram, second, etc.).\n\n```javascript\n// Setup our world\nvar world = new CANNON.World();\nworld.gravity.set(0, 0, -9.82); // m/s²\n\n// Create a sphere\nvar radius = 1; // m\nvar sphereBody = new CANNON.Body({\n   mass: 5, // kg\n   position: new CANNON.Vec3(0, 0, 10), // m\n   shape: new CANNON.Sphere(radius)\n});\nworld.addBody(sphereBody);\n\n// Create a plane\nvar groundBody = new CANNON.Body({\n    mass: 0 // mass == 0 makes the body static\n});\nvar groundShape = new CANNON.Plane();\ngroundBody.addShape(groundShape);\nworld.addBody(groundBody);\n\nvar fixedTimeStep = 1.0 / 60.0; // seconds\nvar maxSubSteps = 3;\n\n// Start the simulation loop\nvar lastTime;\n(function simloop(time){\n  requestAnimationFrame(simloop);\n  if(lastTime !== undefined){\n     var dt = (time - lastTime) / 1000;\n     world.step(fixedTimeStep, dt, maxSubSteps);\n  }\n  console.log(\"Sphere z position: \" + sphereBody.position.z);\n  lastTime = time;\n})();\n```\n\nIf you want to know how to use cannon.js with a rendering engine, for example Three.js, see the [Examples](examples).\n\n### Features\n* Rigid body dynamics\n* Discrete collision detection\n* Contacts, friction and restitution\n* Constraints\n   * PointToPoint (a.k.a. ball/socket joint)\n   * Distance\n   * Hinge (with optional motor)\n   * Lock\n   * ConeTwist\n* Gauss-Seidel constraint solver and an island split algorithm\n* Collision filters\n* Body sleeping\n* Experimental SPH / fluid support\n* Various shapes and collision algorithms (see table below)\n\n|             | [Sphere](http://schteppe.github.io/cannon.js/docs/classes/Sphere.html) | [Plane](http://schteppe.github.io/cannon.js/docs/classes/Plane.html) | [Box](http://schteppe.github.io/cannon.js/docs/classes/Box.html) | [Convex](http://schteppe.github.io/cannon.js/docs/classes/ConvexPolyhedron.html) | [Particle](http://schteppe.github.io/cannon.js/docs/classes/Particle.html) | [Heightfield](http://schteppe.github.io/cannon.js/docs/classes/Heightfield.html) | [Trimesh](http://schteppe.github.io/cannon.js/docs/classes/Trimesh.html) |\n| :-----------|:------:|:-----:|:---:|:------:|:--------:|:-----------:|:-------:|\n| Sphere      | Yes    | Yes   | Yes | Yes    | Yes      | Yes         | Yes     |\n| Plane       | -      | -     | Yes | Yes    | Yes      | -           | Yes     |\n| Box         | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Cylinder    | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Convex      | -      | -     | -   | Yes    | Yes      | Yes         | (todo)  |\n| Particle    | -      | -     | -   | -      | -        | (todo)      | (todo)  |\n| Heightfield | -      | -     | -   | -      | -        | -           | (todo)  |\n| Trimesh     | -      | -     | -   | -      | -        | -           | -       |\n\n### Todo\nThe simpler todos are marked with ```@todo``` in the code. Github Issues can and should also be used for todos.\n\n### Help\nCreate an [issue](https://github.com/schteppe/cannon.js/issues) if you need help.\n",
-  "readmeFilename": "README.markdown",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/schteppe/cannon.js.git"
@@ -15412,654 +15378,6 @@ World.prototype.clearForces = function(){
 };
 
 },{"../collision/AABB":15,"../collision/ArrayCollisionMatrix":16,"../collision/NaiveBroadphase":19,"../collision/OverlapKeeper":21,"../collision/Ray":22,"../collision/RaycastResult":23,"../equations/ContactEquation":32,"../equations/FrictionEquation":34,"../material/ContactMaterial":37,"../material/Material":38,"../math/Quaternion":41,"../math/Vec3":43,"../objects/Body":44,"../shapes/Shape":56,"../solver/GSSolver":59,"../utils/EventTarget":62,"../utils/TupleDictionary":65,"./Narrowphase":68}],70:[function(require,module,exports){
-module.exports = {
-  schema: {
-    offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
-  },
-
-  init: function () {
-    this.active = false;
-    this.targetEl = null;
-    this.fire = this.fire.bind(this);
-    this.offset = new THREE.Vector3();
-  },
-
-  update: function () {
-    this.offset.copy(this.data.offset);
-  },
-
-  play: function () { this.el.addEventListener('click', this.fire); },
-  pause: function () { this.el.removeEventListener('click', this.fire); },
-  remove: function () { this.pause(); },
-
-  fire: function () {
-    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
-    if (!targetEl) {
-      throw new Error('No `checkpoint-controls` component found.');
-    }
-    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
-  },
-
-  getOffset: function () {
-    return this.offset.copy(this.data.offset);
-  }
-};
-
-},{}],71:[function(require,module,exports){
-/**
- * Specifies an envMap on an entity, without replacing any existing material
- * properties.
- */
-module.exports = {
-  schema: {
-    path: {default: ''},
-    extension: {default: 'jpg'},
-    format: {default: 'RGBFormat'},
-    enableBackground: {default: false}
-  },
-
-  init: function () {
-    var data = this.data;
-
-    this.texture = new THREE.CubeTextureLoader().load([
-      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
-      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
-      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
-    ]);
-    this.texture.format = THREE[data.format];
-
-    if (data.enableBackground) {
-      this.el.sceneEl.object3D.background = this.texture;
-    }
-
-    this.applyEnvMap();
-    this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
-  },
-
-  applyEnvMap: function () {
-    var mesh = this.el.getObject3D('mesh');
-    var envMap = this.texture;
-
-    if (!mesh) return;
-
-    mesh.traverse(function (node) {
-      if (node.material && 'envMap' in node.material) {
-        node.material.envMap = envMap;
-        node.material.needsUpdate = true;
-      }
-    });
-  }
-};
-
-},{}],72:[function(require,module,exports){
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Handles events coming from the hand-controls.
- * Determines if the entity is grabbed or released.
- * Updates its position to move along the controller.
- */
-module.exports = {
-  init: function () {
-    this.GRABBED_STATE = 'grabbed';
-
-    this.grabbing = false;
-    this.hitEl =      /** @type {AFRAME.Element}    */ null;
-    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
-    this.constraint = /** @type {CANNON.Constraint} */ null;
-
-    // Bind event handlers
-    this.onHit = this.onHit.bind(this);
-    this.onGripOpen = this.onGripOpen.bind(this);
-    this.onGripClose = this.onGripClose.bind(this);
-  },
-
-  play: function () {
-    var el = this.el;
-    el.addEventListener('hit', this.onHit);
-    el.addEventListener('gripdown', this.onGripClose);
-    el.addEventListener('gripup', this.onGripOpen);
-    el.addEventListener('trackpaddown', this.onGripClose);
-    el.addEventListener('trackpadup', this.onGripOpen);
-    el.addEventListener('triggerdown', this.onGripClose);
-    el.addEventListener('triggerup', this.onGripOpen);
-  },
-
-  pause: function () {
-    var el = this.el;
-    el.removeEventListener('hit', this.onHit);
-    el.removeEventListener('gripdown', this.onGripClose);
-    el.removeEventListener('gripup', this.onGripOpen);
-    el.removeEventListener('trackpaddown', this.onGripClose);
-    el.removeEventListener('trackpadup', this.onGripOpen);
-    el.removeEventListener('triggerdown', this.onGripClose);
-    el.removeEventListener('triggerup', this.onGripOpen);
-  },
-
-  onGripClose: function (evt) {
-    this.grabbing = true;
-  },
-
-  onGripOpen: function (evt) {
-    var hitEl = this.hitEl;
-    this.grabbing = false;
-    if (!hitEl) { return; }
-    hitEl.removeState(this.GRABBED_STATE);
-    this.hitEl = undefined;
-    this.physics.world.removeConstraint(this.constraint);
-    this.constraint = null;
-  },
-
-  onHit: function (evt) {
-    var hitEl = evt.detail.el;
-    // If the element is already grabbed (it could be grabbed by another controller).
-    // If the hand is not grabbing the element does not stick.
-    // If we're already grabbing something you can't grab again.
-    if (!hitEl || hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
-    hitEl.addState(this.GRABBED_STATE);
-    this.hitEl = hitEl;
-    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
-    this.physics.world.addConstraint(this.constraint);
-  }
-};
-
-},{}],73:[function(require,module,exports){
-var physics = require('aframe-physics-system');
-
-module.exports = {
-  'checkpoint':      require('./checkpoint'),
-  'cube-env-map':    require('./cube-env-map'),
-  'grab':            require('./grab'),
-  'jump-ability':    require('./jump-ability'),
-  'kinematic-body':  require('./kinematic-body'),
-  'mesh-smooth':     require('./mesh-smooth'),
-  'sphere-collider': require('./sphere-collider'),
-  'toggle-velocity': require('./toggle-velocity'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    physics.registerAll();
-    if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
-    if (!AFRAME.components['cube-env-map'])    AFRAME.registerComponent('cube-env-map',    this['cube-env-map']);
-    if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
-    if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
-    if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
-    if (!AFRAME.components['mesh-smooth'])     AFRAME.registerComponent('mesh-smooth',     this['mesh-smooth']);
-    if (!AFRAME.components['sphere-collider']) AFRAME.registerComponent('sphere-collider', this['sphere-collider']);
-    if (!AFRAME.components['toggle-velocity']) AFRAME.registerComponent('toggle-velocity', this['toggle-velocity']);
-
-    this._registered = true;
-  }
-};
-
-},{"./checkpoint":70,"./cube-env-map":71,"./grab":72,"./jump-ability":74,"./kinematic-body":75,"./mesh-smooth":76,"./sphere-collider":77,"./toggle-velocity":78,"aframe-physics-system":2}],74:[function(require,module,exports){
-var ACCEL_G = -9.8, // m/s^2
-    EASING = -15; // m/s^2
-
-/**
- * Jump ability.
- */
-module.exports = {
-  dependencies: ['velocity'],
-
-  /* Schema
-  ——————————————————————————————————————————————*/
-
-  schema: {
-    on: { default: 'keydown:Space gamepadbuttondown:0' },
-    playerHeight: { default: 1.764 },
-    maxJumps: { default: 1 },
-    distance: { default: 5 },
-    soundJump: { default: '' },
-    soundLand: { default: '' },
-    debug: { default: false }
-  },
-
-  init: function () {
-    this.velocity = 0;
-    this.numJumps = 0;
-
-    var beginJump = this.beginJump.bind(this),
-        events = this.data.on.split(' ');
-    this.bindings = {};
-    for (var i = 0; i <  events.length; i++) {
-      this.bindings[events[i]] = beginJump;
-      this.el.addEventListener(events[i], beginJump);
-    }
-    this.bindings.collide = this.onCollide.bind(this);
-    this.el.addEventListener('collide', this.bindings.collide);
-  },
-
-  remove: function () {
-    for (var event in this.bindings) {
-      if (this.bindings.hasOwnProperty(event)) {
-        this.el.removeEventListener(event, this.bindings[event]);
-        delete this.bindings[event];
-      }
-    }
-    this.el.removeEventListener('collide', this.bindings.collide);
-    delete this.bindings.collide;
-  },
-
-  beginJump: function () {
-    if (this.numJumps < this.data.maxJumps) {
-      var data = this.data,
-          initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
-          v = this.el.getAttribute('velocity');
-      this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
-      this.numJumps++;
-    }
-  },
-
-  onCollide: function () {
-    this.numJumps = 0;
-  }
-};
-
-},{}],75:[function(require,module,exports){
-/**
- * Kinematic body.
- *
- * Managed dynamic body, which moves but is not affected (directly) by the
- * physics engine. This is not a true kinematic body, in the sense that we are
- * letting the physics engine _compute_ collisions against it and selectively
- * applying those collisions to the object. The physics engine does not decide
- * the position/velocity/rotation of the element.
- *
- * Used for the camera object, because full physics simulation would create
- * movement that feels unnatural to the player. Bipedal movement does not
- * translate nicely to rigid body physics.
- *
- * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
- * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
- */
-var CANNON = window.CANNON;
-var EPS = 0.000001;
-
-module.exports = {
-  dependencies: ['velocity'],
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    mass:           { default: 5 },
-    radius:         { default: 1.3 },
-    height:         { default: 1.764 },
-    linearDamping:  { default: 0.05 },
-    enableSlopes:   { default: true }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function () {
-    this.system = this.el.sceneEl.systems.physics;
-    this.system.addBehavior(this, this.system.Phase.SIMULATE);
-
-    var el = this.el,
-        data = this.data,
-        position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
-
-    this.body = new CANNON.Body({
-      material: this.system.material,
-      position: position,
-      mass: data.mass,
-      linearDamping: data.linearDamping,
-      fixedRotation: true
-    });
-    this.body.addShape(
-      new CANNON.Sphere(data.radius),
-      new CANNON.Vec3(0, data.radius - data.height, 0)
-    );
-
-    this.body.el = this.el;
-    this.el.body = this.body;
-    this.system.addBody(this.body);
-  },
-
-  remove: function () {
-    this.system.removeBody(this.body);
-    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
-    delete this.el.body;
-  },
-
-  /*******************************************************************
-   * Tick
-   */
-
-  /**
-   * Checks CANNON.World for collisions and attempts to apply them to the
-   * element automatically, in a player-friendly way.
-   *
-   * There's extra logic for horizontal surfaces here. The basic requirements:
-   * (1) Only apply gravity when not in contact with _any_ horizontal surface.
-   * (2) When moving, project the velocity against exactly one ground surface.
-   *     If in contact with two ground surfaces (e.g. ground + ramp), choose
-   *     the one that collides with current velocity, if any.
-   */
-  step: (function () {
-    var velocity = new THREE.Vector3(),
-        normalizedVelocity = new THREE.Vector3(),
-        currentSurfaceNormal = new THREE.Vector3(),
-        groundNormal = new THREE.Vector3();
-
-    return function (t, dt) {
-      if (!dt) return;
-
-      var body = this.body,
-          data = this.data,
-          didCollide = false,
-          height, groundHeight = -Infinity,
-          groundBody;
-
-      dt = Math.min(dt, this.system.data.maxInterval * 1000);
-
-      groundNormal.set(0, 0, 0);
-      velocity.copy(this.el.getAttribute('velocity'));
-      body.velocity.copy(velocity);
-      body.position.copy(this.el.getAttribute('position'));
-
-      for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
-        // 1. Find any collisions involving this element. Get the contact
-        // normal, and make sure it's oriented _out_ of the other object.
-        if (body.id === contact.bi.id) {
-          contact.ni.negate(currentSurfaceNormal);
-        } else if (body.id === contact.bj.id) {
-          currentSurfaceNormal.copy(contact.ni);
-        } else {
-          continue;
-        }
-
-        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
-        if (didCollide && currentSurfaceNormal.y <= 0.5) {
-          // 2. If current trajectory attempts to move _through_ another
-          // object, project the velocity against the collision plane to
-          // prevent passing through.
-          velocity = velocity.projectOnPlane(currentSurfaceNormal);
-        } else if (currentSurfaceNormal.y > 0.5) {
-          // 3. If in contact with something roughly horizontal (+/- 45º) then
-          // consider that the current ground. Only the highest qualifying
-          // ground is retained.
-          height = body.id === contact.bi.id
-            ? Math.abs(contact.rj.y + contact.bj.position.y)
-            : Math.abs(contact.ri.y + contact.bi.position.y);
-          if (height > groundHeight) {
-            groundHeight = height;
-            groundNormal.copy(currentSurfaceNormal);
-            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
-          }
-        }
-      }
-
-      normalizedVelocity.copy(velocity).normalize();
-      if (groundBody && normalizedVelocity.y < 0.5) {
-        if (!data.enableSlopes) {
-          groundNormal.set(0, 1, 0);
-        } else if (groundNormal.y < 1 - EPS) {
-          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
-        }
-
-        // 4. Project trajectory onto the top-most ground object, unless
-        // trajectory is > 45º.
-        velocity = velocity.projectOnPlane(groundNormal);
-      } else {
-        // 5. If not in contact with anything horizontal, apply world gravity.
-        // TODO - Why is the 4x scalar necessary.
-        velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
-      }
-
-      // 6. If the ground surface has a velocity, apply it directly to current
-      // position, not velocity, to preserve relative velocity.
-      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        var groundVelocity = groundBody.el.getAttribute('velocity');
-        body.position.copy({
-          x: body.position.x + groundVelocity.x * dt / 1000,
-          y: body.position.y + groundVelocity.y * dt / 1000,
-          z: body.position.z + groundVelocity.z * dt / 1000
-        });
-        this.el.setAttribute('position', body.position);
-      }
-
-      body.velocity.copy(velocity);
-      this.el.setAttribute('velocity', velocity);
-    };
-  }()),
-
-  /**
-   * When walking on complex surfaces (trimeshes, borders between two shapes),
-   * the collision normals returned for the player sphere can be very
-   * inconsistent. To address this, raycast straight down, find the collision
-   * normal, and return whichever normal is more vertical.
-   * @param  {CANNON.Body} groundBody
-   * @param  {CANNON.Vec3} groundNormal
-   * @return {CANNON.Vec3}
-   */
-  raycastToGround: function (groundBody, groundNormal) {
-    var ray,
-        hitNormal,
-        vFrom = this.body.position,
-        vTo = this.body.position.clone();
-
-    vTo.y -= this.data.height;
-    ray = new CANNON.Ray(vFrom, vTo);
-    ray._updateDirection(); // TODO - Report bug.
-    ray.intersectBody(groundBody);
-
-    if (!ray.hasHit) return groundNormal;
-
-    // Compare ABS, in case we're projecting against the inside of the face.
-    hitNormal = ray.result.hitNormalWorld;
-    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
-  }
-};
-
-},{}],76:[function(require,module,exports){
-/**
- * Apply this component to models that looks "blocky", to have Three.js compute
- * vertex normals on the fly for a "smoother" look.
- */
-module.exports = {
-  init: function () {
-    this.el.addEventListener('model-loaded', function (e) {
-      e.detail.model.traverse(function (node) {
-        if (node.isMesh) node.geometry.computeVertexNormals();
-      });
-    })
-  }
-}
-
-},{}],77:[function(require,module,exports){
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Implement bounding sphere collision detection for entities with a mesh.
- * Sets the specified state on the intersected entities.
- *
- * @property {string} objects - Selector of the entities to test for collision.
- * @property {string} state - State to set on collided entities.
- *
- */
-module.exports = {
-  schema: {
-    objects: {default: ''},
-    state: {default: 'collided'},
-    radius: {default: 0.05},
-    watch: {default: true}
-  },
-
-  init: function () {
-    /** @type {MutationObserver} */
-    this.observer = null;
-    /** @type {Array<Element>} Elements to watch for collisions. */
-    this.els = [];
-    /** @type {Array<Element>} Elements currently in collision state. */
-    this.collisions = [];
-
-    this.handleHit = this.handleHit.bind(this);
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  play: function () {
-    var sceneEl = this.el.sceneEl;
-
-    if (this.data.watch) {
-      this.observer = new MutationObserver(this.update.bind(this, null));
-      this.observer.observe(sceneEl, {childList: true, subtree: true});
-    }
-  },
-
-  pause: function () {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-  },
-
-  /**
-   * Update list of entities to test for collision.
-   */
-  update: function () {
-    var data = this.data;
-    var objectEls;
-
-    // Push entities into list of els to intersect.
-    if (data.objects) {
-      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
-    } else {
-      // If objects not defined, intersect with everything.
-      objectEls = this.el.sceneEl.children;
-    }
-    // Convert from NodeList to Array
-    this.els = Array.prototype.slice.call(objectEls);
-  },
-
-  tick: (function () {
-    var position = new THREE.Vector3(),
-        meshPosition = new THREE.Vector3(),
-        meshScale = new THREE.Vector3(),
-        colliderScale = new THREE.Vector3(),
-        distanceMap = new Map();
-    return function () {
-      var el = this.el,
-          data = this.data,
-          mesh = el.getObject3D('mesh'),
-          colliderRadius,
-          collisions = [];
-
-      if (!mesh) { return; }
-
-      distanceMap.clear();
-      position.copy(el.object3D.getWorldPosition());
-      el.object3D.getWorldScale(colliderScale);
-      colliderRadius = data.radius * scaleFactor(colliderScale);
-      // Update collision list.
-      this.els.forEach(intersect);
-
-      // Emit events and add collision states, in order of distance.
-      collisions
-        .sort(function (a, b) {
-          return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
-        })
-        .forEach(this.handleHit);
-
-      // Remove collision state from current element.
-      if (collisions.length === 0) { el.emit('hit', {el: null}); }
-
-      // Remove collision state from other elements.
-      this.collisions.filter(function (el) {
-        return !distanceMap.has(el);
-      }).forEach(function removeState (el) {
-        el.removeState(data.state);
-      });
-
-      // Store new collisions
-      this.collisions = collisions;
-
-      // Bounding sphere collision detection
-      function intersect (el) {
-        var radius, mesh, distance, box, extent, size;
-
-        if (!el.isEntity) { return; }
-
-        mesh = el.getObject3D('mesh');
-
-        if (!mesh) { return; }
-
-        box = new THREE.Box3().setFromObject(mesh);
-        size = box.getSize();
-        extent = Math.max(size.x, size.y, size.z) / 2;
-        radius = Math.sqrt(2 * extent * extent);
-        box.getCenter(meshPosition);
-
-        if (!radius) { return; }
-
-        distance = position.distanceTo(meshPosition);
-        if (distance < radius + colliderRadius) {
-          collisions.push(el);
-          distanceMap.set(el, distance);
-        }
-      }
-      // use max of scale factors to maintain bounding sphere collision
-      function scaleFactor (scaleVec) {
-        return Math.max.apply(null, scaleVec.toArray());
-      }
-    };
-  })(),
-
-  handleHit: function (targetEl) {
-    targetEl.emit('hit');
-    targetEl.addState(this.data.state);
-    this.el.emit('hit', {el: targetEl});
-  }
-};
-
-},{}],78:[function(require,module,exports){
-/**
- * Toggle velocity.
- *
- * Moves an object back and forth along an axis, within a min/max extent.
- */
-module.exports = {
-  dependencies: ['velocity'],
-  schema: {
-    axis: { default: 'x', oneOf: ['x', 'y', 'z'] },
-    min: { default: 0 },
-    max: { default: 0 },
-    speed: { default: 1 }
-  },
-  init: function () {
-    var velocity = {x: 0, y: 0, z: 0};
-    velocity[this.data.axis] = this.data.speed;
-    this.el.setAttribute('velocity', velocity);
-
-    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
-  },
-  remove: function () {},
-  update: function () { this.tick(); },
-  tick: function () {
-    var data = this.data,
-        velocity = this.el.getAttribute('velocity'),
-        position = this.el.getAttribute('position');
-    if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
-      velocity[data.axis] = -data.speed;
-      this.el.setAttribute('velocity', velocity);
-    } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
-      velocity[data.axis] = data.speed;
-      this.el.setAttribute('velocity', velocity);
-    }
-  },
-};
-
-},{}],79:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./lib/THREE.quickhull');
 
@@ -16424,7 +15742,7 @@ function getMeshes (object) {
   return meshes;
 }
 
-},{"./lib/THREE.quickhull":80,"cannon":82}],80:[function(require,module,exports){
+},{"./lib/THREE.quickhull":71,"cannon":14}],71:[function(require,module,exports){
 /**
 
   QuickHull
@@ -16876,223 +16194,652 @@ module.exports = (function(){
 
 }())
 
-},{}],81:[function(require,module,exports){
-module.exports={
-  "_args": [
-    [
-      {
-        "hosted": {
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "type": "github"
-        },
-        "name": "cannon",
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted"
-      },
-      "/Users/donmccurdy/Documents/Projects/three-to-cannon"
-    ]
-  ],
-  "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
-  "_id": "cannon@0.6.2",
-  "_inCache": true,
-  "_installable": true,
-  "_location": "/cannon",
-  "_phantomChildren": {},
-  "_requested": {
-    "hosted": {
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "type": "github"
-    },
-    "name": "cannon",
-    "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted"
+},{}],72:[function(require,module,exports){
+module.exports = {
+  schema: {
+    offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
   },
-  "_requiredBy": [
-    "#USER"
-  ],
-  "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "b2d7815b32a84f8dc90ae863c66bcb44486855cb",
-  "_shrinkwrap": null,
-  "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-  "_where": "/Users/donmccurdy/Documents/Projects/three-to-cannon",
-  "author": {
-    "email": "schteppe@gmail.com",
-    "name": "Stefan Hedman",
-    "url": "http://steffe.se"
+
+  init: function () {
+    this.active = false;
+    this.targetEl = null;
+    this.fire = this.fire.bind(this);
+    this.offset = new THREE.Vector3();
   },
-  "bugs": {
-    "url": "https://github.com/schteppe/cannon.js/issues"
+
+  update: function () {
+    this.offset.copy(this.data.offset);
   },
-  "dependencies": {},
-  "description": "A lightweight 3D physics engine written in JavaScript.",
-  "devDependencies": {
-    "browserify": "*",
-    "grunt": "~0.4.0",
-    "grunt-browserify": "^2.1.4",
-    "grunt-contrib-concat": "~0.1.3",
-    "grunt-contrib-jshint": "~0.1.1",
-    "grunt-contrib-nodeunit": "^0.4.1",
-    "grunt-contrib-uglify": "^0.5.1",
-    "grunt-contrib-yuidoc": "^0.5.2",
-    "jshint": "latest",
-    "nodeunit": "^0.9.0",
-    "uglify-js": "latest"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "gitHead": "022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "homepage": "https://github.com/schteppe/cannon.js",
-  "keywords": [
-    "cannon.js",
-    "cannon",
-    "physics",
-    "engine",
-    "3d"
-  ],
-  "licenses": [
-    {
-      "type": "MIT"
+
+  play: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.removeEventListener('click', this.fire); },
+  remove: function () { this.pause(); },
+
+  fire: function () {
+    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+    if (!targetEl) {
+      throw new Error('No `checkpoint-controls` component found.');
     }
-  ],
-  "main": "./src/Cannon.js",
-  "name": "cannon",
-  "optionalDependencies": {},
-  "readme": "# cannon.js\n\n### Lightweight 3D physics for the web\nInspired by [three.js](https://github.com/mrdoob/three.js) and [ammo.js](https://github.com/kripken/ammo.js), and driven by the fact that the web lacks a physics engine, here comes cannon.js.\nThe rigid body physics engine includes simple collision detection, various body shapes, contacts, friction and constraints.\n\n[Demos](http://schteppe.github.com/cannon.js) - [Documentation](http://schteppe.github.com/cannon.js/docs) - [Rendering hints](https://github.com/schteppe/cannon.js/tree/master/examples) - [NPM package](https://npmjs.org/package/cannon) - [CDN](https://cdnjs.com/libraries/cannon.js)\n\n### Browser install\n\nJust include [cannon.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.js) or [cannon.min.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.min.js) in your html and you're done:\n\n```html\n<script src=\"cannon.min.js\"></script>\n```\n\n### Node.js install\n\nInstall the cannon package via NPM:\n\n```bash\nnpm install --save cannon\n```\n\nAlternatively, point to the Github repo directly to get the very latest version:\n\n```bash\nnpm install --save schteppe/cannon.js\n```\n\n### Example\n\nThe sample code below creates a sphere on a plane, steps the simulation, and prints the sphere simulation to the console. Note that Cannon.js uses [SI units](http://en.wikipedia.org/wiki/International_System_of_Units) (metre, kilogram, second, etc.).\n\n```javascript\n// Setup our world\nvar world = new CANNON.World();\nworld.gravity.set(0, 0, -9.82); // m/s²\n\n// Create a sphere\nvar radius = 1; // m\nvar sphereBody = new CANNON.Body({\n   mass: 5, // kg\n   position: new CANNON.Vec3(0, 0, 10), // m\n   shape: new CANNON.Sphere(radius)\n});\nworld.addBody(sphereBody);\n\n// Create a plane\nvar groundBody = new CANNON.Body({\n    mass: 0 // mass == 0 makes the body static\n});\nvar groundShape = new CANNON.Plane();\ngroundBody.addShape(groundShape);\nworld.addBody(groundBody);\n\nvar fixedTimeStep = 1.0 / 60.0; // seconds\nvar maxSubSteps = 3;\n\n// Start the simulation loop\nvar lastTime;\n(function simloop(time){\n  requestAnimationFrame(simloop);\n  if(lastTime !== undefined){\n     var dt = (time - lastTime) / 1000;\n     world.step(fixedTimeStep, dt, maxSubSteps);\n  }\n  console.log(\"Sphere z position: \" + sphereBody.position.z);\n  lastTime = time;\n})();\n```\n\nIf you want to know how to use cannon.js with a rendering engine, for example Three.js, see the [Examples](examples).\n\n### Features\n* Rigid body dynamics\n* Discrete collision detection\n* Contacts, friction and restitution\n* Constraints\n   * PointToPoint (a.k.a. ball/socket joint)\n   * Distance\n   * Hinge (with optional motor)\n   * Lock\n   * ConeTwist\n* Gauss-Seidel constraint solver and an island split algorithm\n* Collision filters\n* Body sleeping\n* Experimental SPH / fluid support\n* Various shapes and collision algorithms (see table below)\n\n|             | [Sphere](http://schteppe.github.io/cannon.js/docs/classes/Sphere.html) | [Plane](http://schteppe.github.io/cannon.js/docs/classes/Plane.html) | [Box](http://schteppe.github.io/cannon.js/docs/classes/Box.html) | [Convex](http://schteppe.github.io/cannon.js/docs/classes/ConvexPolyhedron.html) | [Particle](http://schteppe.github.io/cannon.js/docs/classes/Particle.html) | [Heightfield](http://schteppe.github.io/cannon.js/docs/classes/Heightfield.html) | [Trimesh](http://schteppe.github.io/cannon.js/docs/classes/Trimesh.html) |\n| :-----------|:------:|:-----:|:---:|:------:|:--------:|:-----------:|:-------:|\n| Sphere      | Yes    | Yes   | Yes | Yes    | Yes      | Yes         | Yes     |\n| Plane       | -      | -     | Yes | Yes    | Yes      | -           | Yes     |\n| Box         | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Cylinder    | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Convex      | -      | -     | -   | Yes    | Yes      | Yes         | (todo)  |\n| Particle    | -      | -     | -   | -      | -        | (todo)      | (todo)  |\n| Heightfield | -      | -     | -   | -      | -        | -           | (todo)  |\n| Trimesh     | -      | -     | -   | -      | -        | -           | -       |\n\n### Todo\nThe simpler todos are marked with ```@todo``` in the code. Github Issues can and should also be used for todos.\n\n### Help\nCreate an [issue](https://github.com/schteppe/cannon.js/issues) if you need help.\n",
-  "readmeFilename": "README.markdown",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/schteppe/cannon.js.git"
+    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
   },
-  "version": "0.6.2"
+
+  getOffset: function () {
+    return this.offset.copy(this.data.offset);
+  }
+};
+
+},{}],73:[function(require,module,exports){
+/**
+ * Specifies an envMap on an entity, without replacing any existing material
+ * properties.
+ */
+module.exports = {
+  schema: {
+    path: {default: ''},
+    extension: {default: 'jpg'},
+    format: {default: 'RGBFormat'},
+    enableBackground: {default: false}
+  },
+
+  init: function () {
+    var data = this.data;
+
+    this.texture = new THREE.CubeTextureLoader().load([
+      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
+      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
+      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
+    ]);
+    this.texture.format = THREE[data.format];
+
+    if (data.enableBackground) {
+      this.el.sceneEl.object3D.background = this.texture;
+    }
+
+    this.applyEnvMap();
+    this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
+  },
+
+  applyEnvMap: function () {
+    var mesh = this.el.getObject3D('mesh');
+    var envMap = this.texture;
+
+    if (!mesh) return;
+
+    mesh.traverse(function (node) {
+      if (node.material && 'envMap' in node.material) {
+        node.material.envMap = envMap;
+        node.material.needsUpdate = true;
+      }
+    });
+  }
+};
+
+},{}],74:[function(require,module,exports){
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Handles events coming from the hand-controls.
+ * Determines if the entity is grabbed or released.
+ * Updates its position to move along the controller.
+ */
+module.exports = {
+  init: function () {
+    this.GRABBED_STATE = 'grabbed';
+
+    this.grabbing = false;
+    this.hitEl =      /** @type {AFRAME.Element}    */ null;
+    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */ null;
+
+    // Bind event handlers
+    this.onHit = this.onHit.bind(this);
+    this.onGripOpen = this.onGripOpen.bind(this);
+    this.onGripClose = this.onGripClose.bind(this);
+  },
+
+  play: function () {
+    var el = this.el;
+    el.addEventListener('hit', this.onHit);
+    el.addEventListener('gripdown', this.onGripClose);
+    el.addEventListener('gripup', this.onGripOpen);
+    el.addEventListener('trackpaddown', this.onGripClose);
+    el.addEventListener('trackpadup', this.onGripOpen);
+    el.addEventListener('triggerdown', this.onGripClose);
+    el.addEventListener('triggerup', this.onGripOpen);
+  },
+
+  pause: function () {
+    var el = this.el;
+    el.removeEventListener('hit', this.onHit);
+    el.removeEventListener('gripdown', this.onGripClose);
+    el.removeEventListener('gripup', this.onGripOpen);
+    el.removeEventListener('trackpaddown', this.onGripClose);
+    el.removeEventListener('trackpadup', this.onGripOpen);
+    el.removeEventListener('triggerdown', this.onGripClose);
+    el.removeEventListener('triggerup', this.onGripOpen);
+  },
+
+  onGripClose: function (evt) {
+    this.grabbing = true;
+  },
+
+  onGripOpen: function (evt) {
+    var hitEl = this.hitEl;
+    this.grabbing = false;
+    if (!hitEl) { return; }
+    hitEl.removeState(this.GRABBED_STATE);
+    this.hitEl = undefined;
+    this.physics.world.removeConstraint(this.constraint);
+    this.constraint = null;
+  },
+
+  onHit: function (evt) {
+    var hitEl = evt.detail.el;
+    // If the element is already grabbed (it could be grabbed by another controller).
+    // If the hand is not grabbing the element does not stick.
+    // If we're already grabbing something you can't grab again.
+    if (!hitEl || hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
+    hitEl.addState(this.GRABBED_STATE);
+    this.hitEl = hitEl;
+    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
+    this.physics.world.addConstraint(this.constraint);
+  }
+};
+
+},{}],75:[function(require,module,exports){
+var physics = require('aframe-physics-system');
+
+module.exports = {
+  'checkpoint':      require('./checkpoint'),
+  'cube-env-map':    require('./cube-env-map'),
+  'grab':            require('./grab'),
+  'jump-ability':    require('./jump-ability'),
+  'kinematic-body':  require('./kinematic-body'),
+  'mesh-smooth':     require('./mesh-smooth'),
+  'sphere-collider': require('./sphere-collider'),
+  'toggle-velocity': require('./toggle-velocity'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    physics.registerAll();
+    if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
+    if (!AFRAME.components['cube-env-map'])    AFRAME.registerComponent('cube-env-map',    this['cube-env-map']);
+    if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
+    if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
+    if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
+    if (!AFRAME.components['mesh-smooth'])     AFRAME.registerComponent('mesh-smooth',     this['mesh-smooth']);
+    if (!AFRAME.components['sphere-collider']) AFRAME.registerComponent('sphere-collider', this['sphere-collider']);
+    if (!AFRAME.components['toggle-velocity']) AFRAME.registerComponent('toggle-velocity', this['toggle-velocity']);
+
+    this._registered = true;
+  }
+};
+
+},{"./checkpoint":72,"./cube-env-map":73,"./grab":74,"./jump-ability":76,"./kinematic-body":77,"./mesh-smooth":78,"./sphere-collider":79,"./toggle-velocity":80,"aframe-physics-system":2}],76:[function(require,module,exports){
+var ACCEL_G = -9.8, // m/s^2
+    EASING = -15; // m/s^2
+
+/**
+ * Jump ability.
+ */
+module.exports = {
+  dependencies: ['velocity'],
+
+  /* Schema
+  ——————————————————————————————————————————————*/
+
+  schema: {
+    on: { default: 'keydown:Space gamepadbuttondown:0' },
+    playerHeight: { default: 1.764 },
+    maxJumps: { default: 1 },
+    distance: { default: 5 },
+    soundJump: { default: '' },
+    soundLand: { default: '' },
+    debug: { default: false }
+  },
+
+  init: function () {
+    this.velocity = 0;
+    this.numJumps = 0;
+
+    var beginJump = this.beginJump.bind(this),
+        events = this.data.on.split(' ');
+    this.bindings = {};
+    for (var i = 0; i <  events.length; i++) {
+      this.bindings[events[i]] = beginJump;
+      this.el.addEventListener(events[i], beginJump);
+    }
+    this.bindings.collide = this.onCollide.bind(this);
+    this.el.addEventListener('collide', this.bindings.collide);
+  },
+
+  remove: function () {
+    for (var event in this.bindings) {
+      if (this.bindings.hasOwnProperty(event)) {
+        this.el.removeEventListener(event, this.bindings[event]);
+        delete this.bindings[event];
+      }
+    }
+    this.el.removeEventListener('collide', this.bindings.collide);
+    delete this.bindings.collide;
+  },
+
+  beginJump: function () {
+    if (this.numJumps < this.data.maxJumps) {
+      var data = this.data,
+          initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
+          v = this.el.getAttribute('velocity');
+      this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
+      this.numJumps++;
+    }
+  },
+
+  onCollide: function () {
+    this.numJumps = 0;
+  }
+};
+
+},{}],77:[function(require,module,exports){
+/**
+ * Kinematic body.
+ *
+ * Managed dynamic body, which moves but is not affected (directly) by the
+ * physics engine. This is not a true kinematic body, in the sense that we are
+ * letting the physics engine _compute_ collisions against it and selectively
+ * applying those collisions to the object. The physics engine does not decide
+ * the position/velocity/rotation of the element.
+ *
+ * Used for the camera object, because full physics simulation would create
+ * movement that feels unnatural to the player. Bipedal movement does not
+ * translate nicely to rigid body physics.
+ *
+ * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
+ * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
+ */
+var CANNON = window.CANNON;
+var EPS = 0.000001;
+
+module.exports = {
+  dependencies: ['velocity'],
+
+  /*******************************************************************
+   * Schema
+   */
+
+  schema: {
+    mass:           { default: 5 },
+    radius:         { default: 1.3 },
+    height:         { default: 1.764 },
+    linearDamping:  { default: 0.05 },
+    enableSlopes:   { default: true }
+  },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
+  init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
+
+    var el = this.el,
+        data = this.data,
+        position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
+
+    this.body = new CANNON.Body({
+      material: this.system.material,
+      position: position,
+      mass: data.mass,
+      linearDamping: data.linearDamping,
+      fixedRotation: true
+    });
+    this.body.addShape(
+      new CANNON.Sphere(data.radius),
+      new CANNON.Vec3(0, data.radius - data.height, 0)
+    );
+
+    this.body.el = this.el;
+    this.el.body = this.body;
+    this.system.addBody(this.body);
+  },
+
+  remove: function () {
+    this.system.removeBody(this.body);
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
+    delete this.el.body;
+  },
+
+  /*******************************************************************
+   * Tick
+   */
+
+  /**
+   * Checks CANNON.World for collisions and attempts to apply them to the
+   * element automatically, in a player-friendly way.
+   *
+   * There's extra logic for horizontal surfaces here. The basic requirements:
+   * (1) Only apply gravity when not in contact with _any_ horizontal surface.
+   * (2) When moving, project the velocity against exactly one ground surface.
+   *     If in contact with two ground surfaces (e.g. ground + ramp), choose
+   *     the one that collides with current velocity, if any.
+   */
+  step: (function () {
+    var velocity = new THREE.Vector3(),
+        normalizedVelocity = new THREE.Vector3(),
+        currentSurfaceNormal = new THREE.Vector3(),
+        groundNormal = new THREE.Vector3();
+
+    return function (t, dt) {
+      if (!dt) return;
+
+      var body = this.body,
+          data = this.data,
+          didCollide = false,
+          height, groundHeight = -Infinity,
+          groundBody;
+
+      dt = Math.min(dt, this.system.data.maxInterval * 1000);
+
+      groundNormal.set(0, 0, 0);
+      velocity.copy(this.el.getAttribute('velocity'));
+      body.velocity.copy(velocity);
+      body.position.copy(this.el.getAttribute('position'));
+
+      for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
+        // 1. Find any collisions involving this element. Get the contact
+        // normal, and make sure it's oriented _out_ of the other object.
+        if (body.id === contact.bi.id) {
+          contact.ni.negate(currentSurfaceNormal);
+        } else if (body.id === contact.bj.id) {
+          currentSurfaceNormal.copy(contact.ni);
+        } else {
+          continue;
+        }
+
+        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
+        if (didCollide && currentSurfaceNormal.y <= 0.5) {
+          // 2. If current trajectory attempts to move _through_ another
+          // object, project the velocity against the collision plane to
+          // prevent passing through.
+          velocity = velocity.projectOnPlane(currentSurfaceNormal);
+        } else if (currentSurfaceNormal.y > 0.5) {
+          // 3. If in contact with something roughly horizontal (+/- 45º) then
+          // consider that the current ground. Only the highest qualifying
+          // ground is retained.
+          height = body.id === contact.bi.id
+            ? Math.abs(contact.rj.y + contact.bj.position.y)
+            : Math.abs(contact.ri.y + contact.bi.position.y);
+          if (height > groundHeight) {
+            groundHeight = height;
+            groundNormal.copy(currentSurfaceNormal);
+            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
+          }
+        }
+      }
+
+      normalizedVelocity.copy(velocity).normalize();
+      if (groundBody && normalizedVelocity.y < 0.5) {
+        if (!data.enableSlopes) {
+          groundNormal.set(0, 1, 0);
+        } else if (groundNormal.y < 1 - EPS) {
+          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
+        }
+
+        // 4. Project trajectory onto the top-most ground object, unless
+        // trajectory is > 45º.
+        velocity = velocity.projectOnPlane(groundNormal);
+      } else {
+        // 5. If not in contact with anything horizontal, apply world gravity.
+        // TODO - Why is the 4x scalar necessary.
+        velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
+      }
+
+      // 6. If the ground surface has a velocity, apply it directly to current
+      // position, not velocity, to preserve relative velocity.
+      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
+        var groundVelocity = groundBody.el.getAttribute('velocity');
+        body.position.copy({
+          x: body.position.x + groundVelocity.x * dt / 1000,
+          y: body.position.y + groundVelocity.y * dt / 1000,
+          z: body.position.z + groundVelocity.z * dt / 1000
+        });
+        this.el.setAttribute('position', body.position);
+      }
+
+      body.velocity.copy(velocity);
+      this.el.setAttribute('velocity', velocity);
+    };
+  }()),
+
+  /**
+   * When walking on complex surfaces (trimeshes, borders between two shapes),
+   * the collision normals returned for the player sphere can be very
+   * inconsistent. To address this, raycast straight down, find the collision
+   * normal, and return whichever normal is more vertical.
+   * @param  {CANNON.Body} groundBody
+   * @param  {CANNON.Vec3} groundNormal
+   * @return {CANNON.Vec3}
+   */
+  raycastToGround: function (groundBody, groundNormal) {
+    var ray,
+        hitNormal,
+        vFrom = this.body.position,
+        vTo = this.body.position.clone();
+
+    vTo.y -= this.data.height;
+    ray = new CANNON.Ray(vFrom, vTo);
+    ray._updateDirection(); // TODO - Report bug.
+    ray.intersectBody(groundBody);
+
+    if (!ray.hasHit) return groundNormal;
+
+    // Compare ABS, in case we're projecting against the inside of the face.
+    hitNormal = ray.result.hitNormalWorld;
+    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
+  }
+};
+
+},{}],78:[function(require,module,exports){
+/**
+ * Apply this component to models that looks "blocky", to have Three.js compute
+ * vertex normals on the fly for a "smoother" look.
+ */
+module.exports = {
+  init: function () {
+    this.el.addEventListener('model-loaded', function (e) {
+      e.detail.model.traverse(function (node) {
+        if (node.isMesh) node.geometry.computeVertexNormals();
+      });
+    })
+  }
 }
 
-},{}],82:[function(require,module,exports){
-arguments[4][14][0].apply(exports,arguments)
-},{"../package.json":81,"./collision/AABB":83,"./collision/ArrayCollisionMatrix":84,"./collision/Broadphase":85,"./collision/GridBroadphase":86,"./collision/NaiveBroadphase":87,"./collision/ObjectCollisionMatrix":88,"./collision/Ray":90,"./collision/RaycastResult":91,"./collision/SAPBroadphase":92,"./constraints/ConeTwistConstraint":93,"./constraints/Constraint":94,"./constraints/DistanceConstraint":95,"./constraints/HingeConstraint":96,"./constraints/LockConstraint":97,"./constraints/PointToPointConstraint":98,"./equations/ContactEquation":100,"./equations/Equation":101,"./equations/FrictionEquation":102,"./equations/RotationalEquation":103,"./equations/RotationalMotorEquation":104,"./material/ContactMaterial":105,"./material/Material":106,"./math/Mat3":108,"./math/Quaternion":109,"./math/Transform":110,"./math/Vec3":111,"./objects/Body":112,"./objects/RaycastVehicle":113,"./objects/RigidVehicle":114,"./objects/SPHSystem":115,"./objects/Spring":116,"./shapes/Box":118,"./shapes/ConvexPolyhedron":119,"./shapes/Cylinder":120,"./shapes/Heightfield":121,"./shapes/Particle":122,"./shapes/Plane":123,"./shapes/Shape":124,"./shapes/Sphere":125,"./shapes/Trimesh":126,"./solver/GSSolver":127,"./solver/Solver":128,"./solver/SplitSolver":129,"./utils/EventTarget":130,"./utils/Pool":132,"./utils/Vec3Pool":135,"./world/Narrowphase":136,"./world/World":137,"dup":14}],83:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"../math/Vec3":111,"../utils/Utils":134,"dup":15}],84:[function(require,module,exports){
-arguments[4][16][0].apply(exports,arguments)
-},{"dup":16}],85:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"../math/Quaternion":109,"../math/Vec3":111,"../objects/Body":112,"../shapes/Plane":123,"../shapes/Shape":124,"dup":17}],86:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"../math/Vec3":111,"../shapes/Shape":124,"./Broadphase":85,"dup":18}],87:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"./AABB":83,"./Broadphase":85,"dup":19}],88:[function(require,module,exports){
-arguments[4][20][0].apply(exports,arguments)
-},{"dup":20}],89:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"dup":21}],90:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"../collision/AABB":83,"../collision/RaycastResult":91,"../math/Quaternion":109,"../math/Transform":110,"../math/Vec3":111,"../shapes/Box":118,"../shapes/ConvexPolyhedron":119,"../shapes/Shape":124,"dup":22}],91:[function(require,module,exports){
-arguments[4][23][0].apply(exports,arguments)
-},{"../math/Vec3":111,"dup":23}],92:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"../collision/Broadphase":85,"../shapes/Shape":124,"dup":24}],93:[function(require,module,exports){
-arguments[4][25][0].apply(exports,arguments)
-},{"../equations/ConeEquation":99,"../equations/ContactEquation":100,"../equations/RotationalEquation":103,"../math/Vec3":111,"./Constraint":94,"./PointToPointConstraint":98,"dup":25}],94:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"../utils/Utils":134,"dup":26}],95:[function(require,module,exports){
-arguments[4][27][0].apply(exports,arguments)
-},{"../equations/ContactEquation":100,"./Constraint":94,"dup":27}],96:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"../equations/ContactEquation":100,"../equations/RotationalEquation":103,"../equations/RotationalMotorEquation":104,"../math/Vec3":111,"./Constraint":94,"./PointToPointConstraint":98,"dup":28}],97:[function(require,module,exports){
-arguments[4][29][0].apply(exports,arguments)
-},{"../equations/ContactEquation":100,"../equations/RotationalEquation":103,"../equations/RotationalMotorEquation":104,"../math/Vec3":111,"./Constraint":94,"./PointToPointConstraint":98,"dup":29}],98:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"../equations/ContactEquation":100,"../math/Vec3":111,"./Constraint":94,"dup":30}],99:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"../math/Mat3":108,"../math/Vec3":111,"./Equation":101,"dup":31}],100:[function(require,module,exports){
-arguments[4][32][0].apply(exports,arguments)
-},{"../math/Mat3":108,"../math/Vec3":111,"./Equation":101,"dup":32}],101:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"../math/JacobianElement":107,"../math/Vec3":111,"dup":33}],102:[function(require,module,exports){
-arguments[4][34][0].apply(exports,arguments)
-},{"../math/Mat3":108,"../math/Vec3":111,"./Equation":101,"dup":34}],103:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"../math/Mat3":108,"../math/Vec3":111,"./Equation":101,"dup":35}],104:[function(require,module,exports){
-arguments[4][36][0].apply(exports,arguments)
-},{"../math/Mat3":108,"../math/Vec3":111,"./Equation":101,"dup":36}],105:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"../utils/Utils":134,"dup":37}],106:[function(require,module,exports){
-arguments[4][38][0].apply(exports,arguments)
-},{"dup":38}],107:[function(require,module,exports){
-arguments[4][39][0].apply(exports,arguments)
-},{"./Vec3":111,"dup":39}],108:[function(require,module,exports){
-arguments[4][40][0].apply(exports,arguments)
-},{"./Vec3":111,"dup":40}],109:[function(require,module,exports){
-arguments[4][41][0].apply(exports,arguments)
-},{"./Vec3":111,"dup":41}],110:[function(require,module,exports){
-arguments[4][42][0].apply(exports,arguments)
-},{"./Quaternion":109,"./Vec3":111,"dup":42}],111:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./Mat3":108,"dup":43}],112:[function(require,module,exports){
-arguments[4][44][0].apply(exports,arguments)
-},{"../collision/AABB":83,"../material/Material":106,"../math/Mat3":108,"../math/Quaternion":109,"../math/Vec3":111,"../shapes/Box":118,"../shapes/Shape":124,"../utils/EventTarget":130,"dup":44}],113:[function(require,module,exports){
-arguments[4][45][0].apply(exports,arguments)
-},{"../collision/Ray":90,"../collision/RaycastResult":91,"../math/Quaternion":109,"../math/Vec3":111,"../objects/WheelInfo":117,"./Body":112,"dup":45}],114:[function(require,module,exports){
-arguments[4][46][0].apply(exports,arguments)
-},{"../constraints/HingeConstraint":96,"../math/Vec3":111,"../shapes/Box":118,"../shapes/Sphere":125,"./Body":112,"dup":46}],115:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"../material/Material":106,"../math/Quaternion":109,"../math/Vec3":111,"../objects/Body":112,"../shapes/Particle":122,"../shapes/Shape":124,"dup":47}],116:[function(require,module,exports){
-arguments[4][48][0].apply(exports,arguments)
-},{"../math/Vec3":111,"dup":48}],117:[function(require,module,exports){
-arguments[4][49][0].apply(exports,arguments)
-},{"../collision/RaycastResult":91,"../math/Transform":110,"../math/Vec3":111,"../utils/Utils":134,"dup":49}],118:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"../math/Vec3":111,"./ConvexPolyhedron":119,"./Shape":124,"dup":50}],119:[function(require,module,exports){
-arguments[4][51][0].apply(exports,arguments)
-},{"../math/Quaternion":109,"../math/Transform":110,"../math/Vec3":111,"./Shape":124,"dup":51}],120:[function(require,module,exports){
-arguments[4][52][0].apply(exports,arguments)
-},{"../math/Quaternion":109,"../math/Vec3":111,"./ConvexPolyhedron":119,"./Shape":124,"dup":52}],121:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"../math/Vec3":111,"../utils/Utils":134,"./ConvexPolyhedron":119,"./Shape":124,"dup":53}],122:[function(require,module,exports){
-arguments[4][54][0].apply(exports,arguments)
-},{"../math/Vec3":111,"./Shape":124,"dup":54}],123:[function(require,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"../math/Vec3":111,"./Shape":124,"dup":55}],124:[function(require,module,exports){
-arguments[4][56][0].apply(exports,arguments)
-},{"../material/Material":106,"../math/Quaternion":109,"../math/Vec3":111,"./Shape":124,"dup":56}],125:[function(require,module,exports){
-arguments[4][57][0].apply(exports,arguments)
-},{"../math/Vec3":111,"./Shape":124,"dup":57}],126:[function(require,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"../collision/AABB":83,"../math/Quaternion":109,"../math/Transform":110,"../math/Vec3":111,"../utils/Octree":131,"./Shape":124,"dup":58}],127:[function(require,module,exports){
-arguments[4][59][0].apply(exports,arguments)
-},{"../math/Quaternion":109,"../math/Vec3":111,"./Solver":128,"dup":59}],128:[function(require,module,exports){
-arguments[4][60][0].apply(exports,arguments)
-},{"dup":60}],129:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"../math/Quaternion":109,"../math/Vec3":111,"../objects/Body":112,"./Solver":128,"dup":61}],130:[function(require,module,exports){
-arguments[4][62][0].apply(exports,arguments)
-},{"dup":62}],131:[function(require,module,exports){
-arguments[4][63][0].apply(exports,arguments)
-},{"../collision/AABB":83,"../math/Vec3":111,"dup":63}],132:[function(require,module,exports){
-arguments[4][64][0].apply(exports,arguments)
-},{"dup":64}],133:[function(require,module,exports){
-arguments[4][65][0].apply(exports,arguments)
-},{"dup":65}],134:[function(require,module,exports){
-arguments[4][66][0].apply(exports,arguments)
-},{"dup":66}],135:[function(require,module,exports){
-arguments[4][67][0].apply(exports,arguments)
-},{"../math/Vec3":111,"./Pool":132,"dup":67}],136:[function(require,module,exports){
-arguments[4][68][0].apply(exports,arguments)
-},{"../collision/AABB":83,"../collision/Ray":90,"../equations/ContactEquation":100,"../equations/FrictionEquation":102,"../math/Quaternion":109,"../math/Transform":110,"../math/Vec3":111,"../objects/Body":112,"../shapes/ConvexPolyhedron":119,"../shapes/Shape":124,"../solver/Solver":128,"../utils/Vec3Pool":135,"dup":68}],137:[function(require,module,exports){
-arguments[4][69][0].apply(exports,arguments)
-},{"../collision/AABB":83,"../collision/ArrayCollisionMatrix":84,"../collision/NaiveBroadphase":87,"../collision/OverlapKeeper":89,"../collision/Ray":90,"../collision/RaycastResult":91,"../equations/ContactEquation":100,"../equations/FrictionEquation":102,"../material/ContactMaterial":105,"../material/Material":106,"../math/Quaternion":109,"../math/Vec3":111,"../objects/Body":112,"../shapes/Shape":124,"../solver/GSSolver":127,"../utils/EventTarget":130,"../utils/TupleDictionary":133,"./Narrowphase":136,"dup":69}]},{},[1]);
+},{}],79:[function(require,module,exports){
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Implement bounding sphere collision detection for entities with a mesh.
+ * Sets the specified state on the intersected entities.
+ *
+ * @property {string} objects - Selector of the entities to test for collision.
+ * @property {string} state - State to set on collided entities.
+ *
+ */
+module.exports = {
+  schema: {
+    objects: {default: ''},
+    state: {default: 'collided'},
+    radius: {default: 0.05},
+    watch: {default: true}
+  },
+
+  init: function () {
+    /** @type {MutationObserver} */
+    this.observer = null;
+    /** @type {Array<Element>} Elements to watch for collisions. */
+    this.els = [];
+    /** @type {Array<Element>} Elements currently in collision state. */
+    this.collisions = [];
+
+    this.handleHit = this.handleHit.bind(this);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  play: function () {
+    var sceneEl = this.el.sceneEl;
+
+    if (this.data.watch) {
+      this.observer = new MutationObserver(this.update.bind(this, null));
+      this.observer.observe(sceneEl, {childList: true, subtree: true});
+    }
+  },
+
+  pause: function () {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+  },
+
+  /**
+   * Update list of entities to test for collision.
+   */
+  update: function () {
+    var data = this.data;
+    var objectEls;
+
+    // Push entities into list of els to intersect.
+    if (data.objects) {
+      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
+    } else {
+      // If objects not defined, intersect with everything.
+      objectEls = this.el.sceneEl.children;
+    }
+    // Convert from NodeList to Array
+    this.els = Array.prototype.slice.call(objectEls);
+  },
+
+  tick: (function () {
+    var position = new THREE.Vector3(),
+        meshPosition = new THREE.Vector3(),
+        meshScale = new THREE.Vector3(),
+        colliderScale = new THREE.Vector3(),
+        distanceMap = new Map();
+    return function () {
+      var el = this.el,
+          data = this.data,
+          mesh = el.getObject3D('mesh'),
+          colliderRadius,
+          collisions = [];
+
+      if (!mesh) { return; }
+
+      distanceMap.clear();
+      position.copy(el.object3D.getWorldPosition());
+      el.object3D.getWorldScale(colliderScale);
+      colliderRadius = data.radius * scaleFactor(colliderScale);
+      // Update collision list.
+      this.els.forEach(intersect);
+
+      // Emit events and add collision states, in order of distance.
+      collisions
+        .sort(function (a, b) {
+          return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
+        })
+        .forEach(this.handleHit);
+
+      // Remove collision state from current element.
+      if (collisions.length === 0) { el.emit('hit', {el: null}); }
+
+      // Remove collision state from other elements.
+      this.collisions.filter(function (el) {
+        return !distanceMap.has(el);
+      }).forEach(function removeState (el) {
+        el.removeState(data.state);
+      });
+
+      // Store new collisions
+      this.collisions = collisions;
+
+      // Bounding sphere collision detection
+      function intersect (el) {
+        var radius, mesh, distance, box, extent, size;
+
+        if (!el.isEntity) { return; }
+
+        mesh = el.getObject3D('mesh');
+
+        if (!mesh) { return; }
+
+        box = new THREE.Box3().setFromObject(mesh);
+        size = box.getSize();
+        extent = Math.max(size.x, size.y, size.z) / 2;
+        radius = Math.sqrt(2 * extent * extent);
+        box.getCenter(meshPosition);
+
+        if (!radius) { return; }
+
+        distance = position.distanceTo(meshPosition);
+        if (distance < radius + colliderRadius) {
+          collisions.push(el);
+          distanceMap.set(el, distance);
+        }
+      }
+      // use max of scale factors to maintain bounding sphere collision
+      function scaleFactor (scaleVec) {
+        return Math.max.apply(null, scaleVec.toArray());
+      }
+    };
+  })(),
+
+  handleHit: function (targetEl) {
+    targetEl.emit('hit');
+    targetEl.addState(this.data.state);
+    this.el.emit('hit', {el: targetEl});
+  }
+};
+
+},{}],80:[function(require,module,exports){
+/**
+ * Toggle velocity.
+ *
+ * Moves an object back and forth along an axis, within a min/max extent.
+ */
+module.exports = {
+  dependencies: ['velocity'],
+  schema: {
+    axis: { default: 'x', oneOf: ['x', 'y', 'z'] },
+    min: { default: 0 },
+    max: { default: 0 },
+    speed: { default: 1 }
+  },
+  init: function () {
+    var velocity = {x: 0, y: 0, z: 0};
+    velocity[this.data.axis] = this.data.speed;
+    this.el.setAttribute('velocity', velocity);
+
+    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
+  },
+  remove: function () {},
+  update: function () { this.tick(); },
+  tick: function () {
+    var data = this.data,
+        velocity = this.el.getAttribute('velocity'),
+        position = this.el.getAttribute('position');
+    if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
+      velocity[data.axis] = -data.speed;
+      this.el.setAttribute('velocity', velocity);
+    } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
+      velocity[data.axis] = data.speed;
+      this.el.setAttribute('velocity', velocity);
+    }
+  },
+};
+
+},{}]},{},[1]);

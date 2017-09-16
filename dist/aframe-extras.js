@@ -19,7 +19,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":84,"./src/loaders":93,"./src/misc":101,"./src/pathfinding":107,"./src/primitives":115,"aframe-physics-system":12}],3:[function(require,module,exports){
+},{"./src/controls":87,"./src/loaders":96,"./src/misc":104,"./src/pathfinding":110,"./src/primitives":118,"aframe-physics-system":11}],3:[function(require,module,exports){
 /**
  * @author Kyle-Larson https://github.com/Kyle-Larson
  * @author Takahiro https://github.com/takahirox
@@ -6543,1230 +6543,6 @@ var vg=module.exports={VERSION:"0.1.1",PI:Math.PI,TAU:2*Math.PI,DEG_TO_RAD:.0174
 } (window));
 
 },{}],11:[function(require,module,exports){
-
-/*
-  PatrolJS - Navigation mesh toolkit for ThreeJS
-  http://github.com/nickjanssen/patroljs
-  Licensed under MIT
-*/
-
-(function (exports) {
-
-  var _ = require('underscore');
-  var THREE = window.THREE;
-  // stub in the browser
-  var ProgressBar = function () {
-    return {
-      tick: function () {}
-    };
-  };
-
-  var computeCentroids = function (geometry) {
-    var f, fl, face;
-
-    for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
-
-      face = geometry.faces[ f ];
-      face.centroid = new THREE.Vector3( 0, 0, 0 );
-
-      face.centroid.add( geometry.vertices[ face.a ] );
-      face.centroid.add( geometry.vertices[ face.b ] );
-      face.centroid.add( geometry.vertices[ face.c ] );
-      face.centroid.divideScalar( 3 );
-
-    }
-  };
-
-
-    function roundNumber(number, decimals) {
-        var newnumber = new Number(number + '').toFixed(parseInt(decimals));
-        return parseFloat(newnumber);
-    }
-
-  var nodeIdCount = 1;
-  var polygonId = 1;
-
-  var bar;
-  var barConfig = {
-      // complete: "X",
-      // incomplete: ".",
-      width: 30
-  };
-
-  var mergeVertexIds = function (aList, bList) {
-
-    var sharedVertices = [];
-
-    _.each(aList, function (vId) {
-      if (_.contains(bList, vId)) {
-        sharedVertices.push(vId);
-      }
-    });
-
-    if (sharedVertices.length < 2) return [];
-
-    // console.log("TRYING aList:", aList, ", bList:", bList, ", sharedVertices:", sharedVertices);
-
-    if (_.contains(sharedVertices, aList[0]) && _.contains(sharedVertices, aList[aList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      aList.push(aList.shift());
-    }
-
-    if (_.contains(sharedVertices, bList[0]) && _.contains(sharedVertices, bList[bList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      bList.push(bList.shift());
-    }
-
-    // Again!
-    sharedVertices = [];
-
-    _.each(aList, function (vId) {
-      if (_.contains(bList, vId)) {
-        sharedVertices.push(vId);
-      }
-    });
-
-    var clockwiseMostSharedVertex = sharedVertices[1];
-    var counterClockwiseMostSharedVertex = sharedVertices[0];
-
-
-    var cList = _.clone(aList);
-    while (cList[0] !== clockwiseMostSharedVertex) {
-      cList.push(cList.shift());
-    }
-
-    var c = 0;
-
-    var temp = _.clone(bList);
-    while (temp[0] !== counterClockwiseMostSharedVertex) {
-      temp.push(temp.shift());
-
-      if (c++ > 10) debugger;
-    }
-
-    // Shave
-    temp.shift();
-    temp.pop();
-
-    cList = cList.concat(temp);
-
-    // console.log("aList:", aList, ", bList:", bList, ", cList:", cList, ", sharedVertices:", sharedVertices);
-
-    return cList;
-  };
-
-  var setPolygonCentroid = function (polygon, navigationMesh) {
-    var sum = new THREE.Vector3();
-
-    var vertices = navigationMesh.vertices;
-
-    _.each(polygon.vertexIds, function (vId) {
-      sum.add(vertices[vId]);
-    });
-
-    sum.divideScalar(polygon.vertexIds.length);
-
-    polygon.centroid.copy(sum);
-  };
-
-  var cleanPolygon = function (polygon, navigationMesh) {
-
-    var newVertexIds = [];
-
-    var vertices = navigationMesh.vertices;
-
-    for (var i = 0; i < polygon.vertexIds.length; i++) {
-
-      var vertex = vertices[polygon.vertexIds[i]];
-
-      var nextVertexId, previousVertexId;
-      var nextVertex, previousVertex;
-
-      // console.log("nextVertex: ", nextVertex);
-
-      if (i === 0) {
-        nextVertexId = polygon.vertexIds[1];
-        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 1];
-      } else if (i === polygon.vertexIds.length - 1) {
-        nextVertexId = polygon.vertexIds[0];
-        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 2];
-      } else {
-        nextVertexId = polygon.vertexIds[i + 1];
-        previousVertexId = polygon.vertexIds[i - 1];
-      }
-
-      nextVertex = vertices[nextVertexId];
-      previousVertex = vertices[previousVertexId];
-
-      var a = nextVertex.clone().sub(vertex);
-      var b = previousVertex.clone().sub(vertex);
-
-      var angle = a.angleTo(b);
-
-      // console.log(angle);
-
-      if (angle > Math.PI - 0.01 && angle < Math.PI + 0.01) {
-        // Unneccesary vertex
-        // console.log("Unneccesary vertex: ", polygon.vertexIds[i]);
-        // console.log("Angle between "+previousVertexId+", "+polygon.vertexIds[i]+" "+nextVertexId+" was: ", angle);
-
-
-        // Remove the neighbours who had this vertex
-        var goodNeighbours = [];
-        _.each(polygon.neighbours, function (neighbour) {
-          if (!_.contains(neighbour.vertexIds, polygon.vertexIds[i])) {
-            goodNeighbours.push(neighbour);
-          }
-        });
-        polygon.neighbours = goodNeighbours;
-
-
-        // TODO cleanup the list of vertices and rebuild vertexIds for all polygons
-      } else {
-        newVertexIds.push(polygon.vertexIds[i]);
-      }
-
-    }
-
-    // console.log("New vertexIds: ", newVertexIds);
-
-    polygon.vertexIds = newVertexIds;
-
-    setPolygonCentroid(polygon, navigationMesh);
-
-  };
-
-  var isConvex = function (polygon, navigationMesh) {
-
-    var vertices = navigationMesh.vertices;
-
-    if (polygon.vertexIds.length < 3) return false;
-
-    var convex = true;
-
-    var total = 0;
-
-    var results = [];
-
-    for (var i = 0; i < polygon.vertexIds.length; i++) {
-
-      var vertex = vertices[polygon.vertexIds[i]];
-
-      var nextVertex, previousVertex;
-
-      // console.log("nextVertex: ", nextVertex);
-
-      if (i === 0) {
-        nextVertex = vertices[polygon.vertexIds[1]];
-        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 1]];
-      } else if (i === polygon.vertexIds.length - 1) {
-        nextVertex = vertices[polygon.vertexIds[0]];
-        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 2]];
-      } else {
-        nextVertex = vertices[polygon.vertexIds[i + 1]];
-        previousVertex = vertices[polygon.vertexIds[i - 1]];
-      }
-
-      var a = nextVertex.clone().sub(vertex);
-      var b = previousVertex.clone().sub(vertex);
-
-      var angle = a.angleTo(b);
-      total += angle;
-
-      // console.log(angle);
-      if (angle === Math.PI || angle === 0) return false;
-
-      var r = a.cross(b).y;
-      results.push(r);
-      // console.log("pushed: ", r);
-    }
-
-    // if ( total > (polygon.vertexIds.length-2)*Math.PI ) return false;
-
-    _.each(results, function (r) {
-      if (r === 0) convex = false;
-    });
-
-    if (results[0] > 0) {
-      _.each(results, function (r) {
-        if (r < 0) convex = false;
-      });
-    } else {
-      _.each(results, function (r) {
-        if (r > 0) convex = false;
-      });
-    }
-
-    // console.log("allowed: "+total+", max: "+(polygon.vertexIds.length-2)*Math.PI);
-    // if ( total > (polygon.vertexIds.length-2)*Math.PI ) convex = false;
-
-    // console.log("Convex: "+(convex ? "true": "false"));
-
-
-
-    return convex;
-  };
-
-  var buildPolygonGroups = function (navigationMesh) {
-
-    var polygons = navigationMesh.polygons;
-    var vertices = navigationMesh.vertices;
-
-    bar = new ProgressBar('Building polygon groups[:bar] :percent', _.extend(barConfig, {
-      total: polygons.length
-    }));
-
-    var polygonGroups = [];
-    var groupCount = 0;
-
-    var spreadGroupId = function (polygon) {
-      _.each(polygon.neighbours, function (neighbour) {
-        if (_.isUndefined(neighbour.group)) {
-          neighbour.group = polygon.group;
-          spreadGroupId(neighbour);
-        }
-      });
-    };
-
-    _.each(polygons, function (polygon, i) {
-
-      bar.tick();
-
-      if (_.isUndefined(polygon.group)) {
-        polygon.group = groupCount++;
-        // Spread it
-        spreadGroupId(polygon);
-      }
-
-      if (!polygonGroups[polygon.group]) polygonGroups[polygon.group] = [];
-
-      polygonGroups[polygon.group].push(polygon);
-    });
-
-
-    // Separate groups for testing
-    // var count = 0;
-    // _.each(polygonGroups, function(polygonGroup) {
-    //     var done = {};
-    //     count += 0.01;
-    //     _.each(polygonGroup, function(polygon) {
-    //         _.each(polygon.vertexIds, function(vId) {
-    //             if ( !done[vId] ) vertices[vId].y += count;
-    //             done[vId] = true;
-    //         });
-    //     });
-    // });
-
-
-    console.log("Groups built: ", polygonGroups.length);
-
-    return polygonGroups;
-  };
-
-  function array_intersect() {
-    var i, all, shortest, nShortest, n, len, ret = [],
-      obj = {},
-      nOthers;
-    nOthers = arguments.length - 1;
-    nShortest = arguments[0].length;
-    shortest = 0;
-    for (i = 0; i <= nOthers; i++) {
-      n = arguments[i].length;
-      if (n < nShortest) {
-        shortest = i;
-        nShortest = n;
-      }
-    }
-
-    for (i = 0; i <= nOthers; i++) {
-      n = (i === shortest) ? 0 : (i || shortest); //Read the shortest array first. Read the first array instead of the shortest
-      len = arguments[n].length;
-      for (var j = 0; j < len; j++) {
-        var elem = arguments[n][j];
-        if (obj[elem] === i - 1) {
-          if (i === nOthers) {
-            ret.push(elem);
-            obj[elem] = 0;
-          } else {
-            obj[elem] = i;
-          }
-        } else if (i === 0) {
-          obj[elem] = 0;
-        }
-      }
-    }
-    return ret;
-  }
-
-  var buildPolygonNeighbours = function (polygon, navigationMesh) {
-    polygon.neighbours = [];
-
-    // All other nodes that contain at least two of our vertices are our neighbours
-    for (var i = 0, len = navigationMesh.polygons.length; i < len; i++) {
-      if (polygon === navigationMesh.polygons[i]) continue;
-
-      // Don't check polygons that are too far, since the intersection tests take a long time
-      if (polygon.centroid.distanceToSquared(navigationMesh.polygons[i].centroid) > 100 * 100) continue;
-
-      var matches = array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
-      // var matches = _.intersection(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
-
-      if (matches.length >= 2) {
-        polygon.neighbours.push(navigationMesh.polygons[i]);
-      }
-    }
-  };
-
-  var buildPolygonsFromGeometry = function (geometry) {
-
-    console.log("Vertices:", geometry.vertices.length, "polygons:", geometry.faces.length);
-
-    var polygons = [];
-    var vertices = geometry.vertices;
-    var faceVertexUvs = geometry.faceVertexUvs;
-
-    bar = new ProgressBar('Building polygons      [:bar] :percent', _.extend(barConfig, {
-      total: geometry.faces.length
-    }));
-
-    // Convert the faces into a custom format that supports more than 3 vertices
-    _.each(geometry.faces, function (face) {
-      bar.tick();
-      polygons.push({
-        id: polygonId++,
-        vertexIds: [face.a, face.b, face.c],
-        centroid: face.centroid,
-        normal: face.normal,
-        neighbours: []
-      });
-    });
-
-    var navigationMesh = {
-      polygons: polygons,
-      vertices: vertices,
-      faceVertexUvs: faceVertexUvs
-    };
-
-    bar = new ProgressBar('Calculating neighbours [:bar] :percent', _.extend(barConfig, {
-      total: polygons.length
-    }));
-
-    // Build a list of adjacent polygons
-    _.each(polygons, function (polygon) {
-      bar.tick();
-      buildPolygonNeighbours(polygon, navigationMesh);
-    });
-
-    return navigationMesh;
-  };
-
-  var cleanNavigationMesh = function (navigationMesh) {
-
-    var polygons = navigationMesh.polygons;
-    var vertices = navigationMesh.vertices;
-
-
-    // Remove steep triangles
-    var up = new THREE.Vector3(0, 1, 0);
-    polygons = _.filter(polygons, function (polygon) {
-      var angle = Math.acos(up.dot(polygon.normal));
-      return angle < (Math.PI / 4);
-    });
-
-
-    // Remove unnecessary edges using the Hertel-Mehlhorn algorithm
-
-    // 1. Find a pair of adjacent nodes (i.e., two nodes that share an edge between them)
-    //    whose normals are nearly identical (i.e., their surfaces face the same direction).
-
-
-    var newPolygons = [];
-
-    _.each(polygons, function (polygon) {
-
-      if (polygon.toBeDeleted) return;
-
-      var keepLooking = true;
-
-      while (keepLooking) {
-        keepLooking = false;
-
-        _.each(polygon.neighbours, function (otherPolygon) {
-
-          if (polygon === otherPolygon) return;
-
-          if (Math.acos(polygon.normal.dot(otherPolygon.normal)) < 0.01) {
-            // That's pretty equal alright!
-
-            // Merge otherPolygon with polygon
-
-            var testVertexIdList = [];
-
-            var testPolygon = {
-              vertexIds: mergeVertexIds(polygon.vertexIds, otherPolygon.vertexIds),
-              neighbours: polygon.neighbours,
-              normal: polygon.normal.clone(),
-              centroid: polygon.centroid.clone()
-            };
-
-            cleanPolygon(testPolygon, navigationMesh);
-
-            if (isConvex(testPolygon, navigationMesh)) {
-              otherPolygon.toBeDeleted = true;
-
-
-              // Inherit the neighbours from the to be merged polygon, except ourself
-              _.each(otherPolygon.neighbours, function (otherPolygonNeighbour) {
-
-                // Set this poly to be merged to be no longer our neighbour
-                otherPolygonNeighbour.neighbours = _.without(otherPolygonNeighbour.neighbours, otherPolygon);
-
-                if (otherPolygonNeighbour !== polygon) {
-                  // Tell the old Polygon's neighbours about the new neighbour who has merged
-                  otherPolygonNeighbour.neighbours.push(polygon);
-                } else {
-                  // For ourself, we don't need to know about ourselves
-                  // But we inherit the old neighbours
-                  polygon.neighbours = polygon.neighbours.concat(otherPolygon.neighbours);
-                  polygon.neighbours = _.uniq(polygon.neighbours);
-
-                  // Without ourselves in it!
-                  polygon.neighbours = _.without(polygon.neighbours, polygon);
-                }
-              });
-
-              polygon.vertexIds = mergeVertexIds(polygon.vertexIds, otherPolygon.vertexIds);
-
-              // console.log(polygon.vertexIds);
-              // console.log("Merge!");
-
-              cleanPolygon(polygon, navigationMesh);
-
-              keepLooking = true;
-            }
-
-          }
-        });
-      }
-
-
-      if (!polygon.toBeDeleted) {
-        newPolygons.push(polygon);
-      }
-
-    });
-
-    var isUsed = function (vId) {
-      var contains = false;
-      _.each(newPolygons, function (p) {
-        if (!contains && _.contains(p.vertexIds, vId)) {
-          contains = true;
-        }
-      });
-      return contains;
-    };
-
-    // Clean vertices
-    var keepChecking = false;
-    for (var i = 0; i < vertices.length; i++) {
-      if (!isUsed(i)) {
-
-        // Decrement all vertices that are higher than i
-        _.each(newPolygons, function (p) {
-          for (var j = 0; j < p.vertexIds.length; j++) {
-            if (p.vertexIds[j] > i) {
-              p.vertexIds[j] --;
-            }
-          }
-        });
-
-        vertices.splice(i, 1);
-        i--;
-      }
-
-    };
-
-
-    navigationMesh.polygons = newPolygons;
-    navigationMesh.vertices = vertices;
-
-  };
-
-  var buildNavigationMesh = function (geometry) {
-
-    // Prepare geometry
-    computeCentroids(geometry);
-    geometry.mergeVertices();
-    // THREE.GeometryUtils.triangulateQuads(geometry);
-
-    // console.log("vertices:", geometry.vertices.length, "polygons:", geometry.faces.length);
-
-    var navigationMesh = buildPolygonsFromGeometry(geometry);
-
-    // cleanNavigationMesh(navigationMesh);
-    // console.log("Pre-clean:", navigationMesh.polygons.length, "polygons,", navigationMesh.vertices.length, "vertices.");
-
-    // console.log("")
-    // console.log("Vertices:", navigationMesh.vertices.length, "polygons,", navigationMesh.polygons.length, "vertices.");
-
-    return navigationMesh;
-  };
-
-  var getSharedVerticesInOrder = function (a, b) {
-
-    var aList = a.vertexIds;
-    var bList = b.vertexIds;
-
-    var sharedVertices = [];
-
-    _.each(aList, function (vId) {
-      if (_.contains(bList, vId)) {
-        sharedVertices.push(vId);
-      }
-    });
-
-    if (sharedVertices.length < 2) return [];
-
-    // console.log("TRYING aList:", aList, ", bList:", bList, ", sharedVertices:", sharedVertices);
-
-    if (_.contains(sharedVertices, aList[0]) && _.contains(sharedVertices, aList[aList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      aList.push(aList.shift());
-    }
-
-    if (_.contains(sharedVertices, bList[0]) && _.contains(sharedVertices, bList[bList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      bList.push(bList.shift());
-    }
-
-    // Again!
-    sharedVertices = [];
-
-    _.each(aList, function (vId) {
-      if (_.contains(bList, vId)) {
-        sharedVertices.push(vId);
-      }
-    });
-
-    return sharedVertices;
-  };
-
-  var groupNavMesh = function (navigationMesh) {
-
-    var saveObj = {};
-
-    _.each(navigationMesh.vertices, function (v) {
-      v.x = roundNumber(v.x, 2);
-      v.y = roundNumber(v.y, 2);
-      v.z = roundNumber(v.z, 2);
-    });
-
-    saveObj.vertices = navigationMesh.vertices;
-
-    var groups = buildPolygonGroups(navigationMesh);
-
-    saveObj.groups = [];
-
-    var findPolygonIndex = function (group, p) {
-      for (var i = 0; i < group.length; i++) {
-        if (p === group[i]) return i;
-      }
-    };
-
-    bar = new ProgressBar('Grouping               [:bar] :percent', _.extend(barConfig, {
-      total: groups.length
-    }));
-
-    _.each(groups, function (group) {
-
-      bar.tick();
-
-      var newGroup = [];
-
-      _.each(group, function (p) {
-
-        var neighbours = [];
-
-        _.each(p.neighbours, function (n) {
-          neighbours.push(findPolygonIndex(group, n));
-        });
-
-
-        // Build a portal list to each neighbour
-        var portals = [];
-        _.each(p.neighbours, function (n) {
-          portals.push(getSharedVerticesInOrder(p, n));
-        });
-
-
-        p.centroid.x = roundNumber(p.centroid.x, 2);
-        p.centroid.y = roundNumber(p.centroid.y, 2);
-        p.centroid.z = roundNumber(p.centroid.z, 2);
-
-        newGroup.push({
-          id: findPolygonIndex(group, p),
-          neighbours: neighbours,
-          vertexIds: p.vertexIds,
-          centroid: p.centroid,
-          portals: portals
-        });
-
-      });
-
-      saveObj.groups.push(newGroup);
-    });
-
-    return saveObj;
-  };
-
-  // javascript-astar
-  // http://github.com/bgrins/javascript-astar
-  // Freely distributable under the MIT License.
-  // Implements the astar search algorithm in javascript using a binary heap.
-
-  function BinaryHeap(scoreFunction) {
-    this.content = [];
-    this.scoreFunction = scoreFunction;
-  }
-
-  BinaryHeap.prototype = {
-    push: function (element) {
-      // Add the new element to the end of the array.
-      this.content.push(element);
-
-      // Allow it to sink down.
-      this.sinkDown(this.content.length - 1);
-    },
-    pop: function () {
-      // Store the first element so we can return it later.
-      var result = this.content[0];
-      // Get the element at the end of the array.
-      var end = this.content.pop();
-      // If there are any elements left, put the end element at the
-      // start, and let it bubble up.
-      if (this.content.length > 0) {
-        this.content[0] = end;
-        this.bubbleUp(0);
-      }
-      return result;
-    },
-    remove: function (node) {
-      var i = this.content.indexOf(node);
-
-      // When it is found, the process seen in 'pop' is repeated
-      // to fill up the hole.
-      var end = this.content.pop();
-
-      if (i !== this.content.length - 1) {
-        this.content[i] = end;
-
-        if (this.scoreFunction(end) < this.scoreFunction(node)) {
-          this.sinkDown(i);
-        } else {
-          this.bubbleUp(i);
-        }
-      }
-    },
-    size: function () {
-      return this.content.length;
-    },
-    rescoreElement: function (node) {
-      this.sinkDown(this.content.indexOf(node));
-    },
-    sinkDown: function (n) {
-      // Fetch the element that has to be sunk.
-      var element = this.content[n];
-
-      // When at 0, an element can not sink any further.
-      while (n > 0) {
-
-        // Compute the parent element's index, and fetch it.
-        var parentN = ((n + 1) >> 1) - 1,
-          parent = this.content[parentN];
-        // Swap the elements if the parent is greater.
-        if (this.scoreFunction(element) < this.scoreFunction(parent)) {
-          this.content[parentN] = element;
-          this.content[n] = parent;
-          // Update 'n' to continue at the new position.
-          n = parentN;
-        }
-
-        // Found a parent that is less, no need to sink any further.
-        else {
-          break;
-        }
-      }
-    },
-    bubbleUp: function (n) {
-      // Look up the target element and its score.
-      var length = this.content.length,
-        element = this.content[n],
-        elemScore = this.scoreFunction(element);
-
-      while (true) {
-        // Compute the indices of the child elements.
-        var child2N = (n + 1) << 1,
-          child1N = child2N - 1;
-        // This is used to store the new position of the element,
-        // if any.
-        var swap = null;
-        // If the first child exists (is inside the array)...
-        if (child1N < length) {
-          // Look it up and compute its score.
-          var child1 = this.content[child1N],
-            child1Score = this.scoreFunction(child1);
-
-          // If the score is less than our element's, we need to swap.
-          if (child1Score < elemScore)
-            swap = child1N;
-        }
-
-        // Do the same checks for the other child.
-        if (child2N < length) {
-          var child2 = this.content[child2N],
-            child2Score = this.scoreFunction(child2);
-          if (child2Score < (swap === null ? elemScore : child1Score)) {
-            swap = child2N;
-          }
-        }
-
-        // If the element needs to be moved, swap it, and continue.
-        if (swap !== null) {
-          this.content[n] = this.content[swap];
-          this.content[swap] = element;
-          n = swap;
-        }
-
-        // Otherwise, we are done.
-        else {
-          break;
-        }
-      }
-    }
-  };
-
-  var distanceToSquared = function (a, b) {
-    var dx = a.x - b.x;
-    var dy = a.y - b.y;
-    var dz = a.z - b.z;
-
-    return dx * dx + dy * dy + dz * dz;
-  };
-
-  var astar = {
-    init: function (graph) {
-      for (var x = 0; x < graph.length; x++) {
-        //for(var x in graph) {
-        var node = graph[x];
-        node.f = 0;
-        node.g = 0;
-        node.h = 0;
-        node.cost = 1.0;
-        node.visited = false;
-        node.closed = false;
-        node.parent = null;
-      }
-    },
-    cleanUp: function (graph) {
-      for (var x = 0; x < graph.length; x++) {
-        var node = graph[x];
-        delete node.f;
-        delete node.g;
-        delete node.h;
-        delete node.cost;
-        delete node.visited;
-        delete node.closed;
-        delete node.parent;
-      }
-    },
-    heap: function () {
-      return new BinaryHeap(function (node) {
-        return node.f;
-      });
-    },
-    search: function (graph, start, end) {
-      astar.init(graph);
-      //heuristic = heuristic || astar.manhattan;
-
-
-      var openHeap = astar.heap();
-
-      openHeap.push(start);
-
-      while (openHeap.size() > 0) {
-
-        // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
-        var currentNode = openHeap.pop();
-
-        // End case -- result has been found, return the traced path.
-        if (currentNode === end) {
-          var curr = currentNode;
-          var ret = [];
-          while (curr.parent) {
-            ret.push(curr);
-            curr = curr.parent;
-          }
-          this.cleanUp(ret);
-          return ret.reverse();
-        }
-
-        // Normal case -- move currentNode from open to closed, process each of its neighbours.
-        currentNode.closed = true;
-
-        // Find all neighbours for the current node. Optionally find diagonal neighbours as well (false by default).
-        var neighbours = astar.neighbours(graph, currentNode);
-
-        for (var i = 0, il = neighbours.length; i < il; i++) {
-          var neighbour = neighbours[i];
-
-          if (neighbour.closed) {
-            // Not a valid node to process, skip to next neighbour.
-            continue;
-          }
-
-          // The g score is the shortest distance from start to current node.
-          // We need to check if the path we have arrived at this neighbour is the shortest one we have seen yet.
-          var gScore = currentNode.g + neighbour.cost;
-          var beenVisited = neighbour.visited;
-
-          if (!beenVisited || gScore < neighbour.g) {
-
-            // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
-            neighbour.visited = true;
-            neighbour.parent = currentNode;
-            if (!neighbour.centroid || !end.centroid) debugger;
-            neighbour.h = neighbour.h || astar.heuristic(neighbour.centroid, end.centroid);
-            neighbour.g = gScore;
-            neighbour.f = neighbour.g + neighbour.h;
-
-            if (!beenVisited) {
-              // Pushing to heap will put it in proper place based on the 'f' value.
-              openHeap.push(neighbour);
-            } else {
-              // Already seen the node, but since it has been rescored we need to reorder it in the heap
-              openHeap.rescoreElement(neighbour);
-            }
-          }
-        }
-      }
-
-      // No result was found - empty array signifies failure to find path.
-      return [];
-    },
-    heuristic: function (pos1, pos2) {
-      return distanceToSquared(pos1, pos2);
-    },
-    neighbours: function (graph, node) {
-      var ret = [];
-
-      for (var e = 0; e < node.neighbours.length; e++) {
-        ret.push(graph[node.neighbours[e]]);
-      }
-
-      return ret;
-    }
-  };
-
-
-  var distanceToSquared = function (a, b) {
-
-    var dx = a.x - b.x;
-    var dy = a.y - b.y;
-    var dz = a.z - b.z;
-
-    return dx * dx + dy * dy + dz * dz;
-
-  };
-
-
-  //+ Jonas Raoni Soares Silva
-  //@ http://jsfromhell.com/math/is-point-in-poly [rev. #0]
-  function isPointInPoly(poly, pt) {
-    for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-      ((poly[i].z <= pt.z && pt.z < poly[j].z) || (poly[j].z <= pt.z && pt.z < poly[i].z)) && (pt.x < (poly[j].x - poly[i].x) * (pt.z - poly[i].z) / (poly[j].z - poly[i].z) + poly[i].x) && (c = !c);
-    return c;
-  }
-
-  function isVectorInPolygon(vector, polygon, vertices) {
-
-    // reference point will be the centroid of the polygon
-    // We need to rotate the vector as well as all the points which the polygon uses
-
-    var center = polygon.centroid;
-
-    var lowestPoint = 100000;
-    var highestPoint = -100000;
-
-    var polygonVertices = [];
-
-    _.each(polygon.vertexIds, function (vId) {
-      lowestPoint = Math.min(vertices[vId].y, lowestPoint);
-      highestPoint = Math.max(vertices[vId].y, highestPoint);
-      polygonVertices.push(vertices[vId]);
-    });
-
-    if (vector.y < highestPoint + 0.5 && vector.y > lowestPoint - 0.5 &&
-      isPointInPoly(polygonVertices, vector)) {
-      return true;
-    }
-    return false;
-  }
-
-
-  function triarea2(a, b, c) {
-    var ax = b.x - a.x;
-    var az = b.z - a.z;
-    var bx = c.x - a.x;
-    var bz = c.z - a.z;
-    return bx * az - ax * bz;
-  }
-
-  function vequal(a, b) {
-    return distanceToSquared(a, b) < 0.00001;
-  }
-
-  function Channel() {
-    this.portals = [];
-  }
-
-  Channel.prototype.push = function (p1, p2) {
-    if (p2 === undefined) p2 = p1;
-    this.portals.push({
-      left: p1,
-      right: p2
-    });
-  };
-
-  Channel.prototype.stringPull = function () {
-    var portals = this.portals;
-    var pts = [];
-    // Init scan state
-    var portalApex, portalLeft, portalRight;
-    var apexIndex = 0,
-      leftIndex = 0,
-      rightIndex = 0;
-
-    portalApex = portals[0].left;
-    portalLeft = portals[0].left;
-    portalRight = portals[0].right;
-
-    // Add start point.
-    pts.push(portalApex);
-
-    for (var i = 1; i < portals.length; i++) {
-      var left = portals[i].left;
-      var right = portals[i].right;
-
-      // Update right vertex.
-      if (triarea2(portalApex, portalRight, right) <= 0.0) {
-        if (vequal(portalApex, portalRight) || triarea2(portalApex, portalLeft, right) > 0.0) {
-          // Tighten the funnel.
-          portalRight = right;
-          rightIndex = i;
-        } else {
-          // Right over left, insert left to path and restart scan from portal left point.
-          pts.push(portalLeft);
-          // Make current left the new apex.
-          portalApex = portalLeft;
-          apexIndex = leftIndex;
-          // Reset portal
-          portalLeft = portalApex;
-          portalRight = portalApex;
-          leftIndex = apexIndex;
-          rightIndex = apexIndex;
-          // Restart scan
-          i = apexIndex;
-          continue;
-        }
-      }
-
-      // Update left vertex.
-      if (triarea2(portalApex, portalLeft, left) >= 0.0) {
-        if (vequal(portalApex, portalLeft) || triarea2(portalApex, portalRight, left) < 0.0) {
-          // Tighten the funnel.
-          portalLeft = left;
-          leftIndex = i;
-        } else {
-          // Left over right, insert right to path and restart scan from portal right point.
-          pts.push(portalRight);
-          // Make current right the new apex.
-          portalApex = portalRight;
-          apexIndex = rightIndex;
-          // Reset portal
-          portalLeft = portalApex;
-          portalRight = portalApex;
-          leftIndex = apexIndex;
-          rightIndex = apexIndex;
-          // Restart scan
-          i = apexIndex;
-          continue;
-        }
-      }
-    }
-
-    if ((pts.length === 0) || (!vequal(pts[pts.length - 1], portals[portals.length - 1].left))) {
-      // Append last point to path.
-      pts.push(portals[portals.length - 1].left);
-    }
-
-    this.path = pts;
-    return pts;
-  };
-
-  var zoneNodes = {};
-  var path = null;
-
-  _.extend(exports, {
-    buildNodes: function (geometry) {
-      var navigationMesh = buildNavigationMesh(geometry);
-
-      var zoneNodes = groupNavMesh(navigationMesh);
-
-      return zoneNodes;
-    },
-    setZoneData: function (zone, data) {
-      zoneNodes[zone] = data;
-    },
-    getGroup: function (zone, position) {
-
-      if (!zoneNodes[zone]) return null;
-
-      var closestNodeGroup = null;
-
-      var distance = Math.pow(50, 2);
-
-      _.each(zoneNodes[zone].groups, function (group, index) {
-        _.each(group, function (node) {
-          var measuredDistance = distanceToSquared(node.centroid, position);
-          if (measuredDistance < distance) {
-            closestNodeGroup = index;
-            distance = measuredDistance;
-          }
-        });
-      });
-
-      return closestNodeGroup;
-    },
-    getRandomNode: function (zone, group, nearPosition, nearRange) {
-
-      if (!zoneNodes[zone]) return new THREE.Vector3();
-
-      nearPosition = nearPosition || null;
-      nearRange = nearRange || 0;
-
-      var candidates = [];
-
-      var polygons = zoneNodes[zone].groups[group];
-
-      _.each(polygons, function (p) {
-        if (nearPosition && nearRange) {
-          if (distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
-            candidates.push(p.centroid);
-          }
-        } else {
-          candidates.push(p.centroid);
-        }
-      });
-
-      return _.sample(candidates) || new THREE.Vector3();
-    },
-    findPath: function (startPosition, targetPosition, zone, group) {
-
-      var allNodes = zoneNodes[zone].groups[group];
-      var vertices = zoneNodes[zone].vertices;
-
-      var closestNode = null;
-      var distance = Math.pow(50, 2);
-
-      _.each(allNodes, function (node) {
-        var measuredDistance = distanceToSquared(node.centroid, startPosition);
-        if (measuredDistance < distance) {
-          closestNode = node;
-          distance = measuredDistance;
-        }
-      }, this);
-
-
-      var farthestNode = null;
-      distance = Math.pow(50, 2);
-
-      _.each(allNodes, function (node) {
-        var measuredDistance = distanceToSquared(node.centroid, targetPosition);
-        if (measuredDistance < distance &&
-          isVectorInPolygon(targetPosition, node, vertices)) {
-          farthestNode = node;
-          distance = measuredDistance;
-        }
-      }, this);
-
-      // If we can't find any node, just go straight to the target
-      if (!closestNode || !farthestNode) {
-        return null;
-      }
-
-      var paths = astar.search(allNodes, closestNode, farthestNode);
-
-      var getPortalFromTo = function (a, b) {
-        for (var i = 0; i < a.neighbours.length; i++) {
-          if (a.neighbours[i] === b.id) {
-            return a.portals[i];
-          }
-        }
-      };
-
-      // We got the corridor
-      // Now pull the rope
-
-      var channel = new Channel();
-
-      channel.push(startPosition);
-
-      for (var i = 0; i < paths.length; i++) {
-        var polygon = paths[i];
-
-        var nextPolygon = paths[i + 1];
-
-        if (nextPolygon) {
-          var portals = getPortalFromTo(polygon, nextPolygon);
-          channel.push(
-            vertices[portals[0]],
-            vertices[portals[1]]
-          );
-        }
-
-      }
-
-      channel.push(targetPosition);
-
-      channel.stringPull();
-
-
-      var threeVectors = [];
-
-      _.each(channel.path, function (c) {
-        var vec = new THREE.Vector3(c.x, c.y, c.z);
-
-        // console.log(vec.clone().sub(startPosition).length());
-
-        // Ensure the intermediate steps aren't too close to the start position
-        // var dist = vec.clone().sub(startPosition).lengthSq();
-        // if (dist > 0.01 * 0.01) {
-          threeVectors.push(vec);
-        // }
-
-
-      });
-
-      // We don't need the first one, as we already know our start position
-      threeVectors.shift();
-
-      return threeVectors;
-    }
-  });
-
-})(typeof exports === 'undefined' ? this['patrol'] = {} : exports);
-
-},{"underscore":80}],12:[function(require,module,exports){
 var CANNON = require('cannon'),
     math = require('./src/components/math');
 
@@ -7794,7 +6570,7 @@ module.exports = {
 // Export CANNON.js.
 window.CANNON = window.CANNON || CANNON;
 
-},{"./src/components/body/dynamic-body":15,"./src/components/body/static-body":16,"./src/components/constraint":17,"./src/components/math":18,"./src/system/physics":22,"cannon":24}],13:[function(require,module,exports){
+},{"./src/components/body/dynamic-body":14,"./src/components/body/static-body":15,"./src/components/constraint":16,"./src/components/math":17,"./src/system/physics":21,"cannon":23}],12:[function(require,module,exports){
 /**
  * CANNON.shape2mesh
  *
@@ -7954,7 +6730,7 @@ CANNON.shape2mesh = function(body){
 
 module.exports = CANNON.shape2mesh;
 
-},{"cannon":24}],14:[function(require,module,exports){
+},{"cannon":23}],13:[function(require,module,exports){
 var CANNON = require('cannon'),
     mesh2shape = require('three-to-cannon');
 
@@ -8210,7 +6986,7 @@ module.exports = {
   }())
 };
 
-},{"../../../lib/CANNON-shape2mesh":13,"cannon":24,"three-to-cannon":116}],15:[function(require,module,exports){
+},{"../../../lib/CANNON-shape2mesh":12,"cannon":23,"three-to-cannon":82}],14:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -8232,7 +7008,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":14}],16:[function(require,module,exports){
+},{"./body":13}],15:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -8247,7 +7023,7 @@ module.exports = AFRAME.utils.extend({}, Body, {
   }
 });
 
-},{"./body":14}],17:[function(require,module,exports){
+},{"./body":13}],16:[function(require,module,exports){
 var CANNON = require('cannon');
 
 module.exports = {
@@ -8384,7 +7160,7 @@ module.exports = {
   }
 };
 
-},{"cannon":24}],18:[function(require,module,exports){
+},{"cannon":23}],17:[function(require,module,exports){
 module.exports = {
   'velocity':   require('./velocity'),
   'quaternion': require('./quaternion'),
@@ -8401,7 +7177,7 @@ module.exports = {
   }
 };
 
-},{"./quaternion":19,"./velocity":20}],19:[function(require,module,exports){
+},{"./quaternion":18,"./velocity":19}],18:[function(require,module,exports){
 /**
  * Quaternion.
  *
@@ -8430,7 +7206,7 @@ module.exports = {
   }
 };
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * Velocity, in m/s.
  */
@@ -8476,7 +7252,7 @@ module.exports = {
   }
 };
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = {
   GRAVITY: -9.8,
   MAX_INTERVAL: 4 / 60,
@@ -8491,7 +7267,7 @@ module.exports = {
   }
 };
 
-},{}],22:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var CANNON = require('cannon'),
     CONSTANTS = require('../constants'),
     C_GRAV = CONSTANTS.GRAVITY,
@@ -8650,60 +7426,28 @@ module.exports = {
   }
 };
 
-},{"../constants":21,"cannon":24}],23:[function(require,module,exports){
+},{"../constants":20,"cannon":23}],22:[function(require,module,exports){
 module.exports={
-  "_args": [
-    [
-      {
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "escapedName": "cannon",
-        "name": "cannon",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted",
-        "hosted": {
-          "type": "github",
-          "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-        }
-      },
-      "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system"
-    ]
-  ],
-  "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
+  "_from": "github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_id": "cannon@0.6.2",
-  "_inCache": true,
+  "_inBundle": false,
+  "_integrity": "sha1-kuhwtr7Hd8jqU3mcndOx2tmf0RU=",
   "_location": "/cannon",
   "_phantomChildren": {},
   "_requested": {
+    "type": "git",
     "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "escapedName": "cannon",
     "name": "cannon",
+    "escapedName": "cannon",
     "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted",
-    "hosted": {
-      "type": "github",
-      "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json"
-    }
+    "saveSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
+    "fetchSpec": null,
+    "gitCommittish": "v0.6.2-dev1"
   },
   "_requiredBy": [
     "/aframe-physics-system"
   ],
-  "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "1feaace5aa9b5582c190748b160b2c8383e059fd",
-  "_shrinkwrap": null,
+  "_resolved": "github:donmccurdy/cannon.js#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
   "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
   "_where": "/Users/donmccurdy/Documents/Projects/aframe-extras/node_modules/aframe-physics-system",
   "author": {
@@ -8714,7 +7458,9 @@ module.exports={
   "bugs": {
     "url": "https://github.com/schteppe/cannon.js/issues"
   },
+  "bundleDependencies": false,
   "dependencies": {},
+  "deprecated": false,
   "description": "A lightweight 3D physics engine written in JavaScript.",
   "devDependencies": {
     "browserify": "*",
@@ -8732,7 +7478,6 @@ module.exports={
   "engines": {
     "node": "*"
   },
-  "gitHead": "022e8ba53fa83abf0ad8a0e4fd08623123838a17",
   "homepage": "https://github.com/schteppe/cannon.js",
   "keywords": [
     "cannon.js",
@@ -8748,9 +7493,6 @@ module.exports={
   ],
   "main": "./src/Cannon.js",
   "name": "cannon",
-  "optionalDependencies": {},
-  "readme": "# cannon.js\n\n### Lightweight 3D physics for the web\nInspired by [three.js](https://github.com/mrdoob/three.js) and [ammo.js](https://github.com/kripken/ammo.js), and driven by the fact that the web lacks a physics engine, here comes cannon.js.\nThe rigid body physics engine includes simple collision detection, various body shapes, contacts, friction and constraints.\n\n[Demos](http://schteppe.github.com/cannon.js) - [Documentation](http://schteppe.github.com/cannon.js/docs) - [Rendering hints](https://github.com/schteppe/cannon.js/tree/master/examples) - [NPM package](https://npmjs.org/package/cannon) - [CDN](https://cdnjs.com/libraries/cannon.js)\n\n### Browser install\n\nJust include [cannon.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.js) or [cannon.min.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.min.js) in your html and you're done:\n\n```html\n<script src=\"cannon.min.js\"></script>\n```\n\n### Node.js install\n\nInstall the cannon package via NPM:\n\n```bash\nnpm install --save cannon\n```\n\nAlternatively, point to the Github repo directly to get the very latest version:\n\n```bash\nnpm install --save schteppe/cannon.js\n```\n\n### Example\n\nThe sample code below creates a sphere on a plane, steps the simulation, and prints the sphere simulation to the console. Note that Cannon.js uses [SI units](http://en.wikipedia.org/wiki/International_System_of_Units) (metre, kilogram, second, etc.).\n\n```javascript\n// Setup our world\nvar world = new CANNON.World();\nworld.gravity.set(0, 0, -9.82); // m/s²\n\n// Create a sphere\nvar radius = 1; // m\nvar sphereBody = new CANNON.Body({\n   mass: 5, // kg\n   position: new CANNON.Vec3(0, 0, 10), // m\n   shape: new CANNON.Sphere(radius)\n});\nworld.addBody(sphereBody);\n\n// Create a plane\nvar groundBody = new CANNON.Body({\n    mass: 0 // mass == 0 makes the body static\n});\nvar groundShape = new CANNON.Plane();\ngroundBody.addShape(groundShape);\nworld.addBody(groundBody);\n\nvar fixedTimeStep = 1.0 / 60.0; // seconds\nvar maxSubSteps = 3;\n\n// Start the simulation loop\nvar lastTime;\n(function simloop(time){\n  requestAnimationFrame(simloop);\n  if(lastTime !== undefined){\n     var dt = (time - lastTime) / 1000;\n     world.step(fixedTimeStep, dt, maxSubSteps);\n  }\n  console.log(\"Sphere z position: \" + sphereBody.position.z);\n  lastTime = time;\n})();\n```\n\nIf you want to know how to use cannon.js with a rendering engine, for example Three.js, see the [Examples](examples).\n\n### Features\n* Rigid body dynamics\n* Discrete collision detection\n* Contacts, friction and restitution\n* Constraints\n   * PointToPoint (a.k.a. ball/socket joint)\n   * Distance\n   * Hinge (with optional motor)\n   * Lock\n   * ConeTwist\n* Gauss-Seidel constraint solver and an island split algorithm\n* Collision filters\n* Body sleeping\n* Experimental SPH / fluid support\n* Various shapes and collision algorithms (see table below)\n\n|             | [Sphere](http://schteppe.github.io/cannon.js/docs/classes/Sphere.html) | [Plane](http://schteppe.github.io/cannon.js/docs/classes/Plane.html) | [Box](http://schteppe.github.io/cannon.js/docs/classes/Box.html) | [Convex](http://schteppe.github.io/cannon.js/docs/classes/ConvexPolyhedron.html) | [Particle](http://schteppe.github.io/cannon.js/docs/classes/Particle.html) | [Heightfield](http://schteppe.github.io/cannon.js/docs/classes/Heightfield.html) | [Trimesh](http://schteppe.github.io/cannon.js/docs/classes/Trimesh.html) |\n| :-----------|:------:|:-----:|:---:|:------:|:--------:|:-----------:|:-------:|\n| Sphere      | Yes    | Yes   | Yes | Yes    | Yes      | Yes         | Yes     |\n| Plane       | -      | -     | Yes | Yes    | Yes      | -           | Yes     |\n| Box         | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Cylinder    | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Convex      | -      | -     | -   | Yes    | Yes      | Yes         | (todo)  |\n| Particle    | -      | -     | -   | -      | -        | (todo)      | (todo)  |\n| Heightfield | -      | -     | -   | -      | -        | -           | (todo)  |\n| Trimesh     | -      | -     | -   | -      | -        | -           | -       |\n\n### Todo\nThe simpler todos are marked with ```@todo``` in the code. Github Issues can and should also be used for todos.\n\n### Help\nCreate an [issue](https://github.com/schteppe/cannon.js/issues) if you need help.\n",
-  "readmeFilename": "README.markdown",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/schteppe/cannon.js.git"
@@ -8758,7 +7500,7 @@ module.exports={
   "version": "0.6.2"
 }
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // Export classes
 module.exports = {
     version :                       require('../package.json').version,
@@ -8813,7 +7555,7 @@ module.exports = {
     World :                         require('./world/World'),
 };
 
-},{"../package.json":23,"./collision/AABB":25,"./collision/ArrayCollisionMatrix":26,"./collision/Broadphase":27,"./collision/GridBroadphase":28,"./collision/NaiveBroadphase":29,"./collision/ObjectCollisionMatrix":30,"./collision/Ray":32,"./collision/RaycastResult":33,"./collision/SAPBroadphase":34,"./constraints/ConeTwistConstraint":35,"./constraints/Constraint":36,"./constraints/DistanceConstraint":37,"./constraints/HingeConstraint":38,"./constraints/LockConstraint":39,"./constraints/PointToPointConstraint":40,"./equations/ContactEquation":42,"./equations/Equation":43,"./equations/FrictionEquation":44,"./equations/RotationalEquation":45,"./equations/RotationalMotorEquation":46,"./material/ContactMaterial":47,"./material/Material":48,"./math/Mat3":50,"./math/Quaternion":51,"./math/Transform":52,"./math/Vec3":53,"./objects/Body":54,"./objects/RaycastVehicle":55,"./objects/RigidVehicle":56,"./objects/SPHSystem":57,"./objects/Spring":58,"./shapes/Box":60,"./shapes/ConvexPolyhedron":61,"./shapes/Cylinder":62,"./shapes/Heightfield":63,"./shapes/Particle":64,"./shapes/Plane":65,"./shapes/Shape":66,"./shapes/Sphere":67,"./shapes/Trimesh":68,"./solver/GSSolver":69,"./solver/Solver":70,"./solver/SplitSolver":71,"./utils/EventTarget":72,"./utils/Pool":74,"./utils/Vec3Pool":77,"./world/Narrowphase":78,"./world/World":79}],25:[function(require,module,exports){
+},{"../package.json":22,"./collision/AABB":24,"./collision/ArrayCollisionMatrix":25,"./collision/Broadphase":26,"./collision/GridBroadphase":27,"./collision/NaiveBroadphase":28,"./collision/ObjectCollisionMatrix":29,"./collision/Ray":31,"./collision/RaycastResult":32,"./collision/SAPBroadphase":33,"./constraints/ConeTwistConstraint":34,"./constraints/Constraint":35,"./constraints/DistanceConstraint":36,"./constraints/HingeConstraint":37,"./constraints/LockConstraint":38,"./constraints/PointToPointConstraint":39,"./equations/ContactEquation":41,"./equations/Equation":42,"./equations/FrictionEquation":43,"./equations/RotationalEquation":44,"./equations/RotationalMotorEquation":45,"./material/ContactMaterial":46,"./material/Material":47,"./math/Mat3":49,"./math/Quaternion":50,"./math/Transform":51,"./math/Vec3":52,"./objects/Body":53,"./objects/RaycastVehicle":54,"./objects/RigidVehicle":55,"./objects/SPHSystem":56,"./objects/Spring":57,"./shapes/Box":59,"./shapes/ConvexPolyhedron":60,"./shapes/Cylinder":61,"./shapes/Heightfield":62,"./shapes/Particle":63,"./shapes/Plane":64,"./shapes/Shape":65,"./shapes/Sphere":66,"./shapes/Trimesh":67,"./solver/GSSolver":68,"./solver/Solver":69,"./solver/SplitSolver":70,"./utils/EventTarget":71,"./utils/Pool":73,"./utils/Vec3Pool":76,"./world/Narrowphase":77,"./world/World":78}],24:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 var Utils = require('../utils/Utils');
 
@@ -9136,7 +7878,7 @@ AABB.prototype.overlapsRay = function(ray){
 
     return true;
 };
-},{"../math/Vec3":53,"../utils/Utils":76}],26:[function(require,module,exports){
+},{"../math/Vec3":52,"../utils/Utils":75}],25:[function(require,module,exports){
 module.exports = ArrayCollisionMatrix;
 
 /**
@@ -9209,7 +7951,7 @@ ArrayCollisionMatrix.prototype.setNumObjects = function(n) {
     this.matrix.length = n*(n-1)>>1;
 };
 
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 var Body = require('../objects/Body');
 var Vec3 = require('../math/Vec3');
 var Quaternion = require('../math/Quaternion');
@@ -9417,7 +8159,7 @@ Broadphase.prototype.aabbQuery = function(world, aabb, result){
     console.warn('.aabbQuery is not implemented in this Broadphase subclass.');
     return [];
 };
-},{"../math/Quaternion":51,"../math/Vec3":53,"../objects/Body":54,"../shapes/Plane":65,"../shapes/Shape":66}],28:[function(require,module,exports){
+},{"../math/Quaternion":50,"../math/Vec3":52,"../objects/Body":53,"../shapes/Plane":64,"../shapes/Shape":65}],27:[function(require,module,exports){
 module.exports = GridBroadphase;
 
 var Broadphase = require('./Broadphase');
@@ -9647,7 +8389,7 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
     this.makePairsUnique(pairs1,pairs2);
 };
 
-},{"../math/Vec3":53,"../shapes/Shape":66,"./Broadphase":27}],29:[function(require,module,exports){
+},{"../math/Vec3":52,"../shapes/Shape":65,"./Broadphase":26}],28:[function(require,module,exports){
 module.exports = NaiveBroadphase;
 
 var Broadphase = require('./Broadphase');
@@ -9722,7 +8464,7 @@ NaiveBroadphase.prototype.aabbQuery = function(world, aabb, result){
 
     return result;
 };
-},{"./AABB":25,"./Broadphase":27}],30:[function(require,module,exports){
+},{"./AABB":24,"./Broadphase":26}],29:[function(require,module,exports){
 module.exports = ObjectCollisionMatrix;
 
 /**
@@ -9795,7 +8537,7 @@ ObjectCollisionMatrix.prototype.reset = function() {
 ObjectCollisionMatrix.prototype.setNumObjects = function(n) {
 };
 
-},{}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports = OverlapKeeper;
 
 /**
@@ -9891,7 +8633,7 @@ OverlapKeeper.prototype.getDiff = function(additions, removals) {
         }
     }
 };
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 module.exports = Ray;
 
 var Vec3 = require('../math/Vec3');
@@ -10717,7 +9459,7 @@ function distanceFromIntersection(from, direction, position) {
 }
 
 
-},{"../collision/AABB":25,"../collision/RaycastResult":33,"../math/Quaternion":51,"../math/Transform":52,"../math/Vec3":53,"../shapes/Box":60,"../shapes/ConvexPolyhedron":61,"../shapes/Shape":66}],33:[function(require,module,exports){
+},{"../collision/AABB":24,"../collision/RaycastResult":32,"../math/Quaternion":50,"../math/Transform":51,"../math/Vec3":52,"../shapes/Box":59,"../shapes/ConvexPolyhedron":60,"../shapes/Shape":65}],32:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 
 module.exports = RaycastResult;
@@ -10840,7 +9582,7 @@ RaycastResult.prototype.set = function(
 	this.body = body;
 	this.distance = distance;
 };
-},{"../math/Vec3":53}],34:[function(require,module,exports){
+},{"../math/Vec3":52}],33:[function(require,module,exports){
 var Shape = require('../shapes/Shape');
 var Broadphase = require('../collision/Broadphase');
 
@@ -11164,7 +9906,7 @@ SAPBroadphase.prototype.aabbQuery = function(world, aabb, result){
 
     return result;
 };
-},{"../collision/Broadphase":27,"../shapes/Shape":66}],35:[function(require,module,exports){
+},{"../collision/Broadphase":26,"../shapes/Shape":65}],34:[function(require,module,exports){
 module.exports = ConeTwistConstraint;
 
 var Constraint = require('./Constraint');
@@ -11255,7 +9997,7 @@ ConeTwistConstraint.prototype.update = function(){
 };
 
 
-},{"../equations/ConeEquation":41,"../equations/ContactEquation":42,"../equations/RotationalEquation":45,"../math/Vec3":53,"./Constraint":36,"./PointToPointConstraint":40}],36:[function(require,module,exports){
+},{"../equations/ConeEquation":40,"../equations/ContactEquation":41,"../equations/RotationalEquation":44,"../math/Vec3":52,"./Constraint":35,"./PointToPointConstraint":39}],35:[function(require,module,exports){
 module.exports = Constraint;
 
 var Utils = require('../utils/Utils');
@@ -11348,7 +10090,7 @@ Constraint.prototype.disable = function(){
 
 Constraint.idCounter = 0;
 
-},{"../utils/Utils":76}],37:[function(require,module,exports){
+},{"../utils/Utils":75}],36:[function(require,module,exports){
 module.exports = DistanceConstraint;
 
 var Constraint = require('./Constraint');
@@ -11405,7 +10147,7 @@ DistanceConstraint.prototype.update = function(){
     normal.mult(halfDist, eq.ri);
     normal.mult(-halfDist, eq.rj);
 };
-},{"../equations/ContactEquation":42,"./Constraint":36}],38:[function(require,module,exports){
+},{"../equations/ContactEquation":41,"./Constraint":35}],37:[function(require,module,exports){
 module.exports = HingeConstraint;
 
 var Constraint = require('./Constraint');
@@ -11541,7 +10283,7 @@ HingeConstraint.prototype.update = function(){
 };
 
 
-},{"../equations/ContactEquation":42,"../equations/RotationalEquation":45,"../equations/RotationalMotorEquation":46,"../math/Vec3":53,"./Constraint":36,"./PointToPointConstraint":40}],39:[function(require,module,exports){
+},{"../equations/ContactEquation":41,"../equations/RotationalEquation":44,"../equations/RotationalMotorEquation":45,"../math/Vec3":52,"./Constraint":35,"./PointToPointConstraint":39}],38:[function(require,module,exports){
 module.exports = LockConstraint;
 
 var Constraint = require('./Constraint');
@@ -11635,7 +10377,7 @@ LockConstraint.prototype.update = function(){
 };
 
 
-},{"../equations/ContactEquation":42,"../equations/RotationalEquation":45,"../equations/RotationalMotorEquation":46,"../math/Vec3":53,"./Constraint":36,"./PointToPointConstraint":40}],40:[function(require,module,exports){
+},{"../equations/ContactEquation":41,"../equations/RotationalEquation":44,"../equations/RotationalMotorEquation":45,"../math/Vec3":52,"./Constraint":35,"./PointToPointConstraint":39}],39:[function(require,module,exports){
 module.exports = PointToPointConstraint;
 
 var Constraint = require('./Constraint');
@@ -11728,7 +10470,7 @@ PointToPointConstraint.prototype.update = function(){
     z.ri.copy(x.ri);
     z.rj.copy(x.rj);
 };
-},{"../equations/ContactEquation":42,"../math/Vec3":53,"./Constraint":36}],41:[function(require,module,exports){
+},{"../equations/ContactEquation":41,"../math/Vec3":52,"./Constraint":35}],40:[function(require,module,exports){
 module.exports = ConeEquation;
 
 var Vec3 = require('../math/Vec3');
@@ -11807,7 +10549,7 @@ ConeEquation.prototype.computeB = function(h){
 };
 
 
-},{"../math/Mat3":50,"../math/Vec3":53,"./Equation":43}],42:[function(require,module,exports){
+},{"../math/Mat3":49,"../math/Vec3":52,"./Equation":42}],41:[function(require,module,exports){
 module.exports = ContactEquation;
 
 var Equation = require('./Equation');
@@ -11944,7 +10686,7 @@ ContactEquation.prototype.getImpactVelocityAlongNormal = function(){
 };
 
 
-},{"../math/Mat3":50,"../math/Vec3":53,"./Equation":43}],43:[function(require,module,exports){
+},{"../math/Mat3":49,"../math/Vec3":52,"./Equation":42}],42:[function(require,module,exports){
 module.exports = Equation;
 
 var JacobianElement = require('../math/JacobianElement'),
@@ -12208,7 +10950,7 @@ Equation.prototype.computeC = function(){
     return this.computeGiMGt() + this.eps;
 };
 
-},{"../math/JacobianElement":49,"../math/Vec3":53}],44:[function(require,module,exports){
+},{"../math/JacobianElement":48,"../math/Vec3":52}],43:[function(require,module,exports){
 module.exports = FrictionEquation;
 
 var Equation = require('./Equation');
@@ -12269,7 +11011,7 @@ FrictionEquation.prototype.computeB = function(h){
     return B;
 };
 
-},{"../math/Mat3":50,"../math/Vec3":53,"./Equation":43}],45:[function(require,module,exports){
+},{"../math/Mat3":49,"../math/Vec3":52,"./Equation":42}],44:[function(require,module,exports){
 module.exports = RotationalEquation;
 
 var Vec3 = require('../math/Vec3');
@@ -12340,7 +11082,7 @@ RotationalEquation.prototype.computeB = function(h){
 };
 
 
-},{"../math/Mat3":50,"../math/Vec3":53,"./Equation":43}],46:[function(require,module,exports){
+},{"../math/Mat3":49,"../math/Vec3":52,"./Equation":42}],45:[function(require,module,exports){
 module.exports = RotationalMotorEquation;
 
 var Vec3 = require('../math/Vec3');
@@ -12412,7 +11154,7 @@ RotationalMotorEquation.prototype.computeB = function(h){
     return B;
 };
 
-},{"../math/Mat3":50,"../math/Vec3":53,"./Equation":43}],47:[function(require,module,exports){
+},{"../math/Mat3":49,"../math/Vec3":52,"./Equation":42}],46:[function(require,module,exports){
 var Utils = require('../utils/Utils');
 
 module.exports = ContactMaterial;
@@ -12493,7 +11235,7 @@ function ContactMaterial(m1, m2, options){
 
 ContactMaterial.idCounter = 0;
 
-},{"../utils/Utils":76}],48:[function(require,module,exports){
+},{"../utils/Utils":75}],47:[function(require,module,exports){
 module.exports = Material;
 
 /**
@@ -12543,7 +11285,7 @@ function Material(options){
 
 Material.idCounter = 0;
 
-},{}],49:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = JacobianElement;
 
 var Vec3 = require('./Vec3');
@@ -12587,7 +11329,7 @@ JacobianElement.prototype.multiplyVectors = function(spatial,rotational){
     return spatial.dot(this.spatial) + rotational.dot(this.rotational);
 };
 
-},{"./Vec3":53}],50:[function(require,module,exports){
+},{"./Vec3":52}],49:[function(require,module,exports){
 module.exports = Mat3;
 
 var Vec3 = require('./Vec3');
@@ -13011,7 +11753,7 @@ Mat3.prototype.transpose = function( target ) {
     return target;
 };
 
-},{"./Vec3":53}],51:[function(require,module,exports){
+},{"./Vec3":52}],50:[function(require,module,exports){
 module.exports = Quaternion;
 
 var Vec3 = require('./Vec3');
@@ -13501,7 +12243,7 @@ Quaternion.prototype.integrate = function(angularVelocity, dt, angularFactor, ta
 
     return target;
 };
-},{"./Vec3":53}],52:[function(require,module,exports){
+},{"./Vec3":52}],51:[function(require,module,exports){
 var Vec3 = require('./Vec3');
 var Quaternion = require('./Quaternion');
 
@@ -13606,7 +12348,7 @@ Transform.vectorToLocalFrame = function(position, quaternion, worldVector, resul
     return result;
 };
 
-},{"./Quaternion":51,"./Vec3":53}],53:[function(require,module,exports){
+},{"./Quaternion":50,"./Vec3":52}],52:[function(require,module,exports){
 module.exports = Vec3;
 
 var Mat3 = require('./Mat3');
@@ -14090,7 +12832,7 @@ Vec3.prototype.isAntiparallelTo = function(v,precision){
 Vec3.prototype.clone = function(){
     return new Vec3(this.x, this.y, this.z);
 };
-},{"./Mat3":50}],54:[function(require,module,exports){
+},{"./Mat3":49}],53:[function(require,module,exports){
 module.exports = Body;
 
 var EventTarget = require('../utils/EventTarget');
@@ -15006,7 +13748,7 @@ Body.prototype.integrate = function(dt, quatNormalize, quatNormalizeFast){
     this.updateInertiaWorld();
 };
 
-},{"../collision/AABB":25,"../material/Material":48,"../math/Mat3":50,"../math/Quaternion":51,"../math/Vec3":53,"../shapes/Box":60,"../shapes/Shape":66,"../utils/EventTarget":72}],55:[function(require,module,exports){
+},{"../collision/AABB":24,"../material/Material":47,"../math/Mat3":49,"../math/Quaternion":50,"../math/Vec3":52,"../shapes/Box":59,"../shapes/Shape":65,"../utils/EventTarget":71}],54:[function(require,module,exports){
 var Body = require('./Body');
 var Vec3 = require('../math/Vec3');
 var Quaternion = require('../math/Quaternion');
@@ -15710,7 +14452,7 @@ function resolveSingleBilateral(body1, pos1, body2, pos2, normal, impulse){
 
     return impulse;
 }
-},{"../collision/Ray":32,"../collision/RaycastResult":33,"../math/Quaternion":51,"../math/Vec3":53,"../objects/WheelInfo":59,"./Body":54}],56:[function(require,module,exports){
+},{"../collision/Ray":31,"../collision/RaycastResult":32,"../math/Quaternion":50,"../math/Vec3":52,"../objects/WheelInfo":58,"./Body":53}],55:[function(require,module,exports){
 var Body = require('./Body');
 var Sphere = require('../shapes/Sphere');
 var Box = require('../shapes/Box');
@@ -15932,7 +14674,7 @@ RigidVehicle.prototype.getWheelSpeed = function(wheelIndex){
     return w.dot(worldAxis);
 };
 
-},{"../constraints/HingeConstraint":38,"../math/Vec3":53,"../shapes/Box":60,"../shapes/Sphere":67,"./Body":54}],57:[function(require,module,exports){
+},{"../constraints/HingeConstraint":37,"../math/Vec3":52,"../shapes/Box":59,"../shapes/Sphere":66,"./Body":53}],56:[function(require,module,exports){
 module.exports = SPHSystem;
 
 var Shape = require('../shapes/Shape');
@@ -16147,7 +14889,7 @@ SPHSystem.prototype.nablaw = function(r){
     return nabla;
 };
 
-},{"../material/Material":48,"../math/Quaternion":51,"../math/Vec3":53,"../objects/Body":54,"../shapes/Particle":64,"../shapes/Shape":66}],58:[function(require,module,exports){
+},{"../material/Material":47,"../math/Quaternion":50,"../math/Vec3":52,"../objects/Body":53,"../shapes/Particle":63,"../shapes/Shape":65}],57:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 
 module.exports = Spring;
@@ -16342,7 +15084,7 @@ Spring.prototype.applyForce = function(){
     bodyB.torque.vadd(rj_x_f,bodyB.torque);
 };
 
-},{"../math/Vec3":53}],59:[function(require,module,exports){
+},{"../math/Vec3":52}],58:[function(require,module,exports){
 var Vec3 = require('../math/Vec3');
 var Transform = require('../math/Transform');
 var RaycastResult = require('../collision/RaycastResult');
@@ -16625,7 +15367,7 @@ WheelInfo.prototype.updateWheel = function(chassis){
         this.clippedInvContactDotSuspension = 1.0;
     }
 };
-},{"../collision/RaycastResult":33,"../math/Transform":52,"../math/Vec3":53,"../utils/Utils":76}],60:[function(require,module,exports){
+},{"../collision/RaycastResult":32,"../math/Transform":51,"../math/Vec3":52,"../utils/Utils":75}],59:[function(require,module,exports){
 module.exports = Box;
 
 var Shape = require('./Shape');
@@ -16862,7 +15604,7 @@ Box.prototype.calculateWorldAABB = function(pos,quat,min,max){
     // });
 };
 
-},{"../math/Vec3":53,"./ConvexPolyhedron":61,"./Shape":66}],61:[function(require,module,exports){
+},{"../math/Vec3":52,"./ConvexPolyhedron":60,"./Shape":65}],60:[function(require,module,exports){
 module.exports = ConvexPolyhedron;
 
 var Shape = require('./Shape');
@@ -17790,7 +16532,7 @@ ConvexPolyhedron.project = function(hull, axis, pos, quat, result){
     result[1] = min;
 };
 
-},{"../math/Quaternion":51,"../math/Transform":52,"../math/Vec3":53,"./Shape":66}],62:[function(require,module,exports){
+},{"../math/Quaternion":50,"../math/Transform":51,"../math/Vec3":52,"./Shape":65}],61:[function(require,module,exports){
 module.exports = Cylinder;
 
 var Shape = require('./Shape');
@@ -17872,7 +16614,7 @@ function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
 
 Cylinder.prototype = new ConvexPolyhedron();
 
-},{"../math/Quaternion":51,"../math/Vec3":53,"./ConvexPolyhedron":61,"./Shape":66}],63:[function(require,module,exports){
+},{"../math/Quaternion":50,"../math/Vec3":52,"./ConvexPolyhedron":60,"./Shape":65}],62:[function(require,module,exports){
 var Shape = require('./Shape');
 var ConvexPolyhedron = require('./ConvexPolyhedron');
 var Vec3 = require('../math/Vec3');
@@ -18557,7 +17299,7 @@ Heightfield.prototype.setHeightsFromImage = function(image, scale){
     this.updateMinValue();
     this.update();
 };
-},{"../math/Vec3":53,"../utils/Utils":76,"./ConvexPolyhedron":61,"./Shape":66}],64:[function(require,module,exports){
+},{"../math/Vec3":52,"../utils/Utils":75,"./ConvexPolyhedron":60,"./Shape":65}],63:[function(require,module,exports){
 module.exports = Particle;
 
 var Shape = require('./Shape');
@@ -18604,7 +17346,7 @@ Particle.prototype.calculateWorldAABB = function(pos,quat,min,max){
     max.copy(pos);
 };
 
-},{"../math/Vec3":53,"./Shape":66}],65:[function(require,module,exports){
+},{"../math/Vec3":52,"./Shape":65}],64:[function(require,module,exports){
 module.exports = Plane;
 
 var Shape = require('./Shape');
@@ -18667,7 +17409,7 @@ Plane.prototype.calculateWorldAABB = function(pos, quat, min, max){
 Plane.prototype.updateBoundingSphereRadius = function(){
     this.boundingSphereRadius = Number.MAX_VALUE;
 };
-},{"../math/Vec3":53,"./Shape":66}],66:[function(require,module,exports){
+},{"../math/Vec3":52,"./Shape":65}],65:[function(require,module,exports){
 module.exports = Shape;
 
 var Shape = require('./Shape');
@@ -18771,7 +17513,7 @@ Shape.types = {
 };
 
 
-},{"../material/Material":48,"../math/Quaternion":51,"../math/Vec3":53,"./Shape":66}],67:[function(require,module,exports){
+},{"../material/Material":47,"../math/Quaternion":50,"../math/Vec3":52,"./Shape":65}],66:[function(require,module,exports){
 module.exports = Sphere;
 
 var Shape = require('./Shape');
@@ -18830,7 +17572,7 @@ Sphere.prototype.calculateWorldAABB = function(pos,quat,min,max){
     }
 };
 
-},{"../math/Vec3":53,"./Shape":66}],68:[function(require,module,exports){
+},{"../math/Vec3":52,"./Shape":65}],67:[function(require,module,exports){
 module.exports = Trimesh;
 
 var Shape = require('./Shape');
@@ -19392,7 +18134,7 @@ Trimesh.createTorus = function (radius, tube, radialSegments, tubularSegments, a
     return new Trimesh(vertices, indices);
 };
 
-},{"../collision/AABB":25,"../math/Quaternion":51,"../math/Transform":52,"../math/Vec3":53,"../utils/Octree":73,"./Shape":66}],69:[function(require,module,exports){
+},{"../collision/AABB":24,"../math/Quaternion":50,"../math/Transform":51,"../math/Vec3":52,"../utils/Octree":72,"./Shape":65}],68:[function(require,module,exports){
 module.exports = GSSolver;
 
 var Vec3 = require('../math/Vec3');
@@ -19534,7 +18276,7 @@ GSSolver.prototype.solve = function(dt,world){
     return iter;
 };
 
-},{"../math/Quaternion":51,"../math/Vec3":53,"./Solver":70}],70:[function(require,module,exports){
+},{"../math/Quaternion":50,"../math/Vec3":52,"./Solver":69}],69:[function(require,module,exports){
 module.exports = Solver;
 
 /**
@@ -19595,7 +18337,7 @@ Solver.prototype.removeAllEquations = function(){
 };
 
 
-},{}],71:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module.exports = SplitSolver;
 
 var Vec3 = require('../math/Vec3');
@@ -19750,7 +18492,7 @@ SplitSolver.prototype.solve = function(dt,world){
 function sortById(a, b){
     return b.id - a.id;
 }
-},{"../math/Quaternion":51,"../math/Vec3":53,"../objects/Body":54,"./Solver":70}],72:[function(require,module,exports){
+},{"../math/Quaternion":50,"../math/Vec3":52,"../objects/Body":53,"./Solver":69}],71:[function(require,module,exports){
 /**
  * Base class for objects that dispatches events.
  * @class EventTarget
@@ -19851,7 +18593,7 @@ EventTarget.prototype = {
     }
 };
 
-},{}],73:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 var AABB = require('../collision/AABB');
 var Vec3 = require('../math/Vec3');
 
@@ -20086,7 +18828,7 @@ OctreeNode.prototype.removeEmptyNodes = function() {
     }
 };
 
-},{"../collision/AABB":25,"../math/Vec3":53}],74:[function(require,module,exports){
+},{"../collision/AABB":24,"../math/Vec3":52}],73:[function(require,module,exports){
 module.exports = Pool;
 
 /**
@@ -20163,7 +18905,7 @@ Pool.prototype.resize = function (size) {
 };
 
 
-},{}],75:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 module.exports = TupleDictionary;
 
 /**
@@ -20230,7 +18972,7 @@ TupleDictionary.prototype.reset = function() {
     }
 };
 
-},{}],76:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 function Utils(){}
 
 module.exports = Utils;
@@ -20255,7 +18997,7 @@ Utils.defaults = function(options, defaults){
     return options;
 };
 
-},{}],77:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 module.exports = Vec3Pool;
 
 var Vec3 = require('../math/Vec3');
@@ -20281,7 +19023,7 @@ Vec3Pool.prototype.constructObject = function(){
     return new Vec3();
 };
 
-},{"../math/Vec3":53,"./Pool":74}],78:[function(require,module,exports){
+},{"../math/Vec3":52,"./Pool":73}],77:[function(require,module,exports){
 module.exports = Narrowphase;
 
 var AABB = require('../collision/AABB');
@@ -22143,7 +20885,7 @@ Narrowphase.prototype.sphereHeightfield = function (
     }
 };
 
-},{"../collision/AABB":25,"../collision/Ray":32,"../equations/ContactEquation":42,"../equations/FrictionEquation":44,"../math/Quaternion":51,"../math/Transform":52,"../math/Vec3":53,"../objects/Body":54,"../shapes/ConvexPolyhedron":61,"../shapes/Shape":66,"../solver/Solver":70,"../utils/Vec3Pool":77}],79:[function(require,module,exports){
+},{"../collision/AABB":24,"../collision/Ray":31,"../equations/ContactEquation":41,"../equations/FrictionEquation":43,"../math/Quaternion":50,"../math/Transform":51,"../math/Vec3":52,"../objects/Body":53,"../shapes/ConvexPolyhedron":60,"../shapes/Shape":65,"../solver/Solver":69,"../utils/Vec3Pool":76}],78:[function(require,module,exports){
 /* global performance */
 
 module.exports = World;
@@ -23177,4475 +21919,1009 @@ World.prototype.clearForces = function(){
     }
 };
 
-},{"../collision/AABB":25,"../collision/ArrayCollisionMatrix":26,"../collision/NaiveBroadphase":29,"../collision/OverlapKeeper":31,"../collision/Ray":32,"../collision/RaycastResult":33,"../equations/ContactEquation":42,"../equations/FrictionEquation":44,"../material/ContactMaterial":47,"../material/Material":48,"../math/Quaternion":51,"../math/Vec3":53,"../objects/Body":54,"../shapes/Shape":66,"../solver/GSSolver":69,"../utils/EventTarget":72,"../utils/TupleDictionary":75,"./Narrowphase":78}],80:[function(require,module,exports){
-//     Underscore.js 1.8.3
-//     http://underscorejs.org
-//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-//     Underscore may be freely distributed under the MIT license.
+},{"../collision/AABB":24,"../collision/ArrayCollisionMatrix":25,"../collision/NaiveBroadphase":28,"../collision/OverlapKeeper":30,"../collision/Ray":31,"../collision/RaycastResult":32,"../equations/ContactEquation":41,"../equations/FrictionEquation":43,"../material/ContactMaterial":46,"../material/Material":47,"../math/Quaternion":50,"../math/Vec3":52,"../objects/Body":53,"../shapes/Shape":65,"../solver/GSSolver":68,"../utils/EventTarget":71,"../utils/TupleDictionary":74,"./Narrowphase":77}],79:[function(require,module,exports){
+const utils = require('./utils');
 
-(function() {
-
-  // Baseline setup
-  // --------------
-
-  // Establish the root object, `window` in the browser, or `exports` on the server.
-  var root = this;
-
-  // Save the previous value of the `_` variable.
-  var previousUnderscore = root._;
-
-  // Save bytes in the minified (but not gzipped) version:
-  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
-
-  // Create quick reference variables for speed access to core prototypes.
-  var
-    push             = ArrayProto.push,
-    slice            = ArrayProto.slice,
-    toString         = ObjProto.toString,
-    hasOwnProperty   = ObjProto.hasOwnProperty;
-
-  // All **ECMAScript 5** native function implementations that we hope to use
-  // are declared here.
-  var
-    nativeIsArray      = Array.isArray,
-    nativeKeys         = Object.keys,
-    nativeBind         = FuncProto.bind,
-    nativeCreate       = Object.create;
-
-  // Naked function reference for surrogate-prototype-swapping.
-  var Ctor = function(){};
-
-  // Create a safe reference to the Underscore object for use below.
-  var _ = function(obj) {
-    if (obj instanceof _) return obj;
-    if (!(this instanceof _)) return new _(obj);
-    this._wrapped = obj;
-  };
-
-  // Export the Underscore object for **Node.js**, with
-  // backwards-compatibility for the old `require()` API. If we're in
-  // the browser, add `_` as a global object.
-  if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-      exports = module.exports = _;
-    }
-    exports._ = _;
-  } else {
-    root._ = _;
+class Channel {
+  constructor () {
+    this.portals = [];
   }
 
-  // Current version.
-  _.VERSION = '1.8.3';
-
-  // Internal function that returns an efficient (for current engines) version
-  // of the passed-in callback, to be repeatedly applied in other Underscore
-  // functions.
-  var optimizeCb = function(func, context, argCount) {
-    if (context === void 0) return func;
-    switch (argCount == null ? 3 : argCount) {
-      case 1: return function(value) {
-        return func.call(context, value);
-      };
-      case 2: return function(value, other) {
-        return func.call(context, value, other);
-      };
-      case 3: return function(value, index, collection) {
-        return func.call(context, value, index, collection);
-      };
-      case 4: return function(accumulator, value, index, collection) {
-        return func.call(context, accumulator, value, index, collection);
-      };
-    }
-    return function() {
-      return func.apply(context, arguments);
-    };
-  };
-
-  // A mostly-internal function to generate callbacks that can be applied
-  // to each element in a collection, returning the desired result — either
-  // identity, an arbitrary callback, a property matcher, or a property accessor.
-  var cb = function(value, context, argCount) {
-    if (value == null) return _.identity;
-    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
-    if (_.isObject(value)) return _.matcher(value);
-    return _.property(value);
-  };
-  _.iteratee = function(value, context) {
-    return cb(value, context, Infinity);
-  };
-
-  // An internal function for creating assigner functions.
-  var createAssigner = function(keysFunc, undefinedOnly) {
-    return function(obj) {
-      var length = arguments.length;
-      if (length < 2 || obj == null) return obj;
-      for (var index = 1; index < length; index++) {
-        var source = arguments[index],
-            keys = keysFunc(source),
-            l = keys.length;
-        for (var i = 0; i < l; i++) {
-          var key = keys[i];
-          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
-        }
-      }
-      return obj;
-    };
-  };
-
-  // An internal function for creating a new object that inherits from another.
-  var baseCreate = function(prototype) {
-    if (!_.isObject(prototype)) return {};
-    if (nativeCreate) return nativeCreate(prototype);
-    Ctor.prototype = prototype;
-    var result = new Ctor;
-    Ctor.prototype = null;
-    return result;
-  };
-
-  var property = function(key) {
-    return function(obj) {
-      return obj == null ? void 0 : obj[key];
-    };
-  };
-
-  // Helper for collection methods to determine whether a collection
-  // should be iterated as an array or as an object
-  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
-  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
-  var getLength = property('length');
-  var isArrayLike = function(collection) {
-    var length = getLength(collection);
-    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
-  };
-
-  // Collection Functions
-  // --------------------
-
-  // The cornerstone, an `each` implementation, aka `forEach`.
-  // Handles raw objects in addition to array-likes. Treats all
-  // sparse array-likes as if they were dense.
-  _.each = _.forEach = function(obj, iteratee, context) {
-    iteratee = optimizeCb(iteratee, context);
-    var i, length;
-    if (isArrayLike(obj)) {
-      for (i = 0, length = obj.length; i < length; i++) {
-        iteratee(obj[i], i, obj);
-      }
-    } else {
-      var keys = _.keys(obj);
-      for (i = 0, length = keys.length; i < length; i++) {
-        iteratee(obj[keys[i]], keys[i], obj);
-      }
-    }
-    return obj;
-  };
-
-  // Return the results of applying the iteratee to each element.
-  _.map = _.collect = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length,
-        results = Array(length);
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      results[index] = iteratee(obj[currentKey], currentKey, obj);
-    }
-    return results;
-  };
-
-  // Create a reducing function iterating left or right.
-  function createReduce(dir) {
-    // Optimized iterator function as using arguments.length
-    // in the main function will deoptimize the, see #1991.
-    function iterator(obj, iteratee, memo, keys, index, length) {
-      for (; index >= 0 && index < length; index += dir) {
-        var currentKey = keys ? keys[index] : index;
-        memo = iteratee(memo, obj[currentKey], currentKey, obj);
-      }
-      return memo;
-    }
-
-    return function(obj, iteratee, memo, context) {
-      iteratee = optimizeCb(iteratee, context, 4);
-      var keys = !isArrayLike(obj) && _.keys(obj),
-          length = (keys || obj).length,
-          index = dir > 0 ? 0 : length - 1;
-      // Determine the initial value if none is provided.
-      if (arguments.length < 3) {
-        memo = obj[keys ? keys[index] : index];
-        index += dir;
-      }
-      return iterator(obj, iteratee, memo, keys, index, length);
-    };
+  push (p1, p2) {
+    if (p2 === undefined) p2 = p1;
+    this.portals.push({
+      left: p1,
+      right: p2
+    });
   }
 
-  // **Reduce** builds up a single result from a list of values, aka `inject`,
-  // or `foldl`.
-  _.reduce = _.foldl = _.inject = createReduce(1);
+  stringPull () {
+    const portals = this.portals;
+    const pts = [];
+    // Init scan state
+    let portalApex, portalLeft, portalRight;
+    let apexIndex = 0,
+      leftIndex = 0,
+      rightIndex = 0;
 
-  // The right-associative version of reduce, also known as `foldr`.
-  _.reduceRight = _.foldr = createReduce(-1);
+    portalApex = portals[0].left;
+    portalLeft = portals[0].left;
+    portalRight = portals[0].right;
 
-  // Return the first value which passes a truth test. Aliased as `detect`.
-  _.find = _.detect = function(obj, predicate, context) {
-    var key;
-    if (isArrayLike(obj)) {
-      key = _.findIndex(obj, predicate, context);
-    } else {
-      key = _.findKey(obj, predicate, context);
-    }
-    if (key !== void 0 && key !== -1) return obj[key];
-  };
+    // Add start point.
+    pts.push(portalApex);
 
-  // Return all the elements that pass a truth test.
-  // Aliased as `select`.
-  _.filter = _.select = function(obj, predicate, context) {
-    var results = [];
-    predicate = cb(predicate, context);
-    _.each(obj, function(value, index, list) {
-      if (predicate(value, index, list)) results.push(value);
-    });
-    return results;
-  };
+    for (let i = 1; i < portals.length; i++) {
+      const left = portals[i].left;
+      const right = portals[i].right;
 
-  // Return all the elements for which a truth test fails.
-  _.reject = function(obj, predicate, context) {
-    return _.filter(obj, _.negate(cb(predicate)), context);
-  };
-
-  // Determine whether all of the elements match a truth test.
-  // Aliased as `all`.
-  _.every = _.all = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length;
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      if (!predicate(obj[currentKey], currentKey, obj)) return false;
-    }
-    return true;
-  };
-
-  // Determine if at least one element in the object matches a truth test.
-  // Aliased as `any`.
-  _.some = _.any = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length;
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      if (predicate(obj[currentKey], currentKey, obj)) return true;
-    }
-    return false;
-  };
-
-  // Determine if the array or object contains a given item (using `===`).
-  // Aliased as `includes` and `include`.
-  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
-    if (!isArrayLike(obj)) obj = _.values(obj);
-    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
-    return _.indexOf(obj, item, fromIndex) >= 0;
-  };
-
-  // Invoke a method (with arguments) on every item in a collection.
-  _.invoke = function(obj, method) {
-    var args = slice.call(arguments, 2);
-    var isFunc = _.isFunction(method);
-    return _.map(obj, function(value) {
-      var func = isFunc ? method : value[method];
-      return func == null ? func : func.apply(value, args);
-    });
-  };
-
-  // Convenience version of a common use case of `map`: fetching a property.
-  _.pluck = function(obj, key) {
-    return _.map(obj, _.property(key));
-  };
-
-  // Convenience version of a common use case of `filter`: selecting only objects
-  // containing specific `key:value` pairs.
-  _.where = function(obj, attrs) {
-    return _.filter(obj, _.matcher(attrs));
-  };
-
-  // Convenience version of a common use case of `find`: getting the first object
-  // containing specific `key:value` pairs.
-  _.findWhere = function(obj, attrs) {
-    return _.find(obj, _.matcher(attrs));
-  };
-
-  // Return the maximum element (or element-based computation).
-  _.max = function(obj, iteratee, context) {
-    var result = -Infinity, lastComputed = -Infinity,
-        value, computed;
-    if (iteratee == null && obj != null) {
-      obj = isArrayLike(obj) ? obj : _.values(obj);
-      for (var i = 0, length = obj.length; i < length; i++) {
-        value = obj[i];
-        if (value > result) {
-          result = value;
-        }
-      }
-    } else {
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index, list) {
-        computed = iteratee(value, index, list);
-        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
-          result = value;
-          lastComputed = computed;
-        }
-      });
-    }
-    return result;
-  };
-
-  // Return the minimum element (or element-based computation).
-  _.min = function(obj, iteratee, context) {
-    var result = Infinity, lastComputed = Infinity,
-        value, computed;
-    if (iteratee == null && obj != null) {
-      obj = isArrayLike(obj) ? obj : _.values(obj);
-      for (var i = 0, length = obj.length; i < length; i++) {
-        value = obj[i];
-        if (value < result) {
-          result = value;
-        }
-      }
-    } else {
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index, list) {
-        computed = iteratee(value, index, list);
-        if (computed < lastComputed || computed === Infinity && result === Infinity) {
-          result = value;
-          lastComputed = computed;
-        }
-      });
-    }
-    return result;
-  };
-
-  // Shuffle a collection, using the modern version of the
-  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
-  _.shuffle = function(obj) {
-    var set = isArrayLike(obj) ? obj : _.values(obj);
-    var length = set.length;
-    var shuffled = Array(length);
-    for (var index = 0, rand; index < length; index++) {
-      rand = _.random(0, index);
-      if (rand !== index) shuffled[index] = shuffled[rand];
-      shuffled[rand] = set[index];
-    }
-    return shuffled;
-  };
-
-  // Sample **n** random values from a collection.
-  // If **n** is not specified, returns a single random element.
-  // The internal `guard` argument allows it to work with `map`.
-  _.sample = function(obj, n, guard) {
-    if (n == null || guard) {
-      if (!isArrayLike(obj)) obj = _.values(obj);
-      return obj[_.random(obj.length - 1)];
-    }
-    return _.shuffle(obj).slice(0, Math.max(0, n));
-  };
-
-  // Sort the object's values by a criterion produced by an iteratee.
-  _.sortBy = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    return _.pluck(_.map(obj, function(value, index, list) {
-      return {
-        value: value,
-        index: index,
-        criteria: iteratee(value, index, list)
-      };
-    }).sort(function(left, right) {
-      var a = left.criteria;
-      var b = right.criteria;
-      if (a !== b) {
-        if (a > b || a === void 0) return 1;
-        if (a < b || b === void 0) return -1;
-      }
-      return left.index - right.index;
-    }), 'value');
-  };
-
-  // An internal function used for aggregate "group by" operations.
-  var group = function(behavior) {
-    return function(obj, iteratee, context) {
-      var result = {};
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index) {
-        var key = iteratee(value, index, obj);
-        behavior(result, value, key);
-      });
-      return result;
-    };
-  };
-
-  // Groups the object's values by a criterion. Pass either a string attribute
-  // to group by, or a function that returns the criterion.
-  _.groupBy = group(function(result, value, key) {
-    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
-  });
-
-  // Indexes the object's values by a criterion, similar to `groupBy`, but for
-  // when you know that your index values will be unique.
-  _.indexBy = group(function(result, value, key) {
-    result[key] = value;
-  });
-
-  // Counts instances of an object that group by a certain criterion. Pass
-  // either a string attribute to count by, or a function that returns the
-  // criterion.
-  _.countBy = group(function(result, value, key) {
-    if (_.has(result, key)) result[key]++; else result[key] = 1;
-  });
-
-  // Safely create a real, live array from anything iterable.
-  _.toArray = function(obj) {
-    if (!obj) return [];
-    if (_.isArray(obj)) return slice.call(obj);
-    if (isArrayLike(obj)) return _.map(obj, _.identity);
-    return _.values(obj);
-  };
-
-  // Return the number of elements in an object.
-  _.size = function(obj) {
-    if (obj == null) return 0;
-    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
-  };
-
-  // Split a collection into two arrays: one whose elements all satisfy the given
-  // predicate, and one whose elements all do not satisfy the predicate.
-  _.partition = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var pass = [], fail = [];
-    _.each(obj, function(value, key, obj) {
-      (predicate(value, key, obj) ? pass : fail).push(value);
-    });
-    return [pass, fail];
-  };
-
-  // Array Functions
-  // ---------------
-
-  // Get the first element of an array. Passing **n** will return the first N
-  // values in the array. Aliased as `head` and `take`. The **guard** check
-  // allows it to work with `_.map`.
-  _.first = _.head = _.take = function(array, n, guard) {
-    if (array == null) return void 0;
-    if (n == null || guard) return array[0];
-    return _.initial(array, array.length - n);
-  };
-
-  // Returns everything but the last entry of the array. Especially useful on
-  // the arguments object. Passing **n** will return all the values in
-  // the array, excluding the last N.
-  _.initial = function(array, n, guard) {
-    return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
-  };
-
-  // Get the last element of an array. Passing **n** will return the last N
-  // values in the array.
-  _.last = function(array, n, guard) {
-    if (array == null) return void 0;
-    if (n == null || guard) return array[array.length - 1];
-    return _.rest(array, Math.max(0, array.length - n));
-  };
-
-  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
-  // Especially useful on the arguments object. Passing an **n** will return
-  // the rest N values in the array.
-  _.rest = _.tail = _.drop = function(array, n, guard) {
-    return slice.call(array, n == null || guard ? 1 : n);
-  };
-
-  // Trim out all falsy values from an array.
-  _.compact = function(array) {
-    return _.filter(array, _.identity);
-  };
-
-  // Internal implementation of a recursive `flatten` function.
-  var flatten = function(input, shallow, strict, startIndex) {
-    var output = [], idx = 0;
-    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
-      var value = input[i];
-      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
-        //flatten current level of array or arguments object
-        if (!shallow) value = flatten(value, shallow, strict);
-        var j = 0, len = value.length;
-        output.length += len;
-        while (j < len) {
-          output[idx++] = value[j++];
-        }
-      } else if (!strict) {
-        output[idx++] = value;
-      }
-    }
-    return output;
-  };
-
-  // Flatten out an array, either recursively (by default), or just one level.
-  _.flatten = function(array, shallow) {
-    return flatten(array, shallow, false);
-  };
-
-  // Return a version of the array that does not contain the specified value(s).
-  _.without = function(array) {
-    return _.difference(array, slice.call(arguments, 1));
-  };
-
-  // Produce a duplicate-free version of the array. If the array has already
-  // been sorted, you have the option of using a faster algorithm.
-  // Aliased as `unique`.
-  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
-    if (!_.isBoolean(isSorted)) {
-      context = iteratee;
-      iteratee = isSorted;
-      isSorted = false;
-    }
-    if (iteratee != null) iteratee = cb(iteratee, context);
-    var result = [];
-    var seen = [];
-    for (var i = 0, length = getLength(array); i < length; i++) {
-      var value = array[i],
-          computed = iteratee ? iteratee(value, i, array) : value;
-      if (isSorted) {
-        if (!i || seen !== computed) result.push(value);
-        seen = computed;
-      } else if (iteratee) {
-        if (!_.contains(seen, computed)) {
-          seen.push(computed);
-          result.push(value);
-        }
-      } else if (!_.contains(result, value)) {
-        result.push(value);
-      }
-    }
-    return result;
-  };
-
-  // Produce an array that contains the union: each distinct element from all of
-  // the passed-in arrays.
-  _.union = function() {
-    return _.uniq(flatten(arguments, true, true));
-  };
-
-  // Produce an array that contains every item shared between all the
-  // passed-in arrays.
-  _.intersection = function(array) {
-    var result = [];
-    var argsLength = arguments.length;
-    for (var i = 0, length = getLength(array); i < length; i++) {
-      var item = array[i];
-      if (_.contains(result, item)) continue;
-      for (var j = 1; j < argsLength; j++) {
-        if (!_.contains(arguments[j], item)) break;
-      }
-      if (j === argsLength) result.push(item);
-    }
-    return result;
-  };
-
-  // Take the difference between one array and a number of other arrays.
-  // Only the elements present in just the first array will remain.
-  _.difference = function(array) {
-    var rest = flatten(arguments, true, true, 1);
-    return _.filter(array, function(value){
-      return !_.contains(rest, value);
-    });
-  };
-
-  // Zip together multiple lists into a single array -- elements that share
-  // an index go together.
-  _.zip = function() {
-    return _.unzip(arguments);
-  };
-
-  // Complement of _.zip. Unzip accepts an array of arrays and groups
-  // each array's elements on shared indices
-  _.unzip = function(array) {
-    var length = array && _.max(array, getLength).length || 0;
-    var result = Array(length);
-
-    for (var index = 0; index < length; index++) {
-      result[index] = _.pluck(array, index);
-    }
-    return result;
-  };
-
-  // Converts lists into objects. Pass either a single array of `[key, value]`
-  // pairs, or two parallel arrays of the same length -- one of keys, and one of
-  // the corresponding values.
-  _.object = function(list, values) {
-    var result = {};
-    for (var i = 0, length = getLength(list); i < length; i++) {
-      if (values) {
-        result[list[i]] = values[i];
-      } else {
-        result[list[i][0]] = list[i][1];
-      }
-    }
-    return result;
-  };
-
-  // Generator function to create the findIndex and findLastIndex functions
-  function createPredicateIndexFinder(dir) {
-    return function(array, predicate, context) {
-      predicate = cb(predicate, context);
-      var length = getLength(array);
-      var index = dir > 0 ? 0 : length - 1;
-      for (; index >= 0 && index < length; index += dir) {
-        if (predicate(array[index], index, array)) return index;
-      }
-      return -1;
-    };
-  }
-
-  // Returns the first index on an array-like that passes a predicate test
-  _.findIndex = createPredicateIndexFinder(1);
-  _.findLastIndex = createPredicateIndexFinder(-1);
-
-  // Use a comparator function to figure out the smallest index at which
-  // an object should be inserted so as to maintain order. Uses binary search.
-  _.sortedIndex = function(array, obj, iteratee, context) {
-    iteratee = cb(iteratee, context, 1);
-    var value = iteratee(obj);
-    var low = 0, high = getLength(array);
-    while (low < high) {
-      var mid = Math.floor((low + high) / 2);
-      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
-    }
-    return low;
-  };
-
-  // Generator function to create the indexOf and lastIndexOf functions
-  function createIndexFinder(dir, predicateFind, sortedIndex) {
-    return function(array, item, idx) {
-      var i = 0, length = getLength(array);
-      if (typeof idx == 'number') {
-        if (dir > 0) {
-            i = idx >= 0 ? idx : Math.max(idx + length, i);
+      // Update right vertex.
+      if (utils.triarea2(portalApex, portalRight, right) <= 0.0) {
+        if (utils.vequal(portalApex, portalRight) || utils.triarea2(portalApex, portalLeft, right) > 0.0) {
+          // Tighten the funnel.
+          portalRight = right;
+          rightIndex = i;
         } else {
-            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
-        }
-      } else if (sortedIndex && idx && length) {
-        idx = sortedIndex(array, item);
-        return array[idx] === item ? idx : -1;
-      }
-      if (item !== item) {
-        idx = predicateFind(slice.call(array, i, length), _.isNaN);
-        return idx >= 0 ? idx + i : -1;
-      }
-      for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) {
-        if (array[idx] === item) return idx;
-      }
-      return -1;
-    };
-  }
-
-  // Return the position of the first occurrence of an item in an array,
-  // or -1 if the item is not included in the array.
-  // If the array is large and already in sort order, pass `true`
-  // for **isSorted** to use binary search.
-  _.indexOf = createIndexFinder(1, _.findIndex, _.sortedIndex);
-  _.lastIndexOf = createIndexFinder(-1, _.findLastIndex);
-
-  // Generate an integer Array containing an arithmetic progression. A port of
-  // the native Python `range()` function. See
-  // [the Python documentation](http://docs.python.org/library/functions.html#range).
-  _.range = function(start, stop, step) {
-    if (stop == null) {
-      stop = start || 0;
-      start = 0;
-    }
-    step = step || 1;
-
-    var length = Math.max(Math.ceil((stop - start) / step), 0);
-    var range = Array(length);
-
-    for (var idx = 0; idx < length; idx++, start += step) {
-      range[idx] = start;
-    }
-
-    return range;
-  };
-
-  // Function (ahem) Functions
-  // ------------------
-
-  // Determines whether to execute a function as a constructor
-  // or a normal function with the provided arguments
-  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
-    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
-    var self = baseCreate(sourceFunc.prototype);
-    var result = sourceFunc.apply(self, args);
-    if (_.isObject(result)) return result;
-    return self;
-  };
-
-  // Create a function bound to a given object (assigning `this`, and arguments,
-  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
-  // available.
-  _.bind = function(func, context) {
-    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
-    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
-    var args = slice.call(arguments, 2);
-    var bound = function() {
-      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
-    };
-    return bound;
-  };
-
-  // Partially apply a function by creating a version that has had some of its
-  // arguments pre-filled, without changing its dynamic `this` context. _ acts
-  // as a placeholder, allowing any combination of arguments to be pre-filled.
-  _.partial = function(func) {
-    var boundArgs = slice.call(arguments, 1);
-    var bound = function() {
-      var position = 0, length = boundArgs.length;
-      var args = Array(length);
-      for (var i = 0; i < length; i++) {
-        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
-      }
-      while (position < arguments.length) args.push(arguments[position++]);
-      return executeBound(func, bound, this, this, args);
-    };
-    return bound;
-  };
-
-  // Bind a number of an object's methods to that object. Remaining arguments
-  // are the method names to be bound. Useful for ensuring that all callbacks
-  // defined on an object belong to it.
-  _.bindAll = function(obj) {
-    var i, length = arguments.length, key;
-    if (length <= 1) throw new Error('bindAll must be passed function names');
-    for (i = 1; i < length; i++) {
-      key = arguments[i];
-      obj[key] = _.bind(obj[key], obj);
-    }
-    return obj;
-  };
-
-  // Memoize an expensive function by storing its results.
-  _.memoize = function(func, hasher) {
-    var memoize = function(key) {
-      var cache = memoize.cache;
-      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
-      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
-      return cache[address];
-    };
-    memoize.cache = {};
-    return memoize;
-  };
-
-  // Delays a function for the given number of milliseconds, and then calls
-  // it with the arguments supplied.
-  _.delay = function(func, wait) {
-    var args = slice.call(arguments, 2);
-    return setTimeout(function(){
-      return func.apply(null, args);
-    }, wait);
-  };
-
-  // Defers a function, scheduling it to run after the current call stack has
-  // cleared.
-  _.defer = _.partial(_.delay, _, 1);
-
-  // Returns a function, that, when invoked, will only be triggered at most once
-  // during a given window of time. Normally, the throttled function will run
-  // as much as it can, without ever going more than once per `wait` duration;
-  // but if you'd like to disable the execution on the leading edge, pass
-  // `{leading: false}`. To disable execution on the trailing edge, ditto.
-  _.throttle = function(func, wait, options) {
-    var context, args, result;
-    var timeout = null;
-    var previous = 0;
-    if (!options) options = {};
-    var later = function() {
-      previous = options.leading === false ? 0 : _.now();
-      timeout = null;
-      result = func.apply(context, args);
-      if (!timeout) context = args = null;
-    };
-    return function() {
-      var now = _.now();
-      if (!previous && options.leading === false) previous = now;
-      var remaining = wait - (now - previous);
-      context = this;
-      args = arguments;
-      if (remaining <= 0 || remaining > wait) {
-        if (timeout) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        previous = now;
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
-      } else if (!timeout && options.trailing !== false) {
-        timeout = setTimeout(later, remaining);
-      }
-      return result;
-    };
-  };
-
-  // Returns a function, that, as long as it continues to be invoked, will not
-  // be triggered. The function will be called after it stops being called for
-  // N milliseconds. If `immediate` is passed, trigger the function on the
-  // leading edge, instead of the trailing.
-  _.debounce = function(func, wait, immediate) {
-    var timeout, args, context, timestamp, result;
-
-    var later = function() {
-      var last = _.now() - timestamp;
-
-      if (last < wait && last >= 0) {
-        timeout = setTimeout(later, wait - last);
-      } else {
-        timeout = null;
-        if (!immediate) {
-          result = func.apply(context, args);
-          if (!timeout) context = args = null;
-        }
-      }
-    };
-
-    return function() {
-      context = this;
-      args = arguments;
-      timestamp = _.now();
-      var callNow = immediate && !timeout;
-      if (!timeout) timeout = setTimeout(later, wait);
-      if (callNow) {
-        result = func.apply(context, args);
-        context = args = null;
-      }
-
-      return result;
-    };
-  };
-
-  // Returns the first function passed as an argument to the second,
-  // allowing you to adjust arguments, run code before and after, and
-  // conditionally execute the original function.
-  _.wrap = function(func, wrapper) {
-    return _.partial(wrapper, func);
-  };
-
-  // Returns a negated version of the passed-in predicate.
-  _.negate = function(predicate) {
-    return function() {
-      return !predicate.apply(this, arguments);
-    };
-  };
-
-  // Returns a function that is the composition of a list of functions, each
-  // consuming the return value of the function that follows.
-  _.compose = function() {
-    var args = arguments;
-    var start = args.length - 1;
-    return function() {
-      var i = start;
-      var result = args[start].apply(this, arguments);
-      while (i--) result = args[i].call(this, result);
-      return result;
-    };
-  };
-
-  // Returns a function that will only be executed on and after the Nth call.
-  _.after = function(times, func) {
-    return function() {
-      if (--times < 1) {
-        return func.apply(this, arguments);
-      }
-    };
-  };
-
-  // Returns a function that will only be executed up to (but not including) the Nth call.
-  _.before = function(times, func) {
-    var memo;
-    return function() {
-      if (--times > 0) {
-        memo = func.apply(this, arguments);
-      }
-      if (times <= 1) func = null;
-      return memo;
-    };
-  };
-
-  // Returns a function that will be executed at most one time, no matter how
-  // often you call it. Useful for lazy initialization.
-  _.once = _.partial(_.before, 2);
-
-  // Object Functions
-  // ----------------
-
-  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
-  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
-                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
-
-  function collectNonEnumProps(obj, keys) {
-    var nonEnumIdx = nonEnumerableProps.length;
-    var constructor = obj.constructor;
-    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
-
-    // Constructor is a special case.
-    var prop = 'constructor';
-    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
-
-    while (nonEnumIdx--) {
-      prop = nonEnumerableProps[nonEnumIdx];
-      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
-        keys.push(prop);
-      }
-    }
-  }
-
-  // Retrieve the names of an object's own properties.
-  // Delegates to **ECMAScript 5**'s native `Object.keys`
-  _.keys = function(obj) {
-    if (!_.isObject(obj)) return [];
-    if (nativeKeys) return nativeKeys(obj);
-    var keys = [];
-    for (var key in obj) if (_.has(obj, key)) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
-    return keys;
-  };
-
-  // Retrieve all the property names of an object.
-  _.allKeys = function(obj) {
-    if (!_.isObject(obj)) return [];
-    var keys = [];
-    for (var key in obj) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
-    return keys;
-  };
-
-  // Retrieve the values of an object's properties.
-  _.values = function(obj) {
-    var keys = _.keys(obj);
-    var length = keys.length;
-    var values = Array(length);
-    for (var i = 0; i < length; i++) {
-      values[i] = obj[keys[i]];
-    }
-    return values;
-  };
-
-  // Returns the results of applying the iteratee to each element of the object
-  // In contrast to _.map it returns an object
-  _.mapObject = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    var keys =  _.keys(obj),
-          length = keys.length,
-          results = {},
-          currentKey;
-      for (var index = 0; index < length; index++) {
-        currentKey = keys[index];
-        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
-      }
-      return results;
-  };
-
-  // Convert an object into a list of `[key, value]` pairs.
-  _.pairs = function(obj) {
-    var keys = _.keys(obj);
-    var length = keys.length;
-    var pairs = Array(length);
-    for (var i = 0; i < length; i++) {
-      pairs[i] = [keys[i], obj[keys[i]]];
-    }
-    return pairs;
-  };
-
-  // Invert the keys and values of an object. The values must be serializable.
-  _.invert = function(obj) {
-    var result = {};
-    var keys = _.keys(obj);
-    for (var i = 0, length = keys.length; i < length; i++) {
-      result[obj[keys[i]]] = keys[i];
-    }
-    return result;
-  };
-
-  // Return a sorted list of the function names available on the object.
-  // Aliased as `methods`
-  _.functions = _.methods = function(obj) {
-    var names = [];
-    for (var key in obj) {
-      if (_.isFunction(obj[key])) names.push(key);
-    }
-    return names.sort();
-  };
-
-  // Extend a given object with all the properties in passed-in object(s).
-  _.extend = createAssigner(_.allKeys);
-
-  // Assigns a given object with all the own properties in the passed-in object(s)
-  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
-  _.extendOwn = _.assign = createAssigner(_.keys);
-
-  // Returns the first key on an object that passes a predicate test
-  _.findKey = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = _.keys(obj), key;
-    for (var i = 0, length = keys.length; i < length; i++) {
-      key = keys[i];
-      if (predicate(obj[key], key, obj)) return key;
-    }
-  };
-
-  // Return a copy of the object only containing the whitelisted properties.
-  _.pick = function(object, oiteratee, context) {
-    var result = {}, obj = object, iteratee, keys;
-    if (obj == null) return result;
-    if (_.isFunction(oiteratee)) {
-      keys = _.allKeys(obj);
-      iteratee = optimizeCb(oiteratee, context);
-    } else {
-      keys = flatten(arguments, false, false, 1);
-      iteratee = function(value, key, obj) { return key in obj; };
-      obj = Object(obj);
-    }
-    for (var i = 0, length = keys.length; i < length; i++) {
-      var key = keys[i];
-      var value = obj[key];
-      if (iteratee(value, key, obj)) result[key] = value;
-    }
-    return result;
-  };
-
-   // Return a copy of the object without the blacklisted properties.
-  _.omit = function(obj, iteratee, context) {
-    if (_.isFunction(iteratee)) {
-      iteratee = _.negate(iteratee);
-    } else {
-      var keys = _.map(flatten(arguments, false, false, 1), String);
-      iteratee = function(value, key) {
-        return !_.contains(keys, key);
-      };
-    }
-    return _.pick(obj, iteratee, context);
-  };
-
-  // Fill in a given object with default properties.
-  _.defaults = createAssigner(_.allKeys, true);
-
-  // Creates an object that inherits from the given prototype object.
-  // If additional properties are provided then they will be added to the
-  // created object.
-  _.create = function(prototype, props) {
-    var result = baseCreate(prototype);
-    if (props) _.extendOwn(result, props);
-    return result;
-  };
-
-  // Create a (shallow-cloned) duplicate of an object.
-  _.clone = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
-  };
-
-  // Invokes interceptor with the obj, and then returns obj.
-  // The primary purpose of this method is to "tap into" a method chain, in
-  // order to perform operations on intermediate results within the chain.
-  _.tap = function(obj, interceptor) {
-    interceptor(obj);
-    return obj;
-  };
-
-  // Returns whether an object has a given set of `key:value` pairs.
-  _.isMatch = function(object, attrs) {
-    var keys = _.keys(attrs), length = keys.length;
-    if (object == null) return !length;
-    var obj = Object(object);
-    for (var i = 0; i < length; i++) {
-      var key = keys[i];
-      if (attrs[key] !== obj[key] || !(key in obj)) return false;
-    }
-    return true;
-  };
-
-
-  // Internal recursive comparison function for `isEqual`.
-  var eq = function(a, b, aStack, bStack) {
-    // Identical objects are equal. `0 === -0`, but they aren't identical.
-    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
-    if (a === b) return a !== 0 || 1 / a === 1 / b;
-    // A strict comparison is necessary because `null == undefined`.
-    if (a == null || b == null) return a === b;
-    // Unwrap any wrapped objects.
-    if (a instanceof _) a = a._wrapped;
-    if (b instanceof _) b = b._wrapped;
-    // Compare `[[Class]]` names.
-    var className = toString.call(a);
-    if (className !== toString.call(b)) return false;
-    switch (className) {
-      // Strings, numbers, regular expressions, dates, and booleans are compared by value.
-      case '[object RegExp]':
-      // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
-      case '[object String]':
-        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
-        // equivalent to `new String("5")`.
-        return '' + a === '' + b;
-      case '[object Number]':
-        // `NaN`s are equivalent, but non-reflexive.
-        // Object(NaN) is equivalent to NaN
-        if (+a !== +a) return +b !== +b;
-        // An `egal` comparison is performed for other numeric values.
-        return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-      case '[object Date]':
-      case '[object Boolean]':
-        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
-        // millisecond representations. Note that invalid dates with millisecond representations
-        // of `NaN` are not equivalent.
-        return +a === +b;
-    }
-
-    var areArrays = className === '[object Array]';
-    if (!areArrays) {
-      if (typeof a != 'object' || typeof b != 'object') return false;
-
-      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
-      // from different frames are.
-      var aCtor = a.constructor, bCtor = b.constructor;
-      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
-                               _.isFunction(bCtor) && bCtor instanceof bCtor)
-                          && ('constructor' in a && 'constructor' in b)) {
-        return false;
-      }
-    }
-    // Assume equality for cyclic structures. The algorithm for detecting cyclic
-    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-
-    // Initializing stack of traversed objects.
-    // It's done here since we only need them for objects and arrays comparison.
-    aStack = aStack || [];
-    bStack = bStack || [];
-    var length = aStack.length;
-    while (length--) {
-      // Linear search. Performance is inversely proportional to the number of
-      // unique nested structures.
-      if (aStack[length] === a) return bStack[length] === b;
-    }
-
-    // Add the first object to the stack of traversed objects.
-    aStack.push(a);
-    bStack.push(b);
-
-    // Recursively compare objects and arrays.
-    if (areArrays) {
-      // Compare array lengths to determine if a deep comparison is necessary.
-      length = a.length;
-      if (length !== b.length) return false;
-      // Deep compare the contents, ignoring non-numeric properties.
-      while (length--) {
-        if (!eq(a[length], b[length], aStack, bStack)) return false;
-      }
-    } else {
-      // Deep compare objects.
-      var keys = _.keys(a), key;
-      length = keys.length;
-      // Ensure that both objects contain the same number of properties before comparing deep equality.
-      if (_.keys(b).length !== length) return false;
-      while (length--) {
-        // Deep compare each member
-        key = keys[length];
-        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
-      }
-    }
-    // Remove the first object from the stack of traversed objects.
-    aStack.pop();
-    bStack.pop();
-    return true;
-  };
-
-  // Perform a deep comparison to check if two objects are equal.
-  _.isEqual = function(a, b) {
-    return eq(a, b);
-  };
-
-  // Is a given array, string, or object empty?
-  // An "empty" object has no enumerable own-properties.
-  _.isEmpty = function(obj) {
-    if (obj == null) return true;
-    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
-    return _.keys(obj).length === 0;
-  };
-
-  // Is a given value a DOM element?
-  _.isElement = function(obj) {
-    return !!(obj && obj.nodeType === 1);
-  };
-
-  // Is a given value an array?
-  // Delegates to ECMA5's native Array.isArray
-  _.isArray = nativeIsArray || function(obj) {
-    return toString.call(obj) === '[object Array]';
-  };
-
-  // Is a given variable an object?
-  _.isObject = function(obj) {
-    var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-  };
-
-  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
-  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
-    _['is' + name] = function(obj) {
-      return toString.call(obj) === '[object ' + name + ']';
-    };
-  });
-
-  // Define a fallback version of the method in browsers (ahem, IE < 9), where
-  // there isn't any inspectable "Arguments" type.
-  if (!_.isArguments(arguments)) {
-    _.isArguments = function(obj) {
-      return _.has(obj, 'callee');
-    };
-  }
-
-  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
-  // IE 11 (#1621), and in Safari 8 (#1929).
-  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
-    _.isFunction = function(obj) {
-      return typeof obj == 'function' || false;
-    };
-  }
-
-  // Is a given object a finite number?
-  _.isFinite = function(obj) {
-    return isFinite(obj) && !isNaN(parseFloat(obj));
-  };
-
-  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
-  _.isNaN = function(obj) {
-    return _.isNumber(obj) && obj !== +obj;
-  };
-
-  // Is a given value a boolean?
-  _.isBoolean = function(obj) {
-    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
-  };
-
-  // Is a given value equal to null?
-  _.isNull = function(obj) {
-    return obj === null;
-  };
-
-  // Is a given variable undefined?
-  _.isUndefined = function(obj) {
-    return obj === void 0;
-  };
-
-  // Shortcut function for checking if an object has a given property directly
-  // on itself (in other words, not on a prototype).
-  _.has = function(obj, key) {
-    return obj != null && hasOwnProperty.call(obj, key);
-  };
-
-  // Utility Functions
-  // -----------------
-
-  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
-  // previous owner. Returns a reference to the Underscore object.
-  _.noConflict = function() {
-    root._ = previousUnderscore;
-    return this;
-  };
-
-  // Keep the identity function around for default iteratees.
-  _.identity = function(value) {
-    return value;
-  };
-
-  // Predicate-generating functions. Often useful outside of Underscore.
-  _.constant = function(value) {
-    return function() {
-      return value;
-    };
-  };
-
-  _.noop = function(){};
-
-  _.property = property;
-
-  // Generates a function for a given object that returns a given property.
-  _.propertyOf = function(obj) {
-    return obj == null ? function(){} : function(key) {
-      return obj[key];
-    };
-  };
-
-  // Returns a predicate for checking whether an object has a given set of
-  // `key:value` pairs.
-  _.matcher = _.matches = function(attrs) {
-    attrs = _.extendOwn({}, attrs);
-    return function(obj) {
-      return _.isMatch(obj, attrs);
-    };
-  };
-
-  // Run a function **n** times.
-  _.times = function(n, iteratee, context) {
-    var accum = Array(Math.max(0, n));
-    iteratee = optimizeCb(iteratee, context, 1);
-    for (var i = 0; i < n; i++) accum[i] = iteratee(i);
-    return accum;
-  };
-
-  // Return a random integer between min and max (inclusive).
-  _.random = function(min, max) {
-    if (max == null) {
-      max = min;
-      min = 0;
-    }
-    return min + Math.floor(Math.random() * (max - min + 1));
-  };
-
-  // A (possibly faster) way to get the current timestamp as an integer.
-  _.now = Date.now || function() {
-    return new Date().getTime();
-  };
-
-   // List of HTML entities for escaping.
-  var escapeMap = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;',
-    '`': '&#x60;'
-  };
-  var unescapeMap = _.invert(escapeMap);
-
-  // Functions for escaping and unescaping strings to/from HTML interpolation.
-  var createEscaper = function(map) {
-    var escaper = function(match) {
-      return map[match];
-    };
-    // Regexes for identifying a key that needs to be escaped
-    var source = '(?:' + _.keys(map).join('|') + ')';
-    var testRegexp = RegExp(source);
-    var replaceRegexp = RegExp(source, 'g');
-    return function(string) {
-      string = string == null ? '' : '' + string;
-      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
-    };
-  };
-  _.escape = createEscaper(escapeMap);
-  _.unescape = createEscaper(unescapeMap);
-
-  // If the value of the named `property` is a function then invoke it with the
-  // `object` as context; otherwise, return it.
-  _.result = function(object, property, fallback) {
-    var value = object == null ? void 0 : object[property];
-    if (value === void 0) {
-      value = fallback;
-    }
-    return _.isFunction(value) ? value.call(object) : value;
-  };
-
-  // Generate a unique integer id (unique within the entire client session).
-  // Useful for temporary DOM ids.
-  var idCounter = 0;
-  _.uniqueId = function(prefix) {
-    var id = ++idCounter + '';
-    return prefix ? prefix + id : id;
-  };
-
-  // By default, Underscore uses ERB-style template delimiters, change the
-  // following template settings to use alternative delimiters.
-  _.templateSettings = {
-    evaluate    : /<%([\s\S]+?)%>/g,
-    interpolate : /<%=([\s\S]+?)%>/g,
-    escape      : /<%-([\s\S]+?)%>/g
-  };
-
-  // When customizing `templateSettings`, if you don't want to define an
-  // interpolation, evaluation or escaping regex, we need one that is
-  // guaranteed not to match.
-  var noMatch = /(.)^/;
-
-  // Certain characters need to be escaped so that they can be put into a
-  // string literal.
-  var escapes = {
-    "'":      "'",
-    '\\':     '\\',
-    '\r':     'r',
-    '\n':     'n',
-    '\u2028': 'u2028',
-    '\u2029': 'u2029'
-  };
-
-  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
-
-  var escapeChar = function(match) {
-    return '\\' + escapes[match];
-  };
-
-  // JavaScript micro-templating, similar to John Resig's implementation.
-  // Underscore templating handles arbitrary delimiters, preserves whitespace,
-  // and correctly escapes quotes within interpolated code.
-  // NB: `oldSettings` only exists for backwards compatibility.
-  _.template = function(text, settings, oldSettings) {
-    if (!settings && oldSettings) settings = oldSettings;
-    settings = _.defaults({}, settings, _.templateSettings);
-
-    // Combine delimiters into one regular expression via alternation.
-    var matcher = RegExp([
-      (settings.escape || noMatch).source,
-      (settings.interpolate || noMatch).source,
-      (settings.evaluate || noMatch).source
-    ].join('|') + '|$', 'g');
-
-    // Compile the template source, escaping string literals appropriately.
-    var index = 0;
-    var source = "__p+='";
-    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
-      source += text.slice(index, offset).replace(escaper, escapeChar);
-      index = offset + match.length;
-
-      if (escape) {
-        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
-      } else if (interpolate) {
-        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
-      } else if (evaluate) {
-        source += "';\n" + evaluate + "\n__p+='";
-      }
-
-      // Adobe VMs need the match returned to produce the correct offest.
-      return match;
-    });
-    source += "';\n";
-
-    // If a variable is not specified, place data values in local scope.
-    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
-
-    source = "var __t,__p='',__j=Array.prototype.join," +
-      "print=function(){__p+=__j.call(arguments,'');};\n" +
-      source + 'return __p;\n';
-
-    try {
-      var render = new Function(settings.variable || 'obj', '_', source);
-    } catch (e) {
-      e.source = source;
-      throw e;
-    }
-
-    var template = function(data) {
-      return render.call(this, data, _);
-    };
-
-    // Provide the compiled source as a convenience for precompilation.
-    var argument = settings.variable || 'obj';
-    template.source = 'function(' + argument + '){\n' + source + '}';
-
-    return template;
-  };
-
-  // Add a "chain" function. Start chaining a wrapped Underscore object.
-  _.chain = function(obj) {
-    var instance = _(obj);
-    instance._chain = true;
-    return instance;
-  };
-
-  // OOP
-  // ---------------
-  // If Underscore is called as a function, it returns a wrapped object that
-  // can be used OO-style. This wrapper holds altered versions of all the
-  // underscore functions. Wrapped objects may be chained.
-
-  // Helper function to continue chaining intermediate results.
-  var result = function(instance, obj) {
-    return instance._chain ? _(obj).chain() : obj;
-  };
-
-  // Add your own custom functions to the Underscore object.
-  _.mixin = function(obj) {
-    _.each(_.functions(obj), function(name) {
-      var func = _[name] = obj[name];
-      _.prototype[name] = function() {
-        var args = [this._wrapped];
-        push.apply(args, arguments);
-        return result(this, func.apply(_, args));
-      };
-    });
-  };
-
-  // Add all of the Underscore functions to the wrapper object.
-  _.mixin(_);
-
-  // Add all mutator Array functions to the wrapper.
-  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
-    var method = ArrayProto[name];
-    _.prototype[name] = function() {
-      var obj = this._wrapped;
-      method.apply(obj, arguments);
-      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
-      return result(this, obj);
-    };
-  });
-
-  // Add all accessor Array functions to the wrapper.
-  _.each(['concat', 'join', 'slice'], function(name) {
-    var method = ArrayProto[name];
-    _.prototype[name] = function() {
-      return result(this, method.apply(this._wrapped, arguments));
-    };
-  });
-
-  // Extracts the result from a wrapped and chained object.
-  _.prototype.value = function() {
-    return this._wrapped;
-  };
-
-  // Provide unwrapping proxy for some methods used in engine operations
-  // such as arithmetic and JSON stringification.
-  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
-
-  _.prototype.toString = function() {
-    return '' + this._wrapped;
-  };
-
-  // AMD registration happens at the end for compatibility with AMD loaders
-  // that may not enforce next-turn semantics on modules. Even though general
-  // practice for AMD registration is to be anonymous, underscore registers
-  // as a named module because, like jQuery, it is a base library that is
-  // popular enough to be bundled in a third party lib, but not be part of
-  // an AMD load request. Those cases could generate an error when an
-  // anonymous define() is called outside of a loader request.
-  if (typeof define === 'function' && define.amd) {
-    define('underscore', [], function() {
-      return _;
-    });
-  }
-}.call(this));
-
-},{}],81:[function(require,module,exports){
-var EPS = 0.1;
-
-module.exports = {
-  schema: {
-    enabled: {default: true},
-    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
-    animateSpeed: {default: 3.0}
-  },
-
-  init: function () {
-    this.active = true;
-    this.checkpoint = null;
-
-    this.offset = new THREE.Vector3();
-    this.position = new THREE.Vector3();
-    this.targetPosition = new THREE.Vector3();
-  },
-
-  play: function () { this.active = true; },
-  pause: function () { this.active = false; },
-
-  setCheckpoint: function (checkpoint) {
-    var el = this.el;
-
-    if (!this.active) return;
-    if (this.checkpoint === checkpoint) return;
-
-    if (this.checkpoint) {
-      el.emit('navigation-end', {checkpoint: checkpoint});
-    }
-
-    this.checkpoint = checkpoint;
-    el.emit('navigation-start', {checkpoint: checkpoint});
-
-    if (this.data.mode === 'teleport') {
-      this.sync();
-      this.el.setAttribute('position', this.targetPosition);
-      this.checkpoint = null;
-      el.emit('navigation-end', {checkpoint: checkpoint});
-    }
-  },
-
-  isVelocityActive: function () {
-    return !!(this.active && this.checkpoint);
-  },
-
-  getVelocity: function () {
-    if (!this.active) return;
-
-    var data = this.data,
-        offset = this.offset,
-        position = this.position,
-        targetPosition = this.targetPosition,
-        checkpoint = this.checkpoint;
-
-    this.sync();
-    if (position.distanceTo(targetPosition) < EPS) {
-      this.checkpoint = null;
-      this.el.emit('navigation-end', {checkpoint: checkpoint});
-      return offset.set(0, 0, 0);
-    }
-    offset.setLength(data.animateSpeed);
-    return offset;
-  },
-
-  sync: function () {
-    var offset = this.offset,
-        position = this.position,
-        targetPosition = this.targetPosition;
-
-    position.copy(this.el.getAttribute('position'));
-    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
-    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
-    offset.copy(targetPosition).sub(position);
-  }
-};
-
-},{}],82:[function(require,module,exports){
-/**
- * Gamepad controls for A-Frame.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
- *
- * For more information about the Gamepad API, see:
- * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
- */
-
-var GamepadButton = require('../../lib/GamepadButton'),
-    GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
-
-var JOYSTICK_EPS = 0.2;
-
-module.exports = {
-
-  /*******************************************************************
-   * Statics
-   */
-
-  GamepadButton: GamepadButton,
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    // Controller 0-3
-    controller:        { default: 0, oneOf: [0, 1, 2, 3] },
-
-    // Enable/disable features
-    enabled:           { default: true },
-
-    // Debugging
-    debug:             { default: false }
-  },
-
-  /*******************************************************************
-   * Core
-   */
-
-  /**
-   * Called once when component is attached. Generally for initial setup.
-   */
-  init: function () {
-    var scene = this.el.sceneEl;
-    this.prevTime = window.performance.now();
-
-    // Button state
-    this.buttons = {};
-
-    scene.addBehavior(this);
-  },
-
-  /**
-   * Called when component is attached and when component data changes.
-   * Generally modifies the entity based on the data.
-   */
-  update: function () { this.tick(); },
-
-  /**
-   * Called on each iteration of main render loop.
-   */
-  tick: function () {
-    this.updateButtonState();
-  },
-
-  /**
-   * Called when a component is removed (e.g., via removeAttribute).
-   * Generally undoes all modifications to the entity.
-   */
-  remove: function () { },
-
-  /*******************************************************************
-   * Universal controls - movement
-   */
-
-  isVelocityActive: function () {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    var dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y;
-
-    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
-  },
-
-  getVelocityDelta: function () {
-    var dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y,
-        dVelocity = new THREE.Vector3();
-
-    if (Math.abs(inputX) > JOYSTICK_EPS) {
-      dVelocity.x += inputX;
-    }
-    if (Math.abs(inputY) > JOYSTICK_EPS) {
-      dVelocity.z += inputY;
-    }
-
-    return dVelocity;
-  },
-
-  /*******************************************************************
-   * Universal controls - rotation
-   */
-
-  isRotationActive: function () {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    var joystick1 = this.getJoystick(1);
-
-    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
-  },
-
-  getRotationDelta: function () {
-    var lookVector = this.getJoystick(1);
-    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
-    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
-    return lookVector;
-  },
-
-  /*******************************************************************
-   * Button events
-   */
-
-  updateButtonState: function () {
-    var gamepad = this.getGamepad();
-    if (this.data.enabled && gamepad) {
-
-      // Fire DOM events for button state changes.
-      for (var i = 0; i < gamepad.buttons.length; i++) {
-        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttondown', i, gamepad.buttons[i]));
-        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttonup', i, gamepad.buttons[i]));
-        }
-        this.buttons[i] = gamepad.buttons[i].pressed;
-      }
-
-    } else if (Object.keys(this.buttons)) {
-      // Reset state if controls are disabled or controller is lost.
-      this.buttons = {};
-    }
-  },
-
-  emit: function (event) {
-    // Emit original event.
-    this.el.emit(event.type, event);
-
-    // Emit convenience event, identifying button index.
-    this.el.emit(
-      event.type + ':' + event.index,
-      new GamepadButtonEvent(event.type, event.index, event)
-    );
-  },
-
-  /*******************************************************************
-   * Gamepad state
-   */
-
-  /**
-   * Returns the Gamepad instance attached to the component. If connected,
-   * a proxy-controls component may provide access to Gamepad input from a
-   * remote device.
-   *
-   * @return {Gamepad}
-   */
-  getGamepad: function () {
-    var localGamepad = navigator.getGamepads
-          && navigator.getGamepads()[this.data.controller],
-        proxyControls = this.el.sceneEl.components['proxy-controls'],
-        proxyGamepad = proxyControls && proxyControls.isConnected()
-          && proxyControls.getGamepad(this.data.controller);
-    return proxyGamepad || localGamepad;
-  },
-
-  /**
-   * Returns the state of the given button.
-   * @param  {number} index The button (0-N) for which to find state.
-   * @return {GamepadButton}
-   */
-  getButton: function (index) {
-    return this.getGamepad().buttons[index];
-  },
-
-  /**
-   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
-   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
-   * @param  {number} index The axis (0-N) for which to find state.
-   * @return {number} On the interval [-1,1].
-   */
-  getAxis: function (index) {
-    return this.getGamepad().axes[index];
-  },
-
-  /**
-   * Returns the state of the given joystick (0 or 1) as a THREE.Vector2.
-   * @param  {number} id The joystick (0, 1) for which to find state.
-   * @return {THREE.Vector2}
-   */
-  getJoystick: function (index) {
-    var gamepad = this.getGamepad();
-    switch (index) {
-      case 0: return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
-      case 1: return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
-      default: throw new Error('Unexpected joystick index "%d".', index);
-    }
-  },
-
-  /**
-   * Returns the state of the dpad as a THREE.Vector2.
-   * @return {THREE.Vector2}
-   */
-  getDpad: function () {
-    var gamepad = this.getGamepad();
-    if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
-      return new THREE.Vector2();
-    }
-    return new THREE.Vector2(
-      (gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0)
-      + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0),
-      (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0)
-      + (gamepad.buttons[GamepadButton.DPAD_DOWN].pressed ? 1 : 0)
-    );
-  },
-
-  /**
-   * Returns true if the gamepad is currently connected to the system.
-   * @return {boolean}
-   */
-  isConnected: function () {
-    var gamepad = this.getGamepad();
-    return !!(gamepad && gamepad.connected);
-  },
-
-  /**
-   * Returns a string containing some information about the controller. Result
-   * may vary across browsers, for a given controller.
-   * @return {string}
-   */
-  getID: function () {
-    return this.getGamepad().id;
-  }
-};
-
-},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],83:[function(require,module,exports){
-var radToDeg = THREE.Math.radToDeg,
-    isMobile = AFRAME.utils.device.isMobile();
-
-module.exports = {
-  schema: {
-    enabled: {default: true},
-    standing: {default: true}
-  },
-
-  init: function () {
-    this.isPositionCalibrated = false;
-    this.dolly = new THREE.Object3D();
-    this.hmdEuler = new THREE.Euler();
-    this.previousHMDPosition = new THREE.Vector3();
-    this.deltaHMDPosition = new THREE.Vector3();
-    this.vrControls = new THREE.VRControls(this.dolly);
-    this.rotation = new THREE.Vector3();
-  },
-
-  update: function () {
-    var data = this.data;
-    var vrControls = this.vrControls;
-    vrControls.standing = data.standing;
-    vrControls.update();
-  },
-
-  tick: function () {
-    this.vrControls.update();
-  },
-
-  remove: function () {
-    this.vrControls.dispose();
-  },
-
-  isRotationActive: function () {
-    var hmdEuler = this.hmdEuler;
-    if (!this.data.enabled || !(this.el.sceneEl.is('vr-mode') || isMobile)) {
-      return false;
-    }
-    hmdEuler.setFromQuaternion(this.dolly.quaternion, 'YXZ');
-    return !isNullVector(hmdEuler);
-  },
-
-  getRotation: function () {
-    var hmdEuler = this.hmdEuler;
-    return this.rotation.set(
-      radToDeg(hmdEuler.x),
-      radToDeg(hmdEuler.y),
-      radToDeg(hmdEuler.z)
-    );
-  },
-
-  isVelocityActive: function () {
-    var deltaHMDPosition = this.deltaHMDPosition;
-    var previousHMDPosition = this.previousHMDPosition;
-    var currentHMDPosition = this.calculateHMDPosition();
-    this.isPositionCalibrated = this.isPositionCalibrated || !isNullVector(previousHMDPosition);
-    if (!this.data.enabled || !this.el.sceneEl.is('vr-mode') || isMobile) {
-      return false;
-    }
-    deltaHMDPosition.copy(currentHMDPosition).sub(previousHMDPosition);
-    previousHMDPosition.copy(currentHMDPosition);
-    return this.isPositionCalibrated && !isNullVector(deltaHMDPosition);
-  },
-
-  getPositionDelta: function () {
-    return this.deltaHMDPosition;
-  },
-
-  calculateHMDPosition: function () {
-    var dolly = this.dolly;
-    var position = new THREE.Vector3();
-    dolly.updateMatrix();
-    position.setFromMatrixPosition(dolly.matrix);
-    return position;
-  }
-};
-
-function isNullVector (vector) {
-  return vector.x === 0 && vector.y === 0 && vector.z === 0;
-}
-
-},{}],84:[function(require,module,exports){
-var physics = require('aframe-physics-system');
-
-module.exports = {
-  'checkpoint-controls': require('./checkpoint-controls'),
-  'gamepad-controls':    require('./gamepad-controls'),
-  'hmd-controls':        require('./hmd-controls'),
-  'keyboard-controls':   require('./keyboard-controls'),
-  'mouse-controls':      require('./mouse-controls'),
-  'touch-controls':      require('./touch-controls'),
-  'universal-controls':  require('./universal-controls'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    physics.registerAll();
-    if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
-    if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
-    if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
-    if (!AFRAME.components['keyboard-controls'])    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
-    if (!AFRAME.components['mouse-controls'])       AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
-    if (!AFRAME.components['touch-controls'])       AFRAME.registerComponent('touch-controls',      this['touch-controls']);
-    if (!AFRAME.components['universal-controls'])   AFRAME.registerComponent('universal-controls',  this['universal-controls']);
-
-    this._registered = true;
-  }
-};
-
-},{"./checkpoint-controls":81,"./gamepad-controls":82,"./hmd-controls":83,"./keyboard-controls":85,"./mouse-controls":86,"./touch-controls":87,"./universal-controls":88,"aframe-physics-system":12}],85:[function(require,module,exports){
-require('../../lib/keyboard.polyfill');
-
-var MAX_DELTA = 0.2,
-    PROXY_FLAG = '__keyboard-controls-proxy';
-
-var KeyboardEvent = window.KeyboardEvent;
-
-/**
- * Keyboard Controls component.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
- *
- * Bind keyboard events to components, or control your entities with the WASD keys.
- *
- * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
- * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
- * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
- * when you care about which physical key was pressed, rather thanwhich character it corresponds
- * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
- * player in different directions, and that mapping should ideally be independent of keyboard
- * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
- *
- * @namespace wasd-controls
- * keys the entity moves and if you release it will stop. Easing simulates friction.
- * to the entity when pressing the keys.
- * @param {bool} [enabled=true] - To completely enable or disable the controls
- */
-module.exports = {
-  schema: {
-    enabled:           { default: true },
-    debug:             { default: false }
-  },
-
-  init: function () {
-    this.dVelocity = new THREE.Vector3();
-    this.localKeys = {};
-    this.listeners = {
-      keydown: this.onKeyDown.bind(this),
-      keyup: this.onKeyUp.bind(this),
-      blur: this.onBlur.bind(this)
-    };
-    this.attachEventListeners();
-  },
-
-  /*******************************************************************
-  * Movement
-  */
-
-  isVelocityActive: function () {
-    return this.data.enabled && !!Object.keys(this.getKeys()).length;
-  },
-
-  getVelocityDelta: function () {
-    var data = this.data,
-        keys = this.getKeys();
-
-    this.dVelocity.set(0, 0, 0);
-    if (data.enabled) {
-      if (keys.KeyW || keys.ArrowUp)    { this.dVelocity.z -= 1; }
-      if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
-      if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
-      if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
-    }
-
-    return this.dVelocity.clone();
-  },
-
-  /*******************************************************************
-  * Events
-  */
-
-  play: function () {
-    this.attachEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  attachEventListeners: function () {
-    window.addEventListener('keydown', this.listeners.keydown, false);
-    window.addEventListener('keyup', this.listeners.keyup, false);
-    window.addEventListener('blur', this.listeners.blur, false);
-  },
-
-  removeEventListeners: function () {
-    window.removeEventListener('keydown', this.listeners.keydown);
-    window.removeEventListener('keyup', this.listeners.keyup);
-    window.removeEventListener('blur', this.listeners.blur);
-  },
-
-  onKeyDown: function (event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      this.localKeys[event.code] = true;
-      this.emit(event);
-    }
-  },
-
-  onKeyUp: function (event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      delete this.localKeys[event.code];
-      this.emit(event);
-    }
-  },
-
-  onBlur: function () {
-    for (var code in this.localKeys) {
-      if (this.localKeys.hasOwnProperty(code)) {
-        delete this.localKeys[code];
-      }
-    }
-  },
-
-  emit: function (event) {
-    // TODO - keydown only initially?
-    // TODO - where the f is the spacebar
-
-    // Emit original event.
-    if (PROXY_FLAG in event) {
-      // TODO - Method never triggered.
-      this.el.emit(event.type, event);
-    }
-
-    // Emit convenience event, identifying key.
-    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
-    if (this.data.debug) console.log(event.type + ':' + event.code);
-  },
-
-  /*******************************************************************
-  * Accessors
-  */
-
-  isPressed: function (code) {
-    return code in this.getKeys();
-  },
-
-  getKeys: function () {
-    if (this.isProxied()) {
-      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
-    }
-    return this.localKeys;
-  },
-
-  isProxied: function () {
-    var proxyControls = this.el.sceneEl.components['proxy-controls'];
-    return proxyControls && proxyControls.isConnected();
-  }
-
-};
-
-},{"../../lib/keyboard.polyfill":10}],86:[function(require,module,exports){
-document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
-
-/**
- * Mouse + Pointerlock controls.
- *
- * Based on: https://github.com/aframevr/aframe/pull/1056
- */
-module.exports = {
-  schema: {
-    enabled: { default: true },
-    pointerlockEnabled: { default: true },
-    sensitivity: { default: 1 / 25 }
-  },
-
-  init: function () {
-    this.mouseDown = false;
-    this.pointerLocked = false;
-    this.lookVector = new THREE.Vector2();
-    this.bindMethods();
-  },
-
-  update: function (previousData) {
-    var data = this.data;
-    if (previousData.pointerlockEnabled && !data.pointerlockEnabled && this.pointerLocked) {
-      document.exitPointerLock();
-    }
-  },
-
-  play: function () {
-    this.addEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-    this.lookVector.set(0, 0);
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  bindMethods: function () {
-    this.onMouseDown = this.onMouseDown.bind(this);
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
-    this.onPointerLockChange = this.onPointerLockChange.bind(this);
-    this.onPointerLockChange = this.onPointerLockChange.bind(this);
-    this.onPointerLockChange = this.onPointerLockChange.bind(this);
-  },
-
-  addEventListeners: function () {
-    var sceneEl = this.el.sceneEl;
-    var canvasEl = sceneEl.canvas;
-    var data = this.data;
-
-    if (!canvasEl) {
-      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-      return;
-    }
-
-    canvasEl.addEventListener('mousedown', this.onMouseDown, false);
-    canvasEl.addEventListener('mousemove', this.onMouseMove, false);
-    canvasEl.addEventListener('mouseup', this.onMouseUp, false);
-    canvasEl.addEventListener('mouseout', this.onMouseUp, false);
-
-    if (data.pointerlockEnabled) {
-      document.addEventListener('pointerlockchange', this.onPointerLockChange, false);
-      document.addEventListener('mozpointerlockchange', this.onPointerLockChange, false);
-      document.addEventListener('pointerlockerror', this.onPointerLockError, false);
-    }
-  },
-
-  removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
-    if (canvasEl) {
-      canvasEl.removeEventListener('mousedown', this.onMouseDown, false);
-      canvasEl.removeEventListener('mousemove', this.onMouseMove, false);
-      canvasEl.removeEventListener('mouseup', this.onMouseUp, false);
-      canvasEl.removeEventListener('mouseout', this.onMouseUp, false);
-    }
-    document.removeEventListener('pointerlockchange', this.onPointerLockChange, false);
-    document.removeEventListener('mozpointerlockchange', this.onPointerLockChange, false);
-    document.removeEventListener('pointerlockerror', this.onPointerLockError, false);
-  },
-
-  isRotationActive: function () {
-    return this.data.enabled && (this.mouseDown || this.pointerLocked);
-  },
-
-  /**
-   * Returns the sum of all mouse movement since last call.
-   */
-  getRotationDelta: function () {
-    var dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
-    this.lookVector.set(0, 0);
-    return dRotation;
-  },
-
-  onMouseMove: function (event) {
-    var previousMouseEvent = this.previousMouseEvent;
-
-    if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) {
-      return;
-    }
-
-    var movementX = event.movementX || event.mozMovementX || 0;
-    var movementY = event.movementY || event.mozMovementY || 0;
-
-    if (!this.pointerLocked) {
-      movementX = event.screenX - previousMouseEvent.screenX;
-      movementY = event.screenY - previousMouseEvent.screenY;
-    }
-
-    this.lookVector.x += movementX;
-    this.lookVector.y += movementY;
-
-    this.previousMouseEvent = event;
-  },
-
-  onMouseDown: function (event) {
-    var canvasEl = this.el.sceneEl.canvas,
-        isEditing = (AFRAME.INSPECTOR || {}).opened;
-
-    this.mouseDown = true;
-    this.previousMouseEvent = event;
-
-    if (this.data.pointerlockEnabled && !this.pointerLocked && !isEditing) {
-      if (canvasEl.requestPointerLock) {
-        canvasEl.requestPointerLock();
-      } else if (canvasEl.mozRequestPointerLock) {
-        canvasEl.mozRequestPointerLock();
-      }
-    }
-  },
-
-  onMouseUp: function () {
-    this.mouseDown = false;
-  },
-
-  onPointerLockChange: function () {
-    this.pointerLocked = !!(document.pointerLockElement || document.mozPointerLockElement);
-  },
-
-  onPointerLockError: function () {
-    this.pointerLocked = false;
-  }
-};
-
-},{}],87:[function(require,module,exports){
-module.exports = {
-  schema: {
-    enabled: { default: true }
-  },
-
-  init: function () {
-    this.dVelocity = new THREE.Vector3();
-    this.bindMethods();
-  },
-
-  play: function () {
-    this.addEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-    this.dVelocity.set(0, 0, 0);
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  addEventListeners: function () {
-    var sceneEl = this.el.sceneEl;
-    var canvasEl = sceneEl.canvas;
-
-    if (!canvasEl) {
-      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-      return;
-    }
-
-    canvasEl.addEventListener('touchstart', this.onTouchStart);
-    canvasEl.addEventListener('touchend', this.onTouchEnd);
-  },
-
-  removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
-    if (!canvasEl) { return; }
-
-    canvasEl.removeEventListener('touchstart', this.onTouchStart);
-    canvasEl.removeEventListener('touchend', this.onTouchEnd);
-  },
-
-  isVelocityActive: function () {
-    return this.data.enabled && this.isMoving;
-  },
-
-  getVelocityDelta: function () {
-    this.dVelocity.z = this.isMoving ? -1 : 0;
-    return this.dVelocity.clone();
-  },
-
-  bindMethods: function () {
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-  },
-
-  onTouchStart: function (e) {
-    this.isMoving = true;
-    e.preventDefault();
-  },
-
-  onTouchEnd: function (e) {
-    this.isMoving = false;
-    e.preventDefault();
-  }
-};
-
-},{}],88:[function(require,module,exports){
-/**
- * Universal Controls
- *
- * @author Don McCurdy <dm@donmccurdy.com>
- */
-
-var COMPONENT_SUFFIX = '-controls',
-    MAX_DELTA = 0.2, // ms
-    PI_2 = Math.PI / 2;
-
-module.exports = {
-
-  /*******************************************************************
-   * Schema
-   */
-
-  dependencies: ['velocity', 'rotation'],
-
-  schema: {
-    enabled:              { default: true },
-    movementEnabled:      { default: true },
-    movementControls:     { default: ['gamepad', 'keyboard', 'touch', 'hmd'] },
-    rotationEnabled:      { default: true },
-    rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
-    movementSpeed:        { default: 5 }, // m/s
-    movementEasing:       { default: 15 }, // m/s2
-    movementEasingY:      { default: 0  }, // m/s2
-    movementAcceleration: { default: 80 }, // m/s2
-    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
-    fly:                  { default: false },
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function () {
-    var rotation = this.el.getAttribute('rotation');
-
-    if (this.el.hasAttribute('look-controls') && this.data.rotationEnabled) {
-      console.error('[universal-controls] The `universal-controls` component is a replacement '
-        + 'for `look-controls`, and cannot be used in combination with it.');
-    }
-
-    // Movement
-    this.velocity = new THREE.Vector3();
-
-    // Rotation
-    this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
-    this.yaw = new THREE.Object3D();
-    this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
-    this.yaw.add(this.pitch);
-    this.heading = new THREE.Euler(0, 0, 0, 'YXZ');
-
-    if (this.el.sceneEl.hasLoaded) {
-      this.injectControls();
-    } else {
-      this.el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
-    }
-  },
-
-  update: function () {
-    if (this.el.sceneEl.hasLoaded) {
-      this.injectControls();
-    }
-  },
-
-  injectControls: function () {
-    var i, name,
-        data = this.data;
-
-    for (i = 0; i < data.movementControls.length; i++) {
-      name = data.movementControls[i] + COMPONENT_SUFFIX;
-      if (!this.el.components[name]) {
-        this.el.setAttribute(name, '');
-      }
-    }
-
-    for (i = 0; i < data.rotationControls.length; i++) {
-      name = data.rotationControls[i] + COMPONENT_SUFFIX;
-      if (!this.el.components[name]) {
-        this.el.setAttribute(name, '');
-      }
-    }
-  },
-
-  /*******************************************************************
-   * Tick
-   */
-
-  tick: function (t, dt) {
-    if (!dt) { return; }
-
-    // Update rotation.
-    if (this.data.rotationEnabled) this.updateRotation(dt);
-
-    // Update velocity. If FPS is too low, reset.
-    if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
-      this.velocity.set(0, 0, 0);
-      this.el.setAttribute('velocity', this.velocity);
-    } else {
-      this.updateVelocity(dt);
-    }
-  },
-
-  /*******************************************************************
-   * Rotation
-   */
-
-  updateRotation: function (dt) {
-    var control, dRotation,
-        data = this.data;
-
-    for (var i = 0, l = data.rotationControls.length; i < l; i++) {
-      control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
-      if (control && control.isRotationActive()) {
-        if (control.getRotationDelta) {
-          dRotation = control.getRotationDelta(dt);
-          dRotation.multiplyScalar(data.rotationSensitivity);
-          this.yaw.rotation.y -= dRotation.x;
-          this.pitch.rotation.x -= dRotation.y;
-          this.pitch.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitch.rotation.x));
-          this.el.setAttribute('rotation', {
-            x: THREE.Math.radToDeg(this.pitch.rotation.x),
-            y: THREE.Math.radToDeg(this.yaw.rotation.y),
-            z: 0
-          });
-        } else if (control.getRotation) {
-          this.el.setAttribute('rotation', control.getRotation());
-        } else {
-          throw new Error('Incompatible rotation controls: %s', data.rotationControls[i]);
-        }
-        break;
-      }
-    }
-  },
-
-  /*******************************************************************
-   * Movement
-   */
-
-  updateVelocity: function (dt) {
-    var control, dVelocity,
-        velocity = this.velocity,
-        data = this.data;
-
-    if (data.movementEnabled) {
-      for (var i = 0, l = data.movementControls.length; i < l; i++) {
-        control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
-        if (control && control.isVelocityActive()) {
-          if (control.getVelocityDelta) {
-            dVelocity = control.getVelocityDelta(dt);
-          } else if (control.getVelocity) {
-            this.el.setAttribute('velocity', control.getVelocity());
-            return;
-          } else if (control.getPositionDelta) {
-            velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
-            this.el.setAttribute('velocity', velocity);
-            return;
-          } else {
-            throw new Error('Incompatible movement controls: ', data.movementControls[i]);
-          }
-          break;
-        }
-      }
-    }
-
-    velocity.copy(this.el.getAttribute('velocity'));
-    velocity.x -= velocity.x * data.movementEasing * dt / 1000;
-    velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
-    velocity.z -= velocity.z * data.movementEasing * dt / 1000;
-
-    if (dVelocity && data.movementEnabled) {
-      // Set acceleration
-      if (dVelocity.length() > 1) {
-        dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
-      } else {
-        dVelocity.multiplyScalar(this.data.movementAcceleration * dt / 1000);
-      }
-
-      // Rotate to heading
-      var rotation = this.el.getAttribute('rotation');
-      if (rotation) {
-        this.heading.set(
-          data.fly ? THREE.Math.degToRad(rotation.x) : 0,
-          THREE.Math.degToRad(rotation.y),
-          0
-        );
-        dVelocity.applyEuler(this.heading);
-      }
-
-      velocity.add(dVelocity);
-
-      // TODO - Several issues here:
-      // (1) Interferes w/ gravity.
-      // (2) Interferes w/ jumping.
-      // (3) Likely to interfere w/ relative position to moving platform.
-      // if (velocity.length() > data.movementSpeed) {
-      //   velocity.setLength(data.movementSpeed);
-      // }
-    }
-
-    this.el.setAttribute('velocity', velocity);
-  }
-};
-
-},{}],89:[function(require,module,exports){
-var LoopMode = {
-  once: THREE.LoopOnce,
-  repeat: THREE.LoopRepeat,
-  pingpong: THREE.LoopPingPong
-};
-
-/**
- * animation-mixer
- *
- * Player for animation clips. Intended to be compatible with any model format that supports
- * skeletal or morph animations through THREE.AnimationMixer.
- * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
- */
-module.exports = {
-  schema: {
-    clip:  {default: '*'},
-    duration: {default: 0},
-    crossFadeDuration: {default: 0},
-    loop: {default: 'repeat', oneOf: Object.keys(LoopMode)},
-    repetitions: {default: Infinity, min: 0}
-  },
-
-  init: function () {
-    /** @type {THREE.Mesh} */
-    this.model = null;
-    /** @type {THREE.AnimationMixer} */
-    this.mixer = null;
-    /** @type {Array<THREE.AnimationAction>} */
-    this.activeActions = [];
-
-    var model = this.el.getObject3D('mesh');
-
-    if (model) {
-      this.load(model);
-    } else {
-      this.el.addEventListener('model-loaded', function(e) {
-        this.load(e.detail.model);
-      }.bind(this));
-    }
-  },
-
-  load: function (model) {
-    var el = this.el;
-    this.model = model;
-    this.mixer = new THREE.AnimationMixer(model);
-    this.mixer.addEventListener('loop', function (e) {
-      el.emit('animation-loop', {action: e.action, loopDelta: e.loopDelta});
-    }.bind(this));
-    this.mixer.addEventListener('finished', function (e) {
-      el.emit('animation-finished', {action: e.action, direction: e.direction});
-    }.bind(this));
-    if (this.data.clip) this.update({});
-  },
-
-  remove: function () {
-    if (this.mixer) this.mixer.stopAllAction();
-  },
-
-  update: function (previousData) {
-    if (!previousData) return;
-
-    this.stopAction();
-
-    if (this.data.clip) {
-      this.playAction();
-    }
-  },
-
-  stopAction: function () {
-    var data = this.data;
-    for (var i = 0; i < this.activeActions.length; i++) {
-      data.crossFadeDuration
-        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
-        : this.activeActions[i].stop();
-    }
-    this.activeActions.length = 0;
-  },
-
-  playAction: function () {
-    if (!this.mixer) return;
-
-    var model = this.model,
-        data = this.data,
-        clips = model.animations || (model.geometry || {}).animations || [];
-
-    if (!clips.length) return;
-
-    var re = wildcardToRegExp(data.clip);
-
-    for (var clip, i = 0; (clip = clips[i]); i++) {
-      if (clip.name.match(re)) {
-        var action = this.mixer.clipAction(clip, model);
-        action.enabled = true;
-        if (data.duration) action.setDuration(data.duration);
-        action
-          .setLoop(LoopMode[data.loop], data.repetitions)
-          .fadeIn(data.crossFadeDuration)
-          .play();
-        this.activeActions.push(action);
-      }
-    }
-  },
-
-  tick: function (t, dt) {
-    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
-  }
-};
-
-/**
- * Creates a RegExp from the given string, converting asterisks to .* expressions,
- * and escaping all other characters.
- */
-function wildcardToRegExp (s) {
-  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
-}
-
-/**
- * RegExp-escapes all characters in the given string.
- */
-function regExpEscape (s) {
-  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
-}
-
-},{}],90:[function(require,module,exports){
-THREE.FBXLoader = require('../../lib/FBXLoader');
-
-/**
- * fbx-model
- *
- * Loader for FBX format. Supports ASCII, but *not* binary, models.
- */
-module.exports = {
-  schema: {
-    src:         { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    var loader,
-        data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.FBXLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, this.load.bind(this));
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'fbx', model: model});
-  },
-
-  remove: function () {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-};
-
-},{"../../lib/FBXLoader":3}],91:[function(require,module,exports){
-var fetchScript = require('../../lib/fetch-script')();
-
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
-
-/**
- * Legacy loader for glTF 1.0 models.
- * Asynchronously loads THREE.GLTFLoader from rawgit.
- */
-module.exports.Component = {
-  schema: {type: 'model'},
-
-  init: function () {
-    this.model = null;
-    this.loader = null;
-    this.loaderPromise = loadLoader().then(function () {
-      this.loader = new THREE.GLTFLoader();
-      this.loader.setCrossOrigin('Anonymous');
-    }.bind(this));
-  },
-
-  update: function () {
-    var self = this;
-    var el = this.el;
-    var src = this.data;
-
-    if (!src) { return; }
-
-    this.remove();
-
-    this.loaderPromise.then(function () {
-      this.loader.load(src, function gltfLoaded (gltfModel) {
-        self.model = gltfModel.scene;
-        self.model.animations = gltfModel.animations;
-        self.system.registerModel(self.model);
-        el.setObject3D('mesh', self.model);
-        el.emit('model-loaded', {format: 'gltf', model: self.model});
-      });
-    }.bind(this));
-  },
-
-  remove: function () {
-    if (!this.model) { return; }
-    this.el.removeObject3D('mesh');
-    this.system.unregisterModel(this.model);
-  }
-};
-
-/**
- * glTF model system.
- */
-module.exports.System = {
-  init: function () {
-    this.models = [];
-  },
-
-  /**
-   * Updates shaders for all glTF models in the system.
-   */
-  tick: function () {
-    var sceneEl = this.sceneEl;
-    if (sceneEl.hasLoaded && this.models.length) {
-      THREE.GLTFLoader.Shaders.update(sceneEl.object3D, sceneEl.camera);
-    }
-  },
-
-  /**
-   * Registers a glTF asset.
-   * @param {object} gltf Asset containing a scene and (optional) animations and cameras.
-   */
-  registerModel: function (gltf) {
-    this.models.push(gltf);
-  },
-
-  /**
-   * Unregisters a glTF asset.
-   * @param  {object} gltf Asset containing a scene and (optional) animations and cameras.
-   */
-  unregisterModel: function (gltf) {
-    var models = this.models;
-    var index = models.indexOf(gltf);
-    if (index >= 0) {
-      models.splice(index, 1);
-    }
-  }
-};
-
-var loadLoader = (function () {
-  var promise;
-  return function () {
-    promise = promise || fetchScript(LOADER_SRC);
-    return promise;
-  };
-}());
-
-},{"../../lib/fetch-script":8}],92:[function(require,module,exports){
-var fetchScript = require('../../lib/fetch-script')();
-
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTF2Loader.js';
-// Monkeypatch while waiting for three.js r86.
-if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
-
-  THREE.PropertyBinding.sanitizeNodeName = function (s) {
-    return s.replace( /\s/g, '_' ).replace( /[^\w-]/g, '' );
-  };
-
-}
-
-/**
- * Upcoming loader for glTF 2.0 models.
- * Asynchronously loads THREE.GLTF2Loader from rawgit.
- */
-module.exports = {
-  schema: {type: 'model'},
-
-  init: function () {
-    this.model = null;
-    this.loader = null;
-    this.loaderPromise = loadLoader().then(function () {
-      this.loader = new THREE.GLTF2Loader();
-      this.loader.setCrossOrigin('Anonymous');
-    }.bind(this));
-  },
-
-  update: function () {
-    var self = this;
-    var el = this.el;
-    var src = this.data;
-
-    if (!src) { return; }
-
-    this.remove();
-
-    this.loaderPromise.then(function () {
-      this.loader.load(src, function gltfLoaded (gltfModel) {
-        self.model = gltfModel.scene;
-        self.model.animations = gltfModel.animations;
-        el.setObject3D('mesh', self.model);
-        el.emit('model-loaded', {format: 'gltf', model: self.model});
-      });
-    }.bind(this));
-  },
-
-  remove: function () {
-    if (!this.model) { return; }
-    this.el.removeObject3D('mesh');
-  }
-};
-
-var loadLoader = (function () {
-  var promise;
-  return function () {
-    promise = promise || fetchScript(LOADER_SRC);
-    return promise;
-  };
-}());
-
-},{"../../lib/fetch-script":8}],93:[function(require,module,exports){
-module.exports = {
-  'animation-mixer': require('./animation-mixer'),
-  'fbx-model': require('./fbx-model'),
-  'gltf-model-next': require('./gltf-model-next'),
-  'gltf-model-legacy': require('./gltf-model-legacy'),
-  'json-model': require('./json-model'),
-  'object-model': require('./object-model'),
-  'ply-model': require('./ply-model'),
-  'three-model': require('./three-model'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    // THREE.AnimationMixer
-    if (!AFRAME.components['animation-mixer']) {
-      AFRAME.registerComponent('animation-mixer', this['animation-mixer']);
-    }
-
-    // THREE.PlyLoader
-    if (!AFRAME.systems['ply-model']) {
-      AFRAME.registerSystem('ply-model', this['ply-model'].System);
-    }
-    if (!AFRAME.components['ply-model']) {
-      AFRAME.registerComponent('ply-model', this['ply-model'].Component);
-    }
-
-    // THREE.FBXLoader
-    if (!AFRAME.components['fbx-model']) {
-      AFRAME.registerComponent('fbx-model', this['fbx-model']);
-    }
-
-    // THREE.GLTF2Loader
-    if (!AFRAME.components['gltf-model-next']) {
-      AFRAME.registerComponent('gltf-model-next', this['gltf-model-next']);
-    }
-
-    // THREE.GLTFLoader
-    if (!AFRAME.components['gltf-model-legacy']) {
-      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy'].Component);
-      AFRAME.registerSystem('gltf-model-legacy', this['gltf-model-legacy'].System);
-    }
-
-    // THREE.JsonLoader
-    if (!AFRAME.components['json-model']) {
-      AFRAME.registerComponent('json-model', this['json-model']);
-    }
-
-    // THREE.ObjectLoader
-    if (!AFRAME.components['object-model']) {
-      AFRAME.registerComponent('object-model', this['object-model']);
-    }
-
-    // (deprecated) THREE.JsonLoader and THREE.ObjectLoader
-    if (!AFRAME.components['three-model']) {
-      AFRAME.registerComponent('three-model', this['three-model']);
-    }
-
-    this._registered = true;
-  }
-};
-
-},{"./animation-mixer":89,"./fbx-model":90,"./gltf-model-legacy":91,"./gltf-model-next":92,"./json-model":94,"./object-model":95,"./ply-model":96,"./three-model":97}],94:[function(require,module,exports){
-/**
- * json-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
- * both having the .json extension. This loader supports only THREE.JsonLoader, which typically
- * includes only a single mesh.
- *
- * Check the console for errors, if in doubt. You may need to use `object-model` or
- * `blend-character-model` for some .js and .json files.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-module.exports = {
-  schema: {
-    src:         { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    var loader,
-        data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.JSONLoader();
-    if (data.crossorigin) loader.crossOrigin = data.crossorigin;
-    loader.load(data.src, function (geometry, materials) {
-
-      // Attempt to automatically detect common material options.
-      materials.forEach(function (mat) {
-        mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
-        mat.skinning = !!(geometry.bones || []).length;
-        mat.morphTargets = !!(geometry.morphTargets || []).length;
-        mat.morphNormals = !!(geometry.morphNormals || []).length;
-      });
-
-      var model = (geometry.bones || []).length
-        ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
-        : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-      this.load(model);
-    }.bind(this));
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'json', model: model});
-  },
-
-  remove: function () {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-};
-
-},{}],95:[function(require,module,exports){
-/**
- * object-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
- * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
- * includes multiple meshes or an entire scene.
- *
- * Check the console for errors, if in doubt. You may need to use `json-model` or
- * `blend-character-model` for some .js and .json files.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-module.exports = {
-  schema: {
-    src:         { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    var loader,
-        data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.ObjectLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, function(object) {
-
-      // Enable skinning, if applicable.
-      object.traverse(function(o) {
-        if (o instanceof THREE.SkinnedMesh && o.material) {
-          o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
-        }
-      });
-
-      this.load(object);
-    }.bind(this));
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'json', model: model});
-  },
-
-  remove: function () {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-};
-
-},{}],96:[function(require,module,exports){
-/**
- * ply-model
- *
- * Wraps THREE.PLYLoader.
- */
-THREE.PLYLoader = require('../../lib/PLYLoader');
-
-/**
- * Loads, caches, resolves geometries.
- *
- * @member cache - Promises that resolve geometries keyed by `src`.
- */
-module.exports.System = {
-  init: function () {
-    this.cache = {};
-  },
-
-  /**
-   * @returns {Promise}
-   */
-  getOrLoadGeometry: function (src, skipCache) {
-    var cache = this.cache;
-    var cacheItem = cache[src];
-
-    if (!skipCache && cacheItem) {
-      return cacheItem;
-    }
-
-    cache[src] = new Promise(function (resolve) {
-      var loader = new THREE.PLYLoader();
-      loader.load(src, function (geometry) {
-        resolve(geometry);
-      });
-    });
-    return cache[src];
-  },
-};
-
-module.exports.Component = {
-  schema: {
-    skipCache: {type: 'boolean', default: false},
-    src: {type: 'asset'}
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    var data = this.data;
-    var el = this.el;
-    var loader;
-
-    if (!data.src) {
-      console.warn('[%s] `src` property is required.', this.name);
-      return;
-    }
-
-    // Get geometry from system, create and set mesh.
-    this.system.getOrLoadGeometry(data.src, data.skipCache).then(function (geometry) {
-      var model = createModel(geometry);
-      el.setObject3D('mesh', model);
-      el.emit('model-loaded', {format: 'ply', model: model});
-    });
-  },
-
-  remove: function () {
-    if (this.model) { this.el.removeObject3D('mesh'); }
-  }
-};
-
-function createModel (geometry) {
-  return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
-    color: 0xFFFFFF,
-    shading: THREE.FlatShading,
-    vertexColors: THREE.VertexColors,
-    shininess: 0
-  }));
-}
-
-},{"../../lib/PLYLoader":6}],97:[function(require,module,exports){
-var DEFAULT_ANIMATION = '__auto__';
-
-/**
- * three-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two
- * different THREE.js formats, both having the .json extension. This loader
- * supports both, but requires you to specify the mode as "object" or "json".
- *
- * Typically, you will use "json" for a single mesh, and "object" for a scene
- * or multiple meshes. Check the console for errors, if in doubt.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-module.exports = {
-  deprecated: true,
-
-  schema: {
-    src:               { type: 'asset' },
-    loader:            { default: 'object', oneOf: ['object', 'json'] },
-    enableAnimation:   { default: true },
-    animation:         { default: DEFAULT_ANIMATION },
-    animationDuration: { default: 0 },
-    crossorigin:       { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-    this.mixer = null;
-    console.warn('[three-model] Component is deprecated. Use json-model or object-model instead.');
-  },
-
-  update: function (previousData) {
-    previousData = previousData || {};
-
-    var loader,
-        data = this.data;
-
-    if (!data.src) {
-      this.remove();
-      return;
-    }
-
-    // First load.
-    if (!Object.keys(previousData).length) {
-      this.remove();
-      if (data.loader === 'object') {
-        loader = new THREE.ObjectLoader();
-        if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-        loader.load(data.src, function(loaded) {
-          loaded.traverse( function(object) {
-            if (object instanceof THREE.SkinnedMesh)
-              loaded = object;
-          });
-          if(loaded.material)
-            loaded.material.skinning = !!((loaded.geometry && loaded.geometry.bones) || []).length;
-          this.load(loaded);
-        }.bind(this));
-      } else if (data.loader === 'json') {
-        loader = new THREE.JSONLoader();
-        if (data.crossorigin) loader.crossOrigin = data.crossorigin;
-        loader.load(data.src, function (geometry, materials) {
-
-          // Attempt to automatically detect common material options.
-          materials.forEach(function (mat) {
-            mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
-            mat.skinning = !!(geometry.bones || []).length;
-            mat.morphTargets = !!(geometry.morphTargets || []).length;
-            mat.morphNormals = !!(geometry.morphNormals || []).length;
-          });
-
-          var mesh = (geometry.bones || []).length
-            ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
-            : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-          this.load(mesh);
-        }.bind(this));
-      } else {
-        throw new Error('[three-model] Invalid mode "%s".', data.mode);
-      }
-      return;
-    }
-
-    var activeAction = this.model && this.model.activeAction;
-
-    if (data.animation !== previousData.animation) {
-      if (activeAction) activeAction.stop();
-      this.playAnimation();
-      return;
-    }
-
-    if (activeAction && data.enableAnimation !== activeAction.isRunning()) {
-      data.enableAnimation ? this.playAnimation() : activeAction.stop();
-    }
-
-    if (activeAction && data.animationDuration) {
-        activeAction.setDuration(data.animationDuration);
-    }
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.mixer = new THREE.AnimationMixer(this.model);
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'three', model: model});
-
-    if (this.data.enableAnimation) this.playAnimation();
-  },
-
-  playAnimation: function () {
-    var clip,
-        data = this.data,
-        animations = this.model.animations || this.model.geometry.animations || [];
-
-    if (!data.enableAnimation || !data.animation || !animations.length) {
-      return;
-    }
-
-    clip = data.animation === DEFAULT_ANIMATION
-      ? animations[0]
-      : THREE.AnimationClip.findByName(animations, data.animation);
-
-    if (!clip) {
-      console.error('[three-model] Animation "%s" not found.', data.animation);
-      return;
-    }
-
-    this.model.activeAction = this.mixer.clipAction(clip, this.model);
-    if (data.animationDuration) {
-      this.model.activeAction.setDuration(data.animationDuration);
-    }
-    this.model.activeAction.play();
-  },
-
-  remove: function () {
-    if (this.mixer) this.mixer.stopAllAction();
-    if (this.model) this.el.removeObject3D('mesh');
-  },
-
-  tick: function (t, dt) {
-    if (this.mixer && !isNaN(dt)) {
-      this.mixer.update(dt / 1000);
-    }
-  }
-};
-
-},{}],98:[function(require,module,exports){
-module.exports = {
-  schema: {
-    offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
-  },
-
-  init: function () {
-    this.active = false;
-    this.targetEl = null;
-    this.fire = this.fire.bind(this);
-    this.offset = new THREE.Vector3();
-  },
-
-  update: function () {
-    this.offset.copy(this.data.offset);
-  },
-
-  play: function () { this.el.addEventListener('click', this.fire); },
-  pause: function () { this.el.removeEventListener('click', this.fire); },
-  remove: function () { this.pause(); },
-
-  fire: function () {
-    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
-    if (!targetEl) {
-      throw new Error('No `checkpoint-controls` component found.');
-    }
-    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
-  },
-
-  getOffset: function () {
-    return this.offset.copy(this.data.offset);
-  }
-};
-
-},{}],99:[function(require,module,exports){
-/**
- * Specifies an envMap on an entity, without replacing any existing material
- * properties.
- */
-module.exports = {
-  schema: {
-    path: {default: ''},
-    extension: {default: 'jpg'},
-    format: {default: 'RGBFormat'},
-    enableBackground: {default: false}
-  },
-
-  init: function () {
-    var data = this.data;
-
-    this.texture = new THREE.CubeTextureLoader().load([
-      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
-      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
-      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
-    ]);
-    this.texture.format = THREE[data.format];
-
-    if (data.enableBackground) {
-      this.el.sceneEl.object3D.background = this.texture;
-    }
-
-    this.applyEnvMap();
-    this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
-  },
-
-  applyEnvMap: function () {
-    var mesh = this.el.getObject3D('mesh');
-    var envMap = this.texture;
-
-    if (!mesh) return;
-
-    mesh.traverse(function (node) {
-      if (node.material && 'envMap' in node.material) {
-        node.material.envMap = envMap;
-        node.material.needsUpdate = true;
-      }
-    });
-  }
-};
-
-},{}],100:[function(require,module,exports){
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Handles events coming from the hand-controls.
- * Determines if the entity is grabbed or released.
- * Updates its position to move along the controller.
- */
-module.exports = {
-  init: function () {
-    this.GRABBED_STATE = 'grabbed';
-
-    this.grabbing = false;
-    this.hitEl =      /** @type {AFRAME.Element}    */ null;
-    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
-    this.constraint = /** @type {CANNON.Constraint} */ null;
-
-    // Bind event handlers
-    this.onHit = this.onHit.bind(this);
-    this.onGripOpen = this.onGripOpen.bind(this);
-    this.onGripClose = this.onGripClose.bind(this);
-  },
-
-  play: function () {
-    var el = this.el;
-    el.addEventListener('hit', this.onHit);
-    el.addEventListener('gripdown', this.onGripClose);
-    el.addEventListener('gripup', this.onGripOpen);
-    el.addEventListener('trackpaddown', this.onGripClose);
-    el.addEventListener('trackpadup', this.onGripOpen);
-    el.addEventListener('triggerdown', this.onGripClose);
-    el.addEventListener('triggerup', this.onGripOpen);
-  },
-
-  pause: function () {
-    var el = this.el;
-    el.removeEventListener('hit', this.onHit);
-    el.removeEventListener('gripdown', this.onGripClose);
-    el.removeEventListener('gripup', this.onGripOpen);
-    el.removeEventListener('trackpaddown', this.onGripClose);
-    el.removeEventListener('trackpadup', this.onGripOpen);
-    el.removeEventListener('triggerdown', this.onGripClose);
-    el.removeEventListener('triggerup', this.onGripOpen);
-  },
-
-  onGripClose: function (evt) {
-    this.grabbing = true;
-  },
-
-  onGripOpen: function (evt) {
-    var hitEl = this.hitEl;
-    this.grabbing = false;
-    if (!hitEl) { return; }
-    hitEl.removeState(this.GRABBED_STATE);
-    this.hitEl = undefined;
-    this.physics.world.removeConstraint(this.constraint);
-    this.constraint = null;
-  },
-
-  onHit: function (evt) {
-    var hitEl = evt.detail.el;
-    // If the element is already grabbed (it could be grabbed by another controller).
-    // If the hand is not grabbing the element does not stick.
-    // If we're already grabbing something you can't grab again.
-    if (!hitEl || hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
-    hitEl.addState(this.GRABBED_STATE);
-    this.hitEl = hitEl;
-    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
-    this.physics.world.addConstraint(this.constraint);
-  }
-};
-
-},{}],101:[function(require,module,exports){
-var physics = require('aframe-physics-system');
-
-module.exports = {
-  'checkpoint':      require('./checkpoint'),
-  'cube-env-map':    require('./cube-env-map'),
-  'grab':            require('./grab'),
-  'jump-ability':    require('./jump-ability'),
-  'kinematic-body':  require('./kinematic-body'),
-  'mesh-smooth':     require('./mesh-smooth'),
-  'sphere-collider': require('./sphere-collider'),
-  'toggle-velocity': require('./toggle-velocity'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    physics.registerAll();
-    if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
-    if (!AFRAME.components['cube-env-map'])    AFRAME.registerComponent('cube-env-map',    this['cube-env-map']);
-    if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
-    if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
-    if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
-    if (!AFRAME.components['mesh-smooth'])     AFRAME.registerComponent('mesh-smooth',     this['mesh-smooth']);
-    if (!AFRAME.components['sphere-collider']) AFRAME.registerComponent('sphere-collider', this['sphere-collider']);
-    if (!AFRAME.components['toggle-velocity']) AFRAME.registerComponent('toggle-velocity', this['toggle-velocity']);
-
-    this._registered = true;
-  }
-};
-
-},{"./checkpoint":98,"./cube-env-map":99,"./grab":100,"./jump-ability":102,"./kinematic-body":103,"./mesh-smooth":104,"./sphere-collider":105,"./toggle-velocity":106,"aframe-physics-system":12}],102:[function(require,module,exports){
-var ACCEL_G = -9.8, // m/s^2
-    EASING = -15; // m/s^2
-
-/**
- * Jump ability.
- */
-module.exports = {
-  dependencies: ['velocity'],
-
-  /* Schema
-  ——————————————————————————————————————————————*/
-
-  schema: {
-    on: { default: 'keydown:Space gamepadbuttondown:0' },
-    playerHeight: { default: 1.764 },
-    maxJumps: { default: 1 },
-    distance: { default: 5 },
-    soundJump: { default: '' },
-    soundLand: { default: '' },
-    debug: { default: false }
-  },
-
-  init: function () {
-    this.velocity = 0;
-    this.numJumps = 0;
-
-    var beginJump = this.beginJump.bind(this),
-        events = this.data.on.split(' ');
-    this.bindings = {};
-    for (var i = 0; i <  events.length; i++) {
-      this.bindings[events[i]] = beginJump;
-      this.el.addEventListener(events[i], beginJump);
-    }
-    this.bindings.collide = this.onCollide.bind(this);
-    this.el.addEventListener('collide', this.bindings.collide);
-  },
-
-  remove: function () {
-    for (var event in this.bindings) {
-      if (this.bindings.hasOwnProperty(event)) {
-        this.el.removeEventListener(event, this.bindings[event]);
-        delete this.bindings[event];
-      }
-    }
-    this.el.removeEventListener('collide', this.bindings.collide);
-    delete this.bindings.collide;
-  },
-
-  beginJump: function () {
-    if (this.numJumps < this.data.maxJumps) {
-      var data = this.data,
-          initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
-          v = this.el.getAttribute('velocity');
-      this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
-      this.numJumps++;
-    }
-  },
-
-  onCollide: function () {
-    this.numJumps = 0;
-  }
-};
-
-},{}],103:[function(require,module,exports){
-/**
- * Kinematic body.
- *
- * Managed dynamic body, which moves but is not affected (directly) by the
- * physics engine. This is not a true kinematic body, in the sense that we are
- * letting the physics engine _compute_ collisions against it and selectively
- * applying those collisions to the object. The physics engine does not decide
- * the position/velocity/rotation of the element.
- *
- * Used for the camera object, because full physics simulation would create
- * movement that feels unnatural to the player. Bipedal movement does not
- * translate nicely to rigid body physics.
- *
- * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
- * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
- */
-var CANNON = window.CANNON;
-var EPS = 0.000001;
-
-module.exports = {
-  dependencies: ['velocity'],
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    mass:           { default: 5 },
-    radius:         { default: 1.3 },
-    height:         { default: 1.764 },
-    linearDamping:  { default: 0.05 },
-    enableSlopes:   { default: true }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function () {
-    this.system = this.el.sceneEl.systems.physics;
-    this.system.addBehavior(this, this.system.Phase.SIMULATE);
-
-    var el = this.el,
-        data = this.data,
-        position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
-
-    this.body = new CANNON.Body({
-      material: this.system.material,
-      position: position,
-      mass: data.mass,
-      linearDamping: data.linearDamping,
-      fixedRotation: true
-    });
-    this.body.addShape(
-      new CANNON.Sphere(data.radius),
-      new CANNON.Vec3(0, data.radius - data.height, 0)
-    );
-
-    this.body.el = this.el;
-    this.el.body = this.body;
-    this.system.addBody(this.body);
-  },
-
-  remove: function () {
-    this.system.removeBody(this.body);
-    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
-    delete this.el.body;
-  },
-
-  /*******************************************************************
-   * Tick
-   */
-
-  /**
-   * Checks CANNON.World for collisions and attempts to apply them to the
-   * element automatically, in a player-friendly way.
-   *
-   * There's extra logic for horizontal surfaces here. The basic requirements:
-   * (1) Only apply gravity when not in contact with _any_ horizontal surface.
-   * (2) When moving, project the velocity against exactly one ground surface.
-   *     If in contact with two ground surfaces (e.g. ground + ramp), choose
-   *     the one that collides with current velocity, if any.
-   */
-  step: (function () {
-    var velocity = new THREE.Vector3(),
-        normalizedVelocity = new THREE.Vector3(),
-        currentSurfaceNormal = new THREE.Vector3(),
-        groundNormal = new THREE.Vector3();
-
-    return function (t, dt) {
-      if (!dt) return;
-
-      var body = this.body,
-          data = this.data,
-          didCollide = false,
-          height, groundHeight = -Infinity,
-          groundBody;
-
-      dt = Math.min(dt, this.system.data.maxInterval * 1000);
-
-      groundNormal.set(0, 0, 0);
-      velocity.copy(this.el.getAttribute('velocity'));
-      body.velocity.copy(velocity);
-      body.position.copy(this.el.getAttribute('position'));
-
-      for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
-        // 1. Find any collisions involving this element. Get the contact
-        // normal, and make sure it's oriented _out_ of the other object.
-        if (body.id === contact.bi.id) {
-          contact.ni.negate(currentSurfaceNormal);
-        } else if (body.id === contact.bj.id) {
-          currentSurfaceNormal.copy(contact.ni);
-        } else {
+          // Right over left, insert left to path and restart scan from portal left point.
+          pts.push(portalLeft);
+          // Make current left the new apex.
+          portalApex = portalLeft;
+          apexIndex = leftIndex;
+          // Reset portal
+          portalLeft = portalApex;
+          portalRight = portalApex;
+          leftIndex = apexIndex;
+          rightIndex = apexIndex;
+          // Restart scan
+          i = apexIndex;
           continue;
         }
+      }
 
-        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
-        if (didCollide && currentSurfaceNormal.y <= 0.5) {
-          // 2. If current trajectory attempts to move _through_ another
-          // object, project the velocity against the collision plane to
-          // prevent passing through.
-          velocity = velocity.projectOnPlane(currentSurfaceNormal);
-        } else if (currentSurfaceNormal.y > 0.5) {
-          // 3. If in contact with something roughly horizontal (+/- 45º) then
-          // consider that the current ground. Only the highest qualifying
-          // ground is retained.
-          height = body.id === contact.bi.id
-            ? Math.abs(contact.rj.y + contact.bj.position.y)
-            : Math.abs(contact.ri.y + contact.bi.position.y);
-          if (height > groundHeight) {
-            groundHeight = height;
-            groundNormal.copy(currentSurfaceNormal);
-            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
-          }
+      // Update left vertex.
+      if (utils.triarea2(portalApex, portalLeft, left) >= 0.0) {
+        if (utils.vequal(portalApex, portalLeft) || utils.triarea2(portalApex, portalRight, left) < 0.0) {
+          // Tighten the funnel.
+          portalLeft = left;
+          leftIndex = i;
+        } else {
+          // Left over right, insert right to path and restart scan from portal right point.
+          pts.push(portalRight);
+          // Make current right the new apex.
+          portalApex = portalRight;
+          apexIndex = rightIndex;
+          // Reset portal
+          portalLeft = portalApex;
+          portalRight = portalApex;
+          leftIndex = apexIndex;
+          rightIndex = apexIndex;
+          // Restart scan
+          i = apexIndex;
+          continue;
         }
       }
+    }
 
-      normalizedVelocity.copy(velocity).normalize();
-      if (groundBody && normalizedVelocity.y < 0.5) {
-        if (!data.enableSlopes) {
-          groundNormal.set(0, 1, 0);
-        } else if (groundNormal.y < 1 - EPS) {
-          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
-        }
+    if ((pts.length === 0) || (!utils.vequal(pts[pts.length - 1], portals[portals.length - 1].left))) {
+      // Append last point to path.
+      pts.push(portals[portals.length - 1].left);
+    }
 
-        // 4. Project trajectory onto the top-most ground object, unless
-        // trajectory is > 45º.
-        velocity = velocity.projectOnPlane(groundNormal);
-      } else {
-        // 5. If not in contact with anything horizontal, apply world gravity.
-        // TODO - Why is the 4x scalar necessary.
-        velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
-      }
-
-      // 6. If the ground surface has a velocity, apply it directly to current
-      // position, not velocity, to preserve relative velocity.
-      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        var groundVelocity = groundBody.el.getAttribute('velocity');
-        body.position.copy({
-          x: body.position.x + groundVelocity.x * dt / 1000,
-          y: body.position.y + groundVelocity.y * dt / 1000,
-          z: body.position.z + groundVelocity.z * dt / 1000
-        });
-        this.el.setAttribute('position', body.position);
-      }
-
-      body.velocity.copy(velocity);
-      this.el.setAttribute('velocity', velocity);
-    };
-  }()),
-
-  /**
-   * When walking on complex surfaces (trimeshes, borders between two shapes),
-   * the collision normals returned for the player sphere can be very
-   * inconsistent. To address this, raycast straight down, find the collision
-   * normal, and return whichever normal is more vertical.
-   * @param  {CANNON.Body} groundBody
-   * @param  {CANNON.Vec3} groundNormal
-   * @return {CANNON.Vec3}
-   */
-  raycastToGround: function (groundBody, groundNormal) {
-    var ray,
-        hitNormal,
-        vFrom = this.body.position,
-        vTo = this.body.position.clone();
-
-    vTo.y -= this.data.height;
-    ray = new CANNON.Ray(vFrom, vTo);
-    ray._updateDirection(); // TODO - Report bug.
-    ray.intersectBody(groundBody);
-
-    if (!ray.hasHit) return groundNormal;
-
-    // Compare ABS, in case we're projecting against the inside of the face.
-    hitNormal = ray.result.hitNormalWorld;
-    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
-  }
-};
-
-},{}],104:[function(require,module,exports){
-/**
- * Apply this component to models that looks "blocky", to have Three.js compute
- * vertex normals on the fly for a "smoother" look.
- */
-module.exports = {
-  init: function () {
-    this.el.addEventListener('model-loaded', function (e) {
-      e.detail.model.traverse(function (node) {
-        if (node.isMesh) node.geometry.computeVertexNormals();
-      });
-    })
+    this.path = pts;
+    return pts;
   }
 }
 
-},{}],105:[function(require,module,exports){
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Implement bounding sphere collision detection for entities with a mesh.
- * Sets the specified state on the intersected entities.
- *
- * @property {string} objects - Selector of the entities to test for collision.
- * @property {string} state - State to set on collided entities.
- *
- */
+module.exports = Channel;
+
+},{"./utils":81}],80:[function(require,module,exports){
+const utils = require('./utils');
+const Channel = require('./channel');
+
+var polygonId = 1;
+
+var buildPolygonGroups = function (navigationMesh) {
+
+	var polygons = navigationMesh.polygons;
+
+	var polygonGroups = [];
+	var groupCount = 0;
+
+	var spreadGroupId = function (polygon) {
+		polygon.neighbours.forEach((neighbour) => {
+			if (neighbour.group === undefined) {
+				neighbour.group = polygon.group;
+				spreadGroupId(neighbour);
+			}
+		});
+	};
+
+	polygons.forEach((polygon) => {
+
+		if (polygon.group === undefined) {
+			polygon.group = groupCount++;
+			// Spread it
+			spreadGroupId(polygon);
+		}
+
+		if (!polygonGroups[polygon.group]) polygonGroups[polygon.group] = [];
+
+		polygonGroups[polygon.group].push(polygon);
+	});
+
+	console.log('Groups built: ', polygonGroups.length);
+
+	return polygonGroups;
+};
+
+var buildPolygonNeighbours = function (polygon, navigationMesh) {
+	polygon.neighbours = [];
+
+	// All other nodes that contain at least two of our vertices are our neighbours
+	for (var i = 0, len = navigationMesh.polygons.length; i < len; i++) {
+		if (polygon === navigationMesh.polygons[i]) continue;
+
+		// Don't check polygons that are too far, since the intersection tests take a long time
+		if (polygon.centroid.distanceToSquared(navigationMesh.polygons[i].centroid) > 100 * 100) continue;
+
+		var matches = utils.array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
+
+		if (matches.length >= 2) {
+			polygon.neighbours.push(navigationMesh.polygons[i]);
+		}
+	}
+};
+
+var buildPolygonsFromGeometry = function (geometry) {
+
+	console.log('Vertices:', geometry.vertices.length, 'polygons:', geometry.faces.length);
+
+	var polygons = [];
+	var vertices = geometry.vertices;
+	var faceVertexUvs = geometry.faceVertexUvs;
+
+	// Convert the faces into a custom format that supports more than 3 vertices
+	geometry.faces.forEach((face) => {
+		polygons.push({
+			id: polygonId++,
+			vertexIds: [face.a, face.b, face.c],
+			centroid: face.centroid,
+			normal: face.normal,
+			neighbours: []
+		});
+	});
+
+	var navigationMesh = {
+		polygons: polygons,
+		vertices: vertices,
+		faceVertexUvs: faceVertexUvs
+	};
+
+	// Build a list of adjacent polygons
+	polygons.forEach((polygon) => {
+		buildPolygonNeighbours(polygon, navigationMesh);
+	});
+
+	return navigationMesh;
+};
+
+var buildNavigationMesh = function (geometry) {
+	// Prepare geometry
+	utils.computeCentroids(geometry);
+	geometry.mergeVertices();
+	return buildPolygonsFromGeometry(geometry);
+};
+
+var getSharedVerticesInOrder = function (a, b) {
+
+	var aList = a.vertexIds;
+	var bList = b.vertexIds;
+
+	var sharedVertices = [];
+
+	aList.forEach((vId) => {
+		if (bList.includes(vId)) {
+			sharedVertices.push(vId);
+		}
+	});
+
+	if (sharedVertices.length < 2) return [];
+
+	// console.log("TRYING aList:", aList, ", bList:", bList, ", sharedVertices:", sharedVertices);
+
+	if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
+		// Vertices on both edges are bad, so shift them once to the left
+		aList.push(aList.shift());
+	}
+
+	if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
+		// Vertices on both edges are bad, so shift them once to the left
+		bList.push(bList.shift());
+	}
+
+	// Again!
+	sharedVertices = [];
+
+	aList.forEach((vId) => {
+		if (bList.includes(vId)) {
+			sharedVertices.push(vId);
+		}
+	});
+
+	return sharedVertices;
+};
+
+var groupNavMesh = function (navigationMesh) {
+
+	var saveObj = {};
+
+	navigationMesh.vertices.forEach((v) => {
+		v.x = utils.roundNumber(v.x, 2);
+		v.y = utils.roundNumber(v.y, 2);
+		v.z = utils.roundNumber(v.z, 2);
+	});
+
+	saveObj.vertices = navigationMesh.vertices;
+
+	var groups = buildPolygonGroups(navigationMesh);
+
+	saveObj.groups = [];
+
+	var findPolygonIndex = function (group, p) {
+		for (var i = 0; i < group.length; i++) {
+			if (p === group[i]) return i;
+		}
+	};
+
+	groups.forEach((group) => {
+
+		var newGroup = [];
+
+		group.forEach((p) => {
+
+			var neighbours = [];
+
+			p.neighbours.forEach((n) => {
+				neighbours.push(findPolygonIndex(group, n));
+			});
+
+
+			// Build a portal list to each neighbour
+			var portals = [];
+			p.neighbours.forEach((n) => {
+				portals.push(getSharedVerticesInOrder(p, n));
+			});
+
+
+			p.centroid.x = utils.roundNumber(p.centroid.x, 2);
+			p.centroid.y = utils.roundNumber(p.centroid.y, 2);
+			p.centroid.z = utils.roundNumber(p.centroid.z, 2);
+
+			newGroup.push({
+				id: findPolygonIndex(group, p),
+				neighbours: neighbours,
+				vertexIds: p.vertexIds,
+				centroid: p.centroid,
+				portals: portals
+			});
+
+		});
+
+		saveObj.groups.push(newGroup);
+	});
+
+	return saveObj;
+};
+
+// javascript-astar
+// http://github.com/bgrins/javascript-astar
+// Freely distributable under the MIT License.
+// Implements the astar search algorithm in javascript using a binary heap.
+
+function BinaryHeap(scoreFunction) {
+	this.content = [];
+	this.scoreFunction = scoreFunction;
+}
+
+BinaryHeap.prototype = {
+	push: function (element) {
+		// Add the new element to the end of the array.
+		this.content.push(element);
+
+		// Allow it to sink down.
+		this.sinkDown(this.content.length - 1);
+	},
+	pop: function () {
+		// Store the first element so we can return it later.
+		var result = this.content[0];
+		// Get the element at the end of the array.
+		var end = this.content.pop();
+		// If there are any elements left, put the end element at the
+		// start, and let it bubble up.
+		if (this.content.length > 0) {
+			this.content[0] = end;
+			this.bubbleUp(0);
+		}
+		return result;
+	},
+	remove: function (node) {
+		var i = this.content.indexOf(node);
+
+		// When it is found, the process seen in 'pop' is repeated
+		// to fill up the hole.
+		var end = this.content.pop();
+
+		if (i !== this.content.length - 1) {
+			this.content[i] = end;
+
+			if (this.scoreFunction(end) < this.scoreFunction(node)) {
+				this.sinkDown(i);
+			} else {
+				this.bubbleUp(i);
+			}
+		}
+	},
+	size: function () {
+		return this.content.length;
+	},
+	rescoreElement: function (node) {
+		this.sinkDown(this.content.indexOf(node));
+	},
+	sinkDown: function (n) {
+		// Fetch the element that has to be sunk.
+		var element = this.content[n];
+
+		// When at 0, an element can not sink any further.
+		while (n > 0) {
+
+			// Compute the parent element's index, and fetch it.
+			var parentN = ((n + 1) >> 1) - 1,
+				parent = this.content[parentN];
+			// Swap the elements if the parent is greater.
+			if (this.scoreFunction(element) < this.scoreFunction(parent)) {
+				this.content[parentN] = element;
+				this.content[n] = parent;
+				// Update 'n' to continue at the new position.
+				n = parentN;
+			}
+
+			// Found a parent that is less, no need to sink any further.
+			else {
+				break;
+			}
+		}
+	},
+	bubbleUp: function (n) {
+		// Look up the target element and its score.
+		var length = this.content.length,
+			element = this.content[n],
+			elemScore = this.scoreFunction(element);
+
+		while (true) {
+			// Compute the indices of the child elements.
+			var child2N = (n + 1) << 1,
+				child1N = child2N - 1;
+			// This is used to store the new position of the element,
+			// if any.
+			var swap = null;
+			// If the first child exists (is inside the array)...
+			if (child1N < length) {
+				// Look it up and compute its score.
+				var child1 = this.content[child1N],
+					child1Score = this.scoreFunction(child1);
+
+				// If the score is less than our element's, we need to swap.
+				if (child1Score < elemScore)
+					swap = child1N;
+			}
+
+			// Do the same checks for the other child.
+			if (child2N < length) {
+				var child2 = this.content[child2N],
+					child2Score = this.scoreFunction(child2);
+				if (child2Score < (swap === null ? elemScore : child1Score)) {
+					swap = child2N;
+				}
+			}
+
+			// If the element needs to be moved, swap it, and continue.
+			if (swap !== null) {
+				this.content[n] = this.content[swap];
+				this.content[swap] = element;
+				n = swap;
+			}
+
+			// Otherwise, we are done.
+			else {
+				break;
+			}
+		}
+	}
+};
+
+var astar = {
+	init: function (graph) {
+		for (var x = 0; x < graph.length; x++) {
+			//for(var x in graph) {
+			var node = graph[x];
+			node.f = 0;
+			node.g = 0;
+			node.h = 0;
+			node.cost = 1.0;
+			node.visited = false;
+			node.closed = false;
+			node.parent = null;
+		}
+	},
+	cleanUp: function (graph) {
+		for (var x = 0; x < graph.length; x++) {
+			var node = graph[x];
+			delete node.f;
+			delete node.g;
+			delete node.h;
+			delete node.cost;
+			delete node.visited;
+			delete node.closed;
+			delete node.parent;
+		}
+	},
+	heap: function () {
+		return new BinaryHeap(function (node) {
+			return node.f;
+		});
+	},
+	search: function (graph, start, end) {
+		astar.init(graph);
+		//heuristic = heuristic || astar.manhattan;
+
+
+		var openHeap = astar.heap();
+
+		openHeap.push(start);
+
+		while (openHeap.size() > 0) {
+
+			// Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
+			var currentNode = openHeap.pop();
+
+			// End case -- result has been found, return the traced path.
+			if (currentNode === end) {
+				var curr = currentNode;
+				var ret = [];
+				while (curr.parent) {
+					ret.push(curr);
+					curr = curr.parent;
+				}
+				this.cleanUp(ret);
+				return ret.reverse();
+			}
+
+			// Normal case -- move currentNode from open to closed, process each of its neighbours.
+			currentNode.closed = true;
+
+			// Find all neighbours for the current node. Optionally find diagonal neighbours as well (false by default).
+			var neighbours = astar.neighbours(graph, currentNode);
+
+			for (var i = 0, il = neighbours.length; i < il; i++) {
+				var neighbour = neighbours[i];
+
+				if (neighbour.closed) {
+					// Not a valid node to process, skip to next neighbour.
+					continue;
+				}
+
+				// The g score is the shortest distance from start to current node.
+				// We need to check if the path we have arrived at this neighbour is the shortest one we have seen yet.
+				var gScore = currentNode.g + neighbour.cost;
+				var beenVisited = neighbour.visited;
+
+				if (!beenVisited || gScore < neighbour.g) {
+
+					// Found an optimal (so far) path to this node.  Take score for node to see how good it is.
+					neighbour.visited = true;
+					neighbour.parent = currentNode;
+					if (!neighbour.centroid || !end.centroid) throw new Error('Unexpected state');
+					neighbour.h = neighbour.h || astar.heuristic(neighbour.centroid, end.centroid);
+					neighbour.g = gScore;
+					neighbour.f = neighbour.g + neighbour.h;
+
+					if (!beenVisited) {
+						// Pushing to heap will put it in proper place based on the 'f' value.
+						openHeap.push(neighbour);
+					} else {
+						// Already seen the node, but since it has been rescored we need to reorder it in the heap
+						openHeap.rescoreElement(neighbour);
+					}
+				}
+			}
+		}
+
+		// No result was found - empty array signifies failure to find path.
+		return [];
+	},
+	heuristic: function (pos1, pos2) {
+		return utils.distanceToSquared(pos1, pos2);
+	},
+	neighbours: function (graph, node) {
+		var ret = [];
+
+		for (var e = 0; e < node.neighbours.length; e++) {
+			ret.push(graph[node.neighbours[e]]);
+		}
+
+		return ret;
+	}
+};
+
+var zoneNodes = {};
+
 module.exports = {
-  schema: {
-    objects: {default: ''},
-    state: {default: 'collided'},
-    radius: {default: 0.05},
-    watch: {default: true}
-  },
+	buildNodes: function (geometry) {
+		var navigationMesh = buildNavigationMesh(geometry);
 
-  init: function () {
-    /** @type {MutationObserver} */
-    this.observer = null;
-    /** @type {Array<Element>} Elements to watch for collisions. */
-    this.els = [];
-    /** @type {Array<Element>} Elements currently in collision state. */
-    this.collisions = [];
+		var zoneNodes = groupNavMesh(navigationMesh);
 
-    this.handleHit = this.handleHit.bind(this);
-  },
+		return zoneNodes;
+	},
+	setZoneData: function (zone, data) {
+		zoneNodes[zone] = data;
+	},
+	getGroup: function (zone, position) {
 
-  remove: function () {
-    this.pause();
-  },
+		if (!zoneNodes[zone]) return null;
 
-  play: function () {
-    var sceneEl = this.el.sceneEl;
+		var closestNodeGroup = null;
 
-    if (this.data.watch) {
-      this.observer = new MutationObserver(this.update.bind(this, null));
-      this.observer.observe(sceneEl, {childList: true, subtree: true});
+		var distance = Math.pow(50, 2);
+
+		zoneNodes[zone].groups.forEach((group, index) => {
+			group.forEach((node) => {
+				var measuredDistance = utils.distanceToSquared(node.centroid, position);
+				if (measuredDistance < distance) {
+					closestNodeGroup = index;
+					distance = measuredDistance;
+				}
+			});
+		});
+
+		return closestNodeGroup;
+	},
+	getRandomNode: function (zone, group, nearPosition, nearRange) {
+
+		if (!zoneNodes[zone]) return new THREE.Vector3();
+
+		nearPosition = nearPosition || null;
+		nearRange = nearRange || 0;
+
+		var candidates = [];
+
+		var polygons = zoneNodes[zone].groups[group];
+
+		polygons.forEach((p) => {
+			if (nearPosition && nearRange) {
+				if (utils.distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
+					candidates.push(p.centroid);
+				}
+			} else {
+				candidates.push(p.centroid);
+			}
+		});
+
+		return utils.sample(candidates) || new THREE.Vector3();
+	},
+	findPath: function (startPosition, targetPosition, zone, group) {
+
+		var allNodes = zoneNodes[zone].groups[group];
+		var vertices = zoneNodes[zone].vertices;
+
+		var closestNode = null;
+		var distance = Math.pow(50, 2);
+
+		allNodes.forEach((node) => {
+			var measuredDistance = utils.distanceToSquared(node.centroid, startPosition);
+			if (measuredDistance < distance) {
+				closestNode = node;
+				distance = measuredDistance;
+			}
+		});
+
+
+		var farthestNode = null;
+		distance = Math.pow(50, 2);
+
+		allNodes.forEach((node) => {
+			var measuredDistance = utils.distanceToSquared(node.centroid, targetPosition);
+			if (measuredDistance < distance &&
+				utils.isVectorInPolygon(targetPosition, node, vertices)) {
+				farthestNode = node;
+				distance = measuredDistance;
+			}
+		});
+
+		// If we can't find any node, just go straight to the target
+		if (!closestNode || !farthestNode) {
+			return null;
+		}
+
+		var paths = astar.search(allNodes, closestNode, farthestNode);
+
+		var getPortalFromTo = function (a, b) {
+			for (var i = 0; i < a.neighbours.length; i++) {
+				if (a.neighbours[i] === b.id) {
+					return a.portals[i];
+				}
+			}
+		};
+
+		// We got the corridor
+		// Now pull the rope
+
+		var channel = new Channel();
+
+		channel.push(startPosition);
+
+		for (var i = 0; i < paths.length; i++) {
+			var polygon = paths[i];
+
+			var nextPolygon = paths[i + 1];
+
+			if (nextPolygon) {
+				var portals = getPortalFromTo(polygon, nextPolygon);
+				channel.push(
+					vertices[portals[0]],
+					vertices[portals[1]]
+				);
+			}
+
+		}
+
+		channel.push(targetPosition);
+
+		channel.stringPull();
+
+
+		var threeVectors = [];
+
+		channel.path.forEach((c) => {
+			var vec = new THREE.Vector3(c.x, c.y, c.z);
+
+			// Ensure the intermediate steps aren't too close to the start position
+			// var dist = vec.clone().sub(startPosition).lengthSq();
+			// if (dist > 0.01 * 0.01) {
+				threeVectors.push(vec);
+			// }
+
+
+		});
+
+		// We don't need the first one, as we already know our start position
+		threeVectors.shift();
+
+		return threeVectors;
+	}
+};
+
+},{"./channel":79,"./utils":81}],81:[function(require,module,exports){
+class Utils {
+
+  static computeCentroids (geometry) {
+    var f, fl, face;
+
+    for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
+
+      face = geometry.faces[ f ];
+      face.centroid = new THREE.Vector3( 0, 0, 0 );
+
+      face.centroid.add( geometry.vertices[ face.a ] );
+      face.centroid.add( geometry.vertices[ face.b ] );
+      face.centroid.add( geometry.vertices[ face.c ] );
+      face.centroid.divideScalar( 3 );
+
     }
-  },
-
-  pause: function () {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-  },
-
-  /**
-   * Update list of entities to test for collision.
-   */
-  update: function () {
-    var data = this.data;
-    var objectEls;
-
-    // Push entities into list of els to intersect.
-    if (data.objects) {
-      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
-    } else {
-      // If objects not defined, intersect with everything.
-      objectEls = this.el.sceneEl.children;
-    }
-    // Convert from NodeList to Array
-    this.els = Array.prototype.slice.call(objectEls);
-  },
-
-  tick: (function () {
-    var position = new THREE.Vector3(),
-        meshPosition = new THREE.Vector3(),
-        meshScale = new THREE.Vector3(),
-        colliderScale = new THREE.Vector3(),
-        distanceMap = new Map();
-    return function () {
-      var el = this.el,
-          data = this.data,
-          mesh = el.getObject3D('mesh'),
-          colliderRadius,
-          collisions = [];
-
-      if (!mesh) { return; }
-
-      distanceMap.clear();
-      position.copy(el.object3D.getWorldPosition());
-      el.object3D.getWorldScale(colliderScale);
-      colliderRadius = data.radius * scaleFactor(colliderScale);
-      // Update collision list.
-      this.els.forEach(intersect);
-
-      // Emit events and add collision states, in order of distance.
-      collisions
-        .sort(function (a, b) {
-          return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
-        })
-        .forEach(this.handleHit);
-
-      // Remove collision state from current element.
-      if (collisions.length === 0) { el.emit('hit', {el: null}); }
-
-      // Remove collision state from other elements.
-      this.collisions.filter(function (el) {
-        return !distanceMap.has(el);
-      }).forEach(function removeState (el) {
-        el.removeState(data.state);
-      });
-
-      // Store new collisions
-      this.collisions = collisions;
-
-      // Bounding sphere collision detection
-      function intersect (el) {
-        var radius, mesh, distance, box, extent, size;
-
-        if (!el.isEntity) { return; }
-
-        mesh = el.getObject3D('mesh');
-
-        if (!mesh) { return; }
-
-        box = new THREE.Box3().setFromObject(mesh);
-        size = box.getSize();
-        extent = Math.max(size.x, size.y, size.z) / 2;
-        radius = Math.sqrt(2 * extent * extent);
-        box.getCenter(meshPosition);
-
-        if (!radius) { return; }
-
-        distance = position.distanceTo(meshPosition);
-        if (distance < radius + colliderRadius) {
-          collisions.push(el);
-          distanceMap.set(el, distance);
-        }
-      }
-      // use max of scale factors to maintain bounding sphere collision
-      function scaleFactor (scaleVec) {
-        return Math.max.apply(null, scaleVec.toArray());
-      }
-    };
-  })(),
-
-  handleHit: function (targetEl) {
-    targetEl.emit('hit');
-    targetEl.addState(this.data.state);
-    this.el.emit('hit', {el: targetEl});
   }
-};
 
-},{}],106:[function(require,module,exports){
-/**
- * Toggle velocity.
- *
- * Moves an object back and forth along an axis, within a min/max extent.
- */
-module.exports = {
-  dependencies: ['velocity'],
-  schema: {
-    axis: { default: 'x', oneOf: ['x', 'y', 'z'] },
-    min: { default: 0 },
-    max: { default: 0 },
-    speed: { default: 1 }
-  },
-  init: function () {
-    var velocity = {x: 0, y: 0, z: 0};
-    velocity[this.data.axis] = this.data.speed;
-    this.el.setAttribute('velocity', velocity);
-
-    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
-  },
-  remove: function () {},
-  update: function () { this.tick(); },
-  tick: function () {
-    var data = this.data,
-        velocity = this.el.getAttribute('velocity'),
-        position = this.el.getAttribute('position');
-    if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
-      velocity[data.axis] = -data.speed;
-      this.el.setAttribute('velocity', velocity);
-    } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
-      velocity[data.axis] = data.speed;
-      this.el.setAttribute('velocity', velocity);
-    }
-  },
-};
-
-},{}],107:[function(require,module,exports){
-module.exports = {
-  'nav-mesh':    require('./nav-mesh'),
-  'nav-controller':     require('./nav-controller'),
-  'system':      require('./system'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    if (!AFRAME.components['nav-mesh']) {
-      AFRAME.registerComponent('nav-mesh', this['nav-mesh']);
-    }
-
-    if (!AFRAME.components['nav-controller']) {
-      AFRAME.registerComponent('nav-controller',  this['nav-controller']);
-    }
-
-    if (!AFRAME.systems.nav) {
-      AFRAME.registerSystem('nav', this.system);
-    }
-
-    this._registered = true;
+  static roundNumber (number, decimals) {
+    var newnumber = Number(number + '').toFixed(parseInt(decimals));
+    return parseFloat(newnumber);
   }
-};
 
-},{"./nav-controller":108,"./nav-mesh":109,"./system":110}],108:[function(require,module,exports){
-module.exports = {
-  schema: {
-    destination: {type: 'vec3'},
-    active: {default: false},
-    speed: {default: 2}
-  },
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.system.addController(this);
-    this.path = [];
-    this.raycaster = new THREE.Raycaster();
-  },
-  remove: function () {
-    this.system.removeController(this);
-  },
-  update: function () {
-    this.path.length = 0;
-  },
-  tick: (function () {
-    var vDest = new THREE.Vector3();
-    var vDelta = new THREE.Vector3();
-    var vNext = new THREE.Vector3();
+  static sample (list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
 
-    return function (t, dt) {
-      var el = this.el;
-      var data = this.data;
-      var raycaster = this.raycaster;
-      var speed = data.speed * dt / 1000;
+  static mergeVertexIds (aList, bList) {
 
-      if (!data.active) return;
+    var sharedVertices = [];
 
-      // Use PatrolJS pathfinding system to get shortest path to target.
-      if (!this.path.length) {
-        this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
-        this.path = this.path || [];
-        el.emit('nav-start');
+    aList.forEach((vID) => {
+      if (bList.indexOf(vID) >= 0) {
+        sharedVertices.push(vID);
       }
-
-      // If no path is found, exit.
-      if (!this.path.length) {
-        console.warn('[nav] Unable to find path to %o.', data.destination);
-        this.el.setAttribute('nav-controller', {active: false});
-        el.emit('nav-end');
-        return;
-      }
-
-      // Current segment is a vector from current position to next waypoint.
-      var vCurrent = el.object3D.position;
-      var vWaypoint = this.path[0];
-      vDelta.subVectors(vWaypoint, vCurrent);
-
-      var distance = vDelta.length();
-      var gazeTarget;
-
-      if (distance < speed) {
-        // If <1 step from current waypoint, discard it and move toward next.
-        this.path.shift();
-
-        // After discarding the last waypoint, exit pathfinding.
-        if (!this.path.length) {
-          this.el.setAttribute('nav-controller', {active: false});
-          el.emit('nav-end');
-          return;
-        } else {
-          gazeTarget = this.path[0];
-        }
-      } else {
-        // If still far away from next waypoint, find next position for
-        // the current frame.
-        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
-        gazeTarget = vWaypoint;
-      }
-
-      // Look at the next waypoint.
-      gazeTarget.y = vCurrent.y;
-      el.object3D.lookAt(gazeTarget);
-
-      // Raycast against the nav mesh, to keep the controller moving along the
-      // ground, not traveling in a straight line from higher to lower waypoints.
-      raycaster.ray.origin.copy(vNext);
-      raycaster.ray.origin.y += 1.5;
-      raycaster.ray.direction.y = -1;
-      var intersections = raycaster.intersectObject(this.system.getNavMesh());
-
-      if (!intersections.length) {
-        // Raycasting failed. Step toward the waypoint and hope for the best.
-        vCurrent.copy(vNext);
-      } else {
-        // Re-project next position onto nav mesh.
-        vDelta.subVectors(intersections[0].point, vCurrent);
-        vCurrent.add(vDelta.setLength(speed));
-      }
-
-    };
-  }())
-};
-
-},{}],109:[function(require,module,exports){
-/**
- * nav-mesh
- *
- * Waits for a mesh to be loaded on the current entity, then sets it as the
- * nav mesh in the pathfinding system.
- */
-module.exports = {
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.loadNavMesh();
-    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
-  },
-
-  loadNavMesh: function () {
-    var object = this.el.getObject3D('mesh');
-
-    if (!object) return;
-
-    var navMesh;
-    object.traverse(function (node) {
-      if (node.isMesh) navMesh = node;
     });
 
-    if (!navMesh) return;
+    if (sharedVertices.length < 2) return [];
 
-    this.system.setNavMesh(navMesh);
-  }
-};
-
-},{}],110:[function(require,module,exports){
-var patrol = require('../../lib/patrol');
-window._ = require('underscore');
-
-/**
- * nav
- *
- * Pathfinding system, using PatrolJS.
- */
-module.exports = {
-  init: function () {
-    this.navMesh = null;
-    this.nodes = null;
-    this.controllers = new Set();
-  },
-
-  /**
-   * @param {THREE.Mesh} mesh
-   */
-  setNavMesh: function (mesh) {
-    var geometry = mesh.geometry.isBufferGeometry
-      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
-      : mesh.geometry;
-    this.navMesh = new THREE.Mesh(geometry);
-    this.nodes = patrol.buildNodes(this.navMesh.geometry);
-    patrol.setZoneData('level', this.nodes);
-  },
-
-  /**
-   * @return {THREE.Mesh}
-   */
-  getNavMesh: function () {
-    return this.navMesh;
-  },
-
-  /**
-   * @param {NavController} ctrl
-   */
-  addController: function (ctrl) {
-    this.controllers.add(ctrl);
-  },
-
-  /**
-   * @param {NavController} ctrl
-   */
-  removeController: function (ctrl) {
-    this.controllers.remove(ctrl);
-  },
-
-  /**
-   * @param  {NavController} ctrl
-   * @param  {THREE.Vector3} target
-   * @return {Array<THREE.Vector3>}
-   */
-  getPath: function (ctrl, target) {
-    var start = ctrl.el.object3D.position;
-    // TODO(donmccurdy): Current group should be cached.
-    var group = patrol.getGroup('level', start);
-    return patrol.findPath(start, target, 'level', group);
-  }
-};
-
-},{"../../lib/patrol":11,"underscore":80}],111:[function(require,module,exports){
-/**
- * Flat grid.
- *
- * Defaults to 75x75.
- */
-var Primitive = module.exports = {
-  defaultComponents: {
-    geometry: {
-      primitive: 'plane',
-      width: 75,
-      height: 75
-    },
-    rotation: {x: -90, y: 0, z: 0},
-    material: {
-      src: 'url(https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.3/assets/grid.png)',
-      repeat: '75 75'
+    if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
+      // Vertices on both edges are bad, so shift them once to the left
+      aList.push(aList.shift());
     }
-  },
-  mappings: {
-    width: 'geometry.width',
-    height: 'geometry.height',
-    src: 'material.src'
-  }
-};
 
-module.exports.registerAll = (function () {
-  var registered = false;
-  return function (AFRAME) {
-    if (registered) return;
-    AFRAME = AFRAME || window.AFRAME;
-    AFRAME.registerPrimitive('a-grid', Primitive);
-    registered = true;
-  };
-}());
-
-},{}],112:[function(require,module,exports){
-var vg = require('../../lib/hex-grid.min.js');
-var defaultHexGrid = require('../../lib/default-hex-grid.json');
-
-/**
- * Hex grid.
- */
-var Primitive = module.exports.Primitive = {
-  defaultComponents: {
-    'hexgrid': {}
-  },
-  mappings: {
-    src: 'hexgrid.src'
-  }
-};
-
-var Component = module.exports.Component = {
-  dependencies: ['material'],
-  schema: {
-    src: {type: 'asset'}
-  },
-  init: function () {
-    var data = this.data;
-    if (data.src) {
-      fetch(data.src)
-        .then(function (response) { response.json(); })
-        .then(function (json) { this.addMesh(json); });
-    } else {
-      this.addMesh(defaultHexGrid);
+    if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
+      // Vertices on both edges are bad, so shift them once to the left
+      bList.push(bList.shift());
     }
-  },
-  addMesh: function (json) {
-    var grid = new vg.HexGrid();
-    grid.fromJSON(json);
-    var board = new vg.Board(grid);
-    board.generateTilemap();
-    this.el.setObject3D('mesh', board.group);
-    this.addMaterial();
-  },
-  addMaterial: function () {
-    var materialComponent = this.el.components.material;
-    var material = (materialComponent || {}).material;
-    if (!material) return;
-    this.el.object3D.traverse(function (node) {
-      if (node.isMesh) {
-        node.material = material;
+
+    // Again!
+    sharedVertices = [];
+
+    aList.forEach((vId) => {
+      if (bList.includes(vId)) {
+        sharedVertices.push(vId);
       }
     });
-  },
-  remove: function () {
-    this.el.removeObject3D('mesh');
+
+    var clockwiseMostSharedVertex = sharedVertices[1];
+    var counterClockwiseMostSharedVertex = sharedVertices[0];
+
+
+    var cList = aList.slice();
+    while (cList[0] !== clockwiseMostSharedVertex) {
+      cList.push(cList.shift());
+    }
+
+    var c = 0;
+
+    var temp = bList.slice();
+    while (temp[0] !== counterClockwiseMostSharedVertex) {
+      temp.push(temp.shift());
+
+      if (c++ > 10) throw new Error('Unexpected state');
+    }
+
+    // Shave
+    temp.shift();
+    temp.pop();
+
+    cList = cList.concat(temp);
+
+    return cList;
   }
-};
 
-module.exports.registerAll = (function () {
-  var registered = false;
-  return function (AFRAME) {
-    if (registered) return;
-    AFRAME = AFRAME || window.AFRAME;
-    AFRAME.registerComponent('hexgrid', Component);
-    AFRAME.registerPrimitive('a-hexgrid', Primitive);
-    registered = true;
-  };
-}());
+  static setPolygonCentroid (polygon, navigationMesh) {
+    var sum = new THREE.Vector3();
 
-},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],113:[function(require,module,exports){
-/**
- * Flat-shaded ocean primitive.
- *
- * Based on a Codrops tutorial:
- * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
- */
-var Primitive = module.exports.Primitive = {
-  defaultComponents: {
-    ocean: {},
-    rotation: {x: -90, y: 0, z: 0}
-  },
-  mappings: {
-    width: 'ocean.width',
-    depth: 'ocean.depth',
-    density: 'ocean.density',
-    color: 'ocean.color',
-    opacity: 'ocean.opacity'
+    var vertices = navigationMesh.vertices;
+
+    polygon.vertexIds.forEach((vId) => {
+      sum.add(vertices[vId]);
+    });
+
+    sum.divideScalar(polygon.vertexIds.length);
+
+    polygon.centroid.copy(sum);
   }
-};
 
-var Component = module.exports.Component = {
-  schema: {
-    // Dimensions of the ocean area.
-    width: {default: 10, min: 0},
-    depth: {default: 10, min: 0},
+  static cleanPolygon (polygon, navigationMesh) {
 
-    // Density of waves.
-    density: {default: 10},
+    var newVertexIds = [];
 
-    // Wave amplitude and variance.
-    amplitude: {default: 0.1},
-    amplitudeVariance: {default: 0.3},
+    var vertices = navigationMesh.vertices;
 
-    // Wave speed and variance.
-    speed: {default: 1},
-    speedVariance: {default: 2},
+    for (var i = 0; i < polygon.vertexIds.length; i++) {
 
-    // Material.
-    color: {default: '#7AD2F7', type: 'color'},
-    opacity: {default: 0.8}
-  },
+      var vertex = vertices[polygon.vertexIds[i]];
 
-  /**
-   * Use play() instead of init(), because component mappings – unavailable as dependencies – are
-   * not guaranteed to have parsed when this component is initialized.
-   */
-  play: function () {
-    var el = this.el,
-        data = this.data,
-        material = el.components.material;
+      var nextVertexId, previousVertexId;
+      var nextVertex, previousVertex;
 
-    var geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
-    geometry.mergeVertices();
-    this.waves = [];
-    for (var v, i = 0, l = geometry.vertices.length; i < l; i++) {
-      v = geometry.vertices[i];
-      this.waves.push({
-        z: v.z,
-        ang: Math.random() * Math.PI * 2,
-        amp: data.amplitude + Math.random() * data.amplitudeVariance,
-        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
+      // console.log("nextVertex: ", nextVertex);
+
+      if (i === 0) {
+        nextVertexId = polygon.vertexIds[1];
+        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 1];
+      } else if (i === polygon.vertexIds.length - 1) {
+        nextVertexId = polygon.vertexIds[0];
+        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 2];
+      } else {
+        nextVertexId = polygon.vertexIds[i + 1];
+        previousVertexId = polygon.vertexIds[i - 1];
+      }
+
+      nextVertex = vertices[nextVertexId];
+      previousVertex = vertices[previousVertexId];
+
+      var a = nextVertex.clone().sub(vertex);
+      var b = previousVertex.clone().sub(vertex);
+
+      var angle = a.angleTo(b);
+
+      // console.log(angle);
+
+      if (angle > Math.PI - 0.01 && angle < Math.PI + 0.01) {
+        // Unneccesary vertex
+        // console.log("Unneccesary vertex: ", polygon.vertexIds[i]);
+        // console.log("Angle between "+previousVertexId+", "+polygon.vertexIds[i]+" "+nextVertexId+" was: ", angle);
+
+
+        // Remove the neighbours who had this vertex
+        var goodNeighbours = [];
+        polygon.neighbours.forEach((neighbour) => {
+          if (!neighbour.vertexIds.includes(polygon.vertexIds[i])) {
+            goodNeighbours.push(neighbour);
+          }
+        });
+        polygon.neighbours = goodNeighbours;
+
+
+        // TODO cleanup the list of vertices and rebuild vertexIds for all polygons
+      } else {
+        newVertexIds.push(polygon.vertexIds[i]);
+      }
+
+    }
+
+    // console.log("New vertexIds: ", newVertexIds);
+
+    polygon.vertexIds = newVertexIds;
+
+    setPolygonCentroid(polygon, navigationMesh);
+
+  }
+
+  static isConvex (polygon, navigationMesh) {
+
+    var vertices = navigationMesh.vertices;
+
+    if (polygon.vertexIds.length < 3) return false;
+
+    var convex = true;
+
+    var total = 0;
+
+    var results = [];
+
+    for (var i = 0; i < polygon.vertexIds.length; i++) {
+
+      var vertex = vertices[polygon.vertexIds[i]];
+
+      var nextVertex, previousVertex;
+
+      if (i === 0) {
+        nextVertex = vertices[polygon.vertexIds[1]];
+        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 1]];
+      } else if (i === polygon.vertexIds.length - 1) {
+        nextVertex = vertices[polygon.vertexIds[0]];
+        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 2]];
+      } else {
+        nextVertex = vertices[polygon.vertexIds[i + 1]];
+        previousVertex = vertices[polygon.vertexIds[i - 1]];
+      }
+
+      var a = nextVertex.clone().sub(vertex);
+      var b = previousVertex.clone().sub(vertex);
+
+      var angle = a.angleTo(b);
+      total += angle;
+
+      if (angle === Math.PI || angle === 0) return false;
+
+      var r = a.cross(b).y;
+      results.push(r);
+    }
+
+    // if ( total > (polygon.vertexIds.length-2)*Math.PI ) return false;
+
+    results.forEach((r) => {
+      if (r === 0) convex = false;
+    });
+
+    if (results[0] > 0) {
+      results.forEach((r) => {
+        if (r < 0) convex = false;
+      });
+    } else {
+      results.forEach((r) => {
+        if (r > 0) convex = false;
       });
     }
 
-    if (!material) {
-      material = {};
-      material.material = new THREE.MeshPhongMaterial({
-        color: data.color,
-        transparent: data.opacity < 1,
-        opacity: data.opacity,
-        shading: THREE.FlatShading,
-      });
+    return convex;
+  }
+
+  static distanceToSquared (a, b) {
+
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    var dz = a.z - b.z;
+
+    return dx * dx + dy * dy + dz * dz;
+
+  }
+
+  //+ Jonas Raoni Soares Silva
+  //@ http://jsfromhell.com/math/is-point-in-poly [rev. #0]
+  static isPointInPoly (poly, pt) {
+    for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+      ((poly[i].z <= pt.z && pt.z < poly[j].z) || (poly[j].z <= pt.z && pt.z < poly[i].z)) && (pt.x < (poly[j].x - poly[i].x) * (pt.z - poly[i].z) / (poly[j].z - poly[i].z) + poly[i].x) && (c = !c);
+    return c;
+  }
+
+  static isVectorInPolygon (vector, polygon, vertices) {
+
+    // reference point will be the centroid of the polygon
+    // We need to rotate the vector as well as all the points which the polygon uses
+
+    var lowestPoint = 100000;
+    var highestPoint = -100000;
+
+    var polygonVertices = [];
+
+    polygon.vertexIds.forEach((vId) => {
+      lowestPoint = Math.min(vertices[vId].y, lowestPoint);
+      highestPoint = Math.max(vertices[vId].y, highestPoint);
+      polygonVertices.push(vertices[vId]);
+    });
+
+    if (vector.y < highestPoint + 0.5 && vector.y > lowestPoint - 0.5 &&
+      this.isPointInPoly(polygonVertices, vector)) {
+      return true;
+    }
+    return false;
+  }
+
+  static triarea2 (a, b, c) {
+    var ax = b.x - a.x;
+    var az = b.z - a.z;
+    var bx = c.x - a.x;
+    var bz = c.z - a.z;
+    return bx * az - ax * bz;
+  }
+
+  static vequal (a, b) {
+    return this.distanceToSquared(a, b) < 0.00001;
+  }
+
+  static array_intersect () {
+    let i, shortest, nShortest, n, len, ret = [],
+      obj = {},
+      nOthers;
+    nOthers = arguments.length - 1;
+    nShortest = arguments[0].length;
+    shortest = 0;
+    for (i = 0; i <= nOthers; i++) {
+      n = arguments[i].length;
+      if (n < nShortest) {
+        shortest = i;
+        nShortest = n;
+      }
     }
 
-    this.mesh = new THREE.Mesh(geometry, material.material);
-    el.setObject3D('mesh', this.mesh);
-  },
-
-  remove: function () {
-    this.el.removeObject3D('mesh');
-  },
-
-  tick: function (t, dt) {
-    if (!dt) return;
-
-    var verts = this.mesh.geometry.vertices;
-    for (var v, vprops, i = 0; (v = verts[i]); i++){
-      vprops = this.waves[i];
-      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
-      vprops.ang += vprops.speed * dt;
+    for (i = 0; i <= nOthers; i++) {
+      n = (i === shortest) ? 0 : (i || shortest); //Read the shortest array first. Read the first array instead of the shortest
+      len = arguments[n].length;
+      for (var j = 0; j < len; j++) {
+        var elem = arguments[n][j];
+        if (obj[elem] === i - 1) {
+          if (i === nOthers) {
+            ret.push(elem);
+            obj[elem] = 0;
+          } else {
+            obj[elem] = i;
+          }
+        } else if (i === 0) {
+          obj[elem] = 0;
+        }
+      }
     }
-    this.mesh.geometry.verticesNeedUpdate = true;
+    return ret;
   }
-};
+}
 
-module.exports.registerAll = (function () {
-  var registered = false;
-  return function (AFRAME) {
-    if (registered) return;
-    AFRAME = AFRAME || window.AFRAME;
-    AFRAME.registerComponent('ocean', Component);
-    AFRAME.registerPrimitive('a-ocean', Primitive);
-    registered = true;
-  };
-}());
 
-},{}],114:[function(require,module,exports){
-/**
- * Tube following a custom path.
- *
- * Usage:
- *
- * ```html
- * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
- * ```
- */
-var Primitive = module.exports.Primitive = {
-  defaultComponents: {
-    tube:           {},
-  },
-  mappings: {
-    path:           'tube.path',
-    segments:       'tube.segments',
-    radius:         'tube.radius',
-    radialSegments: 'tube.radialSegments',
-    closed:         'tube.closed'
-  }
-};
 
-var Component = module.exports.Component = {
-  schema: {
-    path:           {default: []},
-    segments:       {default: 64},
-    radius:         {default: 1},
-    radialSegments: {default: 8},
-    closed:         {default: false}
-  },
+module.exports = Utils;
 
-  init: function () {
-    var el = this.el,
-        data = this.data,
-        material = el.components.material;
-
-    if (!data.path.length) {
-      console.error('[a-tube] `path` property expected but not found.');
-      return;
-    }
-
-    var curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
-      point = point.split(' ');
-      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
-    }));
-    var geometry = new THREE.TubeGeometry(
-      curve, data.segments, data.radius, data.radialSegments, data.closed
-    );
-
-    if (!material) {
-      material = {};
-      material.material = new THREE.MeshPhongMaterial();
-    }
-
-    this.mesh = new THREE.Mesh(geometry, material.material);
-    this.el.setObject3D('mesh', this.mesh);
-  },
-
-  remove: function () {
-    if (this.mesh) this.el.removeObject3D('mesh');
-  }
-};
-
-module.exports.registerAll = (function () {
-  var registered = false;
-  return function (AFRAME) {
-    if (registered) return;
-    AFRAME = AFRAME || window.AFRAME;
-    AFRAME.registerComponent('tube', Component);
-    AFRAME.registerPrimitive('a-tube', Primitive);
-    registered = true;
-  };
-}());
-
-},{}],115:[function(require,module,exports){
-module.exports = {
-  'a-grid':     require('./a-grid'),
-  'a-hexgrid': require('./a-hexgrid'),
-  'a-ocean':    require('./a-ocean'),
-  'a-tube':     require('./a-tube'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-    AFRAME = AFRAME || window.AFRAME;
-    this['a-grid'].registerAll(AFRAME);
-    this['a-hexgrid'].registerAll(AFRAME);
-    this['a-ocean'].registerAll(AFRAME);
-    this['a-tube'].registerAll(AFRAME);
-    this._registered = true;
-  }
-};
-
-},{"./a-grid":111,"./a-hexgrid":112,"./a-ocean":113,"./a-tube":114}],116:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./lib/THREE.quickhull');
 
@@ -28010,7 +23286,7 @@ function getMeshes (object) {
   return meshes;
 }
 
-},{"./lib/THREE.quickhull":117,"cannon":119}],117:[function(require,module,exports){
+},{"./lib/THREE.quickhull":83,"cannon":23}],83:[function(require,module,exports){
 /**
 
   QuickHull
@@ -28462,223 +23738,2921 @@ module.exports = (function(){
 
 }())
 
-},{}],118:[function(require,module,exports){
-module.exports={
-  "_args": [
-    [
-      {
-        "hosted": {
-          "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
-          "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-          "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-          "type": "github"
-        },
-        "name": "cannon",
-        "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "scope": null,
-        "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-        "type": "hosted"
-      },
-      "/Users/donmccurdy/Documents/Projects/three-to-cannon"
-    ]
-  ],
-  "_from": "donmccurdy/cannon.js#v0.6.2-dev1",
-  "_id": "cannon@0.6.2",
-  "_inCache": true,
-  "_installable": true,
-  "_location": "/cannon",
-  "_phantomChildren": {},
-  "_requested": {
-    "hosted": {
-      "directUrl": "https://raw.githubusercontent.com/donmccurdy/cannon.js/v0.6.2-dev1/package.json",
-      "gitUrl": "git://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "httpsUrl": "git+https://github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "shortcut": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-      "ssh": "git@github.com:donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "sshUrl": "git+ssh://git@github.com/donmccurdy/cannon.js.git#v0.6.2-dev1",
-      "type": "github"
-    },
-    "name": "cannon",
-    "raw": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "rawSpec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "scope": null,
-    "spec": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "type": "hosted"
+},{}],84:[function(require,module,exports){
+var EPS = 0.1;
+
+module.exports = {
+  schema: {
+    enabled: {default: true},
+    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
+    animateSpeed: {default: 3.0}
   },
-  "_requiredBy": [
-    "#USER"
-  ],
-  "_resolved": "git://github.com/donmccurdy/cannon.js.git#022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "_shasum": "b2d7815b32a84f8dc90ae863c66bcb44486855cb",
-  "_shrinkwrap": null,
-  "_spec": "cannon@github:donmccurdy/cannon.js#v0.6.2-dev1",
-  "_where": "/Users/donmccurdy/Documents/Projects/three-to-cannon",
-  "author": {
-    "email": "schteppe@gmail.com",
-    "name": "Stefan Hedman",
-    "url": "http://steffe.se"
+
+  init: function () {
+    this.active = true;
+    this.checkpoint = null;
+
+    this.offset = new THREE.Vector3();
+    this.position = new THREE.Vector3();
+    this.targetPosition = new THREE.Vector3();
   },
-  "bugs": {
-    "url": "https://github.com/schteppe/cannon.js/issues"
-  },
-  "dependencies": {},
-  "description": "A lightweight 3D physics engine written in JavaScript.",
-  "devDependencies": {
-    "browserify": "*",
-    "grunt": "~0.4.0",
-    "grunt-browserify": "^2.1.4",
-    "grunt-contrib-concat": "~0.1.3",
-    "grunt-contrib-jshint": "~0.1.1",
-    "grunt-contrib-nodeunit": "^0.4.1",
-    "grunt-contrib-uglify": "^0.5.1",
-    "grunt-contrib-yuidoc": "^0.5.2",
-    "jshint": "latest",
-    "nodeunit": "^0.9.0",
-    "uglify-js": "latest"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "gitHead": "022e8ba53fa83abf0ad8a0e4fd08623123838a17",
-  "homepage": "https://github.com/schteppe/cannon.js",
-  "keywords": [
-    "cannon.js",
-    "cannon",
-    "physics",
-    "engine",
-    "3d"
-  ],
-  "licenses": [
-    {
-      "type": "MIT"
+
+  play: function () { this.active = true; },
+  pause: function () { this.active = false; },
+
+  setCheckpoint: function (checkpoint) {
+    var el = this.el;
+
+    if (!this.active) return;
+    if (this.checkpoint === checkpoint) return;
+
+    if (this.checkpoint) {
+      el.emit('navigation-end', {checkpoint: checkpoint});
     }
-  ],
-  "main": "./src/Cannon.js",
-  "name": "cannon",
-  "optionalDependencies": {},
-  "readme": "# cannon.js\n\n### Lightweight 3D physics for the web\nInspired by [three.js](https://github.com/mrdoob/three.js) and [ammo.js](https://github.com/kripken/ammo.js), and driven by the fact that the web lacks a physics engine, here comes cannon.js.\nThe rigid body physics engine includes simple collision detection, various body shapes, contacts, friction and constraints.\n\n[Demos](http://schteppe.github.com/cannon.js) - [Documentation](http://schteppe.github.com/cannon.js/docs) - [Rendering hints](https://github.com/schteppe/cannon.js/tree/master/examples) - [NPM package](https://npmjs.org/package/cannon) - [CDN](https://cdnjs.com/libraries/cannon.js)\n\n### Browser install\n\nJust include [cannon.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.js) or [cannon.min.js](https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.min.js) in your html and you're done:\n\n```html\n<script src=\"cannon.min.js\"></script>\n```\n\n### Node.js install\n\nInstall the cannon package via NPM:\n\n```bash\nnpm install --save cannon\n```\n\nAlternatively, point to the Github repo directly to get the very latest version:\n\n```bash\nnpm install --save schteppe/cannon.js\n```\n\n### Example\n\nThe sample code below creates a sphere on a plane, steps the simulation, and prints the sphere simulation to the console. Note that Cannon.js uses [SI units](http://en.wikipedia.org/wiki/International_System_of_Units) (metre, kilogram, second, etc.).\n\n```javascript\n// Setup our world\nvar world = new CANNON.World();\nworld.gravity.set(0, 0, -9.82); // m/s²\n\n// Create a sphere\nvar radius = 1; // m\nvar sphereBody = new CANNON.Body({\n   mass: 5, // kg\n   position: new CANNON.Vec3(0, 0, 10), // m\n   shape: new CANNON.Sphere(radius)\n});\nworld.addBody(sphereBody);\n\n// Create a plane\nvar groundBody = new CANNON.Body({\n    mass: 0 // mass == 0 makes the body static\n});\nvar groundShape = new CANNON.Plane();\ngroundBody.addShape(groundShape);\nworld.addBody(groundBody);\n\nvar fixedTimeStep = 1.0 / 60.0; // seconds\nvar maxSubSteps = 3;\n\n// Start the simulation loop\nvar lastTime;\n(function simloop(time){\n  requestAnimationFrame(simloop);\n  if(lastTime !== undefined){\n     var dt = (time - lastTime) / 1000;\n     world.step(fixedTimeStep, dt, maxSubSteps);\n  }\n  console.log(\"Sphere z position: \" + sphereBody.position.z);\n  lastTime = time;\n})();\n```\n\nIf you want to know how to use cannon.js with a rendering engine, for example Three.js, see the [Examples](examples).\n\n### Features\n* Rigid body dynamics\n* Discrete collision detection\n* Contacts, friction and restitution\n* Constraints\n   * PointToPoint (a.k.a. ball/socket joint)\n   * Distance\n   * Hinge (with optional motor)\n   * Lock\n   * ConeTwist\n* Gauss-Seidel constraint solver and an island split algorithm\n* Collision filters\n* Body sleeping\n* Experimental SPH / fluid support\n* Various shapes and collision algorithms (see table below)\n\n|             | [Sphere](http://schteppe.github.io/cannon.js/docs/classes/Sphere.html) | [Plane](http://schteppe.github.io/cannon.js/docs/classes/Plane.html) | [Box](http://schteppe.github.io/cannon.js/docs/classes/Box.html) | [Convex](http://schteppe.github.io/cannon.js/docs/classes/ConvexPolyhedron.html) | [Particle](http://schteppe.github.io/cannon.js/docs/classes/Particle.html) | [Heightfield](http://schteppe.github.io/cannon.js/docs/classes/Heightfield.html) | [Trimesh](http://schteppe.github.io/cannon.js/docs/classes/Trimesh.html) |\n| :-----------|:------:|:-----:|:---:|:------:|:--------:|:-----------:|:-------:|\n| Sphere      | Yes    | Yes   | Yes | Yes    | Yes      | Yes         | Yes     |\n| Plane       | -      | -     | Yes | Yes    | Yes      | -           | Yes     |\n| Box         | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Cylinder    | -      | -     | Yes | Yes    | Yes      | Yes         | (todo)  |\n| Convex      | -      | -     | -   | Yes    | Yes      | Yes         | (todo)  |\n| Particle    | -      | -     | -   | -      | -        | (todo)      | (todo)  |\n| Heightfield | -      | -     | -   | -      | -        | -           | (todo)  |\n| Trimesh     | -      | -     | -   | -      | -        | -           | -       |\n\n### Todo\nThe simpler todos are marked with ```@todo``` in the code. Github Issues can and should also be used for todos.\n\n### Help\nCreate an [issue](https://github.com/schteppe/cannon.js/issues) if you need help.\n",
-  "readmeFilename": "README.markdown",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/schteppe/cannon.js.git"
+
+    this.checkpoint = checkpoint;
+    el.emit('navigation-start', {checkpoint: checkpoint});
+
+    if (this.data.mode === 'teleport') {
+      this.sync();
+      this.el.setAttribute('position', this.targetPosition);
+      this.checkpoint = null;
+      el.emit('navigation-end', {checkpoint: checkpoint});
+    }
   },
-  "version": "0.6.2"
+
+  isVelocityActive: function () {
+    return !!(this.active && this.checkpoint);
+  },
+
+  getVelocity: function () {
+    if (!this.active) return;
+
+    var data = this.data,
+        offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition,
+        checkpoint = this.checkpoint;
+
+    this.sync();
+    if (position.distanceTo(targetPosition) < EPS) {
+      this.checkpoint = null;
+      this.el.emit('navigation-end', {checkpoint: checkpoint});
+      return offset.set(0, 0, 0);
+    }
+    offset.setLength(data.animateSpeed);
+    return offset;
+  },
+
+  sync: function () {
+    var offset = this.offset,
+        position = this.position,
+        targetPosition = this.targetPosition;
+
+    position.copy(this.el.getAttribute('position'));
+    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
+    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
+    offset.copy(targetPosition).sub(position);
+  }
+};
+
+},{}],85:[function(require,module,exports){
+/**
+ * Gamepad controls for A-Frame.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
+ *
+ * For more information about the Gamepad API, see:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+ */
+
+var GamepadButton = require('../../lib/GamepadButton'),
+    GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
+
+var JOYSTICK_EPS = 0.2;
+
+module.exports = {
+
+  /*******************************************************************
+   * Statics
+   */
+
+  GamepadButton: GamepadButton,
+
+  /*******************************************************************
+   * Schema
+   */
+
+  schema: {
+    // Controller 0-3
+    controller:        { default: 0, oneOf: [0, 1, 2, 3] },
+
+    // Enable/disable features
+    enabled:           { default: true },
+
+    // Debugging
+    debug:             { default: false }
+  },
+
+  /*******************************************************************
+   * Core
+   */
+
+  /**
+   * Called once when component is attached. Generally for initial setup.
+   */
+  init: function () {
+    var scene = this.el.sceneEl;
+    this.prevTime = window.performance.now();
+
+    // Button state
+    this.buttons = {};
+
+    scene.addBehavior(this);
+  },
+
+  /**
+   * Called when component is attached and when component data changes.
+   * Generally modifies the entity based on the data.
+   */
+  update: function () { this.tick(); },
+
+  /**
+   * Called on each iteration of main render loop.
+   */
+  tick: function () {
+    this.updateButtonState();
+  },
+
+  /**
+   * Called when a component is removed (e.g., via removeAttribute).
+   * Generally undoes all modifications to the entity.
+   */
+  remove: function () { },
+
+  /*******************************************************************
+   * Universal controls - movement
+   */
+
+  isVelocityActive: function () {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y;
+
+    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
+  },
+
+  getVelocityDelta: function () {
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y,
+        dVelocity = new THREE.Vector3();
+
+    if (Math.abs(inputX) > JOYSTICK_EPS) {
+      dVelocity.x += inputX;
+    }
+    if (Math.abs(inputY) > JOYSTICK_EPS) {
+      dVelocity.z += inputY;
+    }
+
+    return dVelocity;
+  },
+
+  /*******************************************************************
+   * Universal controls - rotation
+   */
+
+  isRotationActive: function () {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    var joystick1 = this.getJoystick(1);
+
+    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
+  },
+
+  getRotationDelta: function () {
+    var lookVector = this.getJoystick(1);
+    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
+    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
+    return lookVector;
+  },
+
+  /*******************************************************************
+   * Button events
+   */
+
+  updateButtonState: function () {
+    var gamepad = this.getGamepad();
+    if (this.data.enabled && gamepad) {
+
+      // Fire DOM events for button state changes.
+      for (var i = 0; i < gamepad.buttons.length; i++) {
+        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
+          this.emit(new GamepadButtonEvent('gamepadbuttondown', i, gamepad.buttons[i]));
+        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
+          this.emit(new GamepadButtonEvent('gamepadbuttonup', i, gamepad.buttons[i]));
+        }
+        this.buttons[i] = gamepad.buttons[i].pressed;
+      }
+
+    } else if (Object.keys(this.buttons)) {
+      // Reset state if controls are disabled or controller is lost.
+      this.buttons = {};
+    }
+  },
+
+  emit: function (event) {
+    // Emit original event.
+    this.el.emit(event.type, event);
+
+    // Emit convenience event, identifying button index.
+    this.el.emit(
+      event.type + ':' + event.index,
+      new GamepadButtonEvent(event.type, event.index, event)
+    );
+  },
+
+  /*******************************************************************
+   * Gamepad state
+   */
+
+  /**
+   * Returns the Gamepad instance attached to the component. If connected,
+   * a proxy-controls component may provide access to Gamepad input from a
+   * remote device.
+   *
+   * @return {Gamepad}
+   */
+  getGamepad: function () {
+    var localGamepad = navigator.getGamepads
+          && navigator.getGamepads()[this.data.controller],
+        proxyControls = this.el.sceneEl.components['proxy-controls'],
+        proxyGamepad = proxyControls && proxyControls.isConnected()
+          && proxyControls.getGamepad(this.data.controller);
+    return proxyGamepad || localGamepad;
+  },
+
+  /**
+   * Returns the state of the given button.
+   * @param  {number} index The button (0-N) for which to find state.
+   * @return {GamepadButton}
+   */
+  getButton: function (index) {
+    return this.getGamepad().buttons[index];
+  },
+
+  /**
+   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
+   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
+   * @param  {number} index The axis (0-N) for which to find state.
+   * @return {number} On the interval [-1,1].
+   */
+  getAxis: function (index) {
+    return this.getGamepad().axes[index];
+  },
+
+  /**
+   * Returns the state of the given joystick (0 or 1) as a THREE.Vector2.
+   * @param  {number} id The joystick (0, 1) for which to find state.
+   * @return {THREE.Vector2}
+   */
+  getJoystick: function (index) {
+    var gamepad = this.getGamepad();
+    switch (index) {
+      case 0: return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
+      case 1: return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
+      default: throw new Error('Unexpected joystick index "%d".', index);
+    }
+  },
+
+  /**
+   * Returns the state of the dpad as a THREE.Vector2.
+   * @return {THREE.Vector2}
+   */
+  getDpad: function () {
+    var gamepad = this.getGamepad();
+    if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
+      return new THREE.Vector2();
+    }
+    return new THREE.Vector2(
+      (gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0)
+      + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0),
+      (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0)
+      + (gamepad.buttons[GamepadButton.DPAD_DOWN].pressed ? 1 : 0)
+    );
+  },
+
+  /**
+   * Returns true if the gamepad is currently connected to the system.
+   * @return {boolean}
+   */
+  isConnected: function () {
+    var gamepad = this.getGamepad();
+    return !!(gamepad && gamepad.connected);
+  },
+
+  /**
+   * Returns a string containing some information about the controller. Result
+   * may vary across browsers, for a given controller.
+   * @return {string}
+   */
+  getID: function () {
+    return this.getGamepad().id;
+  }
+};
+
+},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],86:[function(require,module,exports){
+var radToDeg = THREE.Math.radToDeg,
+    isMobile = AFRAME.utils.device.isMobile();
+
+module.exports = {
+  schema: {
+    enabled: {default: true},
+    standing: {default: true}
+  },
+
+  init: function () {
+    this.isPositionCalibrated = false;
+    this.dolly = new THREE.Object3D();
+    this.hmdEuler = new THREE.Euler();
+    this.previousHMDPosition = new THREE.Vector3();
+    this.deltaHMDPosition = new THREE.Vector3();
+    this.vrControls = new THREE.VRControls(this.dolly);
+    this.rotation = new THREE.Vector3();
+  },
+
+  update: function () {
+    var data = this.data;
+    var vrControls = this.vrControls;
+    vrControls.standing = data.standing;
+    vrControls.update();
+  },
+
+  tick: function () {
+    this.vrControls.update();
+  },
+
+  remove: function () {
+    this.vrControls.dispose();
+  },
+
+  isRotationActive: function () {
+    var hmdEuler = this.hmdEuler;
+    if (!this.data.enabled || !(this.el.sceneEl.is('vr-mode') || isMobile)) {
+      return false;
+    }
+    hmdEuler.setFromQuaternion(this.dolly.quaternion, 'YXZ');
+    return !isNullVector(hmdEuler);
+  },
+
+  getRotation: function () {
+    var hmdEuler = this.hmdEuler;
+    return this.rotation.set(
+      radToDeg(hmdEuler.x),
+      radToDeg(hmdEuler.y),
+      radToDeg(hmdEuler.z)
+    );
+  },
+
+  isVelocityActive: function () {
+    var deltaHMDPosition = this.deltaHMDPosition;
+    var previousHMDPosition = this.previousHMDPosition;
+    var currentHMDPosition = this.calculateHMDPosition();
+    this.isPositionCalibrated = this.isPositionCalibrated || !isNullVector(previousHMDPosition);
+    if (!this.data.enabled || !this.el.sceneEl.is('vr-mode') || isMobile) {
+      return false;
+    }
+    deltaHMDPosition.copy(currentHMDPosition).sub(previousHMDPosition);
+    previousHMDPosition.copy(currentHMDPosition);
+    return this.isPositionCalibrated && !isNullVector(deltaHMDPosition);
+  },
+
+  getPositionDelta: function () {
+    return this.deltaHMDPosition;
+  },
+
+  calculateHMDPosition: function () {
+    var dolly = this.dolly;
+    var position = new THREE.Vector3();
+    dolly.updateMatrix();
+    position.setFromMatrixPosition(dolly.matrix);
+    return position;
+  }
+};
+
+function isNullVector (vector) {
+  return vector.x === 0 && vector.y === 0 && vector.z === 0;
 }
 
-},{}],119:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"../package.json":118,"./collision/AABB":120,"./collision/ArrayCollisionMatrix":121,"./collision/Broadphase":122,"./collision/GridBroadphase":123,"./collision/NaiveBroadphase":124,"./collision/ObjectCollisionMatrix":125,"./collision/Ray":127,"./collision/RaycastResult":128,"./collision/SAPBroadphase":129,"./constraints/ConeTwistConstraint":130,"./constraints/Constraint":131,"./constraints/DistanceConstraint":132,"./constraints/HingeConstraint":133,"./constraints/LockConstraint":134,"./constraints/PointToPointConstraint":135,"./equations/ContactEquation":137,"./equations/Equation":138,"./equations/FrictionEquation":139,"./equations/RotationalEquation":140,"./equations/RotationalMotorEquation":141,"./material/ContactMaterial":142,"./material/Material":143,"./math/Mat3":145,"./math/Quaternion":146,"./math/Transform":147,"./math/Vec3":148,"./objects/Body":149,"./objects/RaycastVehicle":150,"./objects/RigidVehicle":151,"./objects/SPHSystem":152,"./objects/Spring":153,"./shapes/Box":155,"./shapes/ConvexPolyhedron":156,"./shapes/Cylinder":157,"./shapes/Heightfield":158,"./shapes/Particle":159,"./shapes/Plane":160,"./shapes/Shape":161,"./shapes/Sphere":162,"./shapes/Trimesh":163,"./solver/GSSolver":164,"./solver/Solver":165,"./solver/SplitSolver":166,"./utils/EventTarget":167,"./utils/Pool":169,"./utils/Vec3Pool":172,"./world/Narrowphase":173,"./world/World":174,"dup":24}],120:[function(require,module,exports){
-arguments[4][25][0].apply(exports,arguments)
-},{"../math/Vec3":148,"../utils/Utils":171,"dup":25}],121:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"dup":26}],122:[function(require,module,exports){
-arguments[4][27][0].apply(exports,arguments)
-},{"../math/Quaternion":146,"../math/Vec3":148,"../objects/Body":149,"../shapes/Plane":160,"../shapes/Shape":161,"dup":27}],123:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"../math/Vec3":148,"../shapes/Shape":161,"./Broadphase":122,"dup":28}],124:[function(require,module,exports){
-arguments[4][29][0].apply(exports,arguments)
-},{"./AABB":120,"./Broadphase":122,"dup":29}],125:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],126:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],127:[function(require,module,exports){
-arguments[4][32][0].apply(exports,arguments)
-},{"../collision/AABB":120,"../collision/RaycastResult":128,"../math/Quaternion":146,"../math/Transform":147,"../math/Vec3":148,"../shapes/Box":155,"../shapes/ConvexPolyhedron":156,"../shapes/Shape":161,"dup":32}],128:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"../math/Vec3":148,"dup":33}],129:[function(require,module,exports){
-arguments[4][34][0].apply(exports,arguments)
-},{"../collision/Broadphase":122,"../shapes/Shape":161,"dup":34}],130:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"../equations/ConeEquation":136,"../equations/ContactEquation":137,"../equations/RotationalEquation":140,"../math/Vec3":148,"./Constraint":131,"./PointToPointConstraint":135,"dup":35}],131:[function(require,module,exports){
-arguments[4][36][0].apply(exports,arguments)
-},{"../utils/Utils":171,"dup":36}],132:[function(require,module,exports){
-arguments[4][37][0].apply(exports,arguments)
-},{"../equations/ContactEquation":137,"./Constraint":131,"dup":37}],133:[function(require,module,exports){
-arguments[4][38][0].apply(exports,arguments)
-},{"../equations/ContactEquation":137,"../equations/RotationalEquation":140,"../equations/RotationalMotorEquation":141,"../math/Vec3":148,"./Constraint":131,"./PointToPointConstraint":135,"dup":38}],134:[function(require,module,exports){
-arguments[4][39][0].apply(exports,arguments)
-},{"../equations/ContactEquation":137,"../equations/RotationalEquation":140,"../equations/RotationalMotorEquation":141,"../math/Vec3":148,"./Constraint":131,"./PointToPointConstraint":135,"dup":39}],135:[function(require,module,exports){
-arguments[4][40][0].apply(exports,arguments)
-},{"../equations/ContactEquation":137,"../math/Vec3":148,"./Constraint":131,"dup":40}],136:[function(require,module,exports){
-arguments[4][41][0].apply(exports,arguments)
-},{"../math/Mat3":145,"../math/Vec3":148,"./Equation":138,"dup":41}],137:[function(require,module,exports){
-arguments[4][42][0].apply(exports,arguments)
-},{"../math/Mat3":145,"../math/Vec3":148,"./Equation":138,"dup":42}],138:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"../math/JacobianElement":144,"../math/Vec3":148,"dup":43}],139:[function(require,module,exports){
-arguments[4][44][0].apply(exports,arguments)
-},{"../math/Mat3":145,"../math/Vec3":148,"./Equation":138,"dup":44}],140:[function(require,module,exports){
-arguments[4][45][0].apply(exports,arguments)
-},{"../math/Mat3":145,"../math/Vec3":148,"./Equation":138,"dup":45}],141:[function(require,module,exports){
-arguments[4][46][0].apply(exports,arguments)
-},{"../math/Mat3":145,"../math/Vec3":148,"./Equation":138,"dup":46}],142:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"../utils/Utils":171,"dup":47}],143:[function(require,module,exports){
-arguments[4][48][0].apply(exports,arguments)
-},{"dup":48}],144:[function(require,module,exports){
-arguments[4][49][0].apply(exports,arguments)
-},{"./Vec3":148,"dup":49}],145:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"./Vec3":148,"dup":50}],146:[function(require,module,exports){
-arguments[4][51][0].apply(exports,arguments)
-},{"./Vec3":148,"dup":51}],147:[function(require,module,exports){
-arguments[4][52][0].apply(exports,arguments)
-},{"./Quaternion":146,"./Vec3":148,"dup":52}],148:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"./Mat3":145,"dup":53}],149:[function(require,module,exports){
-arguments[4][54][0].apply(exports,arguments)
-},{"../collision/AABB":120,"../material/Material":143,"../math/Mat3":145,"../math/Quaternion":146,"../math/Vec3":148,"../shapes/Box":155,"../shapes/Shape":161,"../utils/EventTarget":167,"dup":54}],150:[function(require,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"../collision/Ray":127,"../collision/RaycastResult":128,"../math/Quaternion":146,"../math/Vec3":148,"../objects/WheelInfo":154,"./Body":149,"dup":55}],151:[function(require,module,exports){
-arguments[4][56][0].apply(exports,arguments)
-},{"../constraints/HingeConstraint":133,"../math/Vec3":148,"../shapes/Box":155,"../shapes/Sphere":162,"./Body":149,"dup":56}],152:[function(require,module,exports){
-arguments[4][57][0].apply(exports,arguments)
-},{"../material/Material":143,"../math/Quaternion":146,"../math/Vec3":148,"../objects/Body":149,"../shapes/Particle":159,"../shapes/Shape":161,"dup":57}],153:[function(require,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"../math/Vec3":148,"dup":58}],154:[function(require,module,exports){
-arguments[4][59][0].apply(exports,arguments)
-},{"../collision/RaycastResult":128,"../math/Transform":147,"../math/Vec3":148,"../utils/Utils":171,"dup":59}],155:[function(require,module,exports){
-arguments[4][60][0].apply(exports,arguments)
-},{"../math/Vec3":148,"./ConvexPolyhedron":156,"./Shape":161,"dup":60}],156:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"../math/Quaternion":146,"../math/Transform":147,"../math/Vec3":148,"./Shape":161,"dup":61}],157:[function(require,module,exports){
-arguments[4][62][0].apply(exports,arguments)
-},{"../math/Quaternion":146,"../math/Vec3":148,"./ConvexPolyhedron":156,"./Shape":161,"dup":62}],158:[function(require,module,exports){
-arguments[4][63][0].apply(exports,arguments)
-},{"../math/Vec3":148,"../utils/Utils":171,"./ConvexPolyhedron":156,"./Shape":161,"dup":63}],159:[function(require,module,exports){
-arguments[4][64][0].apply(exports,arguments)
-},{"../math/Vec3":148,"./Shape":161,"dup":64}],160:[function(require,module,exports){
-arguments[4][65][0].apply(exports,arguments)
-},{"../math/Vec3":148,"./Shape":161,"dup":65}],161:[function(require,module,exports){
-arguments[4][66][0].apply(exports,arguments)
-},{"../material/Material":143,"../math/Quaternion":146,"../math/Vec3":148,"./Shape":161,"dup":66}],162:[function(require,module,exports){
-arguments[4][67][0].apply(exports,arguments)
-},{"../math/Vec3":148,"./Shape":161,"dup":67}],163:[function(require,module,exports){
-arguments[4][68][0].apply(exports,arguments)
-},{"../collision/AABB":120,"../math/Quaternion":146,"../math/Transform":147,"../math/Vec3":148,"../utils/Octree":168,"./Shape":161,"dup":68}],164:[function(require,module,exports){
-arguments[4][69][0].apply(exports,arguments)
-},{"../math/Quaternion":146,"../math/Vec3":148,"./Solver":165,"dup":69}],165:[function(require,module,exports){
-arguments[4][70][0].apply(exports,arguments)
-},{"dup":70}],166:[function(require,module,exports){
-arguments[4][71][0].apply(exports,arguments)
-},{"../math/Quaternion":146,"../math/Vec3":148,"../objects/Body":149,"./Solver":165,"dup":71}],167:[function(require,module,exports){
-arguments[4][72][0].apply(exports,arguments)
-},{"dup":72}],168:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"../collision/AABB":120,"../math/Vec3":148,"dup":73}],169:[function(require,module,exports){
-arguments[4][74][0].apply(exports,arguments)
-},{"dup":74}],170:[function(require,module,exports){
-arguments[4][75][0].apply(exports,arguments)
-},{"dup":75}],171:[function(require,module,exports){
-arguments[4][76][0].apply(exports,arguments)
-},{"dup":76}],172:[function(require,module,exports){
-arguments[4][77][0].apply(exports,arguments)
-},{"../math/Vec3":148,"./Pool":169,"dup":77}],173:[function(require,module,exports){
-arguments[4][78][0].apply(exports,arguments)
-},{"../collision/AABB":120,"../collision/Ray":127,"../equations/ContactEquation":137,"../equations/FrictionEquation":139,"../math/Quaternion":146,"../math/Transform":147,"../math/Vec3":148,"../objects/Body":149,"../shapes/ConvexPolyhedron":156,"../shapes/Shape":161,"../solver/Solver":165,"../utils/Vec3Pool":172,"dup":78}],174:[function(require,module,exports){
-arguments[4][79][0].apply(exports,arguments)
-},{"../collision/AABB":120,"../collision/ArrayCollisionMatrix":121,"../collision/NaiveBroadphase":124,"../collision/OverlapKeeper":126,"../collision/Ray":127,"../collision/RaycastResult":128,"../equations/ContactEquation":137,"../equations/FrictionEquation":139,"../material/ContactMaterial":142,"../material/Material":143,"../math/Quaternion":146,"../math/Vec3":148,"../objects/Body":149,"../shapes/Shape":161,"../solver/GSSolver":164,"../utils/EventTarget":167,"../utils/TupleDictionary":170,"./Narrowphase":173,"dup":79}]},{},[1]);
+},{}],87:[function(require,module,exports){
+var physics = require('aframe-physics-system');
+
+module.exports = {
+  'checkpoint-controls': require('./checkpoint-controls'),
+  'gamepad-controls':    require('./gamepad-controls'),
+  'hmd-controls':        require('./hmd-controls'),
+  'keyboard-controls':   require('./keyboard-controls'),
+  'mouse-controls':      require('./mouse-controls'),
+  'touch-controls':      require('./touch-controls'),
+  'universal-controls':  require('./universal-controls'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    physics.registerAll();
+    if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
+    if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
+    if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);
+    if (!AFRAME.components['keyboard-controls'])    AFRAME.registerComponent('keyboard-controls',   this['keyboard-controls']);
+    if (!AFRAME.components['mouse-controls'])       AFRAME.registerComponent('mouse-controls',      this['mouse-controls']);
+    if (!AFRAME.components['touch-controls'])       AFRAME.registerComponent('touch-controls',      this['touch-controls']);
+    if (!AFRAME.components['universal-controls'])   AFRAME.registerComponent('universal-controls',  this['universal-controls']);
+
+    this._registered = true;
+  }
+};
+
+},{"./checkpoint-controls":84,"./gamepad-controls":85,"./hmd-controls":86,"./keyboard-controls":88,"./mouse-controls":89,"./touch-controls":90,"./universal-controls":91,"aframe-physics-system":11}],88:[function(require,module,exports){
+require('../../lib/keyboard.polyfill');
+
+var MAX_DELTA = 0.2,
+    PROXY_FLAG = '__keyboard-controls-proxy';
+
+var KeyboardEvent = window.KeyboardEvent;
+
+/**
+ * Keyboard Controls component.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
+ *
+ * Bind keyboard events to components, or control your entities with the WASD keys.
+ *
+ * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
+ * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
+ * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
+ * when you care about which physical key was pressed, rather thanwhich character it corresponds
+ * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
+ * player in different directions, and that mapping should ideally be independent of keyboard
+ * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
+ *
+ * @namespace wasd-controls
+ * keys the entity moves and if you release it will stop. Easing simulates friction.
+ * to the entity when pressing the keys.
+ * @param {bool} [enabled=true] - To completely enable or disable the controls
+ */
+module.exports = {
+  schema: {
+    enabled:           { default: true },
+    debug:             { default: false }
+  },
+
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+    this.localKeys = {};
+    this.listeners = {
+      keydown: this.onKeyDown.bind(this),
+      keyup: this.onKeyUp.bind(this),
+      blur: this.onBlur.bind(this)
+    };
+    this.attachEventListeners();
+  },
+
+  /*******************************************************************
+  * Movement
+  */
+
+  isVelocityActive: function () {
+    return this.data.enabled && !!Object.keys(this.getKeys()).length;
+  },
+
+  getVelocityDelta: function () {
+    var data = this.data,
+        keys = this.getKeys();
+
+    this.dVelocity.set(0, 0, 0);
+    if (data.enabled) {
+      if (keys.KeyW || keys.ArrowUp)    { this.dVelocity.z -= 1; }
+      if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
+      if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
+      if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
+    }
+
+    return this.dVelocity.clone();
+  },
+
+  /*******************************************************************
+  * Events
+  */
+
+  play: function () {
+    this.attachEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  attachEventListeners: function () {
+    window.addEventListener('keydown', this.listeners.keydown, false);
+    window.addEventListener('keyup', this.listeners.keyup, false);
+    window.addEventListener('blur', this.listeners.blur, false);
+  },
+
+  removeEventListeners: function () {
+    window.removeEventListener('keydown', this.listeners.keydown);
+    window.removeEventListener('keyup', this.listeners.keyup);
+    window.removeEventListener('blur', this.listeners.blur);
+  },
+
+  onKeyDown: function (event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      this.localKeys[event.code] = true;
+      this.emit(event);
+    }
+  },
+
+  onKeyUp: function (event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      delete this.localKeys[event.code];
+      this.emit(event);
+    }
+  },
+
+  onBlur: function () {
+    for (var code in this.localKeys) {
+      if (this.localKeys.hasOwnProperty(code)) {
+        delete this.localKeys[code];
+      }
+    }
+  },
+
+  emit: function (event) {
+    // TODO - keydown only initially?
+    // TODO - where the f is the spacebar
+
+    // Emit original event.
+    if (PROXY_FLAG in event) {
+      // TODO - Method never triggered.
+      this.el.emit(event.type, event);
+    }
+
+    // Emit convenience event, identifying key.
+    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
+    if (this.data.debug) console.log(event.type + ':' + event.code);
+  },
+
+  /*******************************************************************
+  * Accessors
+  */
+
+  isPressed: function (code) {
+    return code in this.getKeys();
+  },
+
+  getKeys: function () {
+    if (this.isProxied()) {
+      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
+    }
+    return this.localKeys;
+  },
+
+  isProxied: function () {
+    var proxyControls = this.el.sceneEl.components['proxy-controls'];
+    return proxyControls && proxyControls.isConnected();
+  }
+
+};
+
+},{"../../lib/keyboard.polyfill":10}],89:[function(require,module,exports){
+document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+
+/**
+ * Mouse + Pointerlock controls.
+ *
+ * Based on: https://github.com/aframevr/aframe/pull/1056
+ */
+module.exports = {
+  schema: {
+    enabled: { default: true },
+    pointerlockEnabled: { default: true },
+    sensitivity: { default: 1 / 25 }
+  },
+
+  init: function () {
+    this.mouseDown = false;
+    this.pointerLocked = false;
+    this.lookVector = new THREE.Vector2();
+    this.bindMethods();
+  },
+
+  update: function (previousData) {
+    var data = this.data;
+    if (previousData.pointerlockEnabled && !data.pointerlockEnabled && this.pointerLocked) {
+      document.exitPointerLock();
+    }
+  },
+
+  play: function () {
+    this.addEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+    this.lookVector.set(0, 0);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  bindMethods: function () {
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+    this.onPointerLockChange = this.onPointerLockChange.bind(this);
+  },
+
+  addEventListeners: function () {
+    var sceneEl = this.el.sceneEl;
+    var canvasEl = sceneEl.canvas;
+    var data = this.data;
+
+    if (!canvasEl) {
+      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+      return;
+    }
+
+    canvasEl.addEventListener('mousedown', this.onMouseDown, false);
+    canvasEl.addEventListener('mousemove', this.onMouseMove, false);
+    canvasEl.addEventListener('mouseup', this.onMouseUp, false);
+    canvasEl.addEventListener('mouseout', this.onMouseUp, false);
+
+    if (data.pointerlockEnabled) {
+      document.addEventListener('pointerlockchange', this.onPointerLockChange, false);
+      document.addEventListener('mozpointerlockchange', this.onPointerLockChange, false);
+      document.addEventListener('pointerlockerror', this.onPointerLockError, false);
+    }
+  },
+
+  removeEventListeners: function () {
+    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    if (canvasEl) {
+      canvasEl.removeEventListener('mousedown', this.onMouseDown, false);
+      canvasEl.removeEventListener('mousemove', this.onMouseMove, false);
+      canvasEl.removeEventListener('mouseup', this.onMouseUp, false);
+      canvasEl.removeEventListener('mouseout', this.onMouseUp, false);
+    }
+    document.removeEventListener('pointerlockchange', this.onPointerLockChange, false);
+    document.removeEventListener('mozpointerlockchange', this.onPointerLockChange, false);
+    document.removeEventListener('pointerlockerror', this.onPointerLockError, false);
+  },
+
+  isRotationActive: function () {
+    return this.data.enabled && (this.mouseDown || this.pointerLocked);
+  },
+
+  /**
+   * Returns the sum of all mouse movement since last call.
+   */
+  getRotationDelta: function () {
+    var dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
+    this.lookVector.set(0, 0);
+    return dRotation;
+  },
+
+  onMouseMove: function (event) {
+    var previousMouseEvent = this.previousMouseEvent;
+
+    if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) {
+      return;
+    }
+
+    var movementX = event.movementX || event.mozMovementX || 0;
+    var movementY = event.movementY || event.mozMovementY || 0;
+
+    if (!this.pointerLocked) {
+      movementX = event.screenX - previousMouseEvent.screenX;
+      movementY = event.screenY - previousMouseEvent.screenY;
+    }
+
+    this.lookVector.x += movementX;
+    this.lookVector.y += movementY;
+
+    this.previousMouseEvent = event;
+  },
+
+  onMouseDown: function (event) {
+    var canvasEl = this.el.sceneEl.canvas,
+        isEditing = (AFRAME.INSPECTOR || {}).opened;
+
+    this.mouseDown = true;
+    this.previousMouseEvent = event;
+
+    if (this.data.pointerlockEnabled && !this.pointerLocked && !isEditing) {
+      if (canvasEl.requestPointerLock) {
+        canvasEl.requestPointerLock();
+      } else if (canvasEl.mozRequestPointerLock) {
+        canvasEl.mozRequestPointerLock();
+      }
+    }
+  },
+
+  onMouseUp: function () {
+    this.mouseDown = false;
+  },
+
+  onPointerLockChange: function () {
+    this.pointerLocked = !!(document.pointerLockElement || document.mozPointerLockElement);
+  },
+
+  onPointerLockError: function () {
+    this.pointerLocked = false;
+  }
+};
+
+},{}],90:[function(require,module,exports){
+module.exports = {
+  schema: {
+    enabled: { default: true }
+  },
+
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+    this.bindMethods();
+  },
+
+  play: function () {
+    this.addEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+    this.dVelocity.set(0, 0, 0);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  addEventListeners: function () {
+    var sceneEl = this.el.sceneEl;
+    var canvasEl = sceneEl.canvas;
+
+    if (!canvasEl) {
+      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+      return;
+    }
+
+    canvasEl.addEventListener('touchstart', this.onTouchStart);
+    canvasEl.addEventListener('touchend', this.onTouchEnd);
+  },
+
+  removeEventListeners: function () {
+    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    if (!canvasEl) { return; }
+
+    canvasEl.removeEventListener('touchstart', this.onTouchStart);
+    canvasEl.removeEventListener('touchend', this.onTouchEnd);
+  },
+
+  isVelocityActive: function () {
+    return this.data.enabled && this.isMoving;
+  },
+
+  getVelocityDelta: function () {
+    this.dVelocity.z = this.isMoving ? -1 : 0;
+    return this.dVelocity.clone();
+  },
+
+  bindMethods: function () {
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+  },
+
+  onTouchStart: function (e) {
+    this.isMoving = true;
+    e.preventDefault();
+  },
+
+  onTouchEnd: function (e) {
+    this.isMoving = false;
+    e.preventDefault();
+  }
+};
+
+},{}],91:[function(require,module,exports){
+/**
+ * Universal Controls
+ *
+ * @author Don McCurdy <dm@donmccurdy.com>
+ */
+
+var COMPONENT_SUFFIX = '-controls',
+    MAX_DELTA = 0.2, // ms
+    PI_2 = Math.PI / 2;
+
+module.exports = {
+
+  /*******************************************************************
+   * Schema
+   */
+
+  dependencies: ['velocity', 'rotation'],
+
+  schema: {
+    enabled:              { default: true },
+    movementEnabled:      { default: true },
+    movementControls:     { default: ['gamepad', 'keyboard', 'touch', 'hmd'] },
+    rotationEnabled:      { default: true },
+    rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
+    movementSpeed:        { default: 5 }, // m/s
+    movementEasing:       { default: 15 }, // m/s2
+    movementEasingY:      { default: 0  }, // m/s2
+    movementAcceleration: { default: 80 }, // m/s2
+    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
+    fly:                  { default: false },
+  },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
+  init: function () {
+    var rotation = this.el.getAttribute('rotation');
+
+    if (this.el.hasAttribute('look-controls') && this.data.rotationEnabled) {
+      console.error('[universal-controls] The `universal-controls` component is a replacement '
+        + 'for `look-controls`, and cannot be used in combination with it.');
+    }
+
+    // Movement
+    this.velocity = new THREE.Vector3();
+
+    // Rotation
+    this.pitch = new THREE.Object3D();
+    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+    this.yaw = new THREE.Object3D();
+    this.yaw.position.y = 10;
+    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
+    this.yaw.add(this.pitch);
+    this.heading = new THREE.Euler(0, 0, 0, 'YXZ');
+
+    if (this.el.sceneEl.hasLoaded) {
+      this.injectControls();
+    } else {
+      this.el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
+    }
+  },
+
+  update: function () {
+    if (this.el.sceneEl.hasLoaded) {
+      this.injectControls();
+    }
+  },
+
+  injectControls: function () {
+    var i, name,
+        data = this.data;
+
+    for (i = 0; i < data.movementControls.length; i++) {
+      name = data.movementControls[i] + COMPONENT_SUFFIX;
+      if (!this.el.components[name]) {
+        this.el.setAttribute(name, '');
+      }
+    }
+
+    for (i = 0; i < data.rotationControls.length; i++) {
+      name = data.rotationControls[i] + COMPONENT_SUFFIX;
+      if (!this.el.components[name]) {
+        this.el.setAttribute(name, '');
+      }
+    }
+  },
+
+  /*******************************************************************
+   * Tick
+   */
+
+  tick: function (t, dt) {
+    if (!dt) { return; }
+
+    // Update rotation.
+    if (this.data.rotationEnabled) this.updateRotation(dt);
+
+    // Update velocity. If FPS is too low, reset.
+    if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
+      this.velocity.set(0, 0, 0);
+      this.el.setAttribute('velocity', this.velocity);
+    } else {
+      this.updateVelocity(dt);
+    }
+  },
+
+  /*******************************************************************
+   * Rotation
+   */
+
+  updateRotation: function (dt) {
+    var control, dRotation,
+        data = this.data;
+
+    for (var i = 0, l = data.rotationControls.length; i < l; i++) {
+      control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
+      if (control && control.isRotationActive()) {
+        if (control.getRotationDelta) {
+          dRotation = control.getRotationDelta(dt);
+          dRotation.multiplyScalar(data.rotationSensitivity);
+          this.yaw.rotation.y -= dRotation.x;
+          this.pitch.rotation.x -= dRotation.y;
+          this.pitch.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitch.rotation.x));
+          this.el.setAttribute('rotation', {
+            x: THREE.Math.radToDeg(this.pitch.rotation.x),
+            y: THREE.Math.radToDeg(this.yaw.rotation.y),
+            z: 0
+          });
+        } else if (control.getRotation) {
+          this.el.setAttribute('rotation', control.getRotation());
+        } else {
+          throw new Error('Incompatible rotation controls: %s', data.rotationControls[i]);
+        }
+        break;
+      }
+    }
+  },
+
+  /*******************************************************************
+   * Movement
+   */
+
+  updateVelocity: function (dt) {
+    var control, dVelocity,
+        velocity = this.velocity,
+        data = this.data;
+
+    if (data.movementEnabled) {
+      for (var i = 0, l = data.movementControls.length; i < l; i++) {
+        control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
+        if (control && control.isVelocityActive()) {
+          if (control.getVelocityDelta) {
+            dVelocity = control.getVelocityDelta(dt);
+          } else if (control.getVelocity) {
+            this.el.setAttribute('velocity', control.getVelocity());
+            return;
+          } else if (control.getPositionDelta) {
+            velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
+            this.el.setAttribute('velocity', velocity);
+            return;
+          } else {
+            throw new Error('Incompatible movement controls: ', data.movementControls[i]);
+          }
+          break;
+        }
+      }
+    }
+
+    velocity.copy(this.el.getAttribute('velocity'));
+    velocity.x -= velocity.x * data.movementEasing * dt / 1000;
+    velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
+    velocity.z -= velocity.z * data.movementEasing * dt / 1000;
+
+    if (dVelocity && data.movementEnabled) {
+      // Set acceleration
+      if (dVelocity.length() > 1) {
+        dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
+      } else {
+        dVelocity.multiplyScalar(this.data.movementAcceleration * dt / 1000);
+      }
+
+      // Rotate to heading
+      var rotation = this.el.getAttribute('rotation');
+      if (rotation) {
+        this.heading.set(
+          data.fly ? THREE.Math.degToRad(rotation.x) : 0,
+          THREE.Math.degToRad(rotation.y),
+          0
+        );
+        dVelocity.applyEuler(this.heading);
+      }
+
+      velocity.add(dVelocity);
+
+      // TODO - Several issues here:
+      // (1) Interferes w/ gravity.
+      // (2) Interferes w/ jumping.
+      // (3) Likely to interfere w/ relative position to moving platform.
+      // if (velocity.length() > data.movementSpeed) {
+      //   velocity.setLength(data.movementSpeed);
+      // }
+    }
+
+    this.el.setAttribute('velocity', velocity);
+  }
+};
+
+},{}],92:[function(require,module,exports){
+var LoopMode = {
+  once: THREE.LoopOnce,
+  repeat: THREE.LoopRepeat,
+  pingpong: THREE.LoopPingPong
+};
+
+/**
+ * animation-mixer
+ *
+ * Player for animation clips. Intended to be compatible with any model format that supports
+ * skeletal or morph animations through THREE.AnimationMixer.
+ * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
+ */
+module.exports = {
+  schema: {
+    clip:  {default: '*'},
+    duration: {default: 0},
+    crossFadeDuration: {default: 0},
+    loop: {default: 'repeat', oneOf: Object.keys(LoopMode)},
+    repetitions: {default: Infinity, min: 0}
+  },
+
+  init: function () {
+    /** @type {THREE.Mesh} */
+    this.model = null;
+    /** @type {THREE.AnimationMixer} */
+    this.mixer = null;
+    /** @type {Array<THREE.AnimationAction>} */
+    this.activeActions = [];
+
+    var model = this.el.getObject3D('mesh');
+
+    if (model) {
+      this.load(model);
+    } else {
+      this.el.addEventListener('model-loaded', function(e) {
+        this.load(e.detail.model);
+      }.bind(this));
+    }
+  },
+
+  load: function (model) {
+    var el = this.el;
+    this.model = model;
+    this.mixer = new THREE.AnimationMixer(model);
+    this.mixer.addEventListener('loop', function (e) {
+      el.emit('animation-loop', {action: e.action, loopDelta: e.loopDelta});
+    }.bind(this));
+    this.mixer.addEventListener('finished', function (e) {
+      el.emit('animation-finished', {action: e.action, direction: e.direction});
+    }.bind(this));
+    if (this.data.clip) this.update({});
+  },
+
+  remove: function () {
+    if (this.mixer) this.mixer.stopAllAction();
+  },
+
+  update: function (previousData) {
+    if (!previousData) return;
+
+    this.stopAction();
+
+    if (this.data.clip) {
+      this.playAction();
+    }
+  },
+
+  stopAction: function () {
+    var data = this.data;
+    for (var i = 0; i < this.activeActions.length; i++) {
+      data.crossFadeDuration
+        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
+        : this.activeActions[i].stop();
+    }
+    this.activeActions.length = 0;
+  },
+
+  playAction: function () {
+    if (!this.mixer) return;
+
+    var model = this.model,
+        data = this.data,
+        clips = model.animations || (model.geometry || {}).animations || [];
+
+    if (!clips.length) return;
+
+    var re = wildcardToRegExp(data.clip);
+
+    for (var clip, i = 0; (clip = clips[i]); i++) {
+      if (clip.name.match(re)) {
+        var action = this.mixer.clipAction(clip, model);
+        action.enabled = true;
+        if (data.duration) action.setDuration(data.duration);
+        action
+          .setLoop(LoopMode[data.loop], data.repetitions)
+          .fadeIn(data.crossFadeDuration)
+          .play();
+        this.activeActions.push(action);
+      }
+    }
+  },
+
+  tick: function (t, dt) {
+    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
+  }
+};
+
+/**
+ * Creates a RegExp from the given string, converting asterisks to .* expressions,
+ * and escaping all other characters.
+ */
+function wildcardToRegExp (s) {
+  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
+}
+
+/**
+ * RegExp-escapes all characters in the given string.
+ */
+function regExpEscape (s) {
+  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+}
+
+},{}],93:[function(require,module,exports){
+THREE.FBXLoader = require('../../lib/FBXLoader');
+
+/**
+ * fbx-model
+ *
+ * Loader for FBX format. Supports ASCII, but *not* binary, models.
+ */
+module.exports = {
+  schema: {
+    src:         { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    var loader,
+        data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.FBXLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, this.load.bind(this));
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'fbx', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+};
+
+},{"../../lib/FBXLoader":3}],94:[function(require,module,exports){
+var fetchScript = require('../../lib/fetch-script')();
+
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
+
+/**
+ * Legacy loader for glTF 1.0 models.
+ * Asynchronously loads THREE.GLTFLoader from rawgit.
+ */
+module.exports.Component = {
+  schema: {type: 'model'},
+
+  init: function () {
+    this.model = null;
+    this.loader = null;
+    this.loaderPromise = loadLoader().then(function () {
+      this.loader = new THREE.GLTFLoader();
+      this.loader.setCrossOrigin('Anonymous');
+    }.bind(this));
+  },
+
+  update: function () {
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+
+    if (!src) { return; }
+
+    this.remove();
+
+    this.loaderPromise.then(function () {
+      this.loader.load(src, function gltfLoaded (gltfModel) {
+        self.model = gltfModel.scene;
+        self.model.animations = gltfModel.animations;
+        self.system.registerModel(self.model);
+        el.setObject3D('mesh', self.model);
+        el.emit('model-loaded', {format: 'gltf', model: self.model});
+      });
+    }.bind(this));
+  },
+
+  remove: function () {
+    if (!this.model) { return; }
+    this.el.removeObject3D('mesh');
+    this.system.unregisterModel(this.model);
+  }
+};
+
+/**
+ * glTF model system.
+ */
+module.exports.System = {
+  init: function () {
+    this.models = [];
+  },
+
+  /**
+   * Updates shaders for all glTF models in the system.
+   */
+  tick: function () {
+    var sceneEl = this.sceneEl;
+    if (sceneEl.hasLoaded && this.models.length) {
+      THREE.GLTFLoader.Shaders.update(sceneEl.object3D, sceneEl.camera);
+    }
+  },
+
+  /**
+   * Registers a glTF asset.
+   * @param {object} gltf Asset containing a scene and (optional) animations and cameras.
+   */
+  registerModel: function (gltf) {
+    this.models.push(gltf);
+  },
+
+  /**
+   * Unregisters a glTF asset.
+   * @param  {object} gltf Asset containing a scene and (optional) animations and cameras.
+   */
+  unregisterModel: function (gltf) {
+    var models = this.models;
+    var index = models.indexOf(gltf);
+    if (index >= 0) {
+      models.splice(index, 1);
+    }
+  }
+};
+
+var loadLoader = (function () {
+  var promise;
+  return function () {
+    promise = promise || fetchScript(LOADER_SRC);
+    return promise;
+  };
+}());
+
+},{"../../lib/fetch-script":8}],95:[function(require,module,exports){
+var fetchScript = require('../../lib/fetch-script')();
+
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTF2Loader.js';
+// Monkeypatch while waiting for three.js r86.
+if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
+
+  THREE.PropertyBinding.sanitizeNodeName = function (s) {
+    return s.replace( /\s/g, '_' ).replace( /[^\w-]/g, '' );
+  };
+
+}
+
+/**
+ * Upcoming loader for glTF 2.0 models.
+ * Asynchronously loads THREE.GLTF2Loader from rawgit.
+ */
+module.exports = {
+  schema: {type: 'model'},
+
+  init: function () {
+    this.model = null;
+    this.loader = null;
+    this.loaderPromise = loadLoader().then(function () {
+      this.loader = new THREE.GLTF2Loader();
+      this.loader.setCrossOrigin('Anonymous');
+    }.bind(this));
+  },
+
+  update: function () {
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+
+    if (!src) { return; }
+
+    this.remove();
+
+    this.loaderPromise.then(function () {
+      this.loader.load(src, function gltfLoaded (gltfModel) {
+        self.model = gltfModel.scene;
+        self.model.animations = gltfModel.animations;
+        el.setObject3D('mesh', self.model);
+        el.emit('model-loaded', {format: 'gltf', model: self.model});
+      });
+    }.bind(this));
+  },
+
+  remove: function () {
+    if (!this.model) { return; }
+    this.el.removeObject3D('mesh');
+  }
+};
+
+var loadLoader = (function () {
+  var promise;
+  return function () {
+    promise = promise || fetchScript(LOADER_SRC);
+    return promise;
+  };
+}());
+
+},{"../../lib/fetch-script":8}],96:[function(require,module,exports){
+module.exports = {
+  'animation-mixer': require('./animation-mixer'),
+  'fbx-model': require('./fbx-model'),
+  'gltf-model-next': require('./gltf-model-next'),
+  'gltf-model-legacy': require('./gltf-model-legacy'),
+  'json-model': require('./json-model'),
+  'object-model': require('./object-model'),
+  'ply-model': require('./ply-model'),
+  'three-model': require('./three-model'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    // THREE.AnimationMixer
+    if (!AFRAME.components['animation-mixer']) {
+      AFRAME.registerComponent('animation-mixer', this['animation-mixer']);
+    }
+
+    // THREE.PlyLoader
+    if (!AFRAME.systems['ply-model']) {
+      AFRAME.registerSystem('ply-model', this['ply-model'].System);
+    }
+    if (!AFRAME.components['ply-model']) {
+      AFRAME.registerComponent('ply-model', this['ply-model'].Component);
+    }
+
+    // THREE.FBXLoader
+    if (!AFRAME.components['fbx-model']) {
+      AFRAME.registerComponent('fbx-model', this['fbx-model']);
+    }
+
+    // THREE.GLTF2Loader
+    if (!AFRAME.components['gltf-model-next']) {
+      AFRAME.registerComponent('gltf-model-next', this['gltf-model-next']);
+    }
+
+    // THREE.GLTFLoader
+    if (!AFRAME.components['gltf-model-legacy']) {
+      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy'].Component);
+      AFRAME.registerSystem('gltf-model-legacy', this['gltf-model-legacy'].System);
+    }
+
+    // THREE.JsonLoader
+    if (!AFRAME.components['json-model']) {
+      AFRAME.registerComponent('json-model', this['json-model']);
+    }
+
+    // THREE.ObjectLoader
+    if (!AFRAME.components['object-model']) {
+      AFRAME.registerComponent('object-model', this['object-model']);
+    }
+
+    // (deprecated) THREE.JsonLoader and THREE.ObjectLoader
+    if (!AFRAME.components['three-model']) {
+      AFRAME.registerComponent('three-model', this['three-model']);
+    }
+
+    this._registered = true;
+  }
+};
+
+},{"./animation-mixer":92,"./fbx-model":93,"./gltf-model-legacy":94,"./gltf-model-next":95,"./json-model":97,"./object-model":98,"./ply-model":99,"./three-model":100}],97:[function(require,module,exports){
+/**
+ * json-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.JsonLoader, which typically
+ * includes only a single mesh.
+ *
+ * Check the console for errors, if in doubt. You may need to use `object-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+module.exports = {
+  schema: {
+    src:         { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    var loader,
+        data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.JSONLoader();
+    if (data.crossorigin) loader.crossOrigin = data.crossorigin;
+    loader.load(data.src, function (geometry, materials) {
+
+      // Attempt to automatically detect common material options.
+      materials.forEach(function (mat) {
+        mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
+        mat.skinning = !!(geometry.bones || []).length;
+        mat.morphTargets = !!(geometry.morphTargets || []).length;
+        mat.morphNormals = !!(geometry.morphNormals || []).length;
+      });
+
+      var model = (geometry.bones || []).length
+        ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
+        : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+      this.load(model);
+    }.bind(this));
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'json', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+};
+
+},{}],98:[function(require,module,exports){
+/**
+ * object-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
+ * includes multiple meshes or an entire scene.
+ *
+ * Check the console for errors, if in doubt. You may need to use `json-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+module.exports = {
+  schema: {
+    src:         { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    var loader,
+        data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.ObjectLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, function(object) {
+
+      // Enable skinning, if applicable.
+      object.traverse(function(o) {
+        if (o instanceof THREE.SkinnedMesh && o.material) {
+          o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
+        }
+      });
+
+      this.load(object);
+    }.bind(this));
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'json', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+};
+
+},{}],99:[function(require,module,exports){
+/**
+ * ply-model
+ *
+ * Wraps THREE.PLYLoader.
+ */
+THREE.PLYLoader = require('../../lib/PLYLoader');
+
+/**
+ * Loads, caches, resolves geometries.
+ *
+ * @member cache - Promises that resolve geometries keyed by `src`.
+ */
+module.exports.System = {
+  init: function () {
+    this.cache = {};
+  },
+
+  /**
+   * @returns {Promise}
+   */
+  getOrLoadGeometry: function (src, skipCache) {
+    var cache = this.cache;
+    var cacheItem = cache[src];
+
+    if (!skipCache && cacheItem) {
+      return cacheItem;
+    }
+
+    cache[src] = new Promise(function (resolve) {
+      var loader = new THREE.PLYLoader();
+      loader.load(src, function (geometry) {
+        resolve(geometry);
+      });
+    });
+    return cache[src];
+  },
+};
+
+module.exports.Component = {
+  schema: {
+    skipCache: {type: 'boolean', default: false},
+    src: {type: 'asset'}
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    var data = this.data;
+    var el = this.el;
+    var loader;
+
+    if (!data.src) {
+      console.warn('[%s] `src` property is required.', this.name);
+      return;
+    }
+
+    // Get geometry from system, create and set mesh.
+    this.system.getOrLoadGeometry(data.src, data.skipCache).then(function (geometry) {
+      var model = createModel(geometry);
+      el.setObject3D('mesh', model);
+      el.emit('model-loaded', {format: 'ply', model: model});
+    });
+  },
+
+  remove: function () {
+    if (this.model) { this.el.removeObject3D('mesh'); }
+  }
+};
+
+function createModel (geometry) {
+  return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+    color: 0xFFFFFF,
+    shading: THREE.FlatShading,
+    vertexColors: THREE.VertexColors,
+    shininess: 0
+  }));
+}
+
+},{"../../lib/PLYLoader":6}],100:[function(require,module,exports){
+var DEFAULT_ANIMATION = '__auto__';
+
+/**
+ * three-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two
+ * different THREE.js formats, both having the .json extension. This loader
+ * supports both, but requires you to specify the mode as "object" or "json".
+ *
+ * Typically, you will use "json" for a single mesh, and "object" for a scene
+ * or multiple meshes. Check the console for errors, if in doubt.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+module.exports = {
+  deprecated: true,
+
+  schema: {
+    src:               { type: 'asset' },
+    loader:            { default: 'object', oneOf: ['object', 'json'] },
+    enableAnimation:   { default: true },
+    animation:         { default: DEFAULT_ANIMATION },
+    animationDuration: { default: 0 },
+    crossorigin:       { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+    this.mixer = null;
+    console.warn('[three-model] Component is deprecated. Use json-model or object-model instead.');
+  },
+
+  update: function (previousData) {
+    previousData = previousData || {};
+
+    var loader,
+        data = this.data;
+
+    if (!data.src) {
+      this.remove();
+      return;
+    }
+
+    // First load.
+    if (!Object.keys(previousData).length) {
+      this.remove();
+      if (data.loader === 'object') {
+        loader = new THREE.ObjectLoader();
+        if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+        loader.load(data.src, function(loaded) {
+          loaded.traverse( function(object) {
+            if (object instanceof THREE.SkinnedMesh)
+              loaded = object;
+          });
+          if(loaded.material)
+            loaded.material.skinning = !!((loaded.geometry && loaded.geometry.bones) || []).length;
+          this.load(loaded);
+        }.bind(this));
+      } else if (data.loader === 'json') {
+        loader = new THREE.JSONLoader();
+        if (data.crossorigin) loader.crossOrigin = data.crossorigin;
+        loader.load(data.src, function (geometry, materials) {
+
+          // Attempt to automatically detect common material options.
+          materials.forEach(function (mat) {
+            mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
+            mat.skinning = !!(geometry.bones || []).length;
+            mat.morphTargets = !!(geometry.morphTargets || []).length;
+            mat.morphNormals = !!(geometry.morphNormals || []).length;
+          });
+
+          var mesh = (geometry.bones || []).length
+            ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
+            : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+          this.load(mesh);
+        }.bind(this));
+      } else {
+        throw new Error('[three-model] Invalid mode "%s".', data.mode);
+      }
+      return;
+    }
+
+    var activeAction = this.model && this.model.activeAction;
+
+    if (data.animation !== previousData.animation) {
+      if (activeAction) activeAction.stop();
+      this.playAnimation();
+      return;
+    }
+
+    if (activeAction && data.enableAnimation !== activeAction.isRunning()) {
+      data.enableAnimation ? this.playAnimation() : activeAction.stop();
+    }
+
+    if (activeAction && data.animationDuration) {
+        activeAction.setDuration(data.animationDuration);
+    }
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.mixer = new THREE.AnimationMixer(this.model);
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'three', model: model});
+
+    if (this.data.enableAnimation) this.playAnimation();
+  },
+
+  playAnimation: function () {
+    var clip,
+        data = this.data,
+        animations = this.model.animations || this.model.geometry.animations || [];
+
+    if (!data.enableAnimation || !data.animation || !animations.length) {
+      return;
+    }
+
+    clip = data.animation === DEFAULT_ANIMATION
+      ? animations[0]
+      : THREE.AnimationClip.findByName(animations, data.animation);
+
+    if (!clip) {
+      console.error('[three-model] Animation "%s" not found.', data.animation);
+      return;
+    }
+
+    this.model.activeAction = this.mixer.clipAction(clip, this.model);
+    if (data.animationDuration) {
+      this.model.activeAction.setDuration(data.animationDuration);
+    }
+    this.model.activeAction.play();
+  },
+
+  remove: function () {
+    if (this.mixer) this.mixer.stopAllAction();
+    if (this.model) this.el.removeObject3D('mesh');
+  },
+
+  tick: function (t, dt) {
+    if (this.mixer && !isNaN(dt)) {
+      this.mixer.update(dt / 1000);
+    }
+  }
+};
+
+},{}],101:[function(require,module,exports){
+module.exports = {
+  schema: {
+    offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
+  },
+
+  init: function () {
+    this.active = false;
+    this.targetEl = null;
+    this.fire = this.fire.bind(this);
+    this.offset = new THREE.Vector3();
+  },
+
+  update: function () {
+    this.offset.copy(this.data.offset);
+  },
+
+  play: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.removeEventListener('click', this.fire); },
+  remove: function () { this.pause(); },
+
+  fire: function () {
+    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+    if (!targetEl) {
+      throw new Error('No `checkpoint-controls` component found.');
+    }
+    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
+  },
+
+  getOffset: function () {
+    return this.offset.copy(this.data.offset);
+  }
+};
+
+},{}],102:[function(require,module,exports){
+/**
+ * Specifies an envMap on an entity, without replacing any existing material
+ * properties.
+ */
+module.exports = {
+  schema: {
+    path: {default: ''},
+    extension: {default: 'jpg'},
+    format: {default: 'RGBFormat'},
+    enableBackground: {default: false}
+  },
+
+  init: function () {
+    var data = this.data;
+
+    this.texture = new THREE.CubeTextureLoader().load([
+      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
+      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
+      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
+    ]);
+    this.texture.format = THREE[data.format];
+
+    if (data.enableBackground) {
+      this.el.sceneEl.object3D.background = this.texture;
+    }
+
+    this.applyEnvMap();
+    this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
+  },
+
+  applyEnvMap: function () {
+    var mesh = this.el.getObject3D('mesh');
+    var envMap = this.texture;
+
+    if (!mesh) return;
+
+    mesh.traverse(function (node) {
+      if (node.material && 'envMap' in node.material) {
+        node.material.envMap = envMap;
+        node.material.needsUpdate = true;
+      }
+    });
+  }
+};
+
+},{}],103:[function(require,module,exports){
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Handles events coming from the hand-controls.
+ * Determines if the entity is grabbed or released.
+ * Updates its position to move along the controller.
+ */
+module.exports = {
+  init: function () {
+    this.GRABBED_STATE = 'grabbed';
+
+    this.grabbing = false;
+    this.hitEl =      /** @type {AFRAME.Element}    */ null;
+    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */ null;
+
+    // Bind event handlers
+    this.onHit = this.onHit.bind(this);
+    this.onGripOpen = this.onGripOpen.bind(this);
+    this.onGripClose = this.onGripClose.bind(this);
+  },
+
+  play: function () {
+    var el = this.el;
+    el.addEventListener('hit', this.onHit);
+    el.addEventListener('gripdown', this.onGripClose);
+    el.addEventListener('gripup', this.onGripOpen);
+    el.addEventListener('trackpaddown', this.onGripClose);
+    el.addEventListener('trackpadup', this.onGripOpen);
+    el.addEventListener('triggerdown', this.onGripClose);
+    el.addEventListener('triggerup', this.onGripOpen);
+  },
+
+  pause: function () {
+    var el = this.el;
+    el.removeEventListener('hit', this.onHit);
+    el.removeEventListener('gripdown', this.onGripClose);
+    el.removeEventListener('gripup', this.onGripOpen);
+    el.removeEventListener('trackpaddown', this.onGripClose);
+    el.removeEventListener('trackpadup', this.onGripOpen);
+    el.removeEventListener('triggerdown', this.onGripClose);
+    el.removeEventListener('triggerup', this.onGripOpen);
+  },
+
+  onGripClose: function (evt) {
+    this.grabbing = true;
+  },
+
+  onGripOpen: function (evt) {
+    var hitEl = this.hitEl;
+    this.grabbing = false;
+    if (!hitEl) { return; }
+    hitEl.removeState(this.GRABBED_STATE);
+    this.hitEl = undefined;
+    this.physics.world.removeConstraint(this.constraint);
+    this.constraint = null;
+  },
+
+  onHit: function (evt) {
+    var hitEl = evt.detail.el;
+    // If the element is already grabbed (it could be grabbed by another controller).
+    // If the hand is not grabbing the element does not stick.
+    // If we're already grabbing something you can't grab again.
+    if (!hitEl || hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
+    hitEl.addState(this.GRABBED_STATE);
+    this.hitEl = hitEl;
+    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
+    this.physics.world.addConstraint(this.constraint);
+  }
+};
+
+},{}],104:[function(require,module,exports){
+var physics = require('aframe-physics-system');
+
+module.exports = {
+  'checkpoint':      require('./checkpoint'),
+  'cube-env-map':    require('./cube-env-map'),
+  'grab':            require('./grab'),
+  'jump-ability':    require('./jump-ability'),
+  'kinematic-body':  require('./kinematic-body'),
+  'mesh-smooth':     require('./mesh-smooth'),
+  'sphere-collider': require('./sphere-collider'),
+  'toggle-velocity': require('./toggle-velocity'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    physics.registerAll();
+    if (!AFRAME.components['checkpoint'])      AFRAME.registerComponent('checkpoint',      this['checkpoint']);
+    if (!AFRAME.components['cube-env-map'])    AFRAME.registerComponent('cube-env-map',    this['cube-env-map']);
+    if (!AFRAME.components['grab'])            AFRAME.registerComponent('grab',            this['grab']);
+    if (!AFRAME.components['jump-ability'])    AFRAME.registerComponent('jump-ability',    this['jump-ability']);
+    if (!AFRAME.components['kinematic-body'])  AFRAME.registerComponent('kinematic-body',  this['kinematic-body']);
+    if (!AFRAME.components['mesh-smooth'])     AFRAME.registerComponent('mesh-smooth',     this['mesh-smooth']);
+    if (!AFRAME.components['sphere-collider']) AFRAME.registerComponent('sphere-collider', this['sphere-collider']);
+    if (!AFRAME.components['toggle-velocity']) AFRAME.registerComponent('toggle-velocity', this['toggle-velocity']);
+
+    this._registered = true;
+  }
+};
+
+},{"./checkpoint":101,"./cube-env-map":102,"./grab":103,"./jump-ability":105,"./kinematic-body":106,"./mesh-smooth":107,"./sphere-collider":108,"./toggle-velocity":109,"aframe-physics-system":11}],105:[function(require,module,exports){
+var ACCEL_G = -9.8, // m/s^2
+    EASING = -15; // m/s^2
+
+/**
+ * Jump ability.
+ */
+module.exports = {
+  dependencies: ['velocity'],
+
+  /* Schema
+  ——————————————————————————————————————————————*/
+
+  schema: {
+    on: { default: 'keydown:Space gamepadbuttondown:0' },
+    playerHeight: { default: 1.764 },
+    maxJumps: { default: 1 },
+    distance: { default: 5 },
+    soundJump: { default: '' },
+    soundLand: { default: '' },
+    debug: { default: false }
+  },
+
+  init: function () {
+    this.velocity = 0;
+    this.numJumps = 0;
+
+    var beginJump = this.beginJump.bind(this),
+        events = this.data.on.split(' ');
+    this.bindings = {};
+    for (var i = 0; i <  events.length; i++) {
+      this.bindings[events[i]] = beginJump;
+      this.el.addEventListener(events[i], beginJump);
+    }
+    this.bindings.collide = this.onCollide.bind(this);
+    this.el.addEventListener('collide', this.bindings.collide);
+  },
+
+  remove: function () {
+    for (var event in this.bindings) {
+      if (this.bindings.hasOwnProperty(event)) {
+        this.el.removeEventListener(event, this.bindings[event]);
+        delete this.bindings[event];
+      }
+    }
+    this.el.removeEventListener('collide', this.bindings.collide);
+    delete this.bindings.collide;
+  },
+
+  beginJump: function () {
+    if (this.numJumps < this.data.maxJumps) {
+      var data = this.data,
+          initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
+          v = this.el.getAttribute('velocity');
+      this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
+      this.numJumps++;
+    }
+  },
+
+  onCollide: function () {
+    this.numJumps = 0;
+  }
+};
+
+},{}],106:[function(require,module,exports){
+/**
+ * Kinematic body.
+ *
+ * Managed dynamic body, which moves but is not affected (directly) by the
+ * physics engine. This is not a true kinematic body, in the sense that we are
+ * letting the physics engine _compute_ collisions against it and selectively
+ * applying those collisions to the object. The physics engine does not decide
+ * the position/velocity/rotation of the element.
+ *
+ * Used for the camera object, because full physics simulation would create
+ * movement that feels unnatural to the player. Bipedal movement does not
+ * translate nicely to rigid body physics.
+ *
+ * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
+ * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
+ */
+var CANNON = window.CANNON;
+var EPS = 0.000001;
+
+module.exports = {
+  dependencies: ['velocity'],
+
+  /*******************************************************************
+   * Schema
+   */
+
+  schema: {
+    mass:           { default: 5 },
+    radius:         { default: 1.3 },
+    height:         { default: 1.764 },
+    linearDamping:  { default: 0.05 },
+    enableSlopes:   { default: true }
+  },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
+  init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+    this.system.addBehavior(this, this.system.Phase.SIMULATE);
+
+    var el = this.el,
+        data = this.data,
+        position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
+
+    this.body = new CANNON.Body({
+      material: this.system.material,
+      position: position,
+      mass: data.mass,
+      linearDamping: data.linearDamping,
+      fixedRotation: true
+    });
+    this.body.addShape(
+      new CANNON.Sphere(data.radius),
+      new CANNON.Vec3(0, data.radius - data.height, 0)
+    );
+
+    this.body.el = this.el;
+    this.el.body = this.body;
+    this.system.addBody(this.body);
+  },
+
+  remove: function () {
+    this.system.removeBody(this.body);
+    this.system.removeBehavior(this, this.system.Phase.SIMULATE);
+    delete this.el.body;
+  },
+
+  /*******************************************************************
+   * Tick
+   */
+
+  /**
+   * Checks CANNON.World for collisions and attempts to apply them to the
+   * element automatically, in a player-friendly way.
+   *
+   * There's extra logic for horizontal surfaces here. The basic requirements:
+   * (1) Only apply gravity when not in contact with _any_ horizontal surface.
+   * (2) When moving, project the velocity against exactly one ground surface.
+   *     If in contact with two ground surfaces (e.g. ground + ramp), choose
+   *     the one that collides with current velocity, if any.
+   */
+  step: (function () {
+    var velocity = new THREE.Vector3(),
+        normalizedVelocity = new THREE.Vector3(),
+        currentSurfaceNormal = new THREE.Vector3(),
+        groundNormal = new THREE.Vector3();
+
+    return function (t, dt) {
+      if (!dt) return;
+
+      var body = this.body,
+          data = this.data,
+          didCollide = false,
+          height, groundHeight = -Infinity,
+          groundBody;
+
+      dt = Math.min(dt, this.system.data.maxInterval * 1000);
+
+      groundNormal.set(0, 0, 0);
+      velocity.copy(this.el.getAttribute('velocity'));
+      body.velocity.copy(velocity);
+      body.position.copy(this.el.getAttribute('position'));
+
+      for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
+        // 1. Find any collisions involving this element. Get the contact
+        // normal, and make sure it's oriented _out_ of the other object.
+        if (body.id === contact.bi.id) {
+          contact.ni.negate(currentSurfaceNormal);
+        } else if (body.id === contact.bj.id) {
+          currentSurfaceNormal.copy(contact.ni);
+        } else {
+          continue;
+        }
+
+        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
+        if (didCollide && currentSurfaceNormal.y <= 0.5) {
+          // 2. If current trajectory attempts to move _through_ another
+          // object, project the velocity against the collision plane to
+          // prevent passing through.
+          velocity = velocity.projectOnPlane(currentSurfaceNormal);
+        } else if (currentSurfaceNormal.y > 0.5) {
+          // 3. If in contact with something roughly horizontal (+/- 45º) then
+          // consider that the current ground. Only the highest qualifying
+          // ground is retained.
+          height = body.id === contact.bi.id
+            ? Math.abs(contact.rj.y + contact.bj.position.y)
+            : Math.abs(contact.ri.y + contact.bi.position.y);
+          if (height > groundHeight) {
+            groundHeight = height;
+            groundNormal.copy(currentSurfaceNormal);
+            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
+          }
+        }
+      }
+
+      normalizedVelocity.copy(velocity).normalize();
+      if (groundBody && normalizedVelocity.y < 0.5) {
+        if (!data.enableSlopes) {
+          groundNormal.set(0, 1, 0);
+        } else if (groundNormal.y < 1 - EPS) {
+          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
+        }
+
+        // 4. Project trajectory onto the top-most ground object, unless
+        // trajectory is > 45º.
+        velocity = velocity.projectOnPlane(groundNormal);
+      } else {
+        // 5. If not in contact with anything horizontal, apply world gravity.
+        // TODO - Why is the 4x scalar necessary.
+        velocity.add(this.system.world.gravity.scale(dt * 4.0 / 1000));
+      }
+
+      // 6. If the ground surface has a velocity, apply it directly to current
+      // position, not velocity, to preserve relative velocity.
+      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
+        var groundVelocity = groundBody.el.getAttribute('velocity');
+        body.position.copy({
+          x: body.position.x + groundVelocity.x * dt / 1000,
+          y: body.position.y + groundVelocity.y * dt / 1000,
+          z: body.position.z + groundVelocity.z * dt / 1000
+        });
+        this.el.setAttribute('position', body.position);
+      }
+
+      body.velocity.copy(velocity);
+      this.el.setAttribute('velocity', velocity);
+    };
+  }()),
+
+  /**
+   * When walking on complex surfaces (trimeshes, borders between two shapes),
+   * the collision normals returned for the player sphere can be very
+   * inconsistent. To address this, raycast straight down, find the collision
+   * normal, and return whichever normal is more vertical.
+   * @param  {CANNON.Body} groundBody
+   * @param  {CANNON.Vec3} groundNormal
+   * @return {CANNON.Vec3}
+   */
+  raycastToGround: function (groundBody, groundNormal) {
+    var ray,
+        hitNormal,
+        vFrom = this.body.position,
+        vTo = this.body.position.clone();
+
+    vTo.y -= this.data.height;
+    ray = new CANNON.Ray(vFrom, vTo);
+    ray._updateDirection(); // TODO - Report bug.
+    ray.intersectBody(groundBody);
+
+    if (!ray.hasHit) return groundNormal;
+
+    // Compare ABS, in case we're projecting against the inside of the face.
+    hitNormal = ray.result.hitNormalWorld;
+    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
+  }
+};
+
+},{}],107:[function(require,module,exports){
+/**
+ * Apply this component to models that looks "blocky", to have Three.js compute
+ * vertex normals on the fly for a "smoother" look.
+ */
+module.exports = {
+  init: function () {
+    this.el.addEventListener('model-loaded', function (e) {
+      e.detail.model.traverse(function (node) {
+        if (node.isMesh) node.geometry.computeVertexNormals();
+      });
+    })
+  }
+}
+
+},{}],108:[function(require,module,exports){
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Implement bounding sphere collision detection for entities with a mesh.
+ * Sets the specified state on the intersected entities.
+ *
+ * @property {string} objects - Selector of the entities to test for collision.
+ * @property {string} state - State to set on collided entities.
+ *
+ */
+module.exports = {
+  schema: {
+    objects: {default: ''},
+    state: {default: 'collided'},
+    radius: {default: 0.05},
+    watch: {default: true}
+  },
+
+  init: function () {
+    /** @type {MutationObserver} */
+    this.observer = null;
+    /** @type {Array<Element>} Elements to watch for collisions. */
+    this.els = [];
+    /** @type {Array<Element>} Elements currently in collision state. */
+    this.collisions = [];
+
+    this.handleHit = this.handleHit.bind(this);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  play: function () {
+    var sceneEl = this.el.sceneEl;
+
+    if (this.data.watch) {
+      this.observer = new MutationObserver(this.update.bind(this, null));
+      this.observer.observe(sceneEl, {childList: true, subtree: true});
+    }
+  },
+
+  pause: function () {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+  },
+
+  /**
+   * Update list of entities to test for collision.
+   */
+  update: function () {
+    var data = this.data;
+    var objectEls;
+
+    // Push entities into list of els to intersect.
+    if (data.objects) {
+      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
+    } else {
+      // If objects not defined, intersect with everything.
+      objectEls = this.el.sceneEl.children;
+    }
+    // Convert from NodeList to Array
+    this.els = Array.prototype.slice.call(objectEls);
+  },
+
+  tick: (function () {
+    var position = new THREE.Vector3(),
+        meshPosition = new THREE.Vector3(),
+        meshScale = new THREE.Vector3(),
+        colliderScale = new THREE.Vector3(),
+        distanceMap = new Map();
+    return function () {
+      var el = this.el,
+          data = this.data,
+          mesh = el.getObject3D('mesh'),
+          colliderRadius,
+          collisions = [];
+
+      if (!mesh) { return; }
+
+      distanceMap.clear();
+      position.copy(el.object3D.getWorldPosition());
+      el.object3D.getWorldScale(colliderScale);
+      colliderRadius = data.radius * scaleFactor(colliderScale);
+      // Update collision list.
+      this.els.forEach(intersect);
+
+      // Emit events and add collision states, in order of distance.
+      collisions
+        .sort(function (a, b) {
+          return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
+        })
+        .forEach(this.handleHit);
+
+      // Remove collision state from current element.
+      if (collisions.length === 0) { el.emit('hit', {el: null}); }
+
+      // Remove collision state from other elements.
+      this.collisions.filter(function (el) {
+        return !distanceMap.has(el);
+      }).forEach(function removeState (el) {
+        el.removeState(data.state);
+      });
+
+      // Store new collisions
+      this.collisions = collisions;
+
+      // Bounding sphere collision detection
+      function intersect (el) {
+        var radius, mesh, distance, box, extent, size;
+
+        if (!el.isEntity) { return; }
+
+        mesh = el.getObject3D('mesh');
+
+        if (!mesh) { return; }
+
+        box = new THREE.Box3().setFromObject(mesh);
+        size = box.getSize();
+        extent = Math.max(size.x, size.y, size.z) / 2;
+        radius = Math.sqrt(2 * extent * extent);
+        box.getCenter(meshPosition);
+
+        if (!radius) { return; }
+
+        distance = position.distanceTo(meshPosition);
+        if (distance < radius + colliderRadius) {
+          collisions.push(el);
+          distanceMap.set(el, distance);
+        }
+      }
+      // use max of scale factors to maintain bounding sphere collision
+      function scaleFactor (scaleVec) {
+        return Math.max.apply(null, scaleVec.toArray());
+      }
+    };
+  })(),
+
+  handleHit: function (targetEl) {
+    targetEl.emit('hit');
+    targetEl.addState(this.data.state);
+    this.el.emit('hit', {el: targetEl});
+  }
+};
+
+},{}],109:[function(require,module,exports){
+/**
+ * Toggle velocity.
+ *
+ * Moves an object back and forth along an axis, within a min/max extent.
+ */
+module.exports = {
+  dependencies: ['velocity'],
+  schema: {
+    axis: { default: 'x', oneOf: ['x', 'y', 'z'] },
+    min: { default: 0 },
+    max: { default: 0 },
+    speed: { default: 1 }
+  },
+  init: function () {
+    var velocity = {x: 0, y: 0, z: 0};
+    velocity[this.data.axis] = this.data.speed;
+    this.el.setAttribute('velocity', velocity);
+
+    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
+  },
+  remove: function () {},
+  update: function () { this.tick(); },
+  tick: function () {
+    var data = this.data,
+        velocity = this.el.getAttribute('velocity'),
+        position = this.el.getAttribute('position');
+    if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
+      velocity[data.axis] = -data.speed;
+      this.el.setAttribute('velocity', velocity);
+    } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
+      velocity[data.axis] = data.speed;
+      this.el.setAttribute('velocity', velocity);
+    }
+  },
+};
+
+},{}],110:[function(require,module,exports){
+module.exports = {
+  'nav-mesh':    require('./nav-mesh'),
+  'nav-controller':     require('./nav-controller'),
+  'system':      require('./system'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    if (!AFRAME.components['nav-mesh']) {
+      AFRAME.registerComponent('nav-mesh', this['nav-mesh']);
+    }
+
+    if (!AFRAME.components['nav-controller']) {
+      AFRAME.registerComponent('nav-controller',  this['nav-controller']);
+    }
+
+    if (!AFRAME.systems.nav) {
+      AFRAME.registerSystem('nav', this.system);
+    }
+
+    this._registered = true;
+  }
+};
+
+},{"./nav-controller":111,"./nav-mesh":112,"./system":113}],111:[function(require,module,exports){
+module.exports = {
+  schema: {
+    destination: {type: 'vec3'},
+    active: {default: false},
+    speed: {default: 2}
+  },
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.system.addController(this);
+    this.path = [];
+    this.raycaster = new THREE.Raycaster();
+  },
+  remove: function () {
+    this.system.removeController(this);
+  },
+  update: function () {
+    this.path.length = 0;
+  },
+  tick: (function () {
+    var vDest = new THREE.Vector3();
+    var vDelta = new THREE.Vector3();
+    var vNext = new THREE.Vector3();
+
+    return function (t, dt) {
+      var el = this.el;
+      var data = this.data;
+      var raycaster = this.raycaster;
+      var speed = data.speed * dt / 1000;
+
+      if (!data.active) return;
+
+      // Use PatrolJS pathfinding system to get shortest path to target.
+      if (!this.path.length) {
+        this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
+        this.path = this.path || [];
+        el.emit('nav-start');
+      }
+
+      // If no path is found, exit.
+      if (!this.path.length) {
+        console.warn('[nav] Unable to find path to %o.', data.destination);
+        this.el.setAttribute('nav-controller', {active: false});
+        el.emit('nav-end');
+        return;
+      }
+
+      // Current segment is a vector from current position to next waypoint.
+      var vCurrent = el.object3D.position;
+      var vWaypoint = this.path[0];
+      vDelta.subVectors(vWaypoint, vCurrent);
+
+      var distance = vDelta.length();
+      var gazeTarget;
+
+      if (distance < speed) {
+        // If <1 step from current waypoint, discard it and move toward next.
+        this.path.shift();
+
+        // After discarding the last waypoint, exit pathfinding.
+        if (!this.path.length) {
+          this.el.setAttribute('nav-controller', {active: false});
+          el.emit('nav-end');
+          return;
+        } else {
+          gazeTarget = this.path[0];
+        }
+      } else {
+        // If still far away from next waypoint, find next position for
+        // the current frame.
+        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
+        gazeTarget = vWaypoint;
+      }
+
+      // Look at the next waypoint.
+      gazeTarget.y = vCurrent.y;
+      el.object3D.lookAt(gazeTarget);
+
+      // Raycast against the nav mesh, to keep the controller moving along the
+      // ground, not traveling in a straight line from higher to lower waypoints.
+      raycaster.ray.origin.copy(vNext);
+      raycaster.ray.origin.y += 1.5;
+      raycaster.ray.direction.y = -1;
+      var intersections = raycaster.intersectObject(this.system.getNavMesh());
+
+      if (!intersections.length) {
+        // Raycasting failed. Step toward the waypoint and hope for the best.
+        vCurrent.copy(vNext);
+      } else {
+        // Re-project next position onto nav mesh.
+        vDelta.subVectors(intersections[0].point, vCurrent);
+        vCurrent.add(vDelta.setLength(speed));
+      }
+
+    };
+  }())
+};
+
+},{}],112:[function(require,module,exports){
+/**
+ * nav-mesh
+ *
+ * Waits for a mesh to be loaded on the current entity, then sets it as the
+ * nav mesh in the pathfinding system.
+ */
+module.exports = {
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.loadNavMesh();
+    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+  },
+
+  loadNavMesh: function () {
+    var object = this.el.getObject3D('mesh');
+
+    if (!object) return;
+
+    var navMesh;
+    object.traverse(function (node) {
+      if (node.isMesh) navMesh = node;
+    });
+
+    if (!navMesh) return;
+
+    this.system.setNavMesh(navMesh);
+  }
+};
+
+},{}],113:[function(require,module,exports){
+var Path = require('three-pathfinding');
+
+/**
+ * nav
+ *
+ * Pathfinding system, using PatrolJS.
+ */
+module.exports = {
+  init: function () {
+    this.navMesh = null;
+    this.nodes = null;
+    this.controllers = new Set();
+  },
+
+  /**
+   * @param {THREE.Mesh} mesh
+   */
+  setNavMesh: function (mesh) {
+    var geometry = mesh.geometry.isBufferGeometry
+      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
+      : mesh.geometry;
+    this.navMesh = new THREE.Mesh(geometry);
+    this.nodes = Path.buildNodes(this.navMesh.geometry);
+    Path.setZoneData('level', this.nodes);
+  },
+
+  /**
+   * @return {THREE.Mesh}
+   */
+  getNavMesh: function () {
+    return this.navMesh;
+  },
+
+  /**
+   * @param {NavController} ctrl
+   */
+  addController: function (ctrl) {
+    this.controllers.add(ctrl);
+  },
+
+  /**
+   * @param {NavController} ctrl
+   */
+  removeController: function (ctrl) {
+    this.controllers.remove(ctrl);
+  },
+
+  /**
+   * @param  {NavController} ctrl
+   * @param  {THREE.Vector3} target
+   * @return {Array<THREE.Vector3>}
+   */
+  getPath: function (ctrl, target) {
+    var start = ctrl.el.object3D.position;
+    // TODO(donmccurdy): Current group should be cached.
+    var group = Path.getGroup('level', start);
+    return Path.findPath(start, target, 'level', group);
+  }
+};
+
+},{"three-pathfinding":80}],114:[function(require,module,exports){
+/**
+ * Flat grid.
+ *
+ * Defaults to 75x75.
+ */
+var Primitive = module.exports = {
+  defaultComponents: {
+    geometry: {
+      primitive: 'plane',
+      width: 75,
+      height: 75
+    },
+    rotation: {x: -90, y: 0, z: 0},
+    material: {
+      src: 'url(https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.3/assets/grid.png)',
+      repeat: '75 75'
+    }
+  },
+  mappings: {
+    width: 'geometry.width',
+    height: 'geometry.height',
+    src: 'material.src'
+  }
+};
+
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerPrimitive('a-grid', Primitive);
+    registered = true;
+  };
+}());
+
+},{}],115:[function(require,module,exports){
+var vg = require('../../lib/hex-grid.min.js');
+var defaultHexGrid = require('../../lib/default-hex-grid.json');
+
+/**
+ * Hex grid.
+ */
+var Primitive = module.exports.Primitive = {
+  defaultComponents: {
+    'hexgrid': {}
+  },
+  mappings: {
+    src: 'hexgrid.src'
+  }
+};
+
+var Component = module.exports.Component = {
+  dependencies: ['material'],
+  schema: {
+    src: {type: 'asset'}
+  },
+  init: function () {
+    var data = this.data;
+    if (data.src) {
+      fetch(data.src)
+        .then(function (response) { response.json(); })
+        .then(function (json) { this.addMesh(json); });
+    } else {
+      this.addMesh(defaultHexGrid);
+    }
+  },
+  addMesh: function (json) {
+    var grid = new vg.HexGrid();
+    grid.fromJSON(json);
+    var board = new vg.Board(grid);
+    board.generateTilemap();
+    this.el.setObject3D('mesh', board.group);
+    this.addMaterial();
+  },
+  addMaterial: function () {
+    var materialComponent = this.el.components.material;
+    var material = (materialComponent || {}).material;
+    if (!material) return;
+    this.el.object3D.traverse(function (node) {
+      if (node.isMesh) {
+        node.material = material;
+      }
+    });
+  },
+  remove: function () {
+    this.el.removeObject3D('mesh');
+  }
+};
+
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerComponent('hexgrid', Component);
+    AFRAME.registerPrimitive('a-hexgrid', Primitive);
+    registered = true;
+  };
+}());
+
+},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],116:[function(require,module,exports){
+/**
+ * Flat-shaded ocean primitive.
+ *
+ * Based on a Codrops tutorial:
+ * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
+ */
+var Primitive = module.exports.Primitive = {
+  defaultComponents: {
+    ocean: {},
+    rotation: {x: -90, y: 0, z: 0}
+  },
+  mappings: {
+    width: 'ocean.width',
+    depth: 'ocean.depth',
+    density: 'ocean.density',
+    color: 'ocean.color',
+    opacity: 'ocean.opacity'
+  }
+};
+
+var Component = module.exports.Component = {
+  schema: {
+    // Dimensions of the ocean area.
+    width: {default: 10, min: 0},
+    depth: {default: 10, min: 0},
+
+    // Density of waves.
+    density: {default: 10},
+
+    // Wave amplitude and variance.
+    amplitude: {default: 0.1},
+    amplitudeVariance: {default: 0.3},
+
+    // Wave speed and variance.
+    speed: {default: 1},
+    speedVariance: {default: 2},
+
+    // Material.
+    color: {default: '#7AD2F7', type: 'color'},
+    opacity: {default: 0.8}
+  },
+
+  /**
+   * Use play() instead of init(), because component mappings – unavailable as dependencies – are
+   * not guaranteed to have parsed when this component is initialized.
+   */
+  play: function () {
+    var el = this.el,
+        data = this.data,
+        material = el.components.material;
+
+    var geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
+    geometry.mergeVertices();
+    this.waves = [];
+    for (var v, i = 0, l = geometry.vertices.length; i < l; i++) {
+      v = geometry.vertices[i];
+      this.waves.push({
+        z: v.z,
+        ang: Math.random() * Math.PI * 2,
+        amp: data.amplitude + Math.random() * data.amplitudeVariance,
+        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
+      });
+    }
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial({
+        color: data.color,
+        transparent: data.opacity < 1,
+        opacity: data.opacity,
+        shading: THREE.FlatShading,
+      });
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    el.setObject3D('mesh', this.mesh);
+  },
+
+  remove: function () {
+    this.el.removeObject3D('mesh');
+  },
+
+  tick: function (t, dt) {
+    if (!dt) return;
+
+    var verts = this.mesh.geometry.vertices;
+    for (var v, vprops, i = 0; (v = verts[i]); i++){
+      vprops = this.waves[i];
+      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+      vprops.ang += vprops.speed * dt;
+    }
+    this.mesh.geometry.verticesNeedUpdate = true;
+  }
+};
+
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerComponent('ocean', Component);
+    AFRAME.registerPrimitive('a-ocean', Primitive);
+    registered = true;
+  };
+}());
+
+},{}],117:[function(require,module,exports){
+/**
+ * Tube following a custom path.
+ *
+ * Usage:
+ *
+ * ```html
+ * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
+ * ```
+ */
+var Primitive = module.exports.Primitive = {
+  defaultComponents: {
+    tube:           {},
+  },
+  mappings: {
+    path:           'tube.path',
+    segments:       'tube.segments',
+    radius:         'tube.radius',
+    radialSegments: 'tube.radialSegments',
+    closed:         'tube.closed'
+  }
+};
+
+var Component = module.exports.Component = {
+  schema: {
+    path:           {default: []},
+    segments:       {default: 64},
+    radius:         {default: 1},
+    radialSegments: {default: 8},
+    closed:         {default: false}
+  },
+
+  init: function () {
+    var el = this.el,
+        data = this.data,
+        material = el.components.material;
+
+    if (!data.path.length) {
+      console.error('[a-tube] `path` property expected but not found.');
+      return;
+    }
+
+    var curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
+      point = point.split(' ');
+      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
+    }));
+    var geometry = new THREE.TubeGeometry(
+      curve, data.segments, data.radius, data.radialSegments, data.closed
+    );
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial();
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    this.el.setObject3D('mesh', this.mesh);
+  },
+
+  remove: function () {
+    if (this.mesh) this.el.removeObject3D('mesh');
+  }
+};
+
+module.exports.registerAll = (function () {
+  var registered = false;
+  return function (AFRAME) {
+    if (registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    AFRAME.registerComponent('tube', Component);
+    AFRAME.registerPrimitive('a-tube', Primitive);
+    registered = true;
+  };
+}());
+
+},{}],118:[function(require,module,exports){
+module.exports = {
+  'a-grid':     require('./a-grid'),
+  'a-hexgrid': require('./a-hexgrid'),
+  'a-ocean':    require('./a-ocean'),
+  'a-tube':     require('./a-tube'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+    AFRAME = AFRAME || window.AFRAME;
+    this['a-grid'].registerAll(AFRAME);
+    this['a-hexgrid'].registerAll(AFRAME);
+    this['a-ocean'].registerAll(AFRAME);
+    this['a-tube'].registerAll(AFRAME);
+    this._registered = true;
+  }
+};
+
+},{"./a-grid":114,"./a-hexgrid":115,"./a-ocean":116,"./a-tube":117}]},{},[1]);
