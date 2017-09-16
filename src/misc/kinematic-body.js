@@ -82,14 +82,14 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
    *     If in contact with two ground surfaces (e.g. ground + ramp), choose
    *     the one that collides with current velocity, if any.
    */
-  updateBefore: function (t, dt) {
+  beforeStep: function (t, dt) {
       if (!dt) return;
 
       this.body.velocity.copy(this.el.getAttribute('velocity'));
       this.body.position.copy(this.el.getAttribute('position'));
   },
 
-  updateAfter: (function () {
+  step: (function () {
     var velocity = new THREE.Vector3(),
         normalizedVelocity = new THREE.Vector3(),
         currentSurfaceNormal = new THREE.Vector3(),
