@@ -4,7 +4,7 @@ const chalk = require('chalk'),
     path = require('path'),
     fs = require('fs-extra'),
     browserify = require('browserify'),
-    uglifyJS = require('uglify-js'),
+    UglifyJS = require('uglify-es'),
     Readable = require('stream').Readable;
 
 const DIST_DIR = 'dist',
@@ -55,7 +55,7 @@ Object.keys(streams).forEach((fileName) => {
   // Minify.
   writeStream.on('close', () => {
     fs.createWriteStream(fullDir.replace('.js', '.min.js'))
-      .end(uglifyJS.minify([fullDir]).code);
+      .end(UglifyJS.minify([fullDir]).code);
 
     console.log(chalk.yellow('  ⇢  %s'), fullDir);
   });
