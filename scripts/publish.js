@@ -3,7 +3,7 @@
 const chalk = require('chalk'),
     fs = require('fs-extra'),
     browserify = require('browserify'),
-    uglifyJS = require('uglify-js'),
+    UglifyJS = require('uglify-es'),
     Readable = require('stream').Readable,
     execSync = require('child_process').execSync;
 
@@ -79,7 +79,7 @@ function createDist (package, dir) {
   writeStream.on('close', () => {
     fs.outputFileSync(
       `${dir}/dist/${package.name}.min.js`,
-      uglifyJS.minify([`${dir}/dist/${package.name}.js`]).code
+      UglifyJS.minify([`${dir}/dist/${package.name}.js`]).code
     );
     console.log(chalk.yellow('  ⇢  Bundled "%s".'), package.name);
     deferred.resolve();

@@ -1,5 +1,4 @@
-var patrol = require('../../lib/patrol');
-window._ = require('underscore');
+var Path = require('three-pathfinding');
 
 /**
  * nav
@@ -21,8 +20,8 @@ module.exports = {
       ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
       : mesh.geometry;
     this.navMesh = new THREE.Mesh(geometry);
-    this.nodes = patrol.buildNodes(this.navMesh.geometry);
-    patrol.setZoneData('level', this.nodes);
+    this.nodes = Path.buildNodes(this.navMesh.geometry);
+    Path.setZoneData('level', this.nodes);
   },
 
   /**
@@ -54,7 +53,7 @@ module.exports = {
   getPath: function (ctrl, target) {
     var start = ctrl.el.object3D.position;
     // TODO(donmccurdy): Current group should be cached.
-    var group = patrol.getGroup('level', start);
-    return patrol.findPath(start, target, 'level', group);
+    var group = Path.getGroup('level', start);
+    return Path.findPath(start, target, 'level', group);
   }
 };

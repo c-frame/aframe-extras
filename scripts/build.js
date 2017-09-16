@@ -5,7 +5,7 @@ const chalk = require('chalk'),
     zlib = require('zlib'),
     path = require('path'),
     browserify = require('browserify'),
-    uglifyJS = require('uglify-js'),
+    UglifyJS = require('uglify-es'),
     Readable = require('stream').Readable;
 
 const EXAMPLES_DIR = 'examples',
@@ -34,7 +34,7 @@ browserify()
 // Minify.
 writeStream.on('close', () => {
   fs.createWriteStream(path.join(BUILD_DIR, fileName.replace('.raw.js', '.js')))
-    .end(uglifyJS.minify([path.join(BUILD_DIR, fileName)]).code);
+    .end(UglifyJS.minify([path.join(BUILD_DIR, fileName)]).code);
 
   console.log(chalk.yellow('  ⇢  %s/%s'), BUILD_DIR, fileName.replace('.raw.js', '.js'));
 });
