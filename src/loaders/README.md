@@ -11,6 +11,8 @@ Loaders for various 3D model types. All are trivial wrappers around one of the [
 
 Unsure whether to use `json-model` or `object-model`? Check the console for errors. See also: [Clara.io | THREE.js Export](https://clara.io/learn/user-guide/data_exchange/threejs_export).
 
+> **NOTE:** `gltf-model-next` and `gltf-model-legacy` cannot be used at the same time.
+
 ## Usage
 
 ```html
