@@ -77,10 +77,12 @@ function createDist (package, dir) {
   inputStream.push(null);
 
   writeStream.on('close', () => {
-    fs.outputFileSync(
-      `${dir}/dist/${package.name}.min.js`,
-      UglifyJS.minify([`${dir}/dist/${package.name}.js`]).code
+    const minJS = UglifyJS.minify(
+      fs.readFileSync(`${dir}/dist/${package.name}.js`, 'utf-8')
     );
+    if (minJS.error) throw new Error(minJS.error);
+
+    fs.outputFileSync(`${dir}/dist/${package.name}.min.js`, minJS.code);
     console.log(chalk.yellow('  ⇢  Bundled "%s".'), package.name);
     deferred.resolve();
   });

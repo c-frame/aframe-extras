@@ -33,8 +33,11 @@ browserify()
 
 // Minify.
 writeStream.on('close', () => {
+    const minJS = UglifyJS.minify(fs.readFileSync(path.join(BUILD_DIR, fileName), 'utf-8'));
+    if (minJS.error) throw new Error(minJS.error);
+
   fs.createWriteStream(path.join(BUILD_DIR, fileName.replace('.raw.js', '.js')))
-    .end(UglifyJS.minify([path.join(BUILD_DIR, fileName)]).code);
+    .end(minJS.code);
 
   console.log(chalk.yellow('  ⇢  %s/%s'), BUILD_DIR, fileName.replace('.raw.js', '.js'));
 });

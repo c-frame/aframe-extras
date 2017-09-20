@@ -54,8 +54,11 @@ Object.keys(streams).forEach((fileName) => {
 
   // Minify.
   writeStream.on('close', () => {
+    const minJS = UglifyJS.minify(fs.readFileSync(fullDir, 'utf-8'));
+    if (minJS.error) { throw new Error(minJS.error); }
+
     fs.createWriteStream(fullDir.replace('.js', '.min.js'))
-      .end(UglifyJS.minify([fullDir]).code);
+      .end(minJS.code);
 
     console.log(chalk.yellow('  ⇢  %s'), fullDir);
   });
