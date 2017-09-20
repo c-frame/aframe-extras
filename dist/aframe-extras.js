@@ -24022,7 +24022,7 @@ var loadLoader = (function () {
 },{"../../lib/fetch-script":8}],92:[function(require,module,exports){
 var fetchScript = require('../../lib/fetch-script')();
 
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTF2Loader.js';
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r87/examples/js/loaders/GLTFLoader.js';
 // Monkeypatch while waiting for three.js r86.
 if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
 
@@ -24043,7 +24043,7 @@ module.exports = {
     this.model = null;
     this.loader = null;
     this.loaderPromise = loadLoader().then(function () {
-      this.loader = new THREE.GLTF2Loader();
+      this.loader = new THREE.GLTFLoader();
       this.loader.setCrossOrigin('Anonymous');
     }.bind(this));
   },
