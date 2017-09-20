@@ -1,6 +1,483 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/pathfinding').registerAll();
-},{"./src/pathfinding":5}],2:[function(require,module,exports){
+},{"./src/pathfinding":2}],2:[function(require,module,exports){
+module.exports = {
+  'nav-mesh':    require('./nav-mesh'),
+  'nav-controller':     require('./nav-controller'),
+  'system':      require('./system'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    if (!AFRAME.components['nav-mesh']) {
+      AFRAME.registerComponent('nav-mesh', this['nav-mesh']);
+    }
+
+    if (!AFRAME.components['nav-controller']) {
+      AFRAME.registerComponent('nav-controller',  this['nav-controller']);
+    }
+
+    if (!AFRAME.systems.nav) {
+      AFRAME.registerSystem('nav', this.system);
+    }
+
+    this._registered = true;
+  }
+};
+
+},{"./nav-controller":3,"./nav-mesh":4,"./system":5}],3:[function(require,module,exports){
+module.exports = {
+  schema: {
+    destination: {type: 'vec3'},
+    active: {default: false},
+    speed: {default: 2}
+  },
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.system.addController(this);
+    this.path = [];
+    this.raycaster = new THREE.Raycaster();
+  },
+  remove: function () {
+    this.system.removeController(this);
+  },
+  update: function () {
+    this.path.length = 0;
+  },
+  tick: (function () {
+    var vDest = new THREE.Vector3();
+    var vDelta = new THREE.Vector3();
+    var vNext = new THREE.Vector3();
+
+    return function (t, dt) {
+      var el = this.el;
+      var data = this.data;
+      var raycaster = this.raycaster;
+      var speed = data.speed * dt / 1000;
+
+      if (!data.active) return;
+
+      // Use PatrolJS pathfinding system to get shortest path to target.
+      if (!this.path.length) {
+        this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
+        this.path = this.path || [];
+        el.emit('nav-start');
+      }
+
+      // If no path is found, exit.
+      if (!this.path.length) {
+        console.warn('[nav] Unable to find path to %o.', data.destination);
+        this.el.setAttribute('nav-controller', {active: false});
+        el.emit('nav-end');
+        return;
+      }
+
+      // Current segment is a vector from current position to next waypoint.
+      var vCurrent = el.object3D.position;
+      var vWaypoint = this.path[0];
+      vDelta.subVectors(vWaypoint, vCurrent);
+
+      var distance = vDelta.length();
+      var gazeTarget;
+
+      if (distance < speed) {
+        // If <1 step from current waypoint, discard it and move toward next.
+        this.path.shift();
+
+        // After discarding the last waypoint, exit pathfinding.
+        if (!this.path.length) {
+          this.el.setAttribute('nav-controller', {active: false});
+          el.emit('nav-end');
+          return;
+        } else {
+          gazeTarget = this.path[0];
+        }
+      } else {
+        // If still far away from next waypoint, find next position for
+        // the current frame.
+        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
+        gazeTarget = vWaypoint;
+      }
+
+      // Look at the next waypoint.
+      gazeTarget.y = vCurrent.y;
+      el.object3D.lookAt(gazeTarget);
+
+      // Raycast against the nav mesh, to keep the controller moving along the
+      // ground, not traveling in a straight line from higher to lower waypoints.
+      raycaster.ray.origin.copy(vNext);
+      raycaster.ray.origin.y += 1.5;
+      raycaster.ray.direction.y = -1;
+      var intersections = raycaster.intersectObject(this.system.getNavMesh());
+
+      if (!intersections.length) {
+        // Raycasting failed. Step toward the waypoint and hope for the best.
+        vCurrent.copy(vNext);
+      } else {
+        // Re-project next position onto nav mesh.
+        vDelta.subVectors(intersections[0].point, vCurrent);
+        vCurrent.add(vDelta.setLength(speed));
+      }
+
+    };
+  }())
+};
+
+},{}],4:[function(require,module,exports){
+/**
+ * nav-mesh
+ *
+ * Waits for a mesh to be loaded on the current entity, then sets it as the
+ * nav mesh in the pathfinding system.
+ */
+module.exports = {
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.loadNavMesh();
+    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+  },
+
+  loadNavMesh: function () {
+    var object = this.el.getObject3D('mesh');
+
+    if (!object) return;
+
+    var navMesh;
+    object.traverse(function (node) {
+      if (node.isMesh) navMesh = node;
+    });
+
+    if (!navMesh) return;
+
+    this.system.setNavMesh(navMesh);
+  }
+};
+
+},{}],5:[function(require,module,exports){
+var Path = require('three-pathfinding');
+
+/**
+ * nav
+ *
+ * Pathfinding system, using PatrolJS.
+ */
+module.exports = {
+  init: function () {
+    this.navMesh = null;
+    this.nodes = null;
+    this.controllers = new Set();
+  },
+
+  /**
+   * @param {THREE.Mesh} mesh
+   */
+  setNavMesh: function (mesh) {
+    var geometry = mesh.geometry.isBufferGeometry
+      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
+      : mesh.geometry;
+    this.navMesh = new THREE.Mesh(geometry);
+    this.nodes = Path.buildNodes(this.navMesh.geometry);
+    Path.setZoneData('level', this.nodes);
+  },
+
+  /**
+   * @return {THREE.Mesh}
+   */
+  getNavMesh: function () {
+    return this.navMesh;
+  },
+
+  /**
+   * @param {NavController} ctrl
+   */
+  addController: function (ctrl) {
+    this.controllers.add(ctrl);
+  },
+
+  /**
+   * @param {NavController} ctrl
+   */
+  removeController: function (ctrl) {
+    this.controllers.remove(ctrl);
+  },
+
+  /**
+   * @param  {NavController} ctrl
+   * @param  {THREE.Vector3} target
+   * @return {Array<THREE.Vector3>}
+   */
+  getPath: function (ctrl, target) {
+    var start = ctrl.el.object3D.position;
+    // TODO(donmccurdy): Current group should be cached.
+    var group = Path.getGroup('level', start);
+    return Path.findPath(start, target, 'level', group);
+  }
+};
+
+},{"three-pathfinding":9}],6:[function(require,module,exports){
+const BinaryHeap = require('./BinaryHeap');
+const utils = require('./utils.js');
+
+class AStar {
+  static init (graph) {
+    for (let x = 0; x < graph.length; x++) {
+      //for(var x in graph) {
+      const node = graph[x];
+      node.f = 0;
+      node.g = 0;
+      node.h = 0;
+      node.cost = 1.0;
+      node.visited = false;
+      node.closed = false;
+      node.parent = null;
+    }
+  }
+
+  static cleanUp (graph) {
+    for (let x = 0; x < graph.length; x++) {
+      const node = graph[x];
+      delete node.f;
+      delete node.g;
+      delete node.h;
+      delete node.cost;
+      delete node.visited;
+      delete node.closed;
+      delete node.parent;
+    }
+  }
+
+  static heap () {
+    return new BinaryHeap(function (node) {
+      return node.f;
+    });
+  }
+
+  static search (graph, start, end) {
+    this.init(graph);
+    //heuristic = heuristic || astar.manhattan;
+
+
+    const openHeap = this.heap();
+
+    openHeap.push(start);
+
+    while (openHeap.size() > 0) {
+
+      // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
+      const currentNode = openHeap.pop();
+
+      // End case -- result has been found, return the traced path.
+      if (currentNode === end) {
+        let curr = currentNode;
+        const ret = [];
+        while (curr.parent) {
+          ret.push(curr);
+          curr = curr.parent;
+        }
+        this.cleanUp(ret);
+        return ret.reverse();
+      }
+
+      // Normal case -- move currentNode from open to closed, process each of its neighbours.
+      currentNode.closed = true;
+
+      // Find all neighbours for the current node. Optionally find diagonal neighbours as well (false by default).
+      const neighbours = this.neighbours(graph, currentNode);
+
+      for (let i = 0, il = neighbours.length; i < il; i++) {
+        const neighbour = neighbours[i];
+
+        if (neighbour.closed) {
+          // Not a valid node to process, skip to next neighbour.
+          continue;
+        }
+
+        // The g score is the shortest distance from start to current node.
+        // We need to check if the path we have arrived at this neighbour is the shortest one we have seen yet.
+        const gScore = currentNode.g + neighbour.cost;
+        const beenVisited = neighbour.visited;
+
+        if (!beenVisited || gScore < neighbour.g) {
+
+          // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
+          neighbour.visited = true;
+          neighbour.parent = currentNode;
+          if (!neighbour.centroid || !end.centroid) throw new Error('Unexpected state');
+          neighbour.h = neighbour.h || this.heuristic(neighbour.centroid, end.centroid);
+          neighbour.g = gScore;
+          neighbour.f = neighbour.g + neighbour.h;
+
+          if (!beenVisited) {
+            // Pushing to heap will put it in proper place based on the 'f' value.
+            openHeap.push(neighbour);
+          } else {
+            // Already seen the node, but since it has been rescored we need to reorder it in the heap
+            openHeap.rescoreElement(neighbour);
+          }
+        }
+      }
+    }
+
+    // No result was found - empty array signifies failure to find path.
+    return [];
+  }
+
+  static heuristic (pos1, pos2) {
+    return utils.distanceToSquared(pos1, pos2);
+  }
+
+  static neighbours (graph, node) {
+    const ret = [];
+
+    for (let e = 0; e < node.neighbours.length; e++) {
+      ret.push(graph[node.neighbours[e]]);
+    }
+
+    return ret;
+  }
+}
+
+module.exports = AStar;
+
+},{"./BinaryHeap":7,"./utils.js":10}],7:[function(require,module,exports){
+// javascript-astar
+// http://github.com/bgrins/javascript-astar
+// Freely distributable under the MIT License.
+// Implements the astar search algorithm in javascript using a binary heap.
+
+class BinaryHeap {
+  constructor (scoreFunction) {
+    this.content = [];
+    this.scoreFunction = scoreFunction;
+  }
+
+  push (element) {
+    // Add the new element to the end of the array.
+    this.content.push(element);
+
+    // Allow it to sink down.
+    this.sinkDown(this.content.length - 1);
+  }
+
+  pop () {
+    // Store the first element so we can return it later.
+    const result = this.content[0];
+    // Get the element at the end of the array.
+    const end = this.content.pop();
+    // If there are any elements left, put the end element at the
+    // start, and let it bubble up.
+    if (this.content.length > 0) {
+      this.content[0] = end;
+      this.bubbleUp(0);
+    }
+    return result;
+  }
+
+  remove (node) {
+    const i = this.content.indexOf(node);
+
+    // When it is found, the process seen in 'pop' is repeated
+    // to fill up the hole.
+    const end = this.content.pop();
+
+    if (i !== this.content.length - 1) {
+      this.content[i] = end;
+
+      if (this.scoreFunction(end) < this.scoreFunction(node)) {
+        this.sinkDown(i);
+      } else {
+        this.bubbleUp(i);
+      }
+    }
+  }
+
+  size () {
+    return this.content.length;
+  }
+
+  rescoreElement (node) {
+    this.sinkDown(this.content.indexOf(node));
+  }
+
+  sinkDown (n) {
+    // Fetch the element that has to be sunk.
+    const element = this.content[n];
+
+    // When at 0, an element can not sink any further.
+    while (n > 0) {
+      // Compute the parent element's index, and fetch it.
+      const parentN = ((n + 1) >> 1) - 1;
+      const parent = this.content[parentN];
+
+      if (this.scoreFunction(element) < this.scoreFunction(parent)) {
+        // Swap the elements if the parent is greater.
+        this.content[parentN] = element;
+        this.content[n] = parent;
+        // Update 'n' to continue at the new position.
+        n = parentN;
+      } else {
+        // Found a parent that is less, no need to sink any further.
+        break;
+      }
+    }
+  }
+
+  bubbleUp (n) {
+    // Look up the target element and its score.
+    const length = this.content.length,
+      element = this.content[n],
+      elemScore = this.scoreFunction(element);
+
+    while (true) {
+      // Compute the indices of the child elements.
+      const child2N = (n + 1) << 1,
+        child1N = child2N - 1;
+      // This is used to store the new position of the element,
+      // if any.
+      let swap = null;
+      let child1Score;
+      // If the first child exists (is inside the array)...
+      if (child1N < length) {
+        // Look it up and compute its score.
+        const child1 = this.content[child1N];
+        child1Score = this.scoreFunction(child1);
+
+        // If the score is less than our element's, we need to swap.
+        if (child1Score < elemScore) {
+          swap = child1N;
+        }
+      }
+
+      // Do the same checks for the other child.
+      if (child2N < length) {
+        const child2 = this.content[child2N],
+          child2Score = this.scoreFunction(child2);
+        if (child2Score < (swap === null ? elemScore : child1Score)) {
+          swap = child2N;
+        }
+      }
+
+      // If the element needs to be moved, swap it, and continue.
+      if (swap !== null) {
+        this.content[n] = this.content[swap];
+        this.content[swap] = element;
+        n = swap;
+      }
+
+      // Otherwise, we are done.
+      else {
+        break;
+      }
+    }
+  }
+
+}
+
+module.exports = BinaryHeap;
+
+},{}],8:[function(require,module,exports){
 const utils = require('./utils');
 
 class Channel {
@@ -95,9 +572,10 @@ class Channel {
 
 module.exports = Channel;
 
-},{"./utils":4}],3:[function(require,module,exports){
+},{"./utils":10}],9:[function(require,module,exports){
 const utils = require('./utils');
-const Channel = require('./channel');
+const AStar = require('./AStar');
+const Channel = require('./Channel');
 
 var polygonId = 1;
 
@@ -294,246 +772,6 @@ var groupNavMesh = function (navigationMesh) {
 	return saveObj;
 };
 
-// javascript-astar
-// http://github.com/bgrins/javascript-astar
-// Freely distributable under the MIT License.
-// Implements the astar search algorithm in javascript using a binary heap.
-
-function BinaryHeap(scoreFunction) {
-	this.content = [];
-	this.scoreFunction = scoreFunction;
-}
-
-BinaryHeap.prototype = {
-	push: function (element) {
-		// Add the new element to the end of the array.
-		this.content.push(element);
-
-		// Allow it to sink down.
-		this.sinkDown(this.content.length - 1);
-	},
-	pop: function () {
-		// Store the first element so we can return it later.
-		var result = this.content[0];
-		// Get the element at the end of the array.
-		var end = this.content.pop();
-		// If there are any elements left, put the end element at the
-		// start, and let it bubble up.
-		if (this.content.length > 0) {
-			this.content[0] = end;
-			this.bubbleUp(0);
-		}
-		return result;
-	},
-	remove: function (node) {
-		var i = this.content.indexOf(node);
-
-		// When it is found, the process seen in 'pop' is repeated
-		// to fill up the hole.
-		var end = this.content.pop();
-
-		if (i !== this.content.length - 1) {
-			this.content[i] = end;
-
-			if (this.scoreFunction(end) < this.scoreFunction(node)) {
-				this.sinkDown(i);
-			} else {
-				this.bubbleUp(i);
-			}
-		}
-	},
-	size: function () {
-		return this.content.length;
-	},
-	rescoreElement: function (node) {
-		this.sinkDown(this.content.indexOf(node));
-	},
-	sinkDown: function (n) {
-		// Fetch the element that has to be sunk.
-		var element = this.content[n];
-
-		// When at 0, an element can not sink any further.
-		while (n > 0) {
-
-			// Compute the parent element's index, and fetch it.
-			var parentN = ((n + 1) >> 1) - 1,
-				parent = this.content[parentN];
-			// Swap the elements if the parent is greater.
-			if (this.scoreFunction(element) < this.scoreFunction(parent)) {
-				this.content[parentN] = element;
-				this.content[n] = parent;
-				// Update 'n' to continue at the new position.
-				n = parentN;
-			}
-
-			// Found a parent that is less, no need to sink any further.
-			else {
-				break;
-			}
-		}
-	},
-	bubbleUp: function (n) {
-		// Look up the target element and its score.
-		var length = this.content.length,
-			element = this.content[n],
-			elemScore = this.scoreFunction(element);
-
-		while (true) {
-			// Compute the indices of the child elements.
-			var child2N = (n + 1) << 1,
-				child1N = child2N - 1;
-			// This is used to store the new position of the element,
-			// if any.
-			var swap = null;
-			// If the first child exists (is inside the array)...
-			if (child1N < length) {
-				// Look it up and compute its score.
-				var child1 = this.content[child1N],
-					child1Score = this.scoreFunction(child1);
-
-				// If the score is less than our element's, we need to swap.
-				if (child1Score < elemScore)
-					swap = child1N;
-			}
-
-			// Do the same checks for the other child.
-			if (child2N < length) {
-				var child2 = this.content[child2N],
-					child2Score = this.scoreFunction(child2);
-				if (child2Score < (swap === null ? elemScore : child1Score)) {
-					swap = child2N;
-				}
-			}
-
-			// If the element needs to be moved, swap it, and continue.
-			if (swap !== null) {
-				this.content[n] = this.content[swap];
-				this.content[swap] = element;
-				n = swap;
-			}
-
-			// Otherwise, we are done.
-			else {
-				break;
-			}
-		}
-	}
-};
-
-var astar = {
-	init: function (graph) {
-		for (var x = 0; x < graph.length; x++) {
-			//for(var x in graph) {
-			var node = graph[x];
-			node.f = 0;
-			node.g = 0;
-			node.h = 0;
-			node.cost = 1.0;
-			node.visited = false;
-			node.closed = false;
-			node.parent = null;
-		}
-	},
-	cleanUp: function (graph) {
-		for (var x = 0; x < graph.length; x++) {
-			var node = graph[x];
-			delete node.f;
-			delete node.g;
-			delete node.h;
-			delete node.cost;
-			delete node.visited;
-			delete node.closed;
-			delete node.parent;
-		}
-	},
-	heap: function () {
-		return new BinaryHeap(function (node) {
-			return node.f;
-		});
-	},
-	search: function (graph, start, end) {
-		astar.init(graph);
-		//heuristic = heuristic || astar.manhattan;
-
-
-		var openHeap = astar.heap();
-
-		openHeap.push(start);
-
-		while (openHeap.size() > 0) {
-
-			// Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
-			var currentNode = openHeap.pop();
-
-			// End case -- result has been found, return the traced path.
-			if (currentNode === end) {
-				var curr = currentNode;
-				var ret = [];
-				while (curr.parent) {
-					ret.push(curr);
-					curr = curr.parent;
-				}
-				this.cleanUp(ret);
-				return ret.reverse();
-			}
-
-			// Normal case -- move currentNode from open to closed, process each of its neighbours.
-			currentNode.closed = true;
-
-			// Find all neighbours for the current node. Optionally find diagonal neighbours as well (false by default).
-			var neighbours = astar.neighbours(graph, currentNode);
-
-			for (var i = 0, il = neighbours.length; i < il; i++) {
-				var neighbour = neighbours[i];
-
-				if (neighbour.closed) {
-					// Not a valid node to process, skip to next neighbour.
-					continue;
-				}
-
-				// The g score is the shortest distance from start to current node.
-				// We need to check if the path we have arrived at this neighbour is the shortest one we have seen yet.
-				var gScore = currentNode.g + neighbour.cost;
-				var beenVisited = neighbour.visited;
-
-				if (!beenVisited || gScore < neighbour.g) {
-
-					// Found an optimal (so far) path to this node.  Take score for node to see how good it is.
-					neighbour.visited = true;
-					neighbour.parent = currentNode;
-					if (!neighbour.centroid || !end.centroid) throw new Error('Unexpected state');
-					neighbour.h = neighbour.h || astar.heuristic(neighbour.centroid, end.centroid);
-					neighbour.g = gScore;
-					neighbour.f = neighbour.g + neighbour.h;
-
-					if (!beenVisited) {
-						// Pushing to heap will put it in proper place based on the 'f' value.
-						openHeap.push(neighbour);
-					} else {
-						// Already seen the node, but since it has been rescored we need to reorder it in the heap
-						openHeap.rescoreElement(neighbour);
-					}
-				}
-			}
-		}
-
-		// No result was found - empty array signifies failure to find path.
-		return [];
-	},
-	heuristic: function (pos1, pos2) {
-		return utils.distanceToSquared(pos1, pos2);
-	},
-	neighbours: function (graph, node) {
-		var ret = [];
-
-		for (var e = 0; e < node.neighbours.length; e++) {
-			ret.push(graph[node.neighbours[e]]);
-		}
-
-		return ret;
-	}
-};
-
 var zoneNodes = {};
 
 module.exports = {
@@ -590,43 +828,38 @@ module.exports = {
 
 		return utils.sample(candidates) || new THREE.Vector3();
 	},
-	findPath: function (startPosition, targetPosition, zone, group) {
+	getClosestNode: function (position, zone, group, checkPolygon = false) {
+		const nodes = zoneNodes[zone].groups[group];
+		const vertices = zoneNodes[zone].vertices;
+		let closestNode = null;
+		let closestDistance = Infinity;
 
-		var allNodes = zoneNodes[zone].groups[group];
-		var vertices = zoneNodes[zone].vertices;
-
-		var closestNode = null;
-		var distance = Math.pow(50, 2);
-
-		allNodes.forEach((node) => {
-			var measuredDistance = utils.distanceToSquared(node.centroid, startPosition);
-			if (measuredDistance < distance) {
+		nodes.forEach((node) => {
+			const distance = utils.distanceToSquared(node.centroid, position);
+			if (distance < closestDistance
+					&& (!checkPolygon || utils.isVectorInPolygon(position, node, vertices))) {
 				closestNode = node;
-				distance = measuredDistance;
+				closestDistance = distance;
 			}
 		});
 
+		return closestNode;
+	},
+	findPath: function (startPosition, targetPosition, zone, group) {
+		const nodes = zoneNodes[zone].groups[group];
+		const vertices = zoneNodes[zone].vertices;
 
-		var farthestNode = null;
-		distance = Math.pow(50, 2);
-
-		allNodes.forEach((node) => {
-			var measuredDistance = utils.distanceToSquared(node.centroid, targetPosition);
-			if (measuredDistance < distance &&
-				utils.isVectorInPolygon(targetPosition, node, vertices)) {
-				farthestNode = node;
-				distance = measuredDistance;
-			}
-		});
+		const closestNode = this.getClosestNode(startPosition, zone, group);
+		const farthestNode = this.getClosestNode(targetPosition, zone, group, true);
 
 		// If we can't find any node, just go straight to the target
 		if (!closestNode || !farthestNode) {
 			return null;
 		}
 
-		var paths = astar.search(allNodes, closestNode, farthestNode);
+		const paths = AStar.search(nodes, closestNode, farthestNode);
 
-		var getPortalFromTo = function (a, b) {
+		const getPortalFromTo = function (a, b) {
 			for (var i = 0; i < a.neighbours.length; i++) {
 				if (a.neighbours[i] === b.id) {
 					return a.portals[i];
@@ -634,55 +867,32 @@ module.exports = {
 			}
 		};
 
-		// We got the corridor
-		// Now pull the rope
-
-		var channel = new Channel();
-
+		// We have the corridor, now pull the rope.
+		const channel = new Channel();
 		channel.push(startPosition);
-
-		for (var i = 0; i < paths.length; i++) {
-			var polygon = paths[i];
-
-			var nextPolygon = paths[i + 1];
+		for (let i = 0; i < paths.length; i++) {
+			const polygon = paths[i];
+			const nextPolygon = paths[i + 1];
 
 			if (nextPolygon) {
-				var portals = getPortalFromTo(polygon, nextPolygon);
+				const portals = getPortalFromTo(polygon, nextPolygon);
 				channel.push(
 					vertices[portals[0]],
 					vertices[portals[1]]
 				);
 			}
-
 		}
-
 		channel.push(targetPosition);
-
 		channel.stringPull();
 
-
-		var threeVectors = [];
-
-		channel.path.forEach((c) => {
-			var vec = new THREE.Vector3(c.x, c.y, c.z);
-
-			// Ensure the intermediate steps aren't too close to the start position
-			// var dist = vec.clone().sub(startPosition).lengthSq();
-			// if (dist > 0.01 * 0.01) {
-				threeVectors.push(vec);
-			// }
-
-
-		});
-
-		// We don't need the first one, as we already know our start position
-		threeVectors.shift();
-
-		return threeVectors;
+		// Return the path, omitting first position (which is already known).
+		const path = channel.path.map((c) => new THREE.Vector3(c.x, c.y, c.z));
+		path.shift();
+		return path;
 	}
 };
 
-},{"./channel":2,"./utils":4}],4:[function(require,module,exports){
+},{"./AStar":6,"./Channel":8,"./utils":10}],10:[function(require,module,exports){
 class Utils {
 
   static computeCentroids (geometry) {
@@ -1002,220 +1212,4 @@ class Utils {
 
 module.exports = Utils;
 
-},{}],5:[function(require,module,exports){
-module.exports = {
-  'nav-mesh':    require('./nav-mesh'),
-  'nav-controller':     require('./nav-controller'),
-  'system':      require('./system'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    if (!AFRAME.components['nav-mesh']) {
-      AFRAME.registerComponent('nav-mesh', this['nav-mesh']);
-    }
-
-    if (!AFRAME.components['nav-controller']) {
-      AFRAME.registerComponent('nav-controller',  this['nav-controller']);
-    }
-
-    if (!AFRAME.systems.nav) {
-      AFRAME.registerSystem('nav', this.system);
-    }
-
-    this._registered = true;
-  }
-};
-
-},{"./nav-controller":6,"./nav-mesh":7,"./system":8}],6:[function(require,module,exports){
-module.exports = {
-  schema: {
-    destination: {type: 'vec3'},
-    active: {default: false},
-    speed: {default: 2}
-  },
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.system.addController(this);
-    this.path = [];
-    this.raycaster = new THREE.Raycaster();
-  },
-  remove: function () {
-    this.system.removeController(this);
-  },
-  update: function () {
-    this.path.length = 0;
-  },
-  tick: (function () {
-    var vDest = new THREE.Vector3();
-    var vDelta = new THREE.Vector3();
-    var vNext = new THREE.Vector3();
-
-    return function (t, dt) {
-      var el = this.el;
-      var data = this.data;
-      var raycaster = this.raycaster;
-      var speed = data.speed * dt / 1000;
-
-      if (!data.active) return;
-
-      // Use PatrolJS pathfinding system to get shortest path to target.
-      if (!this.path.length) {
-        this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
-        this.path = this.path || [];
-        el.emit('nav-start');
-      }
-
-      // If no path is found, exit.
-      if (!this.path.length) {
-        console.warn('[nav] Unable to find path to %o.', data.destination);
-        this.el.setAttribute('nav-controller', {active: false});
-        el.emit('nav-end');
-        return;
-      }
-
-      // Current segment is a vector from current position to next waypoint.
-      var vCurrent = el.object3D.position;
-      var vWaypoint = this.path[0];
-      vDelta.subVectors(vWaypoint, vCurrent);
-
-      var distance = vDelta.length();
-      var gazeTarget;
-
-      if (distance < speed) {
-        // If <1 step from current waypoint, discard it and move toward next.
-        this.path.shift();
-
-        // After discarding the last waypoint, exit pathfinding.
-        if (!this.path.length) {
-          this.el.setAttribute('nav-controller', {active: false});
-          el.emit('nav-end');
-          return;
-        } else {
-          gazeTarget = this.path[0];
-        }
-      } else {
-        // If still far away from next waypoint, find next position for
-        // the current frame.
-        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
-        gazeTarget = vWaypoint;
-      }
-
-      // Look at the next waypoint.
-      gazeTarget.y = vCurrent.y;
-      el.object3D.lookAt(gazeTarget);
-
-      // Raycast against the nav mesh, to keep the controller moving along the
-      // ground, not traveling in a straight line from higher to lower waypoints.
-      raycaster.ray.origin.copy(vNext);
-      raycaster.ray.origin.y += 1.5;
-      raycaster.ray.direction.y = -1;
-      var intersections = raycaster.intersectObject(this.system.getNavMesh());
-
-      if (!intersections.length) {
-        // Raycasting failed. Step toward the waypoint and hope for the best.
-        vCurrent.copy(vNext);
-      } else {
-        // Re-project next position onto nav mesh.
-        vDelta.subVectors(intersections[0].point, vCurrent);
-        vCurrent.add(vDelta.setLength(speed));
-      }
-
-    };
-  }())
-};
-
-},{}],7:[function(require,module,exports){
-/**
- * nav-mesh
- *
- * Waits for a mesh to be loaded on the current entity, then sets it as the
- * nav mesh in the pathfinding system.
- */
-module.exports = {
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.loadNavMesh();
-    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
-  },
-
-  loadNavMesh: function () {
-    var object = this.el.getObject3D('mesh');
-
-    if (!object) return;
-
-    var navMesh;
-    object.traverse(function (node) {
-      if (node.isMesh) navMesh = node;
-    });
-
-    if (!navMesh) return;
-
-    this.system.setNavMesh(navMesh);
-  }
-};
-
-},{}],8:[function(require,module,exports){
-var Path = require('three-pathfinding');
-
-/**
- * nav
- *
- * Pathfinding system, using PatrolJS.
- */
-module.exports = {
-  init: function () {
-    this.navMesh = null;
-    this.nodes = null;
-    this.controllers = new Set();
-  },
-
-  /**
-   * @param {THREE.Mesh} mesh
-   */
-  setNavMesh: function (mesh) {
-    var geometry = mesh.geometry.isBufferGeometry
-      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
-      : mesh.geometry;
-    this.navMesh = new THREE.Mesh(geometry);
-    this.nodes = Path.buildNodes(this.navMesh.geometry);
-    Path.setZoneData('level', this.nodes);
-  },
-
-  /**
-   * @return {THREE.Mesh}
-   */
-  getNavMesh: function () {
-    return this.navMesh;
-  },
-
-  /**
-   * @param {NavController} ctrl
-   */
-  addController: function (ctrl) {
-    this.controllers.add(ctrl);
-  },
-
-  /**
-   * @param {NavController} ctrl
-   */
-  removeController: function (ctrl) {
-    this.controllers.remove(ctrl);
-  },
-
-  /**
-   * @param  {NavController} ctrl
-   * @param  {THREE.Vector3} target
-   * @return {Array<THREE.Vector3>}
-   */
-  getPath: function (ctrl, target) {
-    var start = ctrl.el.object3D.position;
-    // TODO(donmccurdy): Current group should be cached.
-    var group = Path.getGroup('level', start);
-    return Path.findPath(start, target, 'level', group);
-  }
-};
-
-},{"three-pathfinding":3}]},{},[1]);
+},{}]},{},[1]);

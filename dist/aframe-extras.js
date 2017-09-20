@@ -19,7 +19,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":87,"./src/loaders":96,"./src/misc":104,"./src/pathfinding":110,"./src/primitives":118,"aframe-physics-system":11}],3:[function(require,module,exports){
+},{"./src/controls":84,"./src/loaders":93,"./src/misc":101,"./src/pathfinding":107,"./src/primitives":115,"aframe-physics-system":11}],3:[function(require,module,exports){
 /**
  * @author Kyle-Larson https://github.com/Kyle-Larson
  * @author Takahiro https://github.com/takahirox
@@ -6986,7 +6986,7 @@ module.exports = {
   }())
 };
 
-},{"../../../lib/CANNON-shape2mesh":12,"cannon":23,"three-to-cannon":82}],14:[function(require,module,exports){
+},{"../../../lib/CANNON-shape2mesh":12,"cannon":23,"three-to-cannon":79}],14:[function(require,module,exports){
 var Body = require('./body');
 
 /**
@@ -21920,1008 +21920,6 @@ World.prototype.clearForces = function(){
 };
 
 },{"../collision/AABB":24,"../collision/ArrayCollisionMatrix":25,"../collision/NaiveBroadphase":28,"../collision/OverlapKeeper":30,"../collision/Ray":31,"../collision/RaycastResult":32,"../equations/ContactEquation":41,"../equations/FrictionEquation":43,"../material/ContactMaterial":46,"../material/Material":47,"../math/Quaternion":50,"../math/Vec3":52,"../objects/Body":53,"../shapes/Shape":65,"../solver/GSSolver":68,"../utils/EventTarget":71,"../utils/TupleDictionary":74,"./Narrowphase":77}],79:[function(require,module,exports){
-const utils = require('./utils');
-
-class Channel {
-  constructor () {
-    this.portals = [];
-  }
-
-  push (p1, p2) {
-    if (p2 === undefined) p2 = p1;
-    this.portals.push({
-      left: p1,
-      right: p2
-    });
-  }
-
-  stringPull () {
-    const portals = this.portals;
-    const pts = [];
-    // Init scan state
-    let portalApex, portalLeft, portalRight;
-    let apexIndex = 0,
-      leftIndex = 0,
-      rightIndex = 0;
-
-    portalApex = portals[0].left;
-    portalLeft = portals[0].left;
-    portalRight = portals[0].right;
-
-    // Add start point.
-    pts.push(portalApex);
-
-    for (let i = 1; i < portals.length; i++) {
-      const left = portals[i].left;
-      const right = portals[i].right;
-
-      // Update right vertex.
-      if (utils.triarea2(portalApex, portalRight, right) <= 0.0) {
-        if (utils.vequal(portalApex, portalRight) || utils.triarea2(portalApex, portalLeft, right) > 0.0) {
-          // Tighten the funnel.
-          portalRight = right;
-          rightIndex = i;
-        } else {
-          // Right over left, insert left to path and restart scan from portal left point.
-          pts.push(portalLeft);
-          // Make current left the new apex.
-          portalApex = portalLeft;
-          apexIndex = leftIndex;
-          // Reset portal
-          portalLeft = portalApex;
-          portalRight = portalApex;
-          leftIndex = apexIndex;
-          rightIndex = apexIndex;
-          // Restart scan
-          i = apexIndex;
-          continue;
-        }
-      }
-
-      // Update left vertex.
-      if (utils.triarea2(portalApex, portalLeft, left) >= 0.0) {
-        if (utils.vequal(portalApex, portalLeft) || utils.triarea2(portalApex, portalRight, left) < 0.0) {
-          // Tighten the funnel.
-          portalLeft = left;
-          leftIndex = i;
-        } else {
-          // Left over right, insert right to path and restart scan from portal right point.
-          pts.push(portalRight);
-          // Make current right the new apex.
-          portalApex = portalRight;
-          apexIndex = rightIndex;
-          // Reset portal
-          portalLeft = portalApex;
-          portalRight = portalApex;
-          leftIndex = apexIndex;
-          rightIndex = apexIndex;
-          // Restart scan
-          i = apexIndex;
-          continue;
-        }
-      }
-    }
-
-    if ((pts.length === 0) || (!utils.vequal(pts[pts.length - 1], portals[portals.length - 1].left))) {
-      // Append last point to path.
-      pts.push(portals[portals.length - 1].left);
-    }
-
-    this.path = pts;
-    return pts;
-  }
-}
-
-module.exports = Channel;
-
-},{"./utils":81}],80:[function(require,module,exports){
-const utils = require('./utils');
-const Channel = require('./channel');
-
-var polygonId = 1;
-
-var buildPolygonGroups = function (navigationMesh) {
-
-	var polygons = navigationMesh.polygons;
-
-	var polygonGroups = [];
-	var groupCount = 0;
-
-	var spreadGroupId = function (polygon) {
-		polygon.neighbours.forEach((neighbour) => {
-			if (neighbour.group === undefined) {
-				neighbour.group = polygon.group;
-				spreadGroupId(neighbour);
-			}
-		});
-	};
-
-	polygons.forEach((polygon) => {
-
-		if (polygon.group === undefined) {
-			polygon.group = groupCount++;
-			// Spread it
-			spreadGroupId(polygon);
-		}
-
-		if (!polygonGroups[polygon.group]) polygonGroups[polygon.group] = [];
-
-		polygonGroups[polygon.group].push(polygon);
-	});
-
-	console.log('Groups built: ', polygonGroups.length);
-
-	return polygonGroups;
-};
-
-var buildPolygonNeighbours = function (polygon, navigationMesh) {
-	polygon.neighbours = [];
-
-	// All other nodes that contain at least two of our vertices are our neighbours
-	for (var i = 0, len = navigationMesh.polygons.length; i < len; i++) {
-		if (polygon === navigationMesh.polygons[i]) continue;
-
-		// Don't check polygons that are too far, since the intersection tests take a long time
-		if (polygon.centroid.distanceToSquared(navigationMesh.polygons[i].centroid) > 100 * 100) continue;
-
-		var matches = utils.array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
-
-		if (matches.length >= 2) {
-			polygon.neighbours.push(navigationMesh.polygons[i]);
-		}
-	}
-};
-
-var buildPolygonsFromGeometry = function (geometry) {
-
-	console.log('Vertices:', geometry.vertices.length, 'polygons:', geometry.faces.length);
-
-	var polygons = [];
-	var vertices = geometry.vertices;
-	var faceVertexUvs = geometry.faceVertexUvs;
-
-	// Convert the faces into a custom format that supports more than 3 vertices
-	geometry.faces.forEach((face) => {
-		polygons.push({
-			id: polygonId++,
-			vertexIds: [face.a, face.b, face.c],
-			centroid: face.centroid,
-			normal: face.normal,
-			neighbours: []
-		});
-	});
-
-	var navigationMesh = {
-		polygons: polygons,
-		vertices: vertices,
-		faceVertexUvs: faceVertexUvs
-	};
-
-	// Build a list of adjacent polygons
-	polygons.forEach((polygon) => {
-		buildPolygonNeighbours(polygon, navigationMesh);
-	});
-
-	return navigationMesh;
-};
-
-var buildNavigationMesh = function (geometry) {
-	// Prepare geometry
-	utils.computeCentroids(geometry);
-	geometry.mergeVertices();
-	return buildPolygonsFromGeometry(geometry);
-};
-
-var getSharedVerticesInOrder = function (a, b) {
-
-	var aList = a.vertexIds;
-	var bList = b.vertexIds;
-
-	var sharedVertices = [];
-
-	aList.forEach((vId) => {
-		if (bList.includes(vId)) {
-			sharedVertices.push(vId);
-		}
-	});
-
-	if (sharedVertices.length < 2) return [];
-
-	// console.log("TRYING aList:", aList, ", bList:", bList, ", sharedVertices:", sharedVertices);
-
-	if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
-		// Vertices on both edges are bad, so shift them once to the left
-		aList.push(aList.shift());
-	}
-
-	if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
-		// Vertices on both edges are bad, so shift them once to the left
-		bList.push(bList.shift());
-	}
-
-	// Again!
-	sharedVertices = [];
-
-	aList.forEach((vId) => {
-		if (bList.includes(vId)) {
-			sharedVertices.push(vId);
-		}
-	});
-
-	return sharedVertices;
-};
-
-var groupNavMesh = function (navigationMesh) {
-
-	var saveObj = {};
-
-	navigationMesh.vertices.forEach((v) => {
-		v.x = utils.roundNumber(v.x, 2);
-		v.y = utils.roundNumber(v.y, 2);
-		v.z = utils.roundNumber(v.z, 2);
-	});
-
-	saveObj.vertices = navigationMesh.vertices;
-
-	var groups = buildPolygonGroups(navigationMesh);
-
-	saveObj.groups = [];
-
-	var findPolygonIndex = function (group, p) {
-		for (var i = 0; i < group.length; i++) {
-			if (p === group[i]) return i;
-		}
-	};
-
-	groups.forEach((group) => {
-
-		var newGroup = [];
-
-		group.forEach((p) => {
-
-			var neighbours = [];
-
-			p.neighbours.forEach((n) => {
-				neighbours.push(findPolygonIndex(group, n));
-			});
-
-
-			// Build a portal list to each neighbour
-			var portals = [];
-			p.neighbours.forEach((n) => {
-				portals.push(getSharedVerticesInOrder(p, n));
-			});
-
-
-			p.centroid.x = utils.roundNumber(p.centroid.x, 2);
-			p.centroid.y = utils.roundNumber(p.centroid.y, 2);
-			p.centroid.z = utils.roundNumber(p.centroid.z, 2);
-
-			newGroup.push({
-				id: findPolygonIndex(group, p),
-				neighbours: neighbours,
-				vertexIds: p.vertexIds,
-				centroid: p.centroid,
-				portals: portals
-			});
-
-		});
-
-		saveObj.groups.push(newGroup);
-	});
-
-	return saveObj;
-};
-
-// javascript-astar
-// http://github.com/bgrins/javascript-astar
-// Freely distributable under the MIT License.
-// Implements the astar search algorithm in javascript using a binary heap.
-
-function BinaryHeap(scoreFunction) {
-	this.content = [];
-	this.scoreFunction = scoreFunction;
-}
-
-BinaryHeap.prototype = {
-	push: function (element) {
-		// Add the new element to the end of the array.
-		this.content.push(element);
-
-		// Allow it to sink down.
-		this.sinkDown(this.content.length - 1);
-	},
-	pop: function () {
-		// Store the first element so we can return it later.
-		var result = this.content[0];
-		// Get the element at the end of the array.
-		var end = this.content.pop();
-		// If there are any elements left, put the end element at the
-		// start, and let it bubble up.
-		if (this.content.length > 0) {
-			this.content[0] = end;
-			this.bubbleUp(0);
-		}
-		return result;
-	},
-	remove: function (node) {
-		var i = this.content.indexOf(node);
-
-		// When it is found, the process seen in 'pop' is repeated
-		// to fill up the hole.
-		var end = this.content.pop();
-
-		if (i !== this.content.length - 1) {
-			this.content[i] = end;
-
-			if (this.scoreFunction(end) < this.scoreFunction(node)) {
-				this.sinkDown(i);
-			} else {
-				this.bubbleUp(i);
-			}
-		}
-	},
-	size: function () {
-		return this.content.length;
-	},
-	rescoreElement: function (node) {
-		this.sinkDown(this.content.indexOf(node));
-	},
-	sinkDown: function (n) {
-		// Fetch the element that has to be sunk.
-		var element = this.content[n];
-
-		// When at 0, an element can not sink any further.
-		while (n > 0) {
-
-			// Compute the parent element's index, and fetch it.
-			var parentN = ((n + 1) >> 1) - 1,
-				parent = this.content[parentN];
-			// Swap the elements if the parent is greater.
-			if (this.scoreFunction(element) < this.scoreFunction(parent)) {
-				this.content[parentN] = element;
-				this.content[n] = parent;
-				// Update 'n' to continue at the new position.
-				n = parentN;
-			}
-
-			// Found a parent that is less, no need to sink any further.
-			else {
-				break;
-			}
-		}
-	},
-	bubbleUp: function (n) {
-		// Look up the target element and its score.
-		var length = this.content.length,
-			element = this.content[n],
-			elemScore = this.scoreFunction(element);
-
-		while (true) {
-			// Compute the indices of the child elements.
-			var child2N = (n + 1) << 1,
-				child1N = child2N - 1;
-			// This is used to store the new position of the element,
-			// if any.
-			var swap = null;
-			// If the first child exists (is inside the array)...
-			if (child1N < length) {
-				// Look it up and compute its score.
-				var child1 = this.content[child1N],
-					child1Score = this.scoreFunction(child1);
-
-				// If the score is less than our element's, we need to swap.
-				if (child1Score < elemScore)
-					swap = child1N;
-			}
-
-			// Do the same checks for the other child.
-			if (child2N < length) {
-				var child2 = this.content[child2N],
-					child2Score = this.scoreFunction(child2);
-				if (child2Score < (swap === null ? elemScore : child1Score)) {
-					swap = child2N;
-				}
-			}
-
-			// If the element needs to be moved, swap it, and continue.
-			if (swap !== null) {
-				this.content[n] = this.content[swap];
-				this.content[swap] = element;
-				n = swap;
-			}
-
-			// Otherwise, we are done.
-			else {
-				break;
-			}
-		}
-	}
-};
-
-var astar = {
-	init: function (graph) {
-		for (var x = 0; x < graph.length; x++) {
-			//for(var x in graph) {
-			var node = graph[x];
-			node.f = 0;
-			node.g = 0;
-			node.h = 0;
-			node.cost = 1.0;
-			node.visited = false;
-			node.closed = false;
-			node.parent = null;
-		}
-	},
-	cleanUp: function (graph) {
-		for (var x = 0; x < graph.length; x++) {
-			var node = graph[x];
-			delete node.f;
-			delete node.g;
-			delete node.h;
-			delete node.cost;
-			delete node.visited;
-			delete node.closed;
-			delete node.parent;
-		}
-	},
-	heap: function () {
-		return new BinaryHeap(function (node) {
-			return node.f;
-		});
-	},
-	search: function (graph, start, end) {
-		astar.init(graph);
-		//heuristic = heuristic || astar.manhattan;
-
-
-		var openHeap = astar.heap();
-
-		openHeap.push(start);
-
-		while (openHeap.size() > 0) {
-
-			// Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
-			var currentNode = openHeap.pop();
-
-			// End case -- result has been found, return the traced path.
-			if (currentNode === end) {
-				var curr = currentNode;
-				var ret = [];
-				while (curr.parent) {
-					ret.push(curr);
-					curr = curr.parent;
-				}
-				this.cleanUp(ret);
-				return ret.reverse();
-			}
-
-			// Normal case -- move currentNode from open to closed, process each of its neighbours.
-			currentNode.closed = true;
-
-			// Find all neighbours for the current node. Optionally find diagonal neighbours as well (false by default).
-			var neighbours = astar.neighbours(graph, currentNode);
-
-			for (var i = 0, il = neighbours.length; i < il; i++) {
-				var neighbour = neighbours[i];
-
-				if (neighbour.closed) {
-					// Not a valid node to process, skip to next neighbour.
-					continue;
-				}
-
-				// The g score is the shortest distance from start to current node.
-				// We need to check if the path we have arrived at this neighbour is the shortest one we have seen yet.
-				var gScore = currentNode.g + neighbour.cost;
-				var beenVisited = neighbour.visited;
-
-				if (!beenVisited || gScore < neighbour.g) {
-
-					// Found an optimal (so far) path to this node.  Take score for node to see how good it is.
-					neighbour.visited = true;
-					neighbour.parent = currentNode;
-					if (!neighbour.centroid || !end.centroid) throw new Error('Unexpected state');
-					neighbour.h = neighbour.h || astar.heuristic(neighbour.centroid, end.centroid);
-					neighbour.g = gScore;
-					neighbour.f = neighbour.g + neighbour.h;
-
-					if (!beenVisited) {
-						// Pushing to heap will put it in proper place based on the 'f' value.
-						openHeap.push(neighbour);
-					} else {
-						// Already seen the node, but since it has been rescored we need to reorder it in the heap
-						openHeap.rescoreElement(neighbour);
-					}
-				}
-			}
-		}
-
-		// No result was found - empty array signifies failure to find path.
-		return [];
-	},
-	heuristic: function (pos1, pos2) {
-		return utils.distanceToSquared(pos1, pos2);
-	},
-	neighbours: function (graph, node) {
-		var ret = [];
-
-		for (var e = 0; e < node.neighbours.length; e++) {
-			ret.push(graph[node.neighbours[e]]);
-		}
-
-		return ret;
-	}
-};
-
-var zoneNodes = {};
-
-module.exports = {
-	buildNodes: function (geometry) {
-		var navigationMesh = buildNavigationMesh(geometry);
-
-		var zoneNodes = groupNavMesh(navigationMesh);
-
-		return zoneNodes;
-	},
-	setZoneData: function (zone, data) {
-		zoneNodes[zone] = data;
-	},
-	getGroup: function (zone, position) {
-
-		if (!zoneNodes[zone]) return null;
-
-		var closestNodeGroup = null;
-
-		var distance = Math.pow(50, 2);
-
-		zoneNodes[zone].groups.forEach((group, index) => {
-			group.forEach((node) => {
-				var measuredDistance = utils.distanceToSquared(node.centroid, position);
-				if (measuredDistance < distance) {
-					closestNodeGroup = index;
-					distance = measuredDistance;
-				}
-			});
-		});
-
-		return closestNodeGroup;
-	},
-	getRandomNode: function (zone, group, nearPosition, nearRange) {
-
-		if (!zoneNodes[zone]) return new THREE.Vector3();
-
-		nearPosition = nearPosition || null;
-		nearRange = nearRange || 0;
-
-		var candidates = [];
-
-		var polygons = zoneNodes[zone].groups[group];
-
-		polygons.forEach((p) => {
-			if (nearPosition && nearRange) {
-				if (utils.distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
-					candidates.push(p.centroid);
-				}
-			} else {
-				candidates.push(p.centroid);
-			}
-		});
-
-		return utils.sample(candidates) || new THREE.Vector3();
-	},
-	findPath: function (startPosition, targetPosition, zone, group) {
-
-		var allNodes = zoneNodes[zone].groups[group];
-		var vertices = zoneNodes[zone].vertices;
-
-		var closestNode = null;
-		var distance = Math.pow(50, 2);
-
-		allNodes.forEach((node) => {
-			var measuredDistance = utils.distanceToSquared(node.centroid, startPosition);
-			if (measuredDistance < distance) {
-				closestNode = node;
-				distance = measuredDistance;
-			}
-		});
-
-
-		var farthestNode = null;
-		distance = Math.pow(50, 2);
-
-		allNodes.forEach((node) => {
-			var measuredDistance = utils.distanceToSquared(node.centroid, targetPosition);
-			if (measuredDistance < distance &&
-				utils.isVectorInPolygon(targetPosition, node, vertices)) {
-				farthestNode = node;
-				distance = measuredDistance;
-			}
-		});
-
-		// If we can't find any node, just go straight to the target
-		if (!closestNode || !farthestNode) {
-			return null;
-		}
-
-		var paths = astar.search(allNodes, closestNode, farthestNode);
-
-		var getPortalFromTo = function (a, b) {
-			for (var i = 0; i < a.neighbours.length; i++) {
-				if (a.neighbours[i] === b.id) {
-					return a.portals[i];
-				}
-			}
-		};
-
-		// We got the corridor
-		// Now pull the rope
-
-		var channel = new Channel();
-
-		channel.push(startPosition);
-
-		for (var i = 0; i < paths.length; i++) {
-			var polygon = paths[i];
-
-			var nextPolygon = paths[i + 1];
-
-			if (nextPolygon) {
-				var portals = getPortalFromTo(polygon, nextPolygon);
-				channel.push(
-					vertices[portals[0]],
-					vertices[portals[1]]
-				);
-			}
-
-		}
-
-		channel.push(targetPosition);
-
-		channel.stringPull();
-
-
-		var threeVectors = [];
-
-		channel.path.forEach((c) => {
-			var vec = new THREE.Vector3(c.x, c.y, c.z);
-
-			// Ensure the intermediate steps aren't too close to the start position
-			// var dist = vec.clone().sub(startPosition).lengthSq();
-			// if (dist > 0.01 * 0.01) {
-				threeVectors.push(vec);
-			// }
-
-
-		});
-
-		// We don't need the first one, as we already know our start position
-		threeVectors.shift();
-
-		return threeVectors;
-	}
-};
-
-},{"./channel":79,"./utils":81}],81:[function(require,module,exports){
-class Utils {
-
-  static computeCentroids (geometry) {
-    var f, fl, face;
-
-    for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
-
-      face = geometry.faces[ f ];
-      face.centroid = new THREE.Vector3( 0, 0, 0 );
-
-      face.centroid.add( geometry.vertices[ face.a ] );
-      face.centroid.add( geometry.vertices[ face.b ] );
-      face.centroid.add( geometry.vertices[ face.c ] );
-      face.centroid.divideScalar( 3 );
-
-    }
-  }
-
-  static roundNumber (number, decimals) {
-    var newnumber = Number(number + '').toFixed(parseInt(decimals));
-    return parseFloat(newnumber);
-  }
-
-  static sample (list) {
-    return list[Math.floor(Math.random() * list.length)];
-  }
-
-  static mergeVertexIds (aList, bList) {
-
-    var sharedVertices = [];
-
-    aList.forEach((vID) => {
-      if (bList.indexOf(vID) >= 0) {
-        sharedVertices.push(vID);
-      }
-    });
-
-    if (sharedVertices.length < 2) return [];
-
-    if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      aList.push(aList.shift());
-    }
-
-    if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
-      // Vertices on both edges are bad, so shift them once to the left
-      bList.push(bList.shift());
-    }
-
-    // Again!
-    sharedVertices = [];
-
-    aList.forEach((vId) => {
-      if (bList.includes(vId)) {
-        sharedVertices.push(vId);
-      }
-    });
-
-    var clockwiseMostSharedVertex = sharedVertices[1];
-    var counterClockwiseMostSharedVertex = sharedVertices[0];
-
-
-    var cList = aList.slice();
-    while (cList[0] !== clockwiseMostSharedVertex) {
-      cList.push(cList.shift());
-    }
-
-    var c = 0;
-
-    var temp = bList.slice();
-    while (temp[0] !== counterClockwiseMostSharedVertex) {
-      temp.push(temp.shift());
-
-      if (c++ > 10) throw new Error('Unexpected state');
-    }
-
-    // Shave
-    temp.shift();
-    temp.pop();
-
-    cList = cList.concat(temp);
-
-    return cList;
-  }
-
-  static setPolygonCentroid (polygon, navigationMesh) {
-    var sum = new THREE.Vector3();
-
-    var vertices = navigationMesh.vertices;
-
-    polygon.vertexIds.forEach((vId) => {
-      sum.add(vertices[vId]);
-    });
-
-    sum.divideScalar(polygon.vertexIds.length);
-
-    polygon.centroid.copy(sum);
-  }
-
-  static cleanPolygon (polygon, navigationMesh) {
-
-    var newVertexIds = [];
-
-    var vertices = navigationMesh.vertices;
-
-    for (var i = 0; i < polygon.vertexIds.length; i++) {
-
-      var vertex = vertices[polygon.vertexIds[i]];
-
-      var nextVertexId, previousVertexId;
-      var nextVertex, previousVertex;
-
-      // console.log("nextVertex: ", nextVertex);
-
-      if (i === 0) {
-        nextVertexId = polygon.vertexIds[1];
-        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 1];
-      } else if (i === polygon.vertexIds.length - 1) {
-        nextVertexId = polygon.vertexIds[0];
-        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 2];
-      } else {
-        nextVertexId = polygon.vertexIds[i + 1];
-        previousVertexId = polygon.vertexIds[i - 1];
-      }
-
-      nextVertex = vertices[nextVertexId];
-      previousVertex = vertices[previousVertexId];
-
-      var a = nextVertex.clone().sub(vertex);
-      var b = previousVertex.clone().sub(vertex);
-
-      var angle = a.angleTo(b);
-
-      // console.log(angle);
-
-      if (angle > Math.PI - 0.01 && angle < Math.PI + 0.01) {
-        // Unneccesary vertex
-        // console.log("Unneccesary vertex: ", polygon.vertexIds[i]);
-        // console.log("Angle between "+previousVertexId+", "+polygon.vertexIds[i]+" "+nextVertexId+" was: ", angle);
-
-
-        // Remove the neighbours who had this vertex
-        var goodNeighbours = [];
-        polygon.neighbours.forEach((neighbour) => {
-          if (!neighbour.vertexIds.includes(polygon.vertexIds[i])) {
-            goodNeighbours.push(neighbour);
-          }
-        });
-        polygon.neighbours = goodNeighbours;
-
-
-        // TODO cleanup the list of vertices and rebuild vertexIds for all polygons
-      } else {
-        newVertexIds.push(polygon.vertexIds[i]);
-      }
-
-    }
-
-    // console.log("New vertexIds: ", newVertexIds);
-
-    polygon.vertexIds = newVertexIds;
-
-    setPolygonCentroid(polygon, navigationMesh);
-
-  }
-
-  static isConvex (polygon, navigationMesh) {
-
-    var vertices = navigationMesh.vertices;
-
-    if (polygon.vertexIds.length < 3) return false;
-
-    var convex = true;
-
-    var total = 0;
-
-    var results = [];
-
-    for (var i = 0; i < polygon.vertexIds.length; i++) {
-
-      var vertex = vertices[polygon.vertexIds[i]];
-
-      var nextVertex, previousVertex;
-
-      if (i === 0) {
-        nextVertex = vertices[polygon.vertexIds[1]];
-        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 1]];
-      } else if (i === polygon.vertexIds.length - 1) {
-        nextVertex = vertices[polygon.vertexIds[0]];
-        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 2]];
-      } else {
-        nextVertex = vertices[polygon.vertexIds[i + 1]];
-        previousVertex = vertices[polygon.vertexIds[i - 1]];
-      }
-
-      var a = nextVertex.clone().sub(vertex);
-      var b = previousVertex.clone().sub(vertex);
-
-      var angle = a.angleTo(b);
-      total += angle;
-
-      if (angle === Math.PI || angle === 0) return false;
-
-      var r = a.cross(b).y;
-      results.push(r);
-    }
-
-    // if ( total > (polygon.vertexIds.length-2)*Math.PI ) return false;
-
-    results.forEach((r) => {
-      if (r === 0) convex = false;
-    });
-
-    if (results[0] > 0) {
-      results.forEach((r) => {
-        if (r < 0) convex = false;
-      });
-    } else {
-      results.forEach((r) => {
-        if (r > 0) convex = false;
-      });
-    }
-
-    return convex;
-  }
-
-  static distanceToSquared (a, b) {
-
-    var dx = a.x - b.x;
-    var dy = a.y - b.y;
-    var dz = a.z - b.z;
-
-    return dx * dx + dy * dy + dz * dz;
-
-  }
-
-  //+ Jonas Raoni Soares Silva
-  //@ http://jsfromhell.com/math/is-point-in-poly [rev. #0]
-  static isPointInPoly (poly, pt) {
-    for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-      ((poly[i].z <= pt.z && pt.z < poly[j].z) || (poly[j].z <= pt.z && pt.z < poly[i].z)) && (pt.x < (poly[j].x - poly[i].x) * (pt.z - poly[i].z) / (poly[j].z - poly[i].z) + poly[i].x) && (c = !c);
-    return c;
-  }
-
-  static isVectorInPolygon (vector, polygon, vertices) {
-
-    // reference point will be the centroid of the polygon
-    // We need to rotate the vector as well as all the points which the polygon uses
-
-    var lowestPoint = 100000;
-    var highestPoint = -100000;
-
-    var polygonVertices = [];
-
-    polygon.vertexIds.forEach((vId) => {
-      lowestPoint = Math.min(vertices[vId].y, lowestPoint);
-      highestPoint = Math.max(vertices[vId].y, highestPoint);
-      polygonVertices.push(vertices[vId]);
-    });
-
-    if (vector.y < highestPoint + 0.5 && vector.y > lowestPoint - 0.5 &&
-      this.isPointInPoly(polygonVertices, vector)) {
-      return true;
-    }
-    return false;
-  }
-
-  static triarea2 (a, b, c) {
-    var ax = b.x - a.x;
-    var az = b.z - a.z;
-    var bx = c.x - a.x;
-    var bz = c.z - a.z;
-    return bx * az - ax * bz;
-  }
-
-  static vequal (a, b) {
-    return this.distanceToSquared(a, b) < 0.00001;
-  }
-
-  static array_intersect () {
-    let i, shortest, nShortest, n, len, ret = [],
-      obj = {},
-      nOthers;
-    nOthers = arguments.length - 1;
-    nShortest = arguments[0].length;
-    shortest = 0;
-    for (i = 0; i <= nOthers; i++) {
-      n = arguments[i].length;
-      if (n < nShortest) {
-        shortest = i;
-        nShortest = n;
-      }
-    }
-
-    for (i = 0; i <= nOthers; i++) {
-      n = (i === shortest) ? 0 : (i || shortest); //Read the shortest array first. Read the first array instead of the shortest
-      len = arguments[n].length;
-      for (var j = 0; j < len; j++) {
-        var elem = arguments[n][j];
-        if (obj[elem] === i - 1) {
-          if (i === nOthers) {
-            ret.push(elem);
-            obj[elem] = 0;
-          } else {
-            obj[elem] = i;
-          }
-        } else if (i === 0) {
-          obj[elem] = 0;
-        }
-      }
-    }
-    return ret;
-  }
-}
-
-
-
-module.exports = Utils;
-
-},{}],82:[function(require,module,exports){
 var CANNON = require('cannon'),
     quickhull = require('./lib/THREE.quickhull');
 
@@ -23286,7 +22284,7 @@ function getMeshes (object) {
   return meshes;
 }
 
-},{"./lib/THREE.quickhull":83,"cannon":23}],83:[function(require,module,exports){
+},{"./lib/THREE.quickhull":80,"cannon":23}],80:[function(require,module,exports){
 /**
 
   QuickHull
@@ -23738,7 +22736,7 @@ module.exports = (function(){
 
 }())
 
-},{}],84:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 var EPS = 0.1;
 
 module.exports = {
@@ -23816,7 +22814,7 @@ module.exports = {
   }
 };
 
-},{}],85:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 /**
  * Gamepad controls for A-Frame.
  *
@@ -24065,7 +23063,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],86:[function(require,module,exports){
+},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],83:[function(require,module,exports){
 var radToDeg = THREE.Math.radToDeg,
     isMobile = AFRAME.utils.device.isMobile();
 
@@ -24148,7 +23146,7 @@ function isNullVector (vector) {
   return vector.x === 0 && vector.y === 0 && vector.z === 0;
 }
 
-},{}],87:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var physics = require('aframe-physics-system');
 
 module.exports = {
@@ -24178,7 +23176,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint-controls":84,"./gamepad-controls":85,"./hmd-controls":86,"./keyboard-controls":88,"./mouse-controls":89,"./touch-controls":90,"./universal-controls":91,"aframe-physics-system":11}],88:[function(require,module,exports){
+},{"./checkpoint-controls":81,"./gamepad-controls":82,"./hmd-controls":83,"./keyboard-controls":85,"./mouse-controls":86,"./touch-controls":87,"./universal-controls":88,"aframe-physics-system":11}],85:[function(require,module,exports){
 require('../../lib/keyboard.polyfill');
 
 var MAX_DELTA = 0.2,
@@ -24333,7 +23331,7 @@ module.exports = {
 
 };
 
-},{"../../lib/keyboard.polyfill":10}],89:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":10}],86:[function(require,module,exports){
 document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
 
 /**
@@ -24483,7 +23481,7 @@ module.exports = {
   }
 };
 
-},{}],90:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 module.exports = {
   schema: {
     enabled: { default: true }
@@ -24553,7 +23551,7 @@ module.exports = {
   }
 };
 
-},{}],91:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 /**
  * Universal Controls
  *
@@ -24762,7 +23760,7 @@ module.exports = {
   }
 };
 
-},{}],92:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 var LoopMode = {
   once: THREE.LoopOnce,
   repeat: THREE.LoopRepeat,
@@ -24886,7 +23884,7 @@ function regExpEscape (s) {
   return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 }
 
-},{}],93:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 THREE.FBXLoader = require('../../lib/FBXLoader');
 
 /**
@@ -24926,7 +23924,7 @@ module.exports = {
   }
 };
 
-},{"../../lib/FBXLoader":3}],94:[function(require,module,exports){
+},{"../../lib/FBXLoader":3}],91:[function(require,module,exports){
 var fetchScript = require('../../lib/fetch-script')();
 
 var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
@@ -25021,7 +24019,7 @@ var loadLoader = (function () {
   };
 }());
 
-},{"../../lib/fetch-script":8}],95:[function(require,module,exports){
+},{"../../lib/fetch-script":8}],92:[function(require,module,exports){
 var fetchScript = require('../../lib/fetch-script')();
 
 var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTF2Loader.js';
@@ -25083,7 +24081,7 @@ var loadLoader = (function () {
   };
 }());
 
-},{"../../lib/fetch-script":8}],96:[function(require,module,exports){
+},{"../../lib/fetch-script":8}],93:[function(require,module,exports){
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
@@ -25147,7 +24145,7 @@ module.exports = {
   }
 };
 
-},{"./animation-mixer":92,"./fbx-model":93,"./gltf-model-legacy":94,"./gltf-model-next":95,"./json-model":97,"./object-model":98,"./ply-model":99,"./three-model":100}],97:[function(require,module,exports){
+},{"./animation-mixer":89,"./fbx-model":90,"./gltf-model-legacy":91,"./gltf-model-next":92,"./json-model":94,"./object-model":95,"./ply-model":96,"./three-model":97}],94:[function(require,module,exports){
 /**
  * json-model
  *
@@ -25207,7 +24205,7 @@ module.exports = {
   }
 };
 
-},{}],98:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 /**
  * object-model
  *
@@ -25262,7 +24260,7 @@ module.exports = {
   }
 };
 
-},{}],99:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -25343,7 +24341,7 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":6}],100:[function(require,module,exports){
+},{"../../lib/PLYLoader":6}],97:[function(require,module,exports){
 var DEFAULT_ANIMATION = '__auto__';
 
 /**
@@ -25490,7 +24488,7 @@ module.exports = {
   }
 };
 
-},{}],101:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 module.exports = {
   schema: {
     offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
@@ -25524,7 +24522,7 @@ module.exports = {
   }
 };
 
-},{}],102:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 /**
  * Specifies an envMap on an entity, without replacing any existing material
  * properties.
@@ -25570,7 +24568,7 @@ module.exports = {
   }
 };
 
-},{}],103:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -25642,7 +24640,7 @@ module.exports = {
   }
 };
 
-},{}],104:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 var physics = require('aframe-physics-system');
 
 module.exports = {
@@ -25674,7 +24672,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint":101,"./cube-env-map":102,"./grab":103,"./jump-ability":105,"./kinematic-body":106,"./mesh-smooth":107,"./sphere-collider":108,"./toggle-velocity":109,"aframe-physics-system":11}],105:[function(require,module,exports){
+},{"./checkpoint":98,"./cube-env-map":99,"./grab":100,"./jump-ability":102,"./kinematic-body":103,"./mesh-smooth":104,"./sphere-collider":105,"./toggle-velocity":106,"aframe-physics-system":11}],102:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -25738,7 +24736,7 @@ module.exports = {
   }
 };
 
-},{}],106:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -25938,7 +24936,7 @@ module.exports = {
   }
 };
 
-},{}],107:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 /**
  * Apply this component to models that looks "blocky", to have Three.js compute
  * vertex normals on the fly for a "smoother" look.
@@ -25953,7 +24951,7 @@ module.exports = {
   }
 }
 
-},{}],108:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -26101,7 +25099,7 @@ module.exports = {
   }
 };
 
-},{}],109:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -26138,7 +25136,7 @@ module.exports = {
   },
 };
 
-},{}],110:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 module.exports = {
   'nav-mesh':    require('./nav-mesh'),
   'nav-controller':     require('./nav-controller'),
@@ -26165,7 +25163,7 @@ module.exports = {
   }
 };
 
-},{"./nav-controller":111,"./nav-mesh":112,"./system":113}],111:[function(require,module,exports){
+},{"./nav-controller":108,"./nav-mesh":109,"./system":110}],108:[function(require,module,exports){
 module.exports = {
   schema: {
     destination: {type: 'vec3'},
@@ -26263,7 +25261,7 @@ module.exports = {
   }())
 };
 
-},{}],112:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 /**
  * nav-mesh
  *
@@ -26293,7 +25291,7 @@ module.exports = {
   }
 };
 
-},{}],113:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 var Path = require('three-pathfinding');
 
 /**
@@ -26354,7 +25352,7 @@ module.exports = {
   }
 };
 
-},{"three-pathfinding":80}],114:[function(require,module,exports){
+},{"three-pathfinding":119}],111:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -26390,7 +25388,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],115:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 var vg = require('../../lib/hex-grid.min.js');
 var defaultHexGrid = require('../../lib/default-hex-grid.json');
 
@@ -26455,7 +25453,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],116:[function(require,module,exports){
+},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],113:[function(require,module,exports){
 /**
  * Flat-shaded ocean primitive.
  *
@@ -26562,7 +25560,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],117:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 /**
  * Tube following a custom path.
  *
@@ -26637,7 +25635,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],118:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 module.exports = {
   'a-grid':     require('./a-grid'),
   'a-hexgrid': require('./a-hexgrid'),
@@ -26655,4 +25653,1000 @@ module.exports = {
   }
 };
 
-},{"./a-grid":114,"./a-hexgrid":115,"./a-ocean":116,"./a-tube":117}]},{},[1]);
+},{"./a-grid":111,"./a-hexgrid":112,"./a-ocean":113,"./a-tube":114}],116:[function(require,module,exports){
+const BinaryHeap = require('./BinaryHeap');
+const utils = require('./utils.js');
+
+class AStar {
+  static init (graph) {
+    for (let x = 0; x < graph.length; x++) {
+      //for(var x in graph) {
+      const node = graph[x];
+      node.f = 0;
+      node.g = 0;
+      node.h = 0;
+      node.cost = 1.0;
+      node.visited = false;
+      node.closed = false;
+      node.parent = null;
+    }
+  }
+
+  static cleanUp (graph) {
+    for (let x = 0; x < graph.length; x++) {
+      const node = graph[x];
+      delete node.f;
+      delete node.g;
+      delete node.h;
+      delete node.cost;
+      delete node.visited;
+      delete node.closed;
+      delete node.parent;
+    }
+  }
+
+  static heap () {
+    return new BinaryHeap(function (node) {
+      return node.f;
+    });
+  }
+
+  static search (graph, start, end) {
+    this.init(graph);
+    //heuristic = heuristic || astar.manhattan;
+
+
+    const openHeap = this.heap();
+
+    openHeap.push(start);
+
+    while (openHeap.size() > 0) {
+
+      // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
+      const currentNode = openHeap.pop();
+
+      // End case -- result has been found, return the traced path.
+      if (currentNode === end) {
+        let curr = currentNode;
+        const ret = [];
+        while (curr.parent) {
+          ret.push(curr);
+          curr = curr.parent;
+        }
+        this.cleanUp(ret);
+        return ret.reverse();
+      }
+
+      // Normal case -- move currentNode from open to closed, process each of its neighbours.
+      currentNode.closed = true;
+
+      // Find all neighbours for the current node. Optionally find diagonal neighbours as well (false by default).
+      const neighbours = this.neighbours(graph, currentNode);
+
+      for (let i = 0, il = neighbours.length; i < il; i++) {
+        const neighbour = neighbours[i];
+
+        if (neighbour.closed) {
+          // Not a valid node to process, skip to next neighbour.
+          continue;
+        }
+
+        // The g score is the shortest distance from start to current node.
+        // We need to check if the path we have arrived at this neighbour is the shortest one we have seen yet.
+        const gScore = currentNode.g + neighbour.cost;
+        const beenVisited = neighbour.visited;
+
+        if (!beenVisited || gScore < neighbour.g) {
+
+          // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
+          neighbour.visited = true;
+          neighbour.parent = currentNode;
+          if (!neighbour.centroid || !end.centroid) throw new Error('Unexpected state');
+          neighbour.h = neighbour.h || this.heuristic(neighbour.centroid, end.centroid);
+          neighbour.g = gScore;
+          neighbour.f = neighbour.g + neighbour.h;
+
+          if (!beenVisited) {
+            // Pushing to heap will put it in proper place based on the 'f' value.
+            openHeap.push(neighbour);
+          } else {
+            // Already seen the node, but since it has been rescored we need to reorder it in the heap
+            openHeap.rescoreElement(neighbour);
+          }
+        }
+      }
+    }
+
+    // No result was found - empty array signifies failure to find path.
+    return [];
+  }
+
+  static heuristic (pos1, pos2) {
+    return utils.distanceToSquared(pos1, pos2);
+  }
+
+  static neighbours (graph, node) {
+    const ret = [];
+
+    for (let e = 0; e < node.neighbours.length; e++) {
+      ret.push(graph[node.neighbours[e]]);
+    }
+
+    return ret;
+  }
+}
+
+module.exports = AStar;
+
+},{"./BinaryHeap":117,"./utils.js":120}],117:[function(require,module,exports){
+// javascript-astar
+// http://github.com/bgrins/javascript-astar
+// Freely distributable under the MIT License.
+// Implements the astar search algorithm in javascript using a binary heap.
+
+class BinaryHeap {
+  constructor (scoreFunction) {
+    this.content = [];
+    this.scoreFunction = scoreFunction;
+  }
+
+  push (element) {
+    // Add the new element to the end of the array.
+    this.content.push(element);
+
+    // Allow it to sink down.
+    this.sinkDown(this.content.length - 1);
+  }
+
+  pop () {
+    // Store the first element so we can return it later.
+    const result = this.content[0];
+    // Get the element at the end of the array.
+    const end = this.content.pop();
+    // If there are any elements left, put the end element at the
+    // start, and let it bubble up.
+    if (this.content.length > 0) {
+      this.content[0] = end;
+      this.bubbleUp(0);
+    }
+    return result;
+  }
+
+  remove (node) {
+    const i = this.content.indexOf(node);
+
+    // When it is found, the process seen in 'pop' is repeated
+    // to fill up the hole.
+    const end = this.content.pop();
+
+    if (i !== this.content.length - 1) {
+      this.content[i] = end;
+
+      if (this.scoreFunction(end) < this.scoreFunction(node)) {
+        this.sinkDown(i);
+      } else {
+        this.bubbleUp(i);
+      }
+    }
+  }
+
+  size () {
+    return this.content.length;
+  }
+
+  rescoreElement (node) {
+    this.sinkDown(this.content.indexOf(node));
+  }
+
+  sinkDown (n) {
+    // Fetch the element that has to be sunk.
+    const element = this.content[n];
+
+    // When at 0, an element can not sink any further.
+    while (n > 0) {
+      // Compute the parent element's index, and fetch it.
+      const parentN = ((n + 1) >> 1) - 1;
+      const parent = this.content[parentN];
+
+      if (this.scoreFunction(element) < this.scoreFunction(parent)) {
+        // Swap the elements if the parent is greater.
+        this.content[parentN] = element;
+        this.content[n] = parent;
+        // Update 'n' to continue at the new position.
+        n = parentN;
+      } else {
+        // Found a parent that is less, no need to sink any further.
+        break;
+      }
+    }
+  }
+
+  bubbleUp (n) {
+    // Look up the target element and its score.
+    const length = this.content.length,
+      element = this.content[n],
+      elemScore = this.scoreFunction(element);
+
+    while (true) {
+      // Compute the indices of the child elements.
+      const child2N = (n + 1) << 1,
+        child1N = child2N - 1;
+      // This is used to store the new position of the element,
+      // if any.
+      let swap = null;
+      let child1Score;
+      // If the first child exists (is inside the array)...
+      if (child1N < length) {
+        // Look it up and compute its score.
+        const child1 = this.content[child1N];
+        child1Score = this.scoreFunction(child1);
+
+        // If the score is less than our element's, we need to swap.
+        if (child1Score < elemScore) {
+          swap = child1N;
+        }
+      }
+
+      // Do the same checks for the other child.
+      if (child2N < length) {
+        const child2 = this.content[child2N],
+          child2Score = this.scoreFunction(child2);
+        if (child2Score < (swap === null ? elemScore : child1Score)) {
+          swap = child2N;
+        }
+      }
+
+      // If the element needs to be moved, swap it, and continue.
+      if (swap !== null) {
+        this.content[n] = this.content[swap];
+        this.content[swap] = element;
+        n = swap;
+      }
+
+      // Otherwise, we are done.
+      else {
+        break;
+      }
+    }
+  }
+
+}
+
+module.exports = BinaryHeap;
+
+},{}],118:[function(require,module,exports){
+const utils = require('./utils');
+
+class Channel {
+  constructor () {
+    this.portals = [];
+  }
+
+  push (p1, p2) {
+    if (p2 === undefined) p2 = p1;
+    this.portals.push({
+      left: p1,
+      right: p2
+    });
+  }
+
+  stringPull () {
+    const portals = this.portals;
+    const pts = [];
+    // Init scan state
+    let portalApex, portalLeft, portalRight;
+    let apexIndex = 0,
+      leftIndex = 0,
+      rightIndex = 0;
+
+    portalApex = portals[0].left;
+    portalLeft = portals[0].left;
+    portalRight = portals[0].right;
+
+    // Add start point.
+    pts.push(portalApex);
+
+    for (let i = 1; i < portals.length; i++) {
+      const left = portals[i].left;
+      const right = portals[i].right;
+
+      // Update right vertex.
+      if (utils.triarea2(portalApex, portalRight, right) <= 0.0) {
+        if (utils.vequal(portalApex, portalRight) || utils.triarea2(portalApex, portalLeft, right) > 0.0) {
+          // Tighten the funnel.
+          portalRight = right;
+          rightIndex = i;
+        } else {
+          // Right over left, insert left to path and restart scan from portal left point.
+          pts.push(portalLeft);
+          // Make current left the new apex.
+          portalApex = portalLeft;
+          apexIndex = leftIndex;
+          // Reset portal
+          portalLeft = portalApex;
+          portalRight = portalApex;
+          leftIndex = apexIndex;
+          rightIndex = apexIndex;
+          // Restart scan
+          i = apexIndex;
+          continue;
+        }
+      }
+
+      // Update left vertex.
+      if (utils.triarea2(portalApex, portalLeft, left) >= 0.0) {
+        if (utils.vequal(portalApex, portalLeft) || utils.triarea2(portalApex, portalRight, left) < 0.0) {
+          // Tighten the funnel.
+          portalLeft = left;
+          leftIndex = i;
+        } else {
+          // Left over right, insert right to path and restart scan from portal right point.
+          pts.push(portalRight);
+          // Make current right the new apex.
+          portalApex = portalRight;
+          apexIndex = rightIndex;
+          // Reset portal
+          portalLeft = portalApex;
+          portalRight = portalApex;
+          leftIndex = apexIndex;
+          rightIndex = apexIndex;
+          // Restart scan
+          i = apexIndex;
+          continue;
+        }
+      }
+    }
+
+    if ((pts.length === 0) || (!utils.vequal(pts[pts.length - 1], portals[portals.length - 1].left))) {
+      // Append last point to path.
+      pts.push(portals[portals.length - 1].left);
+    }
+
+    this.path = pts;
+    return pts;
+  }
+}
+
+module.exports = Channel;
+
+},{"./utils":120}],119:[function(require,module,exports){
+const utils = require('./utils');
+const AStar = require('./AStar');
+const Channel = require('./Channel');
+
+var polygonId = 1;
+
+var buildPolygonGroups = function (navigationMesh) {
+
+	var polygons = navigationMesh.polygons;
+
+	var polygonGroups = [];
+	var groupCount = 0;
+
+	var spreadGroupId = function (polygon) {
+		polygon.neighbours.forEach((neighbour) => {
+			if (neighbour.group === undefined) {
+				neighbour.group = polygon.group;
+				spreadGroupId(neighbour);
+			}
+		});
+	};
+
+	polygons.forEach((polygon) => {
+
+		if (polygon.group === undefined) {
+			polygon.group = groupCount++;
+			// Spread it
+			spreadGroupId(polygon);
+		}
+
+		if (!polygonGroups[polygon.group]) polygonGroups[polygon.group] = [];
+
+		polygonGroups[polygon.group].push(polygon);
+	});
+
+	console.log('Groups built: ', polygonGroups.length);
+
+	return polygonGroups;
+};
+
+var buildPolygonNeighbours = function (polygon, navigationMesh) {
+	polygon.neighbours = [];
+
+	// All other nodes that contain at least two of our vertices are our neighbours
+	for (var i = 0, len = navigationMesh.polygons.length; i < len; i++) {
+		if (polygon === navigationMesh.polygons[i]) continue;
+
+		// Don't check polygons that are too far, since the intersection tests take a long time
+		if (polygon.centroid.distanceToSquared(navigationMesh.polygons[i].centroid) > 100 * 100) continue;
+
+		var matches = utils.array_intersect(polygon.vertexIds, navigationMesh.polygons[i].vertexIds);
+
+		if (matches.length >= 2) {
+			polygon.neighbours.push(navigationMesh.polygons[i]);
+		}
+	}
+};
+
+var buildPolygonsFromGeometry = function (geometry) {
+
+	console.log('Vertices:', geometry.vertices.length, 'polygons:', geometry.faces.length);
+
+	var polygons = [];
+	var vertices = geometry.vertices;
+	var faceVertexUvs = geometry.faceVertexUvs;
+
+	// Convert the faces into a custom format that supports more than 3 vertices
+	geometry.faces.forEach((face) => {
+		polygons.push({
+			id: polygonId++,
+			vertexIds: [face.a, face.b, face.c],
+			centroid: face.centroid,
+			normal: face.normal,
+			neighbours: []
+		});
+	});
+
+	var navigationMesh = {
+		polygons: polygons,
+		vertices: vertices,
+		faceVertexUvs: faceVertexUvs
+	};
+
+	// Build a list of adjacent polygons
+	polygons.forEach((polygon) => {
+		buildPolygonNeighbours(polygon, navigationMesh);
+	});
+
+	return navigationMesh;
+};
+
+var buildNavigationMesh = function (geometry) {
+	// Prepare geometry
+	utils.computeCentroids(geometry);
+	geometry.mergeVertices();
+	return buildPolygonsFromGeometry(geometry);
+};
+
+var getSharedVerticesInOrder = function (a, b) {
+
+	var aList = a.vertexIds;
+	var bList = b.vertexIds;
+
+	var sharedVertices = [];
+
+	aList.forEach((vId) => {
+		if (bList.includes(vId)) {
+			sharedVertices.push(vId);
+		}
+	});
+
+	if (sharedVertices.length < 2) return [];
+
+	// console.log("TRYING aList:", aList, ", bList:", bList, ", sharedVertices:", sharedVertices);
+
+	if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
+		// Vertices on both edges are bad, so shift them once to the left
+		aList.push(aList.shift());
+	}
+
+	if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
+		// Vertices on both edges are bad, so shift them once to the left
+		bList.push(bList.shift());
+	}
+
+	// Again!
+	sharedVertices = [];
+
+	aList.forEach((vId) => {
+		if (bList.includes(vId)) {
+			sharedVertices.push(vId);
+		}
+	});
+
+	return sharedVertices;
+};
+
+var groupNavMesh = function (navigationMesh) {
+
+	var saveObj = {};
+
+	navigationMesh.vertices.forEach((v) => {
+		v.x = utils.roundNumber(v.x, 2);
+		v.y = utils.roundNumber(v.y, 2);
+		v.z = utils.roundNumber(v.z, 2);
+	});
+
+	saveObj.vertices = navigationMesh.vertices;
+
+	var groups = buildPolygonGroups(navigationMesh);
+
+	saveObj.groups = [];
+
+	var findPolygonIndex = function (group, p) {
+		for (var i = 0; i < group.length; i++) {
+			if (p === group[i]) return i;
+		}
+	};
+
+	groups.forEach((group) => {
+
+		var newGroup = [];
+
+		group.forEach((p) => {
+
+			var neighbours = [];
+
+			p.neighbours.forEach((n) => {
+				neighbours.push(findPolygonIndex(group, n));
+			});
+
+
+			// Build a portal list to each neighbour
+			var portals = [];
+			p.neighbours.forEach((n) => {
+				portals.push(getSharedVerticesInOrder(p, n));
+			});
+
+
+			p.centroid.x = utils.roundNumber(p.centroid.x, 2);
+			p.centroid.y = utils.roundNumber(p.centroid.y, 2);
+			p.centroid.z = utils.roundNumber(p.centroid.z, 2);
+
+			newGroup.push({
+				id: findPolygonIndex(group, p),
+				neighbours: neighbours,
+				vertexIds: p.vertexIds,
+				centroid: p.centroid,
+				portals: portals
+			});
+
+		});
+
+		saveObj.groups.push(newGroup);
+	});
+
+	return saveObj;
+};
+
+var zoneNodes = {};
+
+module.exports = {
+	buildNodes: function (geometry) {
+		var navigationMesh = buildNavigationMesh(geometry);
+
+		var zoneNodes = groupNavMesh(navigationMesh);
+
+		return zoneNodes;
+	},
+	setZoneData: function (zone, data) {
+		zoneNodes[zone] = data;
+	},
+	getGroup: function (zone, position) {
+
+		if (!zoneNodes[zone]) return null;
+
+		var closestNodeGroup = null;
+
+		var distance = Math.pow(50, 2);
+
+		zoneNodes[zone].groups.forEach((group, index) => {
+			group.forEach((node) => {
+				var measuredDistance = utils.distanceToSquared(node.centroid, position);
+				if (measuredDistance < distance) {
+					closestNodeGroup = index;
+					distance = measuredDistance;
+				}
+			});
+		});
+
+		return closestNodeGroup;
+	},
+	getRandomNode: function (zone, group, nearPosition, nearRange) {
+
+		if (!zoneNodes[zone]) return new THREE.Vector3();
+
+		nearPosition = nearPosition || null;
+		nearRange = nearRange || 0;
+
+		var candidates = [];
+
+		var polygons = zoneNodes[zone].groups[group];
+
+		polygons.forEach((p) => {
+			if (nearPosition && nearRange) {
+				if (utils.distanceToSquared(nearPosition, p.centroid) < nearRange * nearRange) {
+					candidates.push(p.centroid);
+				}
+			} else {
+				candidates.push(p.centroid);
+			}
+		});
+
+		return utils.sample(candidates) || new THREE.Vector3();
+	},
+	getClosestNode: function (position, zone, group, checkPolygon = false) {
+		const nodes = zoneNodes[zone].groups[group];
+		const vertices = zoneNodes[zone].vertices;
+		let closestNode = null;
+		let closestDistance = Infinity;
+
+		nodes.forEach((node) => {
+			const distance = utils.distanceToSquared(node.centroid, position);
+			if (distance < closestDistance
+					&& (!checkPolygon || utils.isVectorInPolygon(position, node, vertices))) {
+				closestNode = node;
+				closestDistance = distance;
+			}
+		});
+
+		return closestNode;
+	},
+	findPath: function (startPosition, targetPosition, zone, group) {
+		const nodes = zoneNodes[zone].groups[group];
+		const vertices = zoneNodes[zone].vertices;
+
+		const closestNode = this.getClosestNode(startPosition, zone, group);
+		const farthestNode = this.getClosestNode(targetPosition, zone, group, true);
+
+		// If we can't find any node, just go straight to the target
+		if (!closestNode || !farthestNode) {
+			return null;
+		}
+
+		const paths = AStar.search(nodes, closestNode, farthestNode);
+
+		const getPortalFromTo = function (a, b) {
+			for (var i = 0; i < a.neighbours.length; i++) {
+				if (a.neighbours[i] === b.id) {
+					return a.portals[i];
+				}
+			}
+		};
+
+		// We have the corridor, now pull the rope.
+		const channel = new Channel();
+		channel.push(startPosition);
+		for (let i = 0; i < paths.length; i++) {
+			const polygon = paths[i];
+			const nextPolygon = paths[i + 1];
+
+			if (nextPolygon) {
+				const portals = getPortalFromTo(polygon, nextPolygon);
+				channel.push(
+					vertices[portals[0]],
+					vertices[portals[1]]
+				);
+			}
+		}
+		channel.push(targetPosition);
+		channel.stringPull();
+
+		// Return the path, omitting first position (which is already known).
+		const path = channel.path.map((c) => new THREE.Vector3(c.x, c.y, c.z));
+		path.shift();
+		return path;
+	}
+};
+
+},{"./AStar":116,"./Channel":118,"./utils":120}],120:[function(require,module,exports){
+class Utils {
+
+  static computeCentroids (geometry) {
+    var f, fl, face;
+
+    for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
+
+      face = geometry.faces[ f ];
+      face.centroid = new THREE.Vector3( 0, 0, 0 );
+
+      face.centroid.add( geometry.vertices[ face.a ] );
+      face.centroid.add( geometry.vertices[ face.b ] );
+      face.centroid.add( geometry.vertices[ face.c ] );
+      face.centroid.divideScalar( 3 );
+
+    }
+  }
+
+  static roundNumber (number, decimals) {
+    var newnumber = Number(number + '').toFixed(parseInt(decimals));
+    return parseFloat(newnumber);
+  }
+
+  static sample (list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  static mergeVertexIds (aList, bList) {
+
+    var sharedVertices = [];
+
+    aList.forEach((vID) => {
+      if (bList.indexOf(vID) >= 0) {
+        sharedVertices.push(vID);
+      }
+    });
+
+    if (sharedVertices.length < 2) return [];
+
+    if (sharedVertices.includes(aList[0]) && sharedVertices.includes(aList[aList.length - 1])) {
+      // Vertices on both edges are bad, so shift them once to the left
+      aList.push(aList.shift());
+    }
+
+    if (sharedVertices.includes(bList[0]) && sharedVertices.includes(bList[bList.length - 1])) {
+      // Vertices on both edges are bad, so shift them once to the left
+      bList.push(bList.shift());
+    }
+
+    // Again!
+    sharedVertices = [];
+
+    aList.forEach((vId) => {
+      if (bList.includes(vId)) {
+        sharedVertices.push(vId);
+      }
+    });
+
+    var clockwiseMostSharedVertex = sharedVertices[1];
+    var counterClockwiseMostSharedVertex = sharedVertices[0];
+
+
+    var cList = aList.slice();
+    while (cList[0] !== clockwiseMostSharedVertex) {
+      cList.push(cList.shift());
+    }
+
+    var c = 0;
+
+    var temp = bList.slice();
+    while (temp[0] !== counterClockwiseMostSharedVertex) {
+      temp.push(temp.shift());
+
+      if (c++ > 10) throw new Error('Unexpected state');
+    }
+
+    // Shave
+    temp.shift();
+    temp.pop();
+
+    cList = cList.concat(temp);
+
+    return cList;
+  }
+
+  static setPolygonCentroid (polygon, navigationMesh) {
+    var sum = new THREE.Vector3();
+
+    var vertices = navigationMesh.vertices;
+
+    polygon.vertexIds.forEach((vId) => {
+      sum.add(vertices[vId]);
+    });
+
+    sum.divideScalar(polygon.vertexIds.length);
+
+    polygon.centroid.copy(sum);
+  }
+
+  static cleanPolygon (polygon, navigationMesh) {
+
+    var newVertexIds = [];
+
+    var vertices = navigationMesh.vertices;
+
+    for (var i = 0; i < polygon.vertexIds.length; i++) {
+
+      var vertex = vertices[polygon.vertexIds[i]];
+
+      var nextVertexId, previousVertexId;
+      var nextVertex, previousVertex;
+
+      // console.log("nextVertex: ", nextVertex);
+
+      if (i === 0) {
+        nextVertexId = polygon.vertexIds[1];
+        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 1];
+      } else if (i === polygon.vertexIds.length - 1) {
+        nextVertexId = polygon.vertexIds[0];
+        previousVertexId = polygon.vertexIds[polygon.vertexIds.length - 2];
+      } else {
+        nextVertexId = polygon.vertexIds[i + 1];
+        previousVertexId = polygon.vertexIds[i - 1];
+      }
+
+      nextVertex = vertices[nextVertexId];
+      previousVertex = vertices[previousVertexId];
+
+      var a = nextVertex.clone().sub(vertex);
+      var b = previousVertex.clone().sub(vertex);
+
+      var angle = a.angleTo(b);
+
+      // console.log(angle);
+
+      if (angle > Math.PI - 0.01 && angle < Math.PI + 0.01) {
+        // Unneccesary vertex
+        // console.log("Unneccesary vertex: ", polygon.vertexIds[i]);
+        // console.log("Angle between "+previousVertexId+", "+polygon.vertexIds[i]+" "+nextVertexId+" was: ", angle);
+
+
+        // Remove the neighbours who had this vertex
+        var goodNeighbours = [];
+        polygon.neighbours.forEach((neighbour) => {
+          if (!neighbour.vertexIds.includes(polygon.vertexIds[i])) {
+            goodNeighbours.push(neighbour);
+          }
+        });
+        polygon.neighbours = goodNeighbours;
+
+
+        // TODO cleanup the list of vertices and rebuild vertexIds for all polygons
+      } else {
+        newVertexIds.push(polygon.vertexIds[i]);
+      }
+
+    }
+
+    // console.log("New vertexIds: ", newVertexIds);
+
+    polygon.vertexIds = newVertexIds;
+
+    setPolygonCentroid(polygon, navigationMesh);
+
+  }
+
+  static isConvex (polygon, navigationMesh) {
+
+    var vertices = navigationMesh.vertices;
+
+    if (polygon.vertexIds.length < 3) return false;
+
+    var convex = true;
+
+    var total = 0;
+
+    var results = [];
+
+    for (var i = 0; i < polygon.vertexIds.length; i++) {
+
+      var vertex = vertices[polygon.vertexIds[i]];
+
+      var nextVertex, previousVertex;
+
+      if (i === 0) {
+        nextVertex = vertices[polygon.vertexIds[1]];
+        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 1]];
+      } else if (i === polygon.vertexIds.length - 1) {
+        nextVertex = vertices[polygon.vertexIds[0]];
+        previousVertex = vertices[polygon.vertexIds[polygon.vertexIds.length - 2]];
+      } else {
+        nextVertex = vertices[polygon.vertexIds[i + 1]];
+        previousVertex = vertices[polygon.vertexIds[i - 1]];
+      }
+
+      var a = nextVertex.clone().sub(vertex);
+      var b = previousVertex.clone().sub(vertex);
+
+      var angle = a.angleTo(b);
+      total += angle;
+
+      if (angle === Math.PI || angle === 0) return false;
+
+      var r = a.cross(b).y;
+      results.push(r);
+    }
+
+    // if ( total > (polygon.vertexIds.length-2)*Math.PI ) return false;
+
+    results.forEach((r) => {
+      if (r === 0) convex = false;
+    });
+
+    if (results[0] > 0) {
+      results.forEach((r) => {
+        if (r < 0) convex = false;
+      });
+    } else {
+      results.forEach((r) => {
+        if (r > 0) convex = false;
+      });
+    }
+
+    return convex;
+  }
+
+  static distanceToSquared (a, b) {
+
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    var dz = a.z - b.z;
+
+    return dx * dx + dy * dy + dz * dz;
+
+  }
+
+  //+ Jonas Raoni Soares Silva
+  //@ http://jsfromhell.com/math/is-point-in-poly [rev. #0]
+  static isPointInPoly (poly, pt) {
+    for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+      ((poly[i].z <= pt.z && pt.z < poly[j].z) || (poly[j].z <= pt.z && pt.z < poly[i].z)) && (pt.x < (poly[j].x - poly[i].x) * (pt.z - poly[i].z) / (poly[j].z - poly[i].z) + poly[i].x) && (c = !c);
+    return c;
+  }
+
+  static isVectorInPolygon (vector, polygon, vertices) {
+
+    // reference point will be the centroid of the polygon
+    // We need to rotate the vector as well as all the points which the polygon uses
+
+    var lowestPoint = 100000;
+    var highestPoint = -100000;
+
+    var polygonVertices = [];
+
+    polygon.vertexIds.forEach((vId) => {
+      lowestPoint = Math.min(vertices[vId].y, lowestPoint);
+      highestPoint = Math.max(vertices[vId].y, highestPoint);
+      polygonVertices.push(vertices[vId]);
+    });
+
+    if (vector.y < highestPoint + 0.5 && vector.y > lowestPoint - 0.5 &&
+      this.isPointInPoly(polygonVertices, vector)) {
+      return true;
+    }
+    return false;
+  }
+
+  static triarea2 (a, b, c) {
+    var ax = b.x - a.x;
+    var az = b.z - a.z;
+    var bx = c.x - a.x;
+    var bz = c.z - a.z;
+    return bx * az - ax * bz;
+  }
+
+  static vequal (a, b) {
+    return this.distanceToSquared(a, b) < 0.00001;
+  }
+
+  static array_intersect () {
+    let i, shortest, nShortest, n, len, ret = [],
+      obj = {},
+      nOthers;
+    nOthers = arguments.length - 1;
+    nShortest = arguments[0].length;
+    shortest = 0;
+    for (i = 0; i <= nOthers; i++) {
+      n = arguments[i].length;
+      if (n < nShortest) {
+        shortest = i;
+        nShortest = n;
+      }
+    }
+
+    for (i = 0; i <= nOthers; i++) {
+      n = (i === shortest) ? 0 : (i || shortest); //Read the shortest array first. Read the first array instead of the shortest
+      len = arguments[n].length;
+      for (var j = 0; j < len; j++) {
+        var elem = arguments[n][j];
+        if (obj[elem] === i - 1) {
+          if (i === nOthers) {
+            ret.push(elem);
+            obj[elem] = 0;
+          } else {
+            obj[elem] = i;
+          }
+        } else if (i === 0) {
+          obj[elem] = 0;
+        }
+      }
+    }
+    return ret;
+  }
+}
+
+
+
+module.exports = Utils;
+
+},{}]},{},[1]);
