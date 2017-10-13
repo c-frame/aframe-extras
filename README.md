@@ -5,6 +5,47 @@
 
 Add-ons and helpers for A-Frame VR.
 
+Includes components for controls, model loaders, pathfinding, a [physics system](https://github.com/donmccurdy/aframe-physics-system), and more:
+
+<!-- tree src -I index.js -->
+<pre>
+src
+├── <b>controls/</b> (<a href="/src/controls">Documentation</a>)
+│   ├── checkpoint-controls.js
+│   ├── gamepad-controls.js
+│   ├── hmd-controls.js
+│   ├── keyboard-controls.js
+│   ├── mouse-controls.js
+│   ├── touch-controls.js
+│   └── universal-controls.js
+├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
+│   ├── animation-mixer.js
+│   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
+│   ├── gltf-model-next.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── gltf-model-legacy.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── json-model.js
+│   ├── object-model.js
+│   └── ply-model.js
+├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
+│   ├── checkpoint.js
+│   ├── cube-env-map.js         <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── grab.js
+│   ├── jump-ability.js
+│   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
+│   ├── mesh-smooth.js          <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── sphere-collider.js
+│   └── toggle-velocity.js
+├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
+│   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   └── nav-controller.js       <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
+└── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
+    ├── a-grid.js
+    ├── a-hex-grid.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+    ├── a-ocean.js
+    └── a-tube.js
+</pre>
+
 ## Usage (Scripts)
 
 In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
@@ -58,44 +99,3 @@ browserify custom-extras.js -o bundle.js
 ```
 
 `bundle.js` may then be included in your page. See [here](http://browserify.org/#middle-section) for a better introduction to Browserify.
-
-## Add-ons
-
-<!-- tree src -I index.js -->
-<pre>
-src
-├── <b>controls/</b> (<a href="/src/controls">Documentation</a>)
-│   ├── checkpoint-controls.js
-│   ├── gamepad-controls.js
-│   ├── hmd-controls.js
-│   ├── keyboard-controls.js
-│   ├── mouse-controls.js
-│   ├── touch-controls.js
-│   └── universal-controls.js
-├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
-│   ├── animation-mixer.js
-│   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── gltf-model-next.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   ├── gltf-model-legacy.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   ├── json-model.js
-│   ├── object-model.js
-│   └── ply-model.js
-├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
-│   ├── checkpoint.js
-│   ├── cube-env-map.js         <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   ├── grab.js
-│   ├── jump-ability.js
-│   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── mesh-smooth.js          <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   ├── sphere-collider.js
-│   └── toggle-velocity.js
-├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
-│   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   └── nav-controller.js       <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
-└── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
-    ├── a-grid.js
-    ├── a-hex-grid.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-    ├── a-ocean.js
-    └── a-tube.js
-</pre>
