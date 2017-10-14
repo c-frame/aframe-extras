@@ -6,7 +6,7 @@ var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLT
  * Legacy loader for glTF 1.0 models.
  * Asynchronously loads THREE.GLTFLoader from rawgit.
  */
-module.exports.Component = {
+module.exports = {
   schema: {type: 'model'},
 
   init: function () {

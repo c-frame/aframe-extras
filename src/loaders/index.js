@@ -38,8 +38,7 @@ module.exports = {
 
     // THREE.GLTFLoader
     if (!AFRAME.components['gltf-model-legacy']) {
-      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy'].Component);
-      AFRAME.registerSystem('gltf-model-legacy', this['gltf-model-legacy'].System);
+      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy']);
     }
 
     // THREE.JsonLoader
