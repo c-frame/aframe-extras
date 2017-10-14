@@ -26,7 +26,7 @@ module.exports = {
     if (this.checkpoint === checkpoint) return;
 
     if (this.checkpoint) {
-      el.emit('navigation-end', {checkpoint: checkpoint});
+      el.emit('navigation-end', {checkpoint: this.checkpoint});
     }
 
     this.checkpoint = checkpoint;
