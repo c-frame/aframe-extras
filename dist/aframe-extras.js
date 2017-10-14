@@ -22765,14 +22765,21 @@ module.exports = {
     if (this.checkpoint === checkpoint) return;
 
     if (this.checkpoint) {
-      el.emit('navigation-end', {checkpoint: checkpoint});
+      el.emit('navigation-end', {checkpoint: this.checkpoint});
     }
 
     this.checkpoint = checkpoint;
+    this.sync();
+
+    // Ignore new checkpoint if we're already there.
+    if (this.position.distanceTo(this.targetPosition) < EPS) {
+      this.checkpoint = null;
+      return;
+    }
+
     el.emit('navigation-start', {checkpoint: checkpoint});
 
     if (this.data.mode === 'teleport') {
-      this.sync();
       this.el.setAttribute('position', this.targetPosition);
       this.checkpoint = null;
       el.emit('navigation-end', {checkpoint: checkpoint});
@@ -23933,7 +23940,7 @@ var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLT
  * Legacy loader for glTF 1.0 models.
  * Asynchronously loads THREE.GLTFLoader from rawgit.
  */
-module.exports.Component = {
+module.exports = {
   schema: {type: 'model'},
 
   init: function () {
@@ -23958,7 +23965,6 @@ module.exports.Component = {
       this.loader.load(src, function gltfLoaded (gltfModel) {
         self.model = gltfModel.scene;
         self.model.animations = gltfModel.animations;
-        self.system.registerModel(self.model);
         el.setObject3D('mesh', self.model);
         el.emit('model-loaded', {format: 'gltf', model: self.model});
       });
@@ -23968,46 +23974,6 @@ module.exports.Component = {
   remove: function () {
     if (!this.model) { return; }
     this.el.removeObject3D('mesh');
-    this.system.unregisterModel(this.model);
-  }
-};
-
-/**
- * glTF model system.
- */
-module.exports.System = {
-  init: function () {
-    this.models = [];
-  },
-
-  /**
-   * Updates shaders for all glTF models in the system.
-   */
-  tick: function () {
-    var sceneEl = this.sceneEl;
-    if (sceneEl.hasLoaded && this.models.length) {
-      THREE.GLTFLoader.Shaders.update(sceneEl.object3D, sceneEl.camera);
-    }
-  },
-
-  /**
-   * Registers a glTF asset.
-   * @param {object} gltf Asset containing a scene and (optional) animations and cameras.
-   */
-  registerModel: function (gltf) {
-    this.models.push(gltf);
-  },
-
-  /**
-   * Unregisters a glTF asset.
-   * @param  {object} gltf Asset containing a scene and (optional) animations and cameras.
-   */
-  unregisterModel: function (gltf) {
-    var models = this.models;
-    var index = models.indexOf(gltf);
-    if (index >= 0) {
-      models.splice(index, 1);
-    }
   }
 };
 
@@ -24122,8 +24088,7 @@ module.exports = {
 
     // THREE.GLTFLoader
     if (!AFRAME.components['gltf-model-legacy']) {
-      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy'].Component);
-      AFRAME.registerSystem('gltf-model-legacy', this['gltf-model-legacy'].System);
+      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy']);
     }
 
     // THREE.JsonLoader
@@ -24979,6 +24944,7 @@ module.exports = {
     this.collisions = [];
 
     this.handleHit = this.handleHit.bind(this);
+    this.handleHitEnd = this.handleHitEnd.bind(this);
   },
 
   remove: function () {
@@ -25054,9 +25020,7 @@ module.exports = {
       // Remove collision state from other elements.
       this.collisions.filter(function (el) {
         return !distanceMap.has(el);
-      }).forEach(function removeState (el) {
-        el.removeState(data.state);
-      });
+      }).forEach(this.handleHitEnd);
 
       // Store new collisions
       this.collisions = collisions;
@@ -25096,6 +25060,11 @@ module.exports = {
     targetEl.emit('hit');
     targetEl.addState(this.data.state);
     this.el.emit('hit', {el: targetEl});
+  },
+  handleHitEnd: function (targetEl) {
+    targetEl.emit('hitend');
+    targetEl.removeState(this.data.state);
+    this.el.emit('hitend', {el: targetEl});
   }
 };
 

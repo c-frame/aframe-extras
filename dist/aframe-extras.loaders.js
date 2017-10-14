@@ -5853,7 +5853,7 @@ var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLT
  * Legacy loader for glTF 1.0 models.
  * Asynchronously loads THREE.GLTFLoader from rawgit.
  */
-module.exports.Component = {
+module.exports = {
   schema: {type: 'model'},
 
   init: function () {
@@ -5878,7 +5878,6 @@ module.exports.Component = {
       this.loader.load(src, function gltfLoaded (gltfModel) {
         self.model = gltfModel.scene;
         self.model.animations = gltfModel.animations;
-        self.system.registerModel(self.model);
         el.setObject3D('mesh', self.model);
         el.emit('model-loaded', {format: 'gltf', model: self.model});
       });
@@ -5888,46 +5887,6 @@ module.exports.Component = {
   remove: function () {
     if (!this.model) { return; }
     this.el.removeObject3D('mesh');
-    this.system.unregisterModel(this.model);
-  }
-};
-
-/**
- * glTF model system.
- */
-module.exports.System = {
-  init: function () {
-    this.models = [];
-  },
-
-  /**
-   * Updates shaders for all glTF models in the system.
-   */
-  tick: function () {
-    var sceneEl = this.sceneEl;
-    if (sceneEl.hasLoaded && this.models.length) {
-      THREE.GLTFLoader.Shaders.update(sceneEl.object3D, sceneEl.camera);
-    }
-  },
-
-  /**
-   * Registers a glTF asset.
-   * @param {object} gltf Asset containing a scene and (optional) animations and cameras.
-   */
-  registerModel: function (gltf) {
-    this.models.push(gltf);
-  },
-
-  /**
-   * Unregisters a glTF asset.
-   * @param  {object} gltf Asset containing a scene and (optional) animations and cameras.
-   */
-  unregisterModel: function (gltf) {
-    var models = this.models;
-    var index = models.indexOf(gltf);
-    if (index >= 0) {
-      models.splice(index, 1);
-    }
   }
 };
 
@@ -6042,8 +6001,7 @@ module.exports = {
 
     // THREE.GLTFLoader
     if (!AFRAME.components['gltf-model-legacy']) {
-      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy'].Component);
-      AFRAME.registerSystem('gltf-model-legacy', this['gltf-model-legacy'].System);
+      AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy']);
     }
 
     // THREE.JsonLoader

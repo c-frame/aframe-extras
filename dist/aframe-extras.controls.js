@@ -16989,14 +16989,21 @@ module.exports = {
     if (this.checkpoint === checkpoint) return;
 
     if (this.checkpoint) {
-      el.emit('navigation-end', {checkpoint: checkpoint});
+      el.emit('navigation-end', {checkpoint: this.checkpoint});
     }
 
     this.checkpoint = checkpoint;
+    this.sync();
+
+    // Ignore new checkpoint if we're already there.
+    if (this.position.distanceTo(this.targetPosition) < EPS) {
+      this.checkpoint = null;
+      return;
+    }
+
     el.emit('navigation-start', {checkpoint: checkpoint});
 
     if (this.data.mode === 'teleport') {
-      this.sync();
       this.el.setAttribute('position', this.targetPosition);
       this.checkpoint = null;
       el.emit('navigation-end', {checkpoint: checkpoint});
