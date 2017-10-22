@@ -1,4 +1,6 @@
-var Path = require('three-pathfinding');
+const Path = require('three-pathfinding');
+
+const ZONE = 'level';
 
 /**
  * nav
@@ -8,8 +10,8 @@ var Path = require('three-pathfinding');
 module.exports = AFRAME.registerSystem('nav', {
   init: function () {
     this.navMesh = null;
-    this.nodes = null;
-    this.controllers = new Set();
+    this.zone = null;
+    this.agents = new Set();
   },
 
   /**
@@ -20,8 +22,8 @@ module.exports = AFRAME.registerSystem('nav', {
       ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
       : mesh.geometry;
     this.navMesh = new THREE.Mesh(geometry);
-    this.nodes = Path.buildNodes(this.navMesh.geometry);
-    Path.setZoneData('level', this.nodes);
+    this.zone = Path.buildNodes(this.navMesh.geometry);
+    Path.setZoneData(ZONE, this.zone);
   },
 
   /**
@@ -32,28 +34,60 @@ module.exports = AFRAME.registerSystem('nav', {
   },
 
   /**
-   * @param {NavController} ctrl
+   * @param {NavAgent} ctrl
    */
-  addController: function (ctrl) {
-    this.controllers.add(ctrl);
+  addAgent: function (ctrl) {
+    this.agents.add(ctrl);
   },
 
   /**
-   * @param {NavController} ctrl
+   * @param {NavAgent} ctrl
    */
-  removeController: function (ctrl) {
-    this.controllers.remove(ctrl);
+  removeAgent: function (ctrl) {
+    this.agents.remove(ctrl);
   },
 
   /**
-   * @param  {NavController} ctrl
-   * @param  {THREE.Vector3} target
+   * @param  {THREE.Vector3} start
+   * @param  {THREE.Vector3} end
+   * @param  {Path.Group} group
    * @return {Array<THREE.Vector3>}
    */
-  getPath: function (ctrl, target) {
-    const start = ctrl.el.object3D.position;
-    // TODO(donmccurdy): Current group should be cached.
-    const group = Path.getGroup('level', start);
-    return Path.findPath(start, target, 'level', group);
+  getPath: function (start, end, group) {
+    return Path.findPath(start, end, ZONE, group);
+  },
+
+  /**
+   * @param {THREE.Vector3} position
+   * @return {Path.Group}
+   */
+  getGroup: function (position) {
+    return Path.getGroup(ZONE, position);
+  },
+
+  /**
+   * @param  {THREE.Vector3} position
+   * @param  {Path.Group} group
+   * @return {Path.Node}
+   */
+  getNode: function (position, group) {
+    return Path.getClosestNode(position, ZONE, group, true);
+  },
+
+  /**
+   * @param  {THREE.Vector3} start Starting position.
+   * @param  {THREE.Vector3} end Desired ending position.
+   * @param  {Path.Group} group
+   * @param  {Path.Node} node
+   * @param  {THREE.Vector3} endTarget (Output) Adjusted step end position.
+   * @return {Path.Node} Current node, after step is taken.
+   */
+  clampStep: function (start, end, group, node, endTarget) {
+    if (!this.navMesh || !node) {
+      endTarget.copy(end);
+      return this.navMesh ? Path.getNode(ZONE, group) : null;
+    }
+    return Path.clampStep(start, end, node, ZONE, group, endTarget);
   }
 });
+

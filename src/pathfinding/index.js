@@ -1,3 +1,3 @@
 require('./nav-mesh');
-require('./nav-controller');
+require('./nav-agent');
 require('./system');

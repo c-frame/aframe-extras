@@ -11,6 +11,8 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
     this.active = true;
     this.checkpoint = null;
 
+    this.isNavMeshConstrained = false;
+
     this.offset = new THREE.Vector3();
     this.position = new THREE.Vector3();
     this.targetPosition = new THREE.Vector3();

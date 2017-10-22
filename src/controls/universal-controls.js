@@ -6,7 +6,8 @@
 
 const COMPONENT_SUFFIX = '-controls',
     MAX_DELTA = 0.2, // ms
-    PI_2 = Math.PI / 2;
+    PI_2 = Math.PI / 2,
+    EPS = 10e-6;
 
 module.exports = AFRAME.registerComponent('universal-controls', {
 
@@ -22,12 +23,12 @@ module.exports = AFRAME.registerComponent('universal-controls', {
     movementControls:     { default: ['gamepad', 'keyboard', 'touch', 'hmd'] },
     rotationEnabled:      { default: true },
     rotationControls:     { default: ['hmd', 'gamepad', 'mouse'] },
-    movementSpeed:        { default: 5 }, // m/s
     movementEasing:       { default: 15 }, // m/s2
     movementEasingY:      { default: 0  }, // m/s2
     movementAcceleration: { default: 80 }, // m/s2
     rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
     fly:                  { default: false },
+    constrainToNavMesh:   { default: false },
   },
 
   /*******************************************************************
@@ -42,6 +43,9 @@ module.exports = AFRAME.registerComponent('universal-controls', {
         + 'for `look-controls`, and cannot be used in combination with it.');
     }
 
+    this.velocityCtrl = null;
+    this.rotationCtrl = null;
+
     // Movement
     this.velocity = new THREE.Vector3();
 
@@ -53,6 +57,10 @@ module.exports = AFRAME.registerComponent('universal-controls', {
     this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
     this.yaw.add(this.pitch);
     this.heading = new THREE.Euler(0, 0, 0, 'YXZ');
+
+    // Navigation
+    this.navGroup = null;
+    this.navNode = null;
 
     if (this.el.sceneEl.hasLoaded) {
       this.injectControls();
@@ -90,29 +98,61 @@ module.exports = AFRAME.registerComponent('universal-controls', {
    * Tick
    */
 
-  tick: function (t, dt) {
-    if (!dt) { return; }
+  tick: (function () {
+    const start = new THREE.Vector3();
+    const end = new THREE.Vector3();
+    const clampedEnd = new THREE.Vector3();
 
-    // Update rotation.
-    if (this.data.rotationEnabled) this.updateRotation(dt);
+    return function (t, dt) {
+      if (!dt) { return; }
 
-    // Update velocity. If FPS is too low, reset.
-    if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
-      this.velocity.set(0, 0, 0);
-      if (AFRAME.components.velocity) this.el.setAttribute('velocity', this.velocity);
-    } else {
-      this.updateVelocity(dt);
-    }
+      // Update rotation.
+      if (this.data.rotationEnabled) this.updateRotation(dt);
 
-    if (!AFRAME.components.velocity) {
-      const position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
-      this.el.setAttribute('position', {
-        x: position.x + this.velocity.x * dt / 1000,
-        y: position.y + this.velocity.y * dt / 1000,
-        z: position.z + this.velocity.z * dt / 1000
-      });
-    }
-  },
+      // Update velocity. If FPS is too low, reset.
+      if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
+        this.velocity.set(0, 0, 0);
+      } else {
+        this.updateVelocity(dt);
+      }
+
+      if (this.data.constrainToNavMesh
+          && (this.velocityCtrl||{}).isNavMeshConstrained !== false) {
+
+        if (this.velocity.lengthSq() < EPS) return;
+
+        // Camera will throw the height around a bit.
+        let yOffset = 0;
+        if (this.el.hasAttribute('camera')) {
+          yOffset = this.el.getAttribute('camera').userHeight;
+        }
+
+        start.copy(this.el.getAttribute('position'));
+        start.y -= yOffset;
+        end
+          .copy(this.velocity)
+          .multiplyScalar(dt / 1000)
+          .add(start);
+
+        const nav = this.el.sceneEl.systems.nav;
+        this.navGroup = this.navGroup || nav.getGroup(start);
+        this.navNode = this.navNode || nav.getNode(start, this.navGroup);
+        this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
+        clampedEnd.y += yOffset;
+        this.el.setAttribute('position', clampedEnd);
+      } else if (AFRAME.components.velocity) {
+        this.el.setAttribute('velocity', this.velocity);
+      } else {
+        const position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
+        this.el.setAttribute('position', {
+          x: position.x + this.velocity.x * dt / 1000,
+          y: position.y + this.velocity.y * dt / 1000,
+          z: position.z + this.velocity.z * dt / 1000
+        });
+      }
+
+    };
+  }()),
 
   /*******************************************************************
    * Rotation
@@ -125,6 +165,7 @@ module.exports = AFRAME.registerComponent('universal-controls', {
     for (var i = 0, l = data.rotationControls.length; i < l; i++) {
       control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
       if (control && control.isRotationActive()) {
+        this.rotationCtrl = control;
         if (control.getRotationDelta) {
           dRotation = control.getRotationDelta(dt);
           dRotation.multiplyScalar(data.rotationSensitivity);
@@ -159,16 +200,14 @@ module.exports = AFRAME.registerComponent('universal-controls', {
       for (let i = 0, l = data.movementControls.length; i < l; i++) {
         control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
         if (control && control.isVelocityActive()) {
+          this.velocityCtrl = control;
           if (control.getVelocityDelta) {
             dVelocity = control.getVelocityDelta(dt);
           } else if (control.getVelocity) {
             velocity.copy(control.getVelocity());
-            if (AFRAME.components.velocity) this.el.setAttribute('velocity', control.getVelocity());
             return;
           } else if (control.getPositionDelta) {
             velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
-            velocity.copy(control.getVelocity());
-            if (AFRAME.components.velocity) this.el.setAttribute('velocity', velocity);
             return;
           } else {
             throw new Error('Incompatible movement controls: ', data.movementControls[i]);
@@ -178,7 +217,7 @@ module.exports = AFRAME.registerComponent('universal-controls', {
       }
     }
 
-    if (AFRAME.components.velocity) velocity.copy(this.el.getAttribute('velocity'));
+    if (AFRAME.components.velocity && !data.constrainToNavMesh) velocity.copy(this.el.getAttribute('velocity'));
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
     velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
@@ -203,16 +242,6 @@ module.exports = AFRAME.registerComponent('universal-controls', {
       }
 
       velocity.add(dVelocity);
-
-      // TODO - Several issues here:
-      // (1) Interferes w/ gravity.
-      // (2) Interferes w/ jumping.
-      // (3) Likely to interfere w/ relative position to moving platform.
-      // if (velocity.length() > data.movementSpeed) {
-      //   velocity.setLength(data.movementSpeed);
-      // }
     }
-
-    if (AFRAME.components.velocity) this.el.setAttribute('velocity', velocity);
   }
 });
