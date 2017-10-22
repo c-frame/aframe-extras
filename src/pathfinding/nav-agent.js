@@ -1,4 +1,4 @@
-module.exports = AFRAME.registerComponent('nav-controller', {
+module.exports = AFRAME.registerComponent('nav-agent', {
   schema: {
     destination: {type: 'vec3'},
     active: {default: false},
@@ -6,12 +6,13 @@ module.exports = AFRAME.registerComponent('nav-controller', {
   },
   init: function () {
     this.system = this.el.sceneEl.systems.nav;
-    this.system.addController(this);
+    this.system.addAgent(this);
+    this.group = null;
     this.path = [];
     this.raycaster = new THREE.Raycaster();
   },
   remove: function () {
-    this.system.removeController(this);
+    this.system.removeAgent(this);
   },
   update: function () {
     this.path.length = 0;
@@ -31,7 +32,9 @@ module.exports = AFRAME.registerComponent('nav-controller', {
 
       // Use PatrolJS pathfinding system to get shortest path to target.
       if (!this.path.length) {
-        this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
+        const position = this.el.object3D.position;
+        this.group = this.group || this.system.getGroup(position);
+        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group);
         this.path = this.path || [];
         el.emit('nav-start');
       }
@@ -39,7 +42,7 @@ module.exports = AFRAME.registerComponent('nav-controller', {
       // If no path is found, exit.
       if (!this.path.length) {
         console.warn('[nav] Unable to find path to %o.', data.destination);
-        this.el.setAttribute('nav-controller', {active: false});
+        this.el.setAttribute('nav-agent', {active: false});
         el.emit('nav-end');
         return;
       }
@@ -58,7 +61,7 @@ module.exports = AFRAME.registerComponent('nav-controller', {
 
         // After discarding the last waypoint, exit pathfinding.
         if (!this.path.length) {
-          this.el.setAttribute('nav-controller', {active: false});
+          this.el.setAttribute('nav-agent', {active: false});
           el.emit('nav-end');
           return;
         } else {
@@ -75,7 +78,7 @@ module.exports = AFRAME.registerComponent('nav-controller', {
       gazeTarget.y = vCurrent.y;
       el.object3D.lookAt(gazeTarget);
 
-      // Raycast against the nav mesh, to keep the controller moving along the
+      // Raycast against the nav mesh, to keep the agent moving along the
       // ground, not traveling in a straight line from higher to lower waypoints.
       raycaster.ray.origin.copy(vNext);
       raycaster.ray.origin.y += 1.5;

@@ -9,6 +9,7 @@ module.exports = AFRAME.registerComponent('hmd-controls', {
 
   init: function () {
     this.isPositionCalibrated = false;
+    this.isNavMeshConstrained = false;
     this.dolly = new THREE.Object3D();
     this.hmdEuler = new THREE.Euler();
     this.previousHMDPosition = new THREE.Vector3();
