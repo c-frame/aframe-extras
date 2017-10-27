@@ -105,7 +105,9 @@ module.exports = {
 
       for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
         // 1. Find any collisions involving this element. Get the contact
-        // normal, and make sure it's oriented _out_ of the other object.
+        // normal, and make sure it's oriented _out_ of the other object and
+        // enabled (body.collisionReponse is true for both bodies)
+        if (!contact.enabled) { continue; }
         if (body.id === contact.bi.id) {
           contact.ni.negate(currentSurfaceNormal);
         } else if (body.id === contact.bj.id) {
