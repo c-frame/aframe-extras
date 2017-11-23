@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Platforms</title>
     <script src="../aframe-extras.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v1.4.3/dist/aframe-physics-system.min.js"></script>
   </head>
   <body>
     <a-scene fog="type: exponential; color: #FFF; density: 0.04;">
@@ -40,7 +41,7 @@
 /* Platforms
 ——————————————————————————————————————————————*/
 
-document.querySelector('a-scene').addEventListener('render-target-loaded', function () {
+document.querySelector('a-scene').addEventListener('loaded', function () {
   var MAP_SIZE = 10,
       PLATFORM_SIZE = 5,
       NUM_PLATFORMS = 50;

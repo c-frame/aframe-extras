@@ -5,7 +5,7 @@
 
 Add-ons and helpers for A-Frame VR.
 
-Includes components for controls, model loaders, pathfinding, a [physics system](https://github.com/donmccurdy/aframe-physics-system), and more:
+Includes components for controls, model loaders, pathfinding, and more:
 
 <!-- tree src -I index.js -->
 <pre>
@@ -37,7 +37,6 @@ src
 ├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
 │   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   └── nav-controller.js       <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-├── <b>physics/</b> (<a href="https://github.com/donmccurdy/aframe-physics-system">Moved to aframe-physics-system</a>)
 └── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
     ├── a-grid.js
     ├── a-hex-grid.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
@@ -68,6 +67,8 @@ For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full
 | v0.4.X | */v3.3.0     |
 | v0.3.X | */v2.6.1                 |
 | v0.2.X | */v1.17.0                |
+
+> **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/donmccurdy/aframe-physics-system).
 
 ## Usage (NPM)
 

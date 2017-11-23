@@ -1,3 +1,5 @@
+/* global CANNON */
+
 /**
  * Kinematic body.
  *
@@ -14,7 +16,6 @@
  * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
  * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
  */
-var CANNON = window.CANNON;
 var EPS = 0.000001;
 
 module.exports = {

@@ -1,5 +1,3 @@
-var physics = require('aframe-physics-system');
-
 module.exports = {
   'checkpoint-controls': require('./checkpoint-controls'),
   'gamepad-controls':    require('./gamepad-controls'),
@@ -14,7 +12,6 @@ module.exports = {
 
     AFRAME = AFRAME || window.AFRAME;
 
-    physics.registerAll();
     if (!AFRAME.components['checkpoint-controls'])  AFRAME.registerComponent('checkpoint-controls', this['checkpoint-controls']);
     if (!AFRAME.components['gamepad-controls'])     AFRAME.registerComponent('gamepad-controls',    this['gamepad-controls']);
     if (!AFRAME.components['hmd-controls'])         AFRAME.registerComponent('hmd-controls',        this['hmd-controls']);

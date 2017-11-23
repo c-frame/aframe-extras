@@ -99,9 +99,18 @@ module.exports = {
     // Update velocity. If FPS is too low, reset.
     if (this.data.movementEnabled && dt / 1000 > MAX_DELTA) {
       this.velocity.set(0, 0, 0);
-      this.el.setAttribute('velocity', this.velocity);
+      if (AFRAME.components.velocity) this.el.setAttribute('velocity', this.velocity);
     } else {
       this.updateVelocity(dt);
+    }
+
+    if (!AFRAME.components.velocity) {
+      var position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
+      this.el.setAttribute('position', {
+        x: position.x + this.velocity.x * dt / 1000,
+        y: position.y + this.velocity.y * dt / 1000,
+        z: position.z + this.velocity.z * dt / 1000
+      });
     }
   },
 
@@ -153,11 +162,13 @@ module.exports = {
           if (control.getVelocityDelta) {
             dVelocity = control.getVelocityDelta(dt);
           } else if (control.getVelocity) {
-            this.el.setAttribute('velocity', control.getVelocity());
+            velocity.copy(control.getVelocity());
+            if (AFRAME.components.velocity) this.el.setAttribute('velocity', control.getVelocity());
             return;
           } else if (control.getPositionDelta) {
             velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
-            this.el.setAttribute('velocity', velocity);
+            velocity.copy(control.getVelocity());
+            if (AFRAME.components.velocity) this.el.setAttribute('velocity', velocity);
             return;
           } else {
             throw new Error('Incompatible movement controls: ', data.movementControls[i]);
@@ -167,7 +178,7 @@ module.exports = {
       }
     }
 
-    velocity.copy(this.el.getAttribute('velocity'));
+    if (AFRAME.components.velocity) velocity.copy(this.el.getAttribute('velocity'));
     velocity.x -= velocity.x * data.movementEasing * dt / 1000;
     velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
     velocity.z -= velocity.z * data.movementEasing * dt / 1000;
@@ -202,6 +213,6 @@ module.exports = {
       // }
     }
 
-    this.el.setAttribute('velocity', velocity);
+    if (AFRAME.components.velocity) this.el.setAttribute('velocity', velocity);
   }
 };

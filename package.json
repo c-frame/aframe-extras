@@ -29,7 +29,6 @@
     "aframe": ">=0.5.0"
   },
   "dependencies": {
-    "aframe-physics-system": "^1.4.3",
     "three-pathfinding": "^0.2.2"
   },
   "devDependencies": {

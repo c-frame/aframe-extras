@@ -5,6 +5,44 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
     <title>Examples • Playground</title>
     <script src="../aframe-extras.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v1.4.3/dist/aframe-physics-system.min.js"></script>
+    <script>
+/**
+ * Toggle velocity.
+ *
+ * Moves an object back and forth along an axis, within a min/max extent.
+ */
+AFRAME.registerComponent('toggle-velocity', {
+  dependencies: ['velocity'],
+  schema: {
+    axis: { default: 'x', oneOf: ['x', 'y', 'z'] },
+    min: { default: 0 },
+    max: { default: 0 },
+    speed: { default: 1 }
+  },
+  init: function () {
+    var velocity = {x: 0, y: 0, z: 0};
+    velocity[this.data.axis] = this.data.speed;
+    this.el.setAttribute('velocity', velocity);
+
+    if (this.el.sceneEl.addBehavior) this.el.sceneEl.addBehavior(this);
+  },
+  remove: function () {},
+  update: function () { this.tick(); },
+  tick: function () {
+    var data = this.data,
+        velocity = this.el.getAttribute('velocity'),
+        position = this.el.getAttribute('position');
+    if (velocity[data.axis] > 0 && position[data.axis] > data.max) {
+      velocity[data.axis] = -data.speed;
+      this.el.setAttribute('velocity', velocity);
+    } else if (velocity[data.axis] < 0 && position[data.axis] < data.min) {
+      velocity[data.axis] = data.speed;
+      this.el.setAttribute('velocity', velocity);
+    }
+  },
+});
+    </script>
   </head>
   <body>
     <a-scene>
