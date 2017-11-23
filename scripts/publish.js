@@ -2,6 +2,8 @@
 
 const chalk = require('chalk'),
     fs = require('fs-extra'),
+    readline = require('readline'),
+    assert = require('assert'),
     browserify = require('browserify'),
     UglifyJS = require('uglify-es'),
     Readable = require('stream').Readable,
@@ -12,24 +14,35 @@ const REGISTRY = require('../registry.json'),
 
 const PUBLISH_DIR = './tmp';
 
-fs.emptydirSync(PUBLISH_DIR);
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-REGISTRY.forEach((mod) => {
-  const package = Object.assign({}, PACKAGE, mod),
-        dir = `${PUBLISH_DIR}/${package.name}`;
+rl.question('OTP: ', function (otp) {
+  rl.close();
 
-  fs.mkdirSync(dir);
-  fs.mkdirSync(dir + '/dist');
-  fs.copySync(`./${package.main}.js`, `./${dir}/index.js`);
+  assert(/^[0-9]{6}$/.test(otp), 'Invalid OTP.');
 
-  Promise.all([
-    createPackage(package, dir),
-    createReadme(package, dir),
-    createDist(package, dir)
-  ]).then(() => {
-    execSync(`cd ${dir} && npm publish;`, {stdio:[0,1,2]});
-    console.log(chalk.green('  ⇢  📦  Published "%s" to NPM.'), package.name);
-    console.log('');
+  fs.emptydirSync(PUBLISH_DIR);
+
+  REGISTRY.forEach((mod) => {
+    const package = Object.assign({}, PACKAGE, mod),
+          dir = `${PUBLISH_DIR}/${package.name}`;
+
+    fs.mkdirSync(dir);
+    fs.mkdirSync(dir + '/dist');
+    fs.copySync(`./${package.main}.js`, `./${dir}/index.js`);
+
+    Promise.all([
+      createPackage(package, dir),
+      createReadme(package, dir),
+      createDist(package, dir)
+    ]).then(() => {
+      execSync(`cd ${dir} && npm publish --otp ${otp};`, {stdio:[0,1,2]});
+      console.log(chalk.green('  ⇢  📦  Published "%s" to NPM.'), package.name);
+      console.log('');
+    });
   });
 });
 
