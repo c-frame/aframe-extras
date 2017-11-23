@@ -21,7 +21,6 @@ src
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
 │   ├── animation-mixer.js
 │   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── gltf-model-next.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── gltf-model-legacy.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── json-model.js
 │   ├── object-model.js

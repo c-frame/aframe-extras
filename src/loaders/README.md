@@ -2,8 +2,7 @@
 
 Loaders for various 3D model types. All are trivial wrappers around one of the [many THREE.js loader classes](https://github.com/mrdoob/three.js/tree/master/examples/js/loaders).
 
-- **gltf-model-next**: Loader for glTF 2.0 format, planned for addition to A-Frame core with v0.7.0 release.
-- **gltf-model-legacy**: Loader for glTF 1.0 format, planned for _removal_ from A-Frame core with v0.7.0 release.
+- **gltf-model-legacy**: Loader for glTF 1.0 format, removed from A-Frame core with v0.7.0 release.
 - **json-model**: Loader for THREE.js .JSON format, generally containing a single mesh.
 - **object-model**: Loader for THREE.js .JSON format, generally containing multiple meshes or an entire scene.
 - **ply-model**: Loader for PLY format. Works well with occlusion and shadow baked models exported from [MagicaVoxel](https://ephtracy.github.io/).
@@ -11,16 +10,11 @@ Loaders for various 3D model types. All are trivial wrappers around one of the [
 
 Unsure whether to use `json-model` or `object-model`? Check the console for errors. See also: [Clara.io | THREE.js Export](https://clara.io/learn/user-guide/data_exchange/threejs_export).
 
-> **NOTE:** `gltf-model-next` and `gltf-model-legacy` cannot be used at the same time.
-
 ## Usage
 
 ```html
 <!-- three.js JSON -->
 <a-entity json-model="src: url(my-model.json);"></a-entity>
-
-<!-- glTF 2.0 -->
-<a-entity gltf-model-next="src: url(my-model.gltf);"></a-entity>
 ```
 
 THREE.js models often need to be scaled down. Example:
