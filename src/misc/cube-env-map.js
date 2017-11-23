@@ -2,7 +2,7 @@
  * Specifies an envMap on an entity, without replacing any existing material
  * properties.
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('cube-env-map', {
   schema: {
     path: {default: ''},
     extension: {default: 'jpg'},
@@ -41,4 +41,4 @@ module.exports = {
       }
     });
   }
-};
+});

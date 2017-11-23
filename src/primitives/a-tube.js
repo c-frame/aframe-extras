@@ -7,7 +7,7 @@
  * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
  * ```
  */
-var Primitive = module.exports.Primitive = {
+module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
   defaultComponents: {
     tube:           {},
   },
@@ -18,9 +18,9 @@ var Primitive = module.exports.Primitive = {
     radialSegments: 'tube.radialSegments',
     closed:         'tube.closed'
   }
-};
+});
 
-var Component = module.exports.Component = {
+module.exports.Component = AFRAME.registerComponent('tube', {
   schema: {
     path:           {default: []},
     segments:       {default: 64},
@@ -59,15 +59,4 @@ var Component = module.exports.Component = {
   remove: function () {
     if (this.mesh) this.el.removeObject3D('mesh');
   }
-};
-
-module.exports.registerAll = (function () {
-  var registered = false;
-  return function (AFRAME) {
-    if (registered) return;
-    AFRAME = AFRAME || window.AFRAME;
-    AFRAME.registerComponent('tube', Component);
-    AFRAME.registerPrimitive('a-tube', Primitive);
-    registered = true;
-  };
-}());
+});

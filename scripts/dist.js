@@ -16,14 +16,14 @@ const streams = {};
 
 // Full build.
 const stream = new Readable();
-stream.push(`require('./').registerAll();`);
+stream.push(`require('./');`);
 stream.push(null);
 streams['aframe-extras.js'] = stream;
 
 // Individual packages.
 PACKAGES.forEach((name) => {
   const stream = new Readable();
-  stream.push(`require('./src/${name}').registerAll();`);
+  stream.push(`require('./src/${name}');`);
   stream.push(null);
   streams[`aframe-extras.${name}.js`] = stream;
 });
@@ -32,7 +32,7 @@ PACKAGES.forEach((name) => {
 COMPONENTS.forEach((name => {
   const stream = new Readable(),
       basename = path.basename(name);
-  stream.push(`AFRAME.registerComponent('${basename}', require('./src/${name}'));`);
+  stream.push(`require('./src/${name}');`);
   stream.push(null);
   stream._isComponent = true;
   streams[`${basename}.js`] = stream;

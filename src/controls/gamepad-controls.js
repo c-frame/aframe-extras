@@ -12,7 +12,7 @@ var GamepadButton = require('../../lib/GamepadButton'),
 
 var JOYSTICK_EPS = 0.2;
 
-module.exports = {
+module.exports = AFRAME.registerComponent('gamepad-controls', {
 
   /*******************************************************************
    * Statics
@@ -244,4 +244,4 @@ module.exports = {
   getID: function () {
     return this.getGamepad().id;
   }
-};
+});

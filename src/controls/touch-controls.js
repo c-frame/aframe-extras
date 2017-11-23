@@ -1,4 +1,7 @@
-module.exports = {
+/**
+ * Touch-to-move-forward controls for mobile.
+ */
+module.exports = AFRAME.registerComponent('touch-controls', {
   schema: {
     enabled: { default: true }
   },
@@ -65,4 +68,4 @@ module.exports = {
     this.isMoving = false;
     e.preventDefault();
   }
-};
+});

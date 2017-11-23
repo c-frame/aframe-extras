@@ -10,7 +10,7 @@ THREE.PLYLoader = require('../../lib/PLYLoader');
  *
  * @member cache - Promises that resolve geometries keyed by `src`.
  */
-module.exports.System = {
+module.exports.System = AFRAME.registerSystem('ply-model', {
   init: function () {
     this.cache = {};
   },
@@ -34,9 +34,9 @@ module.exports.System = {
     });
     return cache[src];
   },
-};
+});
 
-module.exports.Component = {
+module.exports.Component = AFRAME.registerComponent('ply-model', {
   schema: {
     skipCache: {type: 'boolean', default: false},
     src: {type: 'asset'}
@@ -67,7 +67,7 @@ module.exports.Component = {
   remove: function () {
     if (this.model) { this.el.removeObject3D('mesh'); }
   }
-};
+});
 
 function createModel (geometry) {
   return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({

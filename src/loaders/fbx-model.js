@@ -5,7 +5,7 @@ THREE.FBXLoader = require('../../lib/FBXLoader');
  *
  * Loader for FBX format. Supports ASCII, but *not* binary, models.
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('fbx-model', {
   schema: {
     src:         { type: 'asset' },
     crossorigin: { default: '' }
@@ -35,4 +35,4 @@ module.exports = {
   remove: function () {
     if (this.model) this.el.removeObject3D('mesh');
   }
-};
+});

@@ -5,7 +5,7 @@ document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLo
  *
  * Based on: https://github.com/aframevr/aframe/pull/1056
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('mouse-controls', {
   schema: {
     enabled: { default: true },
     pointerlockEnabled: { default: true },
@@ -145,4 +145,4 @@ module.exports = {
   onPointerLockError: function () {
     this.pointerLocked = false;
   }
-};
+});

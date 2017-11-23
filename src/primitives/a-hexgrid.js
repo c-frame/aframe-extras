@@ -4,16 +4,16 @@ var defaultHexGrid = require('../../lib/default-hex-grid.json');
 /**
  * Hex grid.
  */
-var Primitive = module.exports.Primitive = {
+module.exports.Primitive = AFRAME.registerPrimitive('a-hexgrid', {
   defaultComponents: {
     'hexgrid': {}
   },
   mappings: {
     src: 'hexgrid.src'
   }
-};
+});
 
-var Component = module.exports.Component = {
+module.exports.Component = AFRAME.registerComponent('hexgrid', {
   dependencies: ['material'],
   schema: {
     src: {type: 'asset'}
@@ -49,15 +49,4 @@ var Component = module.exports.Component = {
   remove: function () {
     this.el.removeObject3D('mesh');
   }
-};
-
-module.exports.registerAll = (function () {
-  var registered = false;
-  return function (AFRAME) {
-    if (registered) return;
-    AFRAME = AFRAME || window.AFRAME;
-    AFRAME.registerComponent('hexgrid', Component);
-    AFRAME.registerPrimitive('a-hexgrid', Primitive);
-    registered = true;
-  };
-}());
+});

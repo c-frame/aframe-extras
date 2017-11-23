@@ -4,7 +4,7 @@
  * Waits for a mesh to be loaded on the current entity, then sets it as the
  * nav mesh in the pathfinding system.
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('nav-mesh', {
   init: function () {
     this.system = this.el.sceneEl.systems.nav;
     this.loadNavMesh();
@@ -25,4 +25,4 @@ module.exports = {
 
     this.system.setNavMesh(navMesh);
   }
-};
+});

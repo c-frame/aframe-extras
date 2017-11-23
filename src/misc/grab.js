@@ -5,7 +5,7 @@
  * Determines if the entity is grabbed or released.
  * Updates its position to move along the controller.
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('grab', {
   init: function () {
     this.GRABBED_STATE = 'grabbed';
 
@@ -67,4 +67,4 @@ module.exports = {
     this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
     this.physics.world.addConstraint(this.constraint);
   }
-};
+});

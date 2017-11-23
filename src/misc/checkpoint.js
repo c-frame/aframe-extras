@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = AFRAME.registerComponent('checkpoint', {
   schema: {
     offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
   },
@@ -29,4 +29,4 @@ module.exports = {
   getOffset: function () {
     return this.offset.copy(this.data.offset);
   }
-};
+});

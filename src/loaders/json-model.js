@@ -10,7 +10,7 @@
  *
  * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('json-model', {
   schema: {
     src:         { type: 'asset' },
     crossorigin: { default: '' }
@@ -55,4 +55,4 @@ module.exports = {
   remove: function () {
     if (this.model) this.el.removeObject3D('mesh');
   }
-};
+});

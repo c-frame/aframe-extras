@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = AFRAME.registerComponent('nav-controller', {
   schema: {
     destination: {type: 'vec3'},
     active: {default: false},
@@ -93,4 +93,4 @@ module.exports = {
 
     };
   }())
-};
+});

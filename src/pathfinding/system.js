@@ -5,7 +5,7 @@ var Path = require('three-pathfinding');
  *
  * Pathfinding system, using PatrolJS.
  */
-module.exports = {
+module.exports = AFRAME.registerSystem('nav', {
   init: function () {
     this.navMesh = null;
     this.nodes = null;
@@ -56,4 +56,4 @@ module.exports = {
     var group = Path.getGroup('level', start);
     return Path.findPath(start, target, 'level', group);
   }
-};
+});

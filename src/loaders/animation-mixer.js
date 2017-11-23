@@ -11,7 +11,7 @@ var LoopMode = {
  * skeletal or morph animations through THREE.AnimationMixer.
  * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('animation-mixer', {
   schema: {
     clip:  {default: '*'},
     duration: {default: 0},
@@ -104,7 +104,7 @@ module.exports = {
   tick: function (t, dt) {
     if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
   }
-};
+});
 
 /**
  * Creates a RegExp from the given string, converting asterisks to .* expressions,

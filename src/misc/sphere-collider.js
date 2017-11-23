@@ -8,7 +8,7 @@
  * @property {string} state - State to set on collided entities.
  *
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('sphere-collider', {
   schema: {
     objects: {default: ''},
     state: {default: 'collided'},
@@ -147,4 +147,4 @@ module.exports = {
     targetEl.removeState(this.data.state);
     this.el.emit('hitend', {el: targetEl});
   }
-};
+});

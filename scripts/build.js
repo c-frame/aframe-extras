@@ -23,7 +23,7 @@ const writeStream = fs.createWriteStream(path.join(BUILD_DIR, fileName));
 const readStream = new Readable();
 readStream.push([
   'window.AFRAME = require("aframe");',
-  'window.AFRAME.extras = require("./").registerAll();'
+  'require("./");'
 ].join('\n'));
 readStream.push(null);
 browserify()

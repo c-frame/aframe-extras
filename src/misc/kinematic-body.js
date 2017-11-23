@@ -18,7 +18,7 @@
  */
 var EPS = 0.000001;
 
-module.exports = {
+module.exports = AFRAME.registerComponent('kinematic-body', {
   dependencies: ['velocity'],
 
   /*******************************************************************
@@ -198,4 +198,4 @@ module.exports = {
     hitNormal = ray.result.hitNormalWorld;
     return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
   }
-};
+});

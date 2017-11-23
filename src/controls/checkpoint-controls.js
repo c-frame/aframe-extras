@@ -1,6 +1,6 @@
 var EPS = 0.1;
 
-module.exports = {
+module.exports = AFRAME.registerComponent('checkpoint-controls', {
   schema: {
     enabled: {default: true},
     mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
@@ -80,4 +80,4 @@ module.exports = {
     targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
     offset.copy(targetPosition).sub(position);
   }
-};
+});

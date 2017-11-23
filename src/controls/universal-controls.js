@@ -8,7 +8,7 @@ var COMPONENT_SUFFIX = '-controls',
     MAX_DELTA = 0.2, // ms
     PI_2 = Math.PI / 2;
 
-module.exports = {
+module.exports = AFRAME.registerComponent('universal-controls', {
 
   /*******************************************************************
    * Schema
@@ -215,4 +215,4 @@ module.exports = {
 
     if (AFRAME.components.velocity) this.el.setAttribute('velocity', velocity);
   }
-};
+});

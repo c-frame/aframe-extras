@@ -6,7 +6,7 @@ var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLT
  * Legacy loader for glTF 1.0 models.
  * Asynchronously loads THREE.GLTFLoader from rawgit.
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('gltf-model-legacy', {
   schema: {type: 'model'},
 
   init: function () {
@@ -41,7 +41,7 @@ module.exports = {
     if (!this.model) { return; }
     this.el.removeObject3D('mesh');
   }
-};
+});
 
 var loadLoader = (function () {
   var promise;

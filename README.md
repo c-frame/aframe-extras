@@ -77,25 +77,15 @@ npm install --save aframe-extras
 ```
 
 ```javascript
-// custom-extras.js
-
-var extras = require('aframe-extras');
-
-// Register a single component.
-AFRAME.registerComponent('checkpoint', extras.misc.checkpoint);
-
-// Register a particular package, and its dependencies.
-extras.controls.registerAll();
-
-// Register everything.
-extras.registerAll();
+// index.js
+require('aframe-extras');
 ```
 
 Once installed, you'll need to compile your JavaScript using something like [Browserify](http://browserify.org/) or [Webpack](http://webpack.github.io/). Example:
 
 ```bash
 npm install -g browserify
-browserify custom-extras.js -o bundle.js
+browserify index.js -o bundle.js
 ```
 
 `bundle.js` may then be included in your page. See [here](http://browserify.org/#middle-section) for a better introduction to Browserify.

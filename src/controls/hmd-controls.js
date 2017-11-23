@@ -1,7 +1,7 @@
 var radToDeg = THREE.Math.radToDeg,
     isMobile = AFRAME.utils.device.isMobile();
 
-module.exports = {
+module.exports = AFRAME.registerComponent('hmd-controls', {
   schema: {
     enabled: {default: true},
     standing: {default: true}
@@ -74,7 +74,7 @@ module.exports = {
     position.setFromMatrixPosition(dolly.matrix);
     return position;
   }
-};
+});
 
 function isNullVector (vector) {
   return vector.x === 0 && vector.y === 0 && vector.z === 0;

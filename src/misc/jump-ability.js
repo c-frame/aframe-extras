@@ -4,7 +4,7 @@ var ACCEL_G = -9.8, // m/s^2
 /**
  * Jump ability.
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('jump-ability', {
   dependencies: ['velocity'],
 
   /* Schema
@@ -59,4 +59,4 @@ module.exports = {
   onCollide: function () {
     this.numJumps = 0;
   }
-};
+});

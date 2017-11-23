@@ -25,7 +25,7 @@ var KeyboardEvent = window.KeyboardEvent;
  * to the entity when pressing the keys.
  * @param {bool} [enabled=true] - To completely enable or disable the controls
  */
-module.exports = {
+module.exports = AFRAME.registerComponent('keyboard-controls', {
   schema: {
     enabled:           { default: true },
     debug:             { default: false }
@@ -150,4 +150,4 @@ module.exports = {
     return proxyControls && proxyControls.isConnected();
   }
 
-};
+});
