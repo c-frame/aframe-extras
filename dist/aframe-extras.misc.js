@@ -15683,7 +15683,7 @@ function getGeometry (object) {
     var position = new THREE.Vector3(),
         quaternion = new THREE.Quaternion(),
         scale = new THREE.Vector3();
-    if (meshes[0].geometry instanceof THREE.BufferGeometry) {
+    if (meshes[0].geometry.isBufferGeometry) {
       if (meshes[0].geometry.attributes.position) {
         tmp.fromBufferGeometry(meshes[0].geometry);
       }
@@ -15699,7 +15699,7 @@ function getGeometry (object) {
   // Recursively merge geometry, preserving local transforms.
   while ((mesh = meshes.pop())) {
     mesh.updateMatrixWorld();
-    if (mesh.geometry instanceof THREE.BufferGeometry) {
+    if (mesh.geometry.isBufferGeometry) {
       tmp.fromBufferGeometry(mesh.geometry);
       combined.merge(tmp, mesh.matrixWorld);
     } else {

@@ -1,222 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/pathfinding').registerAll();
-},{"./src/pathfinding":2}],2:[function(require,module,exports){
-module.exports = {
-  'nav-mesh':    require('./nav-mesh'),
-  'nav-controller':     require('./nav-controller'),
-  'system':      require('./system'),
-
-  registerAll: function (AFRAME) {
-    if (this._registered) return;
-
-    AFRAME = AFRAME || window.AFRAME;
-
-    if (!AFRAME.components['nav-mesh']) {
-      AFRAME.registerComponent('nav-mesh', this['nav-mesh']);
-    }
-
-    if (!AFRAME.components['nav-controller']) {
-      AFRAME.registerComponent('nav-controller',  this['nav-controller']);
-    }
-
-    if (!AFRAME.systems.nav) {
-      AFRAME.registerSystem('nav', this.system);
-    }
-
-    this._registered = true;
-  }
-};
-
-},{"./nav-controller":3,"./nav-mesh":4,"./system":5}],3:[function(require,module,exports){
-module.exports = {
-  schema: {
-    destination: {type: 'vec3'},
-    active: {default: false},
-    speed: {default: 2}
-  },
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.system.addController(this);
-    this.path = [];
-    this.raycaster = new THREE.Raycaster();
-  },
-  remove: function () {
-    this.system.removeController(this);
-  },
-  update: function () {
-    this.path.length = 0;
-  },
-  tick: (function () {
-    var vDest = new THREE.Vector3();
-    var vDelta = new THREE.Vector3();
-    var vNext = new THREE.Vector3();
-
-    return function (t, dt) {
-      var el = this.el;
-      var data = this.data;
-      var raycaster = this.raycaster;
-      var speed = data.speed * dt / 1000;
-
-      if (!data.active) return;
-
-      // Use PatrolJS pathfinding system to get shortest path to target.
-      if (!this.path.length) {
-        this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
-        this.path = this.path || [];
-        el.emit('nav-start');
-      }
-
-      // If no path is found, exit.
-      if (!this.path.length) {
-        console.warn('[nav] Unable to find path to %o.', data.destination);
-        this.el.setAttribute('nav-controller', {active: false});
-        el.emit('nav-end');
-        return;
-      }
-
-      // Current segment is a vector from current position to next waypoint.
-      var vCurrent = el.object3D.position;
-      var vWaypoint = this.path[0];
-      vDelta.subVectors(vWaypoint, vCurrent);
-
-      var distance = vDelta.length();
-      var gazeTarget;
-
-      if (distance < speed) {
-        // If <1 step from current waypoint, discard it and move toward next.
-        this.path.shift();
-
-        // After discarding the last waypoint, exit pathfinding.
-        if (!this.path.length) {
-          this.el.setAttribute('nav-controller', {active: false});
-          el.emit('nav-end');
-          return;
-        } else {
-          gazeTarget = this.path[0];
-        }
-      } else {
-        // If still far away from next waypoint, find next position for
-        // the current frame.
-        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
-        gazeTarget = vWaypoint;
-      }
-
-      // Look at the next waypoint.
-      gazeTarget.y = vCurrent.y;
-      el.object3D.lookAt(gazeTarget);
-
-      // Raycast against the nav mesh, to keep the controller moving along the
-      // ground, not traveling in a straight line from higher to lower waypoints.
-      raycaster.ray.origin.copy(vNext);
-      raycaster.ray.origin.y += 1.5;
-      raycaster.ray.direction.y = -1;
-      var intersections = raycaster.intersectObject(this.system.getNavMesh());
-
-      if (!intersections.length) {
-        // Raycasting failed. Step toward the waypoint and hope for the best.
-        vCurrent.copy(vNext);
-      } else {
-        // Re-project next position onto nav mesh.
-        vDelta.subVectors(intersections[0].point, vCurrent);
-        vCurrent.add(vDelta.setLength(speed));
-      }
-
-    };
-  }())
-};
-
-},{}],4:[function(require,module,exports){
-/**
- * nav-mesh
- *
- * Waits for a mesh to be loaded on the current entity, then sets it as the
- * nav mesh in the pathfinding system.
- */
-module.exports = {
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.loadNavMesh();
-    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
-  },
-
-  loadNavMesh: function () {
-    var object = this.el.getObject3D('mesh');
-
-    if (!object) return;
-
-    var navMesh;
-    object.traverse(function (node) {
-      if (node.isMesh) navMesh = node;
-    });
-
-    if (!navMesh) return;
-
-    this.system.setNavMesh(navMesh);
-  }
-};
-
-},{}],5:[function(require,module,exports){
-var Path = require('three-pathfinding');
-
-/**
- * nav
- *
- * Pathfinding system, using PatrolJS.
- */
-module.exports = {
-  init: function () {
-    this.navMesh = null;
-    this.nodes = null;
-    this.controllers = new Set();
-  },
-
-  /**
-   * @param {THREE.Mesh} mesh
-   */
-  setNavMesh: function (mesh) {
-    var geometry = mesh.geometry.isBufferGeometry
-      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
-      : mesh.geometry;
-    this.navMesh = new THREE.Mesh(geometry);
-    this.nodes = Path.buildNodes(this.navMesh.geometry);
-    Path.setZoneData('level', this.nodes);
-  },
-
-  /**
-   * @return {THREE.Mesh}
-   */
-  getNavMesh: function () {
-    return this.navMesh;
-  },
-
-  /**
-   * @param {NavController} ctrl
-   */
-  addController: function (ctrl) {
-    this.controllers.add(ctrl);
-  },
-
-  /**
-   * @param {NavController} ctrl
-   */
-  removeController: function (ctrl) {
-    this.controllers.remove(ctrl);
-  },
-
-  /**
-   * @param  {NavController} ctrl
-   * @param  {THREE.Vector3} target
-   * @return {Array<THREE.Vector3>}
-   */
-  getPath: function (ctrl, target) {
-    var start = ctrl.el.object3D.position;
-    // TODO(donmccurdy): Current group should be cached.
-    var group = Path.getGroup('level', start);
-    return Path.findPath(start, target, 'level', group);
-  }
-};
-
-},{"three-pathfinding":9}],6:[function(require,module,exports){
+},{"./src/pathfinding":7}],2:[function(require,module,exports){
 const BinaryHeap = require('./BinaryHeap');
 const utils = require('./utils.js');
 
@@ -341,7 +125,7 @@ class AStar {
 
 module.exports = AStar;
 
-},{"./BinaryHeap":7,"./utils.js":10}],7:[function(require,module,exports){
+},{"./BinaryHeap":3,"./utils.js":6}],3:[function(require,module,exports){
 // javascript-astar
 // http://github.com/bgrins/javascript-astar
 // Freely distributable under the MIT License.
@@ -477,7 +261,7 @@ class BinaryHeap {
 
 module.exports = BinaryHeap;
 
-},{}],8:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 const utils = require('./utils');
 
 class Channel {
@@ -572,7 +356,7 @@ class Channel {
 
 module.exports = Channel;
 
-},{"./utils":10}],9:[function(require,module,exports){
+},{"./utils":6}],5:[function(require,module,exports){
 const utils = require('./utils');
 const AStar = require('./AStar');
 const Channel = require('./Channel');
@@ -845,80 +629,6 @@ module.exports = {
 
 		return closestNode;
 	},
-	/**
-	 * Given start- and end-points for a path, and the current Node, returns
-	 * a new end-point along the path that does not leave the nav mesh.
-	 * @param  {THREE.Vector3} start
-	 * @param  {THREE.Vector3} end
-	 * @param  {Node} node
-	 * @param  {string} zone
-	 * @param  {THREE.Vector3} endTarget
-	 * @return {THREE.Vector3}
-	 */
-	projectPathOnNode: (function () {
-		const plane = new THREE.Plane();
-		const line = new THREE.Line3();
-		const point = new THREE.Vector3();
-
-		// Decay factor that slows the player down while traversing along an edge,
-		// and prevents precision errors from causing an overstep.
-		const decayFactor = 0.9;
-
-		const projectedPath = new THREE.Vector3();
-
-		return function (start, end, node, zone, endTarget) {
-			endTarget = endTarget || new THREE.Vector3();
-
-			const vertices = zoneNodes[zone].vertices;
-
-			// Only handle paths starting within the node and
-			// ending outside it.
-			if (!utils.isVectorInPolygon(start, node, vertices)
-					|| utils.isVectorInPolygon(end, node, vertices)) {
-				return null;
-			}
-
-			line.set(start, end);
-			projectedPath.copy(end).sub(start);
-
-			// For each edge in the node:
-			// (1) Create plane from co-planar points, assuming +Y up.
-			// (2) Intersect path against the plane.
-			// (3) If they intersect, project the path against the plane.
-			for (let i = 0; i < node.vertexIds.length; i++) {
-				point.copy(vertices[node.vertexIds[i]]);
-				point.y += 1;
-				plane.setFromCoplanarPoints(
-					vertices[node.vertexIds[i]],
-					vertices[node.vertexIds[(i + 1) % node.vertexIds.length]],
-					point
-				);
-				if (plane.intersectLine(line, point)) {
-					projectedPath.projectOnPlane(plane.normal);
-				}
-			}
-
-			// Add re-projected path to starting point.
-			endTarget
-				.copy(start)
-				.add(projectedPath.multiplyScalar(decayFactor));
-
-			// TODO: Why does this happen?
-			if (!utils.isVectorInPolygon(endTarget, node, vertices)) {
-				return start;
-			}
-
-			return endTarget;
-		};
-	}()),
-	getNodeVertices: function (node, zone) {
-		const vertices = zoneNodes[zone].vertices;
-		const nodeVertices = [];
-		for (let i = 0; i < node.vertexIds.length; i++) {
-			nodeVertices.push(vertices[node.vertexIds[i]]);
-		}
-		return nodeVertices;
-	},
 	findPath: function (startPosition, targetPosition, zone, group) {
 		const nodes = zoneNodes[zone].groups[group];
 		const vertices = zoneNodes[zone].vertices;
@@ -966,7 +676,7 @@ module.exports = {
 	}
 };
 
-},{"./AStar":6,"./Channel":8,"./utils":10}],10:[function(require,module,exports){
+},{"./AStar":2,"./Channel":4,"./utils":6}],6:[function(require,module,exports){
 class Utils {
 
   static computeCentroids (geometry) {
@@ -1129,7 +839,7 @@ class Utils {
 
     polygon.vertexIds = newVertexIds;
 
-    this.setPolygonCentroid(polygon, navigationMesh);
+    setPolygonCentroid(polygon, navigationMesh);
 
   }
 
@@ -1282,6 +992,224 @@ class Utils {
   }
 }
 
+
+
 module.exports = Utils;
 
-},{}]},{},[1]);
+},{}],7:[function(require,module,exports){
+module.exports = {
+  'nav-mesh':    require('./nav-mesh'),
+  'nav-controller':     require('./nav-controller'),
+  'system':      require('./system'),
+
+  registerAll: function (AFRAME) {
+    if (this._registered) return;
+
+    AFRAME = AFRAME || window.AFRAME;
+
+    if (!AFRAME.components['nav-mesh']) {
+      AFRAME.registerComponent('nav-mesh', this['nav-mesh']);
+    }
+
+    if (!AFRAME.components['nav-controller']) {
+      AFRAME.registerComponent('nav-controller',  this['nav-controller']);
+    }
+
+    if (!AFRAME.systems.nav) {
+      AFRAME.registerSystem('nav', this.system);
+    }
+
+    this._registered = true;
+  }
+};
+
+},{"./nav-controller":8,"./nav-mesh":9,"./system":10}],8:[function(require,module,exports){
+module.exports = {
+  schema: {
+    destination: {type: 'vec3'},
+    active: {default: false},
+    speed: {default: 2}
+  },
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.system.addController(this);
+    this.path = [];
+    this.raycaster = new THREE.Raycaster();
+  },
+  remove: function () {
+    this.system.removeController(this);
+  },
+  update: function () {
+    this.path.length = 0;
+  },
+  tick: (function () {
+    var vDest = new THREE.Vector3();
+    var vDelta = new THREE.Vector3();
+    var vNext = new THREE.Vector3();
+
+    return function (t, dt) {
+      var el = this.el;
+      var data = this.data;
+      var raycaster = this.raycaster;
+      var speed = data.speed * dt / 1000;
+
+      if (!data.active) return;
+
+      // Use PatrolJS pathfinding system to get shortest path to target.
+      if (!this.path.length) {
+        this.path = this.system.getPath(this.el.object3D, vDest.copy(data.destination));
+        this.path = this.path || [];
+        el.emit('nav-start');
+      }
+
+      // If no path is found, exit.
+      if (!this.path.length) {
+        console.warn('[nav] Unable to find path to %o.', data.destination);
+        this.el.setAttribute('nav-controller', {active: false});
+        el.emit('nav-end');
+        return;
+      }
+
+      // Current segment is a vector from current position to next waypoint.
+      var vCurrent = el.object3D.position;
+      var vWaypoint = this.path[0];
+      vDelta.subVectors(vWaypoint, vCurrent);
+
+      var distance = vDelta.length();
+      var gazeTarget;
+
+      if (distance < speed) {
+        // If <1 step from current waypoint, discard it and move toward next.
+        this.path.shift();
+
+        // After discarding the last waypoint, exit pathfinding.
+        if (!this.path.length) {
+          this.el.setAttribute('nav-controller', {active: false});
+          el.emit('nav-end');
+          return;
+        } else {
+          gazeTarget = this.path[0];
+        }
+      } else {
+        // If still far away from next waypoint, find next position for
+        // the current frame.
+        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
+        gazeTarget = vWaypoint;
+      }
+
+      // Look at the next waypoint.
+      gazeTarget.y = vCurrent.y;
+      el.object3D.lookAt(gazeTarget);
+
+      // Raycast against the nav mesh, to keep the controller moving along the
+      // ground, not traveling in a straight line from higher to lower waypoints.
+      raycaster.ray.origin.copy(vNext);
+      raycaster.ray.origin.y += 1.5;
+      raycaster.ray.direction.y = -1;
+      var intersections = raycaster.intersectObject(this.system.getNavMesh());
+
+      if (!intersections.length) {
+        // Raycasting failed. Step toward the waypoint and hope for the best.
+        vCurrent.copy(vNext);
+      } else {
+        // Re-project next position onto nav mesh.
+        vDelta.subVectors(intersections[0].point, vCurrent);
+        vCurrent.add(vDelta.setLength(speed));
+      }
+
+    };
+  }())
+};
+
+},{}],9:[function(require,module,exports){
+/**
+ * nav-mesh
+ *
+ * Waits for a mesh to be loaded on the current entity, then sets it as the
+ * nav mesh in the pathfinding system.
+ */
+module.exports = {
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.loadNavMesh();
+    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+  },
+
+  loadNavMesh: function () {
+    var object = this.el.getObject3D('mesh');
+
+    if (!object) return;
+
+    var navMesh;
+    object.traverse(function (node) {
+      if (node.isMesh) navMesh = node;
+    });
+
+    if (!navMesh) return;
+
+    this.system.setNavMesh(navMesh);
+  }
+};
+
+},{}],10:[function(require,module,exports){
+var Path = require('three-pathfinding');
+
+/**
+ * nav
+ *
+ * Pathfinding system, using PatrolJS.
+ */
+module.exports = {
+  init: function () {
+    this.navMesh = null;
+    this.nodes = null;
+    this.controllers = new Set();
+  },
+
+  /**
+   * @param {THREE.Mesh} mesh
+   */
+  setNavMesh: function (mesh) {
+    var geometry = mesh.geometry.isBufferGeometry
+      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
+      : mesh.geometry;
+    this.navMesh = new THREE.Mesh(geometry);
+    this.nodes = Path.buildNodes(this.navMesh.geometry);
+    Path.setZoneData('level', this.nodes);
+  },
+
+  /**
+   * @return {THREE.Mesh}
+   */
+  getNavMesh: function () {
+    return this.navMesh;
+  },
+
+  /**
+   * @param {NavController} ctrl
+   */
+  addController: function (ctrl) {
+    this.controllers.add(ctrl);
+  },
+
+  /**
+   * @param {NavController} ctrl
+   */
+  removeController: function (ctrl) {
+    this.controllers.remove(ctrl);
+  },
+
+  /**
+   * @param  {NavController} ctrl
+   * @param  {THREE.Vector3} target
+   * @return {Array<THREE.Vector3>}
+   */
+  getPath: function (ctrl, target) {
+    var start = ctrl.el.object3D.position;
+    // TODO(donmccurdy): Current group should be cached.
+    var group = Path.getGroup('level', start);
+    return Path.findPath(start, target, 'level', group);
+  }
+};
+
+},{"three-pathfinding":5}]},{},[1]);
