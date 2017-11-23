@@ -30,20 +30,20 @@ module.exports.Component = AFRAME.registerComponent('tube', {
   },
 
   init: function () {
-    var el = this.el,
-        data = this.data,
-        material = el.components.material;
+    const el = this.el,
+        data = this.data;
+    let material = el.components.material;
 
     if (!data.path.length) {
       console.error('[a-tube] `path` property expected but not found.');
       return;
     }
 
-    var curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
+    const curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
       point = point.split(' ');
       return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
     }));
-    var geometry = new THREE.TubeGeometry(
+    const geometry = new THREE.TubeGeometry(
       curve, data.segments, data.radius, data.radialSegments, data.closed
     );
 

@@ -21,24 +21,24 @@ module.exports = AFRAME.registerComponent('object-model', {
   },
 
   update: function () {
-    var loader,
-        data = this.data;
+    let loader;
+    const data = this.data;
     if (!data.src) return;
 
     this.remove();
     loader = new THREE.ObjectLoader();
     if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, function(object) {
+    loader.load(data.src, (object) => {
 
       // Enable skinning, if applicable.
-      object.traverse(function(o) {
+      object.traverse((o) => {
         if (o instanceof THREE.SkinnedMesh && o.material) {
           o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
         }
       });
 
       this.load(object);
-    }.bind(this));
+    });
   },
 
   load: function (model) {

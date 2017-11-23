@@ -1,9 +1,9 @@
 require('../../lib/keyboard.polyfill');
 
-var MAX_DELTA = 0.2,
+const MAX_DELTA = 0.2,
     PROXY_FLAG = '__keyboard-controls-proxy';
 
-var KeyboardEvent = window.KeyboardEvent;
+const KeyboardEvent = window.KeyboardEvent;
 
 /**
  * Keyboard Controls component.
@@ -51,7 +51,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   getVelocityDelta: function () {
-    var data = this.data,
+    const data = this.data,
         keys = this.getKeys();
 
     this.dVelocity.set(0, 0, 0);
@@ -108,7 +108,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   onBlur: function () {
-    for (var code in this.localKeys) {
+    for (let code in this.localKeys) {
       if (this.localKeys.hasOwnProperty(code)) {
         delete this.localKeys[code];
       }
@@ -146,7 +146,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   isProxied: function () {
-    var proxyControls = this.el.sceneEl.components['proxy-controls'];
+    const proxyControls = this.el.sceneEl.components['proxy-controls'];
     return proxyControls && proxyControls.isConnected();
   }
 

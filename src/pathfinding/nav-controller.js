@@ -17,15 +17,15 @@ module.exports = AFRAME.registerComponent('nav-controller', {
     this.path.length = 0;
   },
   tick: (function () {
-    var vDest = new THREE.Vector3();
-    var vDelta = new THREE.Vector3();
-    var vNext = new THREE.Vector3();
+    const vDest = new THREE.Vector3();
+    const vDelta = new THREE.Vector3();
+    const vNext = new THREE.Vector3();
 
     return function (t, dt) {
-      var el = this.el;
-      var data = this.data;
-      var raycaster = this.raycaster;
-      var speed = data.speed * dt / 1000;
+      const el = this.el;
+      const data = this.data;
+      const raycaster = this.raycaster;
+      const speed = data.speed * dt / 1000;
 
       if (!data.active) return;
 
@@ -45,12 +45,12 @@ module.exports = AFRAME.registerComponent('nav-controller', {
       }
 
       // Current segment is a vector from current position to next waypoint.
-      var vCurrent = el.object3D.position;
-      var vWaypoint = this.path[0];
+      const vCurrent = el.object3D.position;
+      const vWaypoint = this.path[0];
       vDelta.subVectors(vWaypoint, vCurrent);
 
-      var distance = vDelta.length();
-      var gazeTarget;
+      const distance = vDelta.length();
+      let gazeTarget;
 
       if (distance < speed) {
         // If <1 step from current waypoint, discard it and move toward next.
@@ -80,7 +80,7 @@ module.exports = AFRAME.registerComponent('nav-controller', {
       raycaster.ray.origin.copy(vNext);
       raycaster.ray.origin.y += 1.5;
       raycaster.ray.direction.y = -1;
-      var intersections = raycaster.intersectObject(this.system.getNavMesh());
+      const intersections = raycaster.intersectObject(this.system.getNavMesh());
 
       if (!intersections.length) {
         // Raycasting failed. Step toward the waypoint and hope for the best.

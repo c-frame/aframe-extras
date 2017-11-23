@@ -16,12 +16,11 @@ module.exports = AFRAME.registerComponent('fbx-model', {
   },
 
   update: function () {
-    var loader,
-        data = this.data;
+    const data = this.data;
     if (!data.src) return;
 
     this.remove();
-    loader = new THREE.FBXLoader();
+    const loader = new THREE.FBXLoader();
     if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
     loader.load(data.src, this.load.bind(this));
   },

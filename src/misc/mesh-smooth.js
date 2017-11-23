@@ -4,10 +4,10 @@
  */
 module.exports = AFRAME.registerComponent('mesh-smooth', {
   init: function () {
-    this.el.addEventListener('model-loaded', function (e) {
-      e.detail.model.traverse(function (node) {
+    this.el.addEventListener('model-loaded', (e) => {
+      e.detail.model.traverse((node) => {
         if (node.isMesh) node.geometry.computeVertexNormals();
       });
-    })
+    });
   }
 });

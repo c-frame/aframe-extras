@@ -1,4 +1,4 @@
-var EPS = 0.1;
+const EPS = 0.1;
 
 module.exports = AFRAME.registerComponent('checkpoint-controls', {
   schema: {
@@ -20,7 +20,7 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
   pause: function () { this.active = false; },
 
   setCheckpoint: function (checkpoint) {
-    var el = this.el;
+    const el = this.el;
 
     if (!this.active) return;
     if (this.checkpoint === checkpoint) return;
@@ -54,11 +54,11 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
   getVelocity: function () {
     if (!this.active) return;
 
-    var data = this.data,
-        offset = this.offset,
-        position = this.position,
-        targetPosition = this.targetPosition,
-        checkpoint = this.checkpoint;
+    const data = this.data;
+    const offset = this.offset;
+    const position = this.position;
+    const targetPosition = this.targetPosition;
+    const checkpoint = this.checkpoint;
 
     this.sync();
     if (position.distanceTo(targetPosition) < EPS) {
@@ -71,9 +71,9 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
   },
 
   sync: function () {
-    var offset = this.offset,
-        position = this.position,
-        targetPosition = this.targetPosition;
+    const offset = this.offset;
+    const position = this.position;
+    const targetPosition = this.targetPosition;
 
     position.copy(this.el.getAttribute('position'));
     targetPosition.copy(this.checkpoint.object3D.getWorldPosition());

@@ -16,7 +16,7 @@
  * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
  * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
  */
-var EPS = 0.000001;
+const EPS = 0.000001;
 
 module.exports = AFRAME.registerComponent('kinematic-body', {
   dependencies: ['velocity'],
@@ -41,7 +41,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
     this.system = this.el.sceneEl.systems.physics;
     this.system.addBehavior(this, this.system.Phase.SIMULATE);
 
-    var el = this.el,
+    const el = this.el,
         data = this.data,
         position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
 
@@ -91,7 +91,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
     return function (t, dt) {
       if (!dt) return;
 
-      var body = this.body,
+      let body = this.body,
           data = this.data,
           didCollide = false,
           height, groundHeight = -Infinity,
@@ -158,7 +158,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
       // 6. If the ground surface has a velocity, apply it directly to current
       // position, not velocity, to preserve relative velocity.
       if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        var groundVelocity = groundBody.el.getAttribute('velocity');
+        const groundVelocity = groundBody.el.getAttribute('velocity');
         body.position.copy({
           x: body.position.x + groundVelocity.x * dt / 1000,
           y: body.position.y + groundVelocity.y * dt / 1000,
@@ -182,7 +182,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
    * @return {CANNON.Vec3}
    */
   raycastToGround: function (groundBody, groundNormal) {
-    var ray,
+    let ray,
         hitNormal,
         vFrom = this.body.position,
         vTo = this.body.position.clone();

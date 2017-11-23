@@ -50,9 +50,9 @@ module.exports = AFRAME.registerComponent('mouse-controls', {
   },
 
   addEventListeners: function () {
-    var sceneEl = this.el.sceneEl;
-    var canvasEl = sceneEl.canvas;
-    var data = this.data;
+    const sceneEl = this.el.sceneEl;
+    const canvasEl = sceneEl.canvas;
+    const data = this.data;
 
     if (!canvasEl) {
       sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
@@ -72,7 +72,7 @@ module.exports = AFRAME.registerComponent('mouse-controls', {
   },
 
   removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    const canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
     if (canvasEl) {
       canvasEl.removeEventListener('mousedown', this.onMouseDown, false);
       canvasEl.removeEventListener('mousemove', this.onMouseMove, false);
@@ -92,20 +92,20 @@ module.exports = AFRAME.registerComponent('mouse-controls', {
    * Returns the sum of all mouse movement since last call.
    */
   getRotationDelta: function () {
-    var dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
+    const dRotation = this.lookVector.clone().multiplyScalar(this.data.sensitivity);
     this.lookVector.set(0, 0);
     return dRotation;
   },
 
   onMouseMove: function (event) {
-    var previousMouseEvent = this.previousMouseEvent;
+    const previousMouseEvent = this.previousMouseEvent;
 
     if (!this.data.enabled || !(this.mouseDown || this.pointerLocked)) {
       return;
     }
 
-    var movementX = event.movementX || event.mozMovementX || 0;
-    var movementY = event.movementY || event.mozMovementY || 0;
+    let movementX = event.movementX || event.mozMovementX || 0;
+    let movementY = event.movementY || event.mozMovementY || 0;
 
     if (!this.pointerLocked) {
       movementX = event.screenX - previousMouseEvent.screenX;
@@ -119,7 +119,7 @@ module.exports = AFRAME.registerComponent('mouse-controls', {
   },
 
   onMouseDown: function (event) {
-    var canvasEl = this.el.sceneEl.canvas,
+    const canvasEl = this.el.sceneEl.canvas,
         isEditing = (AFRAME.INSPECTOR || {}).opened;
 
     this.mouseDown = true;

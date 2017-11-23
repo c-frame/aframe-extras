@@ -33,7 +33,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   },
 
   play: function () {
-    var sceneEl = this.el.sceneEl;
+    const sceneEl = this.el.sceneEl;
 
     if (this.data.watch) {
       this.observer = new MutationObserver(this.update.bind(this, null));
@@ -52,8 +52,8 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
    * Update list of entities to test for collision.
    */
   update: function () {
-    var data = this.data;
-    var objectEls;
+    const data = this.data;
+    let objectEls;
 
     // Push entities into list of els to intersect.
     if (data.objects) {
@@ -67,17 +67,16 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   },
 
   tick: (function () {
-    var position = new THREE.Vector3(),
+    const position = new THREE.Vector3(),
         meshPosition = new THREE.Vector3(),
-        meshScale = new THREE.Vector3(),
         colliderScale = new THREE.Vector3(),
         distanceMap = new Map();
     return function () {
-      var el = this.el,
+      const el = this.el,
           data = this.data,
           mesh = el.getObject3D('mesh'),
-          colliderRadius,
           collisions = [];
+      let colliderRadius;
 
       if (!mesh) { return; }
 
@@ -90,25 +89,23 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
 
       // Emit events and add collision states, in order of distance.
       collisions
-        .sort(function (a, b) {
-          return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
-        })
+        .sort((a, b) => distanceMap.get(a) > distanceMap.get(b) ? 1 : -1)
         .forEach(this.handleHit);
 
       // Remove collision state from current element.
       if (collisions.length === 0) { el.emit('hit', {el: null}); }
 
       // Remove collision state from other elements.
-      this.collisions.filter(function (el) {
-        return !distanceMap.has(el);
-      }).forEach(this.handleHitEnd);
+      this.collisions
+        .filter((el) => !distanceMap.has(el))
+        .forEach(this.handleHitEnd);
 
       // Store new collisions
       this.collisions = collisions;
 
       // Bounding sphere collision detection
       function intersect (el) {
-        var radius, mesh, distance, box, extent, size;
+        let radius, mesh, distance, box, extent, size;
 
         if (!el.isEntity) { return; }
 

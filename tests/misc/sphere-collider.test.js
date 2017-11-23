@@ -1,11 +1,11 @@
 /* global suite, setup, test, expect */
-var entityFactory = require('../helpers').entityFactory;
+const entityFactory = require('../helpers').entityFactory;
 
-suite('sphere-collider', function () {
-  var collider, collidee;
+suite('sphere-collider', () => {
+  let collider, collidee;
 
-  setup(function (done) {
-    var el = this.el = entityFactory();
+  setup((done) => {
+    const el = this.el = entityFactory();
     el.setAttribute('sphere-collider', 'objects: #collidee');
     el.setAttribute('geometry', 'primitive: sphere');
     collidee = document.createElement('a-entity');
@@ -13,27 +13,27 @@ suite('sphere-collider', function () {
     el.parentNode.appendChild(collidee);
     collidee.setAttribute('position', '5 5 5');
     collidee.setAttribute('geometry', 'primitive: sphere');
-    el.parentNode.addEventListener('loaded', function () {
+    el.parentNode.addEventListener('loaded', () => {
       collider = el.components['sphere-collider'];
       done();
     });
   });
 
-  suite('lifecycle', function () {
-    test('attaches', function () {
+  suite('lifecycle', () => {
+    test('attaches', () => {
       expect(collider).to.be.ok;
     });
-    test('detaches', function (done) {
+    test('detaches', (done) =>  {
       this.el.removeAttribute('sphere-collider');
-      process.nextTick(function () {
+      process.nextTick(() => {
         expect(collider.el.components['sphere-collider']).to.not.be.ok;
         done();
       });
     });
   });
 
-  suite('collisions', function () {
-    test('collided state remains until collision ends', function () {
+  suite('collisions', () => {
+    test('collided state remains until collision ends', () => {
       expect(collidee.is(collider.data.state)).to.be.false;
       collidee.setAttribute('position', collider.el.getAttribute('position'));
       collider.tick();
@@ -44,7 +44,7 @@ suite('sphere-collider', function () {
       collider.tick();
       expect(collidee.is(collider.data.state)).to.be.false;
     });
-    test('collision radius accounts for collidee scale', function () {
+    test('collision radius accounts for collidee scale', () => {
       // Obj3d needs forced update to pickup A-Frame attrs in test context
       collidee.object3D.updateMatrixWorld(true);
       collider.tick();
@@ -54,7 +54,7 @@ suite('sphere-collider', function () {
       collider.tick();
       expect(collidee.is(collider.data.state)).to.be.true;
     });
-    test('collision radius accounts for collider scale', function () {
+    test('collision radius accounts for collider scale', () => {
       // Obj3d needs forced update to pickup A-Frame attrs in test context
       collidee.object3D.updateMatrixWorld(true);
       collider.tick();
@@ -65,10 +65,10 @@ suite('sphere-collider', function () {
       expect(collidee.is(collider.data.state)).to.be.true;
     });
     test('hit and hitend event emission', function () {
-      var hitSpy = this.sinon.spy(),
-          hitEndSpy = this.sinon.spy(),
-          targetHitSpy = this.sinon.spy(),
-          targetHitEndSpy = this.sinon.spy();
+      const hitSpy = sinon.spy(),
+          hitEndSpy = sinon.spy(),
+          targetHitSpy = sinon.spy(),
+          targetHitEndSpy = sinon.spy();
       collider.el.addEventListener('hit', hitSpy);
       collider.el.addEventListener('hitend', hitEndSpy);
       collidee.addEventListener('hit', targetHitSpy);

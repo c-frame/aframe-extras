@@ -12,12 +12,12 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
   },
 
   loadNavMesh: function () {
-    var object = this.el.getObject3D('mesh');
+    const object = this.el.getObject3D('mesh');
 
     if (!object) return;
 
-    var navMesh;
-    object.traverse(function (node) {
+    let navMesh;
+    object.traverse((node) => {
       if (node.isMesh) navMesh = node;
     });
 

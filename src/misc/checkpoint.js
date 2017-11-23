@@ -19,7 +19,7 @@ module.exports = AFRAME.registerComponent('checkpoint', {
   remove: function () { this.pause(); },
 
   fire: function () {
-    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+    const targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
     if (!targetEl) {
       throw new Error('No `checkpoint-controls` component found.');
     }

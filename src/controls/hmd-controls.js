@@ -1,4 +1,4 @@
-var radToDeg = THREE.Math.radToDeg,
+const radToDeg = THREE.Math.radToDeg,
     isMobile = AFRAME.utils.device.isMobile();
 
 module.exports = AFRAME.registerComponent('hmd-controls', {
@@ -18,8 +18,8 @@ module.exports = AFRAME.registerComponent('hmd-controls', {
   },
 
   update: function () {
-    var data = this.data;
-    var vrControls = this.vrControls;
+    const data = this.data;
+    const vrControls = this.vrControls;
     vrControls.standing = data.standing;
     vrControls.update();
   },
@@ -33,7 +33,7 @@ module.exports = AFRAME.registerComponent('hmd-controls', {
   },
 
   isRotationActive: function () {
-    var hmdEuler = this.hmdEuler;
+    const hmdEuler = this.hmdEuler;
     if (!this.data.enabled || !(this.el.sceneEl.is('vr-mode') || isMobile)) {
       return false;
     }
@@ -42,7 +42,7 @@ module.exports = AFRAME.registerComponent('hmd-controls', {
   },
 
   getRotation: function () {
-    var hmdEuler = this.hmdEuler;
+    const hmdEuler = this.hmdEuler;
     return this.rotation.set(
       radToDeg(hmdEuler.x),
       radToDeg(hmdEuler.y),
@@ -51,9 +51,9 @@ module.exports = AFRAME.registerComponent('hmd-controls', {
   },
 
   isVelocityActive: function () {
-    var deltaHMDPosition = this.deltaHMDPosition;
-    var previousHMDPosition = this.previousHMDPosition;
-    var currentHMDPosition = this.calculateHMDPosition();
+    const deltaHMDPosition = this.deltaHMDPosition;
+    const previousHMDPosition = this.previousHMDPosition;
+    const currentHMDPosition = this.calculateHMDPosition();
     this.isPositionCalibrated = this.isPositionCalibrated || !isNullVector(previousHMDPosition);
     if (!this.data.enabled || !this.el.sceneEl.is('vr-mode') || isMobile) {
       return false;
@@ -68,8 +68,8 @@ module.exports = AFRAME.registerComponent('hmd-controls', {
   },
 
   calculateHMDPosition: function () {
-    var dolly = this.dolly;
-    var position = new THREE.Vector3();
+    const dolly = this.dolly;
+    const position = new THREE.Vector3();
     dolly.updateMatrix();
     position.setFromMatrixPosition(dolly.matrix);
     return position;

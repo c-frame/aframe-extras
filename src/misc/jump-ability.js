@@ -1,4 +1,4 @@
-var ACCEL_G = -9.8, // m/s^2
+const ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
 /**
@@ -24,10 +24,10 @@ module.exports = AFRAME.registerComponent('jump-ability', {
     this.velocity = 0;
     this.numJumps = 0;
 
-    var beginJump = this.beginJump.bind(this),
+    const beginJump = this.beginJump.bind(this),
         events = this.data.on.split(' ');
     this.bindings = {};
-    for (var i = 0; i <  events.length; i++) {
+    for (let i = 0; i <  events.length; i++) {
       this.bindings[events[i]] = beginJump;
       this.el.addEventListener(events[i], beginJump);
     }
@@ -48,7 +48,7 @@ module.exports = AFRAME.registerComponent('jump-ability', {
 
   beginJump: function () {
     if (this.numJumps < this.data.maxJumps) {
-      var data = this.data,
+      const data = this.data,
           initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
           v = this.el.getAttribute('velocity');
       this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});

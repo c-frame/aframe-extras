@@ -45,14 +45,14 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
    * not guaranteed to have parsed when this component is initialized.
    */
   play: function () {
-    var el = this.el,
-        data = this.data,
-        material = el.components.material;
+    const el = this.el,
+        data = this.data;
+    let material = el.components.material;
 
-    var geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
+    const geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
     geometry.mergeVertices();
     this.waves = [];
-    for (var v, i = 0, l = geometry.vertices.length; i < l; i++) {
+    for (let v, i = 0, l = geometry.vertices.length; i < l; i++) {
       v = geometry.vertices[i];
       this.waves.push({
         z: v.z,
@@ -83,8 +83,8 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   tick: function (t, dt) {
     if (!dt) return;
 
-    var verts = this.mesh.geometry.vertices;
-    for (var v, vprops, i = 0; (v = verts[i]); i++){
+    const verts = this.mesh.geometry.vertices;
+    for (let v, vprops, i = 0; (v = verts[i]); i++){
       vprops = this.waves[i];
       v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
       vprops.ang += vprops.speed * dt;

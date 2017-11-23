@@ -11,7 +11,7 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
   },
 
   init: function () {
-    var data = this.data;
+    const data = this.data;
 
     this.texture = new THREE.CubeTextureLoader().load([
       data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
@@ -29,8 +29,8 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
   },
 
   applyEnvMap: function () {
-    var mesh = this.el.getObject3D('mesh');
-    var envMap = this.texture;
+    const mesh = this.el.getObject3D('mesh');
+    const envMap = this.texture;
 
     if (!mesh) return;
 

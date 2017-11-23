@@ -6,7 +6,7 @@ window.debug = true;
 var AScene = require('aframe').AScene;
 require('../');
 
-setup(function () {
+setup(() => {
   this.sinon = sinon.sandbox.create();
   // Stubs to not create a WebGL context since Travis CI runs headless.
   this.sinon.stub(AScene.prototype, 'render');
@@ -14,11 +14,11 @@ setup(function () {
   this.sinon.stub(AScene.prototype, 'setupRenderer');
 });
 
-teardown(function () {
+teardown(() => {
   // Clean up any attached elements.
-  ['canvas', 'a-assets', 'a-scene'].forEach(function (tagName) {
-    var els = document.querySelectorAll(tagName);
-    for (var i = 0; i < els.length; i++) {
+  ['canvas', 'a-assets', 'a-scene'].forEach((tagName) => {
+    const els = document.querySelectorAll(tagName);
+    for (let i = 0; i < els.length; i++) {
       els[i].parentNode.removeChild(els[i]);
     }
   });

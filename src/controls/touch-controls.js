@@ -25,8 +25,8 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   addEventListeners: function () {
-    var sceneEl = this.el.sceneEl;
-    var canvasEl = sceneEl.canvas;
+    const sceneEl = this.el.sceneEl;
+    const canvasEl = sceneEl.canvas;
 
     if (!canvasEl) {
       sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
@@ -38,7 +38,7 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   removeEventListeners: function () {
-    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    const canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
     if (!canvasEl) { return; }
 
     canvasEl.removeEventListener('touchstart', this.onTouchStart);

@@ -19,15 +19,15 @@ module.exports.System = AFRAME.registerSystem('ply-model', {
    * @returns {Promise}
    */
   getOrLoadGeometry: function (src, skipCache) {
-    var cache = this.cache;
-    var cacheItem = cache[src];
+    const cache = this.cache;
+    const cacheItem = cache[src];
 
     if (!skipCache && cacheItem) {
       return cacheItem;
     }
 
     cache[src] = new Promise(function (resolve) {
-      var loader = new THREE.PLYLoader();
+      const loader = new THREE.PLYLoader();
       loader.load(src, function (geometry) {
         resolve(geometry);
       });
@@ -47,9 +47,8 @@ module.exports.Component = AFRAME.registerComponent('ply-model', {
   },
 
   update: function () {
-    var data = this.data;
-    var el = this.el;
-    var loader;
+    const data = this.data;
+    const el = this.el;
 
     if (!data.src) {
       console.warn('[%s] `src` property is required.', this.name);
@@ -57,8 +56,8 @@ module.exports.Component = AFRAME.registerComponent('ply-model', {
     }
 
     // Get geometry from system, create and set mesh.
-    this.system.getOrLoadGeometry(data.src, data.skipCache).then(function (geometry) {
-      var model = createModel(geometry);
+    this.system.getOrLoadGeometry(data.src, data.skipCache).then((geometry) => {
+      const model = createModel(geometry);
       el.setObject3D('mesh', model);
       el.emit('model-loaded', {format: 'ply', model: model});
     });

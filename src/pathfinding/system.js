@@ -16,7 +16,7 @@ module.exports = AFRAME.registerSystem('nav', {
    * @param {THREE.Mesh} mesh
    */
   setNavMesh: function (mesh) {
-    var geometry = mesh.geometry.isBufferGeometry
+    const geometry = mesh.geometry.isBufferGeometry
       ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
       : mesh.geometry;
     this.navMesh = new THREE.Mesh(geometry);
@@ -51,9 +51,9 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {Array<THREE.Vector3>}
    */
   getPath: function (ctrl, target) {
-    var start = ctrl.el.object3D.position;
+    const start = ctrl.el.object3D.position;
     // TODO(donmccurdy): Current group should be cached.
-    var group = Path.getGroup('level', start);
+    const group = Path.getGroup('level', start);
     return Path.findPath(start, target, 'level', group);
   }
 });

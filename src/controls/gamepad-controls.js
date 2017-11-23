@@ -7,10 +7,10 @@
  * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
  */
 
-var GamepadButton = require('../../lib/GamepadButton'),
+const GamepadButton = require('../../lib/GamepadButton'),
     GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
 
-var JOYSTICK_EPS = 0.2;
+const JOYSTICK_EPS = 0.2;
 
 module.exports = AFRAME.registerComponent('gamepad-controls', {
 
@@ -43,7 +43,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * Called once when component is attached. Generally for initial setup.
    */
   init: function () {
-    var scene = this.el.sceneEl;
+    const scene = this.el.sceneEl;
     this.prevTime = window.performance.now();
 
     // Button state
@@ -78,7 +78,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   isVelocityActive: function () {
     if (!this.data.enabled || !this.isConnected()) return false;
 
-    var dpad = this.getDpad(),
+    const dpad = this.getDpad(),
         joystick0 = this.getJoystick(0),
         inputX = dpad.x || joystick0.x,
         inputY = dpad.y || joystick0.y;
@@ -87,7 +87,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   },
 
   getVelocityDelta: function () {
-    var dpad = this.getDpad(),
+    const dpad = this.getDpad(),
         joystick0 = this.getJoystick(0),
         inputX = dpad.x || joystick0.x,
         inputY = dpad.y || joystick0.y,
@@ -110,13 +110,13 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   isRotationActive: function () {
     if (!this.data.enabled || !this.isConnected()) return false;
 
-    var joystick1 = this.getJoystick(1);
+    const joystick1 = this.getJoystick(1);
 
     return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
   },
 
   getRotationDelta: function () {
-    var lookVector = this.getJoystick(1);
+    const lookVector = this.getJoystick(1);
     if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
     if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
     return lookVector;
@@ -127,7 +127,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    */
 
   updateButtonState: function () {
-    var gamepad = this.getGamepad();
+    const gamepad = this.getGamepad();
     if (this.data.enabled && gamepad) {
 
       // Fire DOM events for button state changes.
@@ -169,7 +169,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {Gamepad}
    */
   getGamepad: function () {
-    var localGamepad = navigator.getGamepads
+    const localGamepad = navigator.getGamepads
           && navigator.getGamepads()[this.data.controller],
         proxyControls = this.el.sceneEl.components['proxy-controls'],
         proxyGamepad = proxyControls && proxyControls.isConnected()
@@ -202,7 +202,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {THREE.Vector2}
    */
   getJoystick: function (index) {
-    var gamepad = this.getGamepad();
+    const gamepad = this.getGamepad();
     switch (index) {
       case 0: return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
       case 1: return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
@@ -215,7 +215,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {THREE.Vector2}
    */
   getDpad: function () {
-    var gamepad = this.getGamepad();
+    const gamepad = this.getGamepad();
     if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
       return new THREE.Vector2();
     }
@@ -232,7 +232,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {boolean}
    */
   isConnected: function () {
-    var gamepad = this.getGamepad();
+    const gamepad = this.getGamepad();
     return !!(gamepad && gamepad.connected);
   },
 

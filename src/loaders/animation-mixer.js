@@ -1,4 +1,4 @@
-var LoopMode = {
+const LoopMode = {
   once: THREE.LoopOnce,
   repeat: THREE.LoopRepeat,
   pingpong: THREE.LoopPingPong
@@ -28,27 +28,27 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
     /** @type {Array<THREE.AnimationAction>} */
     this.activeActions = [];
 
-    var model = this.el.getObject3D('mesh');
+    const model = this.el.getObject3D('mesh');
 
     if (model) {
       this.load(model);
     } else {
-      this.el.addEventListener('model-loaded', function(e) {
+      this.el.addEventListener('model-loaded', (e) => {
         this.load(e.detail.model);
-      }.bind(this));
+      });
     }
   },
 
   load: function (model) {
-    var el = this.el;
+    const el = this.el;
     this.model = model;
     this.mixer = new THREE.AnimationMixer(model);
-    this.mixer.addEventListener('loop', function (e) {
+    this.mixer.addEventListener('loop', (e) => {
       el.emit('animation-loop', {action: e.action, loopDelta: e.loopDelta});
-    }.bind(this));
-    this.mixer.addEventListener('finished', function (e) {
+    });
+    this.mixer.addEventListener('finished', (e) => {
       el.emit('animation-finished', {action: e.action, direction: e.direction});
-    }.bind(this));
+    });
     if (this.data.clip) this.update({});
   },
 
@@ -67,8 +67,8 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
   },
 
   stopAction: function () {
-    var data = this.data;
-    for (var i = 0; i < this.activeActions.length; i++) {
+    const data = this.data;
+    for (let i = 0; i < this.activeActions.length; i++) {
       data.crossFadeDuration
         ? this.activeActions[i].fadeOut(data.crossFadeDuration)
         : this.activeActions[i].stop();
@@ -79,17 +79,17 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
   playAction: function () {
     if (!this.mixer) return;
 
-    var model = this.model,
+    const model = this.model,
         data = this.data,
         clips = model.animations || (model.geometry || {}).animations || [];
 
     if (!clips.length) return;
 
-    var re = wildcardToRegExp(data.clip);
+    const re = wildcardToRegExp(data.clip);
 
-    for (var clip, i = 0; (clip = clips[i]); i++) {
+    for (let clip, i = 0; (clip = clips[i]); i++) {
       if (clip.name.match(re)) {
-        var action = this.mixer.clipAction(clip, model);
+        const action = this.mixer.clipAction(clip, model);
         action.enabled = true;
         if (data.duration) action.setDuration(data.duration);
         action

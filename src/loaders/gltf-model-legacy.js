@@ -1,6 +1,14 @@
-var fetchScript = require('../../lib/fetch-script')();
+const fetchScript = require('../../lib/fetch-script')();
 
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
+const LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
+
+const loadLoader = (function () {
+  let promise;
+  return function () {
+    promise = promise || fetchScript(LOADER_SRC);
+    return promise;
+  };
+}());
 
 /**
  * Legacy loader for glTF 1.0 models.
@@ -12,29 +20,29 @@ module.exports = AFRAME.registerComponent('gltf-model-legacy', {
   init: function () {
     this.model = null;
     this.loader = null;
-    this.loaderPromise = loadLoader().then(function () {
+    this.loaderPromise = loadLoader().then(() => {
       this.loader = new THREE.GLTFLoader();
       this.loader.setCrossOrigin('Anonymous');
-    }.bind(this));
+    });
   },
 
   update: function () {
-    var self = this;
-    var el = this.el;
-    var src = this.data;
+    const self = this;
+    const el = this.el;
+    const src = this.data;
 
     if (!src) { return; }
 
     this.remove();
 
-    this.loaderPromise.then(function () {
+    this.loaderPromise.then(() => {
       this.loader.load(src, function gltfLoaded (gltfModel) {
         self.model = gltfModel.scene;
         self.model.animations = gltfModel.animations;
         el.setObject3D('mesh', self.model);
         el.emit('model-loaded', {format: 'gltf', model: self.model});
       });
-    }.bind(this));
+    });
   },
 
   remove: function () {
@@ -42,11 +50,3 @@ module.exports = AFRAME.registerComponent('gltf-model-legacy', {
     this.el.removeObject3D('mesh');
   }
 });
-
-var loadLoader = (function () {
-  var promise;
-  return function () {
-    promise = promise || fetchScript(LOADER_SRC);
-    return promise;
-  };
-}());

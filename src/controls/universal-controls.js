@@ -4,7 +4,7 @@
  * @author Don McCurdy <dm@donmccurdy.com>
  */
 
-var COMPONENT_SUFFIX = '-controls',
+const COMPONENT_SUFFIX = '-controls',
     MAX_DELTA = 0.2, // ms
     PI_2 = Math.PI / 2;
 
@@ -68,17 +68,17 @@ module.exports = AFRAME.registerComponent('universal-controls', {
   },
 
   injectControls: function () {
-    var i, name,
-        data = this.data;
+    const data = this.data;
+    var name;
 
-    for (i = 0; i < data.movementControls.length; i++) {
+    for (let i = 0; i < data.movementControls.length; i++) {
       name = data.movementControls[i] + COMPONENT_SUFFIX;
       if (!this.el.components[name]) {
         this.el.setAttribute(name, '');
       }
     }
 
-    for (i = 0; i < data.rotationControls.length; i++) {
+    for (let i = 0; i < data.rotationControls.length; i++) {
       name = data.rotationControls[i] + COMPONENT_SUFFIX;
       if (!this.el.components[name]) {
         this.el.setAttribute(name, '');
@@ -105,7 +105,7 @@ module.exports = AFRAME.registerComponent('universal-controls', {
     }
 
     if (!AFRAME.components.velocity) {
-      var position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
+      const position = this.el.getAttribute('position') || {x: 0, y: 0, z: 0};
       this.el.setAttribute('position', {
         x: position.x + this.velocity.x * dt / 1000,
         y: position.y + this.velocity.y * dt / 1000,
@@ -119,8 +119,8 @@ module.exports = AFRAME.registerComponent('universal-controls', {
    */
 
   updateRotation: function (dt) {
-    var control, dRotation,
-        data = this.data;
+    let control, dRotation;
+    const data = this.data;
 
     for (var i = 0, l = data.rotationControls.length; i < l; i++) {
       control = this.el.components[data.rotationControls[i] + COMPONENT_SUFFIX];
@@ -151,12 +151,12 @@ module.exports = AFRAME.registerComponent('universal-controls', {
    */
 
   updateVelocity: function (dt) {
-    var control, dVelocity,
-        velocity = this.velocity,
-        data = this.data;
+    let control, dVelocity;
+    const velocity = this.velocity;
+    const data = this.data;
 
     if (data.movementEnabled) {
-      for (var i = 0, l = data.movementControls.length; i < l; i++) {
+      for (let i = 0, l = data.movementControls.length; i < l; i++) {
         control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
         if (control && control.isVelocityActive()) {
           if (control.getVelocityDelta) {
@@ -192,7 +192,7 @@ module.exports = AFRAME.registerComponent('universal-controls', {
       }
 
       // Rotate to heading
-      var rotation = this.el.getAttribute('rotation');
+      const rotation = this.el.getAttribute('rotation');
       if (rotation) {
         this.heading.set(
           data.fly ? THREE.Math.degToRad(rotation.x) : 0,

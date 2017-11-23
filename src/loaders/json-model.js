@@ -21,29 +21,29 @@ module.exports = AFRAME.registerComponent('json-model', {
   },
 
   update: function () {
-    var loader,
-        data = this.data;
+    let loader;
+    const data = this.data;
     if (!data.src) return;
 
     this.remove();
     loader = new THREE.JSONLoader();
     if (data.crossorigin) loader.crossOrigin = data.crossorigin;
-    loader.load(data.src, function (geometry, materials) {
+    loader.load(data.src, (geometry, materials) => {
 
       // Attempt to automatically detect common material options.
-      materials.forEach(function (mat) {
+      materials.forEach((mat) => {
         mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
         mat.skinning = !!(geometry.bones || []).length;
         mat.morphTargets = !!(geometry.morphTargets || []).length;
         mat.morphNormals = !!(geometry.morphNormals || []).length;
       });
 
-      var model = (geometry.bones || []).length
+      const model = (geometry.bones || []).length
         ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
         : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
 
       this.load(model);
-    }.bind(this));
+    });
   },
 
   load: function (model) {

@@ -1,40 +1,40 @@
-var entityFactory = require('../helpers').entityFactory;
-var KeyboardEvent = window.KeyboardEvent;
+const entityFactory = require('../helpers').entityFactory;
+const KeyboardEvent = window.KeyboardEvent;
 
-suite('keyboard-controls', function () {
-  var keyboardControls;
+suite('keyboard-controls', () => {
+  let keyboardControls;
 
-  setup(function (done) {
-    var el = this.el = entityFactory();
+  setup((done) => {
+    const el = this.el = entityFactory();
     el.setAttribute('keyboard-controls', '');
-    el.addEventListener('loaded', function () {
+    el.addEventListener('loaded', () => {
       keyboardControls = el.components['keyboard-controls'];
       done();
     });
   });
 
-  suite('isVelocityActive', function () {
-    test('not active by default', function () {
+  suite('isVelocityActive', () => {
+    test('not active by default', () => {
       expect(keyboardControls.isVelocityActive()).to.be.false;
     });
 
-    test('active when target key is pressed', function () {
+    test('active when target key is pressed', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', {code: 'KeyW'}));
       expect(keyboardControls.isVelocityActive()).to.be.true;
       window.dispatchEvent(new KeyboardEvent('keyup', {code: 'KeyW'}));
       expect(keyboardControls.isVelocityActive()).to.be.false;
     });
 
-    test('inactive when disabled', function () {
-      var el = this.el;
+    test('inactive when disabled', () => {
+      const el = this.el;
       el.setAttribute('keyboard-controls', {enabled: false});
       window.dispatchEvent(new KeyboardEvent('keydown', {code: 'KeyW'}));
       expect(keyboardControls.isVelocityActive()).to.be.false;
     });
   });
 
-  suite('getVelocityDelta', function () {
-    test('updates position with WASD keys', function () {
+  suite('getVelocityDelta', () => {
+    test('updates position with WASD keys', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', {code: 'KeyW'}));
       expect(keyboardControls.getVelocityDelta()).to.shallowDeepEqual({x: 0, y: 0, z: -1});
       window.dispatchEvent(new KeyboardEvent('keydown', {code: 'KeyA'}));
@@ -44,7 +44,7 @@ suite('keyboard-controls', function () {
       expect(keyboardControls.getVelocityDelta()).to.shallowDeepEqual({x: 0, y: 0, z: 0});
     });
 
-    test('updates position with arrow keys', function () {
+    test('updates position with arrow keys', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', {code: 'ArrowUp'}));
       expect(keyboardControls.getVelocityDelta()).to.shallowDeepEqual({x: 0, y: 0, z: -1});
       window.dispatchEvent(new KeyboardEvent('keydown', {code: 'ArrowLeft'}));
