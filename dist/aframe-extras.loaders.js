@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('./src/loaders').registerAll();
-},{"./src/loaders":9}],2:[function(require,module,exports){
+},{"./src/loaders":8}],2:[function(require,module,exports){
 /**
  * @author Kyle-Larson https://github.com/Kyle-Larson
  * @author Takahiro https://github.com/takahirox
@@ -5899,77 +5899,13 @@ var loadLoader = (function () {
 }());
 
 },{"../../lib/fetch-script":4}],8:[function(require,module,exports){
-var fetchScript = require('../../lib/fetch-script')();
-
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r87/examples/js/loaders/GLTFLoader.js';
-// Monkeypatch while waiting for three.js r86.
-if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
-
-  THREE.PropertyBinding.sanitizeNodeName = function (s) {
-    return s.replace( /\s/g, '_' ).replace( /[^\w-]/g, '' );
-  };
-
-}
-
-/**
- * Upcoming loader for glTF 2.0 models.
- * Asynchronously loads THREE.GLTF2Loader from rawgit.
- */
-module.exports = {
-  schema: {type: 'model'},
-
-  init: function () {
-    this.model = null;
-    this.loader = null;
-    this.loaderPromise = loadLoader().then(function () {
-      this.loader = new THREE.GLTFLoader();
-      this.loader.setCrossOrigin('Anonymous');
-    }.bind(this));
-  },
-
-  update: function () {
-    var self = this;
-    var el = this.el;
-    var src = this.data;
-
-    if (!src) { return; }
-
-    this.remove();
-
-    this.loaderPromise.then(function () {
-      this.loader.load(src, function gltfLoaded (gltfModel) {
-        self.model = gltfModel.scene;
-        self.model.animations = gltfModel.animations;
-        el.setObject3D('mesh', self.model);
-        el.emit('model-loaded', {format: 'gltf', model: self.model});
-      });
-    }.bind(this));
-  },
-
-  remove: function () {
-    if (!this.model) { return; }
-    this.el.removeObject3D('mesh');
-  }
-};
-
-var loadLoader = (function () {
-  var promise;
-  return function () {
-    promise = promise || fetchScript(LOADER_SRC);
-    return promise;
-  };
-}());
-
-},{"../../lib/fetch-script":4}],9:[function(require,module,exports){
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
-  'gltf-model-next': require('./gltf-model-next'),
   'gltf-model-legacy': require('./gltf-model-legacy'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
-  'three-model': require('./three-model'),
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
@@ -5994,11 +5930,6 @@ module.exports = {
       AFRAME.registerComponent('fbx-model', this['fbx-model']);
     }
 
-    // THREE.GLTF2Loader
-    if (!AFRAME.components['gltf-model-next']) {
-      AFRAME.registerComponent('gltf-model-next', this['gltf-model-next']);
-    }
-
     // THREE.GLTFLoader
     if (!AFRAME.components['gltf-model-legacy']) {
       AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy']);
@@ -6014,16 +5945,11 @@ module.exports = {
       AFRAME.registerComponent('object-model', this['object-model']);
     }
 
-    // (deprecated) THREE.JsonLoader and THREE.ObjectLoader
-    if (!AFRAME.components['three-model']) {
-      AFRAME.registerComponent('three-model', this['three-model']);
-    }
-
     this._registered = true;
   }
 };
 
-},{"./animation-mixer":5,"./fbx-model":6,"./gltf-model-legacy":7,"./gltf-model-next":8,"./json-model":10,"./object-model":11,"./ply-model":12,"./three-model":13}],10:[function(require,module,exports){
+},{"./animation-mixer":5,"./fbx-model":6,"./gltf-model-legacy":7,"./json-model":9,"./object-model":10,"./ply-model":11}],9:[function(require,module,exports){
 /**
  * json-model
  *
@@ -6083,7 +6009,7 @@ module.exports = {
   }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /**
  * object-model
  *
@@ -6138,7 +6064,7 @@ module.exports = {
   }
 };
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -6219,151 +6145,4 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":3}],13:[function(require,module,exports){
-var DEFAULT_ANIMATION = '__auto__';
-
-/**
- * three-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two
- * different THREE.js formats, both having the .json extension. This loader
- * supports both, but requires you to specify the mode as "object" or "json".
- *
- * Typically, you will use "json" for a single mesh, and "object" for a scene
- * or multiple meshes. Check the console for errors, if in doubt.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-module.exports = {
-  deprecated: true,
-
-  schema: {
-    src:               { type: 'asset' },
-    loader:            { default: 'object', oneOf: ['object', 'json'] },
-    enableAnimation:   { default: true },
-    animation:         { default: DEFAULT_ANIMATION },
-    animationDuration: { default: 0 },
-    crossorigin:       { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-    this.mixer = null;
-    console.warn('[three-model] Component is deprecated. Use json-model or object-model instead.');
-  },
-
-  update: function (previousData) {
-    previousData = previousData || {};
-
-    var loader,
-        data = this.data;
-
-    if (!data.src) {
-      this.remove();
-      return;
-    }
-
-    // First load.
-    if (!Object.keys(previousData).length) {
-      this.remove();
-      if (data.loader === 'object') {
-        loader = new THREE.ObjectLoader();
-        if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-        loader.load(data.src, function(loaded) {
-          loaded.traverse( function(object) {
-            if (object instanceof THREE.SkinnedMesh)
-              loaded = object;
-          });
-          if(loaded.material)
-            loaded.material.skinning = !!((loaded.geometry && loaded.geometry.bones) || []).length;
-          this.load(loaded);
-        }.bind(this));
-      } else if (data.loader === 'json') {
-        loader = new THREE.JSONLoader();
-        if (data.crossorigin) loader.crossOrigin = data.crossorigin;
-        loader.load(data.src, function (geometry, materials) {
-
-          // Attempt to automatically detect common material options.
-          materials.forEach(function (mat) {
-            mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
-            mat.skinning = !!(geometry.bones || []).length;
-            mat.morphTargets = !!(geometry.morphTargets || []).length;
-            mat.morphNormals = !!(geometry.morphNormals || []).length;
-          });
-
-          var mesh = (geometry.bones || []).length
-            ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
-            : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-          this.load(mesh);
-        }.bind(this));
-      } else {
-        throw new Error('[three-model] Invalid mode "%s".', data.mode);
-      }
-      return;
-    }
-
-    var activeAction = this.model && this.model.activeAction;
-
-    if (data.animation !== previousData.animation) {
-      if (activeAction) activeAction.stop();
-      this.playAnimation();
-      return;
-    }
-
-    if (activeAction && data.enableAnimation !== activeAction.isRunning()) {
-      data.enableAnimation ? this.playAnimation() : activeAction.stop();
-    }
-
-    if (activeAction && data.animationDuration) {
-        activeAction.setDuration(data.animationDuration);
-    }
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.mixer = new THREE.AnimationMixer(this.model);
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'three', model: model});
-
-    if (this.data.enableAnimation) this.playAnimation();
-  },
-
-  playAnimation: function () {
-    var clip,
-        data = this.data,
-        animations = this.model.animations || this.model.geometry.animations || [];
-
-    if (!data.enableAnimation || !data.animation || !animations.length) {
-      return;
-    }
-
-    clip = data.animation === DEFAULT_ANIMATION
-      ? animations[0]
-      : THREE.AnimationClip.findByName(animations, data.animation);
-
-    if (!clip) {
-      console.error('[three-model] Animation "%s" not found.', data.animation);
-      return;
-    }
-
-    this.model.activeAction = this.mixer.clipAction(clip, this.model);
-    if (data.animationDuration) {
-      this.model.activeAction.setDuration(data.animationDuration);
-    }
-    this.model.activeAction.play();
-  },
-
-  remove: function () {
-    if (this.mixer) this.mixer.stopAllAction();
-    if (this.model) this.el.removeObject3D('mesh');
-  },
-
-  tick: function (t, dt) {
-    if (this.mixer && !isNaN(dt)) {
-      this.mixer.update(dt / 1000);
-    }
-  }
-};
-
-},{}]},{},[1]);
+},{"../../lib/PLYLoader":3}]},{},[1]);

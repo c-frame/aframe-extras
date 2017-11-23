@@ -50,13 +50,13 @@ src
 In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.12.4/dist/aframe-extras.min.js"></script>
+<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.13.0/dist/aframe-extras.min.js"></script>
 ```
 
-CDN builds for aframe-extras/v3.12.4:
+CDN builds for aframe-extras/v3.13.0:
 
-- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.12.4/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.12.4/dist/aframe-extras.min.js) *(production)*
+- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.13.0/dist/aframe-extras.js) *(development)*
+- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.13.0/dist/aframe-extras.min.js) *(production)*
 
 For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full list of packages below](#add-ons).
 
@@ -64,7 +64,7 @@ For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full
 
 | A-Frame   | Extras                |
 |-----------|-----------------------|
-| v0.5.X | aframe-extras/v3.12.4     |
+| v0.5.X | aframe-extras/v3.13.0     |
 | v0.4.X | */v3.3.0     |
 | v0.3.X | */v2.6.1                 |
 | v0.2.X | */v1.17.0                |

@@ -19,7 +19,7 @@ module.exports = {
   }
 };
 
-},{"./src/controls":84,"./src/loaders":93,"./src/misc":101,"./src/pathfinding":107,"./src/primitives":115,"aframe-physics-system":11}],3:[function(require,module,exports){
+},{"./src/controls":84,"./src/loaders":92,"./src/misc":99,"./src/pathfinding":105,"./src/primitives":113,"aframe-physics-system":11}],3:[function(require,module,exports){
 /**
  * @author Kyle-Larson https://github.com/Kyle-Larson
  * @author Takahiro https://github.com/takahirox
@@ -23986,77 +23986,13 @@ var loadLoader = (function () {
 }());
 
 },{"../../lib/fetch-script":8}],92:[function(require,module,exports){
-var fetchScript = require('../../lib/fetch-script')();
-
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r87/examples/js/loaders/GLTFLoader.js';
-// Monkeypatch while waiting for three.js r86.
-if (THREE.PropertyBinding.sanitizeNodeName === undefined) {
-
-  THREE.PropertyBinding.sanitizeNodeName = function (s) {
-    return s.replace( /\s/g, '_' ).replace( /[^\w-]/g, '' );
-  };
-
-}
-
-/**
- * Upcoming loader for glTF 2.0 models.
- * Asynchronously loads THREE.GLTF2Loader from rawgit.
- */
-module.exports = {
-  schema: {type: 'model'},
-
-  init: function () {
-    this.model = null;
-    this.loader = null;
-    this.loaderPromise = loadLoader().then(function () {
-      this.loader = new THREE.GLTFLoader();
-      this.loader.setCrossOrigin('Anonymous');
-    }.bind(this));
-  },
-
-  update: function () {
-    var self = this;
-    var el = this.el;
-    var src = this.data;
-
-    if (!src) { return; }
-
-    this.remove();
-
-    this.loaderPromise.then(function () {
-      this.loader.load(src, function gltfLoaded (gltfModel) {
-        self.model = gltfModel.scene;
-        self.model.animations = gltfModel.animations;
-        el.setObject3D('mesh', self.model);
-        el.emit('model-loaded', {format: 'gltf', model: self.model});
-      });
-    }.bind(this));
-  },
-
-  remove: function () {
-    if (!this.model) { return; }
-    this.el.removeObject3D('mesh');
-  }
-};
-
-var loadLoader = (function () {
-  var promise;
-  return function () {
-    promise = promise || fetchScript(LOADER_SRC);
-    return promise;
-  };
-}());
-
-},{"../../lib/fetch-script":8}],93:[function(require,module,exports){
 module.exports = {
   'animation-mixer': require('./animation-mixer'),
   'fbx-model': require('./fbx-model'),
-  'gltf-model-next': require('./gltf-model-next'),
   'gltf-model-legacy': require('./gltf-model-legacy'),
   'json-model': require('./json-model'),
   'object-model': require('./object-model'),
   'ply-model': require('./ply-model'),
-  'three-model': require('./three-model'),
 
   registerAll: function (AFRAME) {
     if (this._registered) return;
@@ -24081,11 +24017,6 @@ module.exports = {
       AFRAME.registerComponent('fbx-model', this['fbx-model']);
     }
 
-    // THREE.GLTF2Loader
-    if (!AFRAME.components['gltf-model-next']) {
-      AFRAME.registerComponent('gltf-model-next', this['gltf-model-next']);
-    }
-
     // THREE.GLTFLoader
     if (!AFRAME.components['gltf-model-legacy']) {
       AFRAME.registerComponent('gltf-model-legacy', this['gltf-model-legacy']);
@@ -24101,16 +24032,11 @@ module.exports = {
       AFRAME.registerComponent('object-model', this['object-model']);
     }
 
-    // (deprecated) THREE.JsonLoader and THREE.ObjectLoader
-    if (!AFRAME.components['three-model']) {
-      AFRAME.registerComponent('three-model', this['three-model']);
-    }
-
     this._registered = true;
   }
 };
 
-},{"./animation-mixer":89,"./fbx-model":90,"./gltf-model-legacy":91,"./gltf-model-next":92,"./json-model":94,"./object-model":95,"./ply-model":96,"./three-model":97}],94:[function(require,module,exports){
+},{"./animation-mixer":89,"./fbx-model":90,"./gltf-model-legacy":91,"./json-model":93,"./object-model":94,"./ply-model":95}],93:[function(require,module,exports){
 /**
  * json-model
  *
@@ -24170,7 +24096,7 @@ module.exports = {
   }
 };
 
-},{}],95:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 /**
  * object-model
  *
@@ -24225,7 +24151,7 @@ module.exports = {
   }
 };
 
-},{}],96:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 /**
  * ply-model
  *
@@ -24306,154 +24232,7 @@ function createModel (geometry) {
   }));
 }
 
-},{"../../lib/PLYLoader":6}],97:[function(require,module,exports){
-var DEFAULT_ANIMATION = '__auto__';
-
-/**
- * three-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two
- * different THREE.js formats, both having the .json extension. This loader
- * supports both, but requires you to specify the mode as "object" or "json".
- *
- * Typically, you will use "json" for a single mesh, and "object" for a scene
- * or multiple meshes. Check the console for errors, if in doubt.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-module.exports = {
-  deprecated: true,
-
-  schema: {
-    src:               { type: 'asset' },
-    loader:            { default: 'object', oneOf: ['object', 'json'] },
-    enableAnimation:   { default: true },
-    animation:         { default: DEFAULT_ANIMATION },
-    animationDuration: { default: 0 },
-    crossorigin:       { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-    this.mixer = null;
-    console.warn('[three-model] Component is deprecated. Use json-model or object-model instead.');
-  },
-
-  update: function (previousData) {
-    previousData = previousData || {};
-
-    var loader,
-        data = this.data;
-
-    if (!data.src) {
-      this.remove();
-      return;
-    }
-
-    // First load.
-    if (!Object.keys(previousData).length) {
-      this.remove();
-      if (data.loader === 'object') {
-        loader = new THREE.ObjectLoader();
-        if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-        loader.load(data.src, function(loaded) {
-          loaded.traverse( function(object) {
-            if (object instanceof THREE.SkinnedMesh)
-              loaded = object;
-          });
-          if(loaded.material)
-            loaded.material.skinning = !!((loaded.geometry && loaded.geometry.bones) || []).length;
-          this.load(loaded);
-        }.bind(this));
-      } else if (data.loader === 'json') {
-        loader = new THREE.JSONLoader();
-        if (data.crossorigin) loader.crossOrigin = data.crossorigin;
-        loader.load(data.src, function (geometry, materials) {
-
-          // Attempt to automatically detect common material options.
-          materials.forEach(function (mat) {
-            mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
-            mat.skinning = !!(geometry.bones || []).length;
-            mat.morphTargets = !!(geometry.morphTargets || []).length;
-            mat.morphNormals = !!(geometry.morphNormals || []).length;
-          });
-
-          var mesh = (geometry.bones || []).length
-            ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
-            : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-          this.load(mesh);
-        }.bind(this));
-      } else {
-        throw new Error('[three-model] Invalid mode "%s".', data.mode);
-      }
-      return;
-    }
-
-    var activeAction = this.model && this.model.activeAction;
-
-    if (data.animation !== previousData.animation) {
-      if (activeAction) activeAction.stop();
-      this.playAnimation();
-      return;
-    }
-
-    if (activeAction && data.enableAnimation !== activeAction.isRunning()) {
-      data.enableAnimation ? this.playAnimation() : activeAction.stop();
-    }
-
-    if (activeAction && data.animationDuration) {
-        activeAction.setDuration(data.animationDuration);
-    }
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.mixer = new THREE.AnimationMixer(this.model);
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'three', model: model});
-
-    if (this.data.enableAnimation) this.playAnimation();
-  },
-
-  playAnimation: function () {
-    var clip,
-        data = this.data,
-        animations = this.model.animations || this.model.geometry.animations || [];
-
-    if (!data.enableAnimation || !data.animation || !animations.length) {
-      return;
-    }
-
-    clip = data.animation === DEFAULT_ANIMATION
-      ? animations[0]
-      : THREE.AnimationClip.findByName(animations, data.animation);
-
-    if (!clip) {
-      console.error('[three-model] Animation "%s" not found.', data.animation);
-      return;
-    }
-
-    this.model.activeAction = this.mixer.clipAction(clip, this.model);
-    if (data.animationDuration) {
-      this.model.activeAction.setDuration(data.animationDuration);
-    }
-    this.model.activeAction.play();
-  },
-
-  remove: function () {
-    if (this.mixer) this.mixer.stopAllAction();
-    if (this.model) this.el.removeObject3D('mesh');
-  },
-
-  tick: function (t, dt) {
-    if (this.mixer && !isNaN(dt)) {
-      this.mixer.update(dt / 1000);
-    }
-  }
-};
-
-},{}],98:[function(require,module,exports){
+},{"../../lib/PLYLoader":6}],96:[function(require,module,exports){
 module.exports = {
   schema: {
     offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
@@ -24487,7 +24266,7 @@ module.exports = {
   }
 };
 
-},{}],99:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 /**
  * Specifies an envMap on an entity, without replacing any existing material
  * properties.
@@ -24533,7 +24312,7 @@ module.exports = {
   }
 };
 
-},{}],100:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -24605,7 +24384,7 @@ module.exports = {
   }
 };
 
-},{}],101:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 var physics = require('aframe-physics-system');
 
 module.exports = {
@@ -24637,7 +24416,7 @@ module.exports = {
   }
 };
 
-},{"./checkpoint":98,"./cube-env-map":99,"./grab":100,"./jump-ability":102,"./kinematic-body":103,"./mesh-smooth":104,"./sphere-collider":105,"./toggle-velocity":106,"aframe-physics-system":11}],102:[function(require,module,exports){
+},{"./checkpoint":96,"./cube-env-map":97,"./grab":98,"./jump-ability":100,"./kinematic-body":101,"./mesh-smooth":102,"./sphere-collider":103,"./toggle-velocity":104,"aframe-physics-system":11}],100:[function(require,module,exports){
 var ACCEL_G = -9.8, // m/s^2
     EASING = -15; // m/s^2
 
@@ -24701,7 +24480,7 @@ module.exports = {
   }
 };
 
-},{}],103:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 /**
  * Kinematic body.
  *
@@ -24809,7 +24588,9 @@ module.exports = {
 
       for (var i = 0, contact; (contact = this.system.world.contacts[i]); i++) {
         // 1. Find any collisions involving this element. Get the contact
-        // normal, and make sure it's oriented _out_ of the other object.
+        // normal, and make sure it's oriented _out_ of the other object and
+        // enabled (body.collisionReponse is true for both bodies)
+        if (!contact.enabled) { continue; }
         if (body.id === contact.bi.id) {
           contact.ni.negate(currentSurfaceNormal);
         } else if (body.id === contact.bj.id) {
@@ -24901,7 +24682,7 @@ module.exports = {
   }
 };
 
-},{}],104:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 /**
  * Apply this component to models that looks "blocky", to have Three.js compute
  * vertex normals on the fly for a "smoother" look.
@@ -24916,7 +24697,7 @@ module.exports = {
   }
 }
 
-},{}],105:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -25068,7 +24849,7 @@ module.exports = {
   }
 };
 
-},{}],106:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 /**
  * Toggle velocity.
  *
@@ -25105,7 +24886,7 @@ module.exports = {
   },
 };
 
-},{}],107:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 module.exports = {
   'nav-mesh':    require('./nav-mesh'),
   'nav-controller':     require('./nav-controller'),
@@ -25132,7 +24913,7 @@ module.exports = {
   }
 };
 
-},{"./nav-controller":108,"./nav-mesh":109,"./system":110}],108:[function(require,module,exports){
+},{"./nav-controller":106,"./nav-mesh":107,"./system":108}],106:[function(require,module,exports){
 module.exports = {
   schema: {
     destination: {type: 'vec3'},
@@ -25230,7 +25011,7 @@ module.exports = {
   }())
 };
 
-},{}],109:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 /**
  * nav-mesh
  *
@@ -25260,7 +25041,7 @@ module.exports = {
   }
 };
 
-},{}],110:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 var Path = require('three-pathfinding');
 
 /**
@@ -25321,7 +25102,7 @@ module.exports = {
   }
 };
 
-},{"three-pathfinding":119}],111:[function(require,module,exports){
+},{"three-pathfinding":117}],109:[function(require,module,exports){
 /**
  * Flat grid.
  *
@@ -25357,7 +25138,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],112:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 var vg = require('../../lib/hex-grid.min.js');
 var defaultHexGrid = require('../../lib/default-hex-grid.json');
 
@@ -25422,7 +25203,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],113:[function(require,module,exports){
+},{"../../lib/default-hex-grid.json":7,"../../lib/hex-grid.min.js":9}],111:[function(require,module,exports){
 /**
  * Flat-shaded ocean primitive.
  *
@@ -25529,7 +25310,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],114:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 /**
  * Tube following a custom path.
  *
@@ -25604,7 +25385,7 @@ module.exports.registerAll = (function () {
   };
 }());
 
-},{}],115:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 module.exports = {
   'a-grid':     require('./a-grid'),
   'a-hexgrid': require('./a-hexgrid'),
@@ -25622,7 +25403,7 @@ module.exports = {
   }
 };
 
-},{"./a-grid":111,"./a-hexgrid":112,"./a-ocean":113,"./a-tube":114}],116:[function(require,module,exports){
+},{"./a-grid":109,"./a-hexgrid":110,"./a-ocean":111,"./a-tube":112}],114:[function(require,module,exports){
 const BinaryHeap = require('./BinaryHeap');
 const utils = require('./utils.js');
 
@@ -25747,7 +25528,7 @@ class AStar {
 
 module.exports = AStar;
 
-},{"./BinaryHeap":117,"./utils.js":120}],117:[function(require,module,exports){
+},{"./BinaryHeap":115,"./utils.js":118}],115:[function(require,module,exports){
 // javascript-astar
 // http://github.com/bgrins/javascript-astar
 // Freely distributable under the MIT License.
@@ -25883,7 +25664,7 @@ class BinaryHeap {
 
 module.exports = BinaryHeap;
 
-},{}],118:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 const utils = require('./utils');
 
 class Channel {
@@ -25978,7 +25759,7 @@ class Channel {
 
 module.exports = Channel;
 
-},{"./utils":120}],119:[function(require,module,exports){
+},{"./utils":118}],117:[function(require,module,exports){
 const utils = require('./utils');
 const AStar = require('./AStar');
 const Channel = require('./Channel');
@@ -26251,6 +26032,80 @@ module.exports = {
 
 		return closestNode;
 	},
+	/**
+	 * Given start- and end-points for a path, and the current Node, returns
+	 * a new end-point along the path that does not leave the nav mesh.
+	 * @param  {THREE.Vector3} start
+	 * @param  {THREE.Vector3} end
+	 * @param  {Node} node
+	 * @param  {string} zone
+	 * @param  {THREE.Vector3} endTarget
+	 * @return {THREE.Vector3}
+	 */
+	projectPathOnNode: (function () {
+		const plane = new THREE.Plane();
+		const line = new THREE.Line3();
+		const point = new THREE.Vector3();
+
+		// Decay factor that slows the player down while traversing along an edge,
+		// and prevents precision errors from causing an overstep.
+		const decayFactor = 0.9;
+
+		const projectedPath = new THREE.Vector3();
+
+		return function (start, end, node, zone, endTarget) {
+			endTarget = endTarget || new THREE.Vector3();
+
+			const vertices = zoneNodes[zone].vertices;
+
+			// Only handle paths starting within the node and
+			// ending outside it.
+			if (!utils.isVectorInPolygon(start, node, vertices)
+					|| utils.isVectorInPolygon(end, node, vertices)) {
+				return null;
+			}
+
+			line.set(start, end);
+			projectedPath.copy(end).sub(start);
+
+			// For each edge in the node:
+			// (1) Create plane from co-planar points, assuming +Y up.
+			// (2) Intersect path against the plane.
+			// (3) If they intersect, project the path against the plane.
+			for (let i = 0; i < node.vertexIds.length; i++) {
+				point.copy(vertices[node.vertexIds[i]]);
+				point.y += 1;
+				plane.setFromCoplanarPoints(
+					vertices[node.vertexIds[i]],
+					vertices[node.vertexIds[(i + 1) % node.vertexIds.length]],
+					point
+				);
+				if (plane.intersectLine(line, point)) {
+					projectedPath.projectOnPlane(plane.normal);
+				}
+			}
+
+			// Add re-projected path to starting point.
+			endTarget
+				.copy(start)
+				.add(projectedPath.multiplyScalar(decayFactor));
+
+			// TODO: Why does this happen?
+			if (!utils.isVectorInPolygon(endTarget, node, vertices)) {
+				return start;
+			}
+
+			return endTarget;
+		};
+	}()),
+	getNodeVertices: function (node, zone) {
+		const vertices = zoneNodes[zone].vertices;
+		const nodeVertices = [];
+		for (let i = 0; i < node.vertexIds.length; i++) {
+			nodeVertices.push(vertices[node.vertexIds[i]]);
+		}
+		return nodeVertices;
+	},
 	findPath: function (startPosition, targetPosition, zone, group) {
 		const nodes = zoneNodes[zone].groups[group];
 		const vertices = zoneNodes[zone].vertices;
@@ -26298,7 +26153,7 @@ module.exports = {
 	}
 };
 
-},{"./AStar":116,"./Channel":118,"./utils":120}],120:[function(require,module,exports){
+},{"./AStar":114,"./Channel":116,"./utils":118}],118:[function(require,module,exports){
 class Utils {
 
   static computeCentroids (geometry) {
@@ -26461,7 +26316,7 @@ class Utils {
 
     polygon.vertexIds = newVertexIds;
 
-    setPolygonCentroid(polygon, navigationMesh);
+    this.setPolygonCentroid(polygon, navigationMesh);
 
   }
 
@@ -26613,8 +26468,6 @@ class Utils {
     return ret;
   }
 }
-
-
 
 module.exports = Utils;
 
