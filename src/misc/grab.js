@@ -1,3 +1,5 @@
+/* global CANNON */
+
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -7,6 +9,8 @@
  */
 module.exports = AFRAME.registerComponent('grab', {
   init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+
     this.GRABBED_STATE = 'grabbed';
 
     this.grabbing = false;
@@ -42,17 +46,17 @@ module.exports = AFRAME.registerComponent('grab', {
     el.removeEventListener('triggerup', this.onGripOpen);
   },
 
-  onGripClose: function (evt) {
+  onGripClose: function () {
     this.grabbing = true;
   },
 
-  onGripOpen: function (evt) {
+  onGripOpen: function () {
     const hitEl = this.hitEl;
     this.grabbing = false;
     if (!hitEl) { return; }
     hitEl.removeState(this.GRABBED_STATE);
     this.hitEl = undefined;
-    this.physics.world.removeConstraint(this.constraint);
+    this.system.removeConstraint(this.constraint);
     this.constraint = null;
   },
 
@@ -65,6 +69,6 @@ module.exports = AFRAME.registerComponent('grab', {
     hitEl.addState(this.GRABBED_STATE);
     this.hitEl = hitEl;
     this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
-    this.physics.world.addConstraint(this.constraint);
+    this.system.addConstraint(this.constraint);
   }
 });
