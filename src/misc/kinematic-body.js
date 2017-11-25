@@ -156,9 +156,10 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
         // 4. Project trajectory onto the top-most ground object, unless
         // trajectory is > 45º.
         velocity = velocity.projectOnPlane(groundNormal);
-      } else {
+      } else if (this.system.driver.world) {
         // 5. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
+        // NOTE: Does not work if physics runs on a worker.
         velocity.add(this.system.driver.world.gravity.scale(dt * 4.0 / 1000));
       }
 
