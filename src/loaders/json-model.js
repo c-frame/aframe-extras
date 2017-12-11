@@ -38,9 +38,11 @@ module.exports = AFRAME.registerComponent('json-model', {
         mat.morphNormals = !!(geometry.morphNormals || []).length;
       });
 
-      const model = (geometry.bones || []).length
-        ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
-        : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+      this.el.emit('model-parsed', {geometry: geometry, material: materials});
+
+      var model = (geometry.bones || []).length
+        ? new THREE.SkinnedMesh(geometry, materials)
+        : new THREE.Mesh(geometry, materials);
 
       this.load(model);
     });
