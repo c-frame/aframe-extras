@@ -7,7 +7,8 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
     path: {default: ''},
     extension: {default: 'jpg'},
     format: {default: 'RGBFormat'},
-    enableBackground: {default: false}
+    enableBackground: {default: false},
+    reflectivity: {default: 1}
   },
 
   init: function () {
@@ -40,6 +41,7 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
       materials.forEach(material => {
         if (material && 'envMap' in material) {
           material.envMap = envMap;
+          material.reflectivity = this.data.reflectivity;
           material.needsUpdate = true;
         }
       });
