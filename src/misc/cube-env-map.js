@@ -34,11 +34,27 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
 
     if (!mesh) return;
 
-    mesh.traverse(function (node) {
-      if (node.material && 'envMap' in node.material) {
-        node.material.envMap = envMap;
-        node.material.needsUpdate = true;
-      }
+    mesh.traverse(node => {
+      const materials = this.ensureMaterialArray(node.material)
+
+      materials.forEach(material => {
+        if (material && 'envMap' in material) {
+          material.envMap = envMap;
+          material.needsUpdate = true;
+        }
+      });
     });
+  },
+
+  ensureMaterialArray: function (material) {
+    if(!material) {
+      return []
+    } else if(Array.isArray(material)) {
+      return material
+    } else if(material.materials) {
+      return material.materials
+    } else {
+      return [material]
+    }
   }
 });
