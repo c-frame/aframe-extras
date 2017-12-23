@@ -8,7 +8,8 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
     extension: {default: 'jpg'},
     format: {default: 'RGBFormat'},
     enableBackground: {default: false},
-    reflectivity: {default: 1}
+    reflectivity: {default: 1},
+    materials: {default: []}
   },
 
   init: function () {
@@ -40,9 +41,12 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
 
       materials.forEach(material => {
         if (material && 'envMap' in material) {
-          material.envMap = envMap;
-          material.reflectivity = this.data.reflectivity;
-          material.needsUpdate = true;
+          const reflectivity = this.getMaterialReflectivity(material);
+          if(reflectivity) {
+            material.envMap = envMap;
+            material.reflectivity = reflectivity;
+            material.needsUpdate = true;  
+          }
         }
       });
     });
@@ -57,6 +61,24 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
       return material.materials
     } else {
       return [material]
+    }
+  },
+
+  getMaterialReflectivity: function (material) {
+    if(this.data.materials.length === 0) {
+      return this.data.reflectivity;
+    }
+
+    const index = this.data.materials.indexOf(material.name)
+    if(index === -1) {
+      return null;
+    }
+
+    const specificReflectivity = parseFloat(this.data.materials[index + 1]);
+    if(isNaN(specificReflectivity)) {
+      return this.data.reflectivity;
+    } else {
+      return specificReflectivity;
     }
   }
 });
