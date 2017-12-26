@@ -3,6 +3,7 @@
  * properties.
  */
 module.exports = AFRAME.registerComponent('cube-env-map', {
+  multiple: true,
   schema: {
     path: {default: ''},
     extension: {default: 'jpg'},
@@ -40,13 +41,13 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
       const materials = this.ensureMaterialArray(node.material)
 
       materials.forEach(material => {
-        if (material && 'envMap' in material) {
-          const reflectivity = this.getMaterialReflectivity(material);
-          if(reflectivity) {
-            material.envMap = envMap;
-            material.reflectivity = reflectivity;
-            material.needsUpdate = true;  
-          }
+        if (
+          material && 'envMap' in material && 
+          (!this.data.materials.length || this.data.materials.indexOf(material.name) > -1)
+        ) {
+          material.envMap = envMap;
+          material.reflectivity = this.data.reflectivity;
+          material.needsUpdate = true;  
         }
       });
     });
@@ -61,24 +62,6 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
       return material.materials
     } else {
       return [material]
-    }
-  },
-
-  getMaterialReflectivity: function (material) {
-    if(this.data.materials.length === 0) {
-      return this.data.reflectivity;
-    }
-
-    const index = this.data.materials.indexOf(material.name)
-    if(index === -1) {
-      return null;
-    }
-
-    const specificReflectivity = parseFloat(this.data.materials[index + 1]);
-    if(isNaN(specificReflectivity)) {
-      return this.data.reflectivity;
-    } else {
-      return specificReflectivity;
     }
   }
 });
