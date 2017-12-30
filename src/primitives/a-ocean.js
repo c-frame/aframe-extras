@@ -13,6 +13,10 @@ module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
     width: 'ocean.width',
     depth: 'ocean.depth',
     density: 'ocean.density',
+    amplitude: 'ocean.amplitude',
+    amplitudeVariance: 'ocean.amplitudeVariance',
+    speed: 'ocean.speed',
+    speedVariance: 'ocean.speedVariance',
     color: 'ocean.color',
     opacity: 'ocean.opacity'
   }
