@@ -2,10 +2,10 @@ const entityFactory = require('../helpers').entityFactory;
 const KeyboardEvent = window.KeyboardEvent;
 
 suite('keyboard-controls', () => {
-  let keyboardControls;
+  let el, keyboardControls;
 
   setup((done) => {
-    const el = this.el = entityFactory();
+    el = entityFactory();
     el.setAttribute('keyboard-controls', '');
     el.addEventListener('loaded', () => {
       keyboardControls = el.components['keyboard-controls'];
@@ -26,7 +26,6 @@ suite('keyboard-controls', () => {
     });
 
     test('inactive when disabled', () => {
-      const el = this.el;
       el.setAttribute('keyboard-controls', {enabled: false});
       window.dispatchEvent(new KeyboardEvent('keydown', {code: 'KeyW'}));
       expect(keyboardControls.isVelocityActive()).to.be.false;
