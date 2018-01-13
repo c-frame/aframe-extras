@@ -2,10 +2,10 @@
 const entityFactory = require('../helpers').entityFactory;
 
 suite('sphere-collider', () => {
-  let collider, collidee;
+  let el, collider, collidee;
 
   setup((done) => {
-    const el = this.el = entityFactory();
+    el = entityFactory();
     el.setAttribute('sphere-collider', 'objects: #collidee');
     el.setAttribute('geometry', 'primitive: sphere');
     collidee = document.createElement('a-entity');
@@ -24,7 +24,7 @@ suite('sphere-collider', () => {
       expect(collider).to.be.ok;
     });
     test('detaches', (done) =>  {
-      this.el.removeAttribute('sphere-collider');
+      el.removeAttribute('sphere-collider');
       process.nextTick(() => {
         expect(collider.el.components['sphere-collider']).to.not.be.ok;
         done();

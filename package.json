@@ -10,9 +10,7 @@
     "url": "git+https://github.com/donmccurdy/aframe-extras.git"
   },
   "scripts": {
-    "dev": "budo --live --port=9000 browser.js:examples/aframe-extras.js",
-    "dev:win": "live-server . --port=9000 --no-browser & watch-exec -c 'browserify browser.js -d -o examples/aframe-extras.js' -w src",
-    "build": "./scripts/build.js",
+    "dev": "budo --live --port=9000 index.js:examples/bundle.js -- -t [ babelify --presets [ env ] ]",
     "dist": "./scripts/dist.js",
     "test": "karma start ./tests/karma.conf.js",
     "test:once": "karma start ./tests/karma.conf.js --single-run",
@@ -29,10 +27,13 @@
     "aframe": ">=0.5.0"
   },
   "dependencies": {
-    "three-pathfinding": "^0.5.0"
+    "three-pathfinding": "^0.5.1"
   },
   "devDependencies": {
     "aframe": ">=0.5.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babelify": "^8.0.0",
     "browserify": "^13.0.0",
     "budo": "^9.0.0",
     "chai": "^3.5.0",
@@ -63,5 +64,17 @@
     "vr",
     "webgl",
     "webvr"
-  ]
+  ],
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "env"
+          ]
+        }
+      ]
+    ]
+  }
 }

@@ -48,6 +48,7 @@ Object.keys(streams).forEach((fileName) => {
       writeStream = fs.createWriteStream(fullDir);
 
   browserify()
+    .transform('babelify', {presets: ['env']})
     .add(streams[fileName])
     .bundle()
     .pipe(writeStream);
