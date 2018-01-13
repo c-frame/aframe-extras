@@ -88,10 +88,14 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
         if (material && 'envMap' in material) return;
         if (materials.indexOf(material.name) === -1) return;
 
-        material.envMap = envMap;
-        material.reflectivity = this.data.reflectivity;
+        if(applyMap) {
+          material.envMap = envMap;
+          material.reflectivity = this.data.reflectivity;
+        } else {
+          material.envMap = null;
+          material.reflectivity = null;
+        }
         material.needsUpdate = true;
-
       });
 
     });
