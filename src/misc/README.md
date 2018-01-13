@@ -29,4 +29,3 @@ Usage:
 | extension | File extension for each cubemap image. |
 | reflectivity | Amount [0,1] of the cubemap that should be reflected. |
 | materials | Names of materials to be modified. Defaults to all materials. |
-

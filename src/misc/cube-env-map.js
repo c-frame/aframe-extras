@@ -23,15 +23,54 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
     ]);
     this.texture.format = THREE[data.format];
 
-    if (data.enableBackground) {
-      this.el.sceneEl.object3D.background = this.texture;
-    }
-
-    this.applyEnvMap();
-    this.el.addEventListener('object3dset', this.applyEnvMap.bind(this));
+    this.object3dsetHandler = this.updateEnvMap.bind(this, data.materials, true);
+    this.el.addEventListener('object3dset', this.object3dsetHandler);
   },
 
-  applyEnvMap: function () {
+  update: function (oldData) {
+    const data = this.data;
+
+    let addedMaterialNames = [];
+    let removedMaterialNames = [];
+    if(data.materials.length)
+    {
+      if(oldData.materials) {
+        addedMaterialNames = data.materials.filter(name => !oldData.materials.includes(name) );
+        removedMaterialNames = oldData.materials.filter(name => !data.materials.includes(name) );
+      } else {
+        addedMaterialNames = data.materials
+      }
+    }
+    if(addedMaterialNames.length) {
+      this.updateEnvMap(addedMaterialNames, true)
+    }
+    if(removedMaterialNames.length) {
+      this.updateEnvMap(removedMaterialNames, false)
+    }
+
+    if(oldData.materials && data.reflectivity !== oldData.reflectivity) {
+      const maintanedMaterialNames = data.materials.filter(name => oldData.materials.includes(name) );
+      if(maintanedMaterialNames.length) {
+        this.updateEnvMap(maintanedMaterialNames, true)
+      }
+    }
+
+    if (this.data.enableBackground && !oldData.enableBackground) {
+      this.enableBackground();
+    } else if(!this.data.enableBackground && oldData.enableBackground) {
+      this.disableBackground();
+    }
+  },
+
+  remove: function () {
+    this.el.removeEventListener('object3dset', this.object3dsetHandler);
+    this.updateEnvMap(this.data.materials, false);
+    if(this.enableBackground) {
+      this.disableBackground();
+    }
+  },
+
+  updateEnvMap: function (materialNames, applyMap) {
     const mesh = this.el.getObject3D('mesh');
     const envMap = this.texture;
 
@@ -49,10 +88,14 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
         if (material && 'envMap' in material) return;
         if (materials.indexOf(material.name) === -1) return;
 
-        material.envMap = envMap;
-        material.reflectivity = this.data.reflectivity;
+        if(applyMap) {
+          material.envMap = envMap;
+          material.reflectivity = this.data.reflectivity;
+        } else {
+          material.envMap = null;
+          material.reflectivity = null;
+        }
         material.needsUpdate = true;
-
       });
 
     });
@@ -68,5 +111,13 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
     } else {
       return [material];
     }
+  },
+
+  enableBackground() {
+    this.el.sceneEl.object3D.background = this.texture;
+  },
+
+  disableBackground() {
+    this.el.sceneEl.object3D.background = null;
   }
 });
