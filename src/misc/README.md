@@ -25,7 +25,7 @@ Usage:
 
 | Option | Description |
 |--------|-------------|
-| path | Folder containing cubemap images. Assumes naming scheme `negx.<ext>`, `posx.<ext>`, ... |
+| path | Folder containing cubemap images. Path should end in a trailing `/`. Assumes naming scheme `negx.<ext>`, `posx.<ext>`, ... |
 | extension | File extension for each cubemap image. |
 | reflectivity | Amount [0,1] of the cubemap that should be reflected. |
 | materials | Names of materials to be modified. Defaults to all materials. |
