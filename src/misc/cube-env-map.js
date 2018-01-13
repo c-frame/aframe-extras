@@ -37,31 +37,36 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
 
     if (!mesh) return;
 
-    mesh.traverse(node => {
-      const materials = this.ensureMaterialArray(node.material)
+    mesh.traverse((node) => {
 
-      materials.forEach(material => {
-        if (
-          material && 'envMap' in material && 
-          (!this.data.materials.length || this.data.materials.indexOf(material.name) > -1)
-        ) {
-          material.envMap = envMap;
-          material.reflectivity = this.data.reflectivity;
-          material.needsUpdate = true;  
-        }
+      if (!node.isMesh) return;
+
+      const materials = this.data.materials || [];
+      const meshMaterials = this.ensureMaterialArray(node.material);
+
+      meshMaterials.forEach((material) => {
+
+        if (material && 'envMap' in material) return;
+        if (materials.indexOf(material.name) === -1) return;
+
+        material.envMap = envMap;
+        material.reflectivity = this.data.reflectivity;
+        material.needsUpdate = true;
+
       });
+
     });
   },
 
   ensureMaterialArray: function (material) {
-    if(!material) {
-      return []
-    } else if(Array.isArray(material)) {
-      return material
-    } else if(material.materials) {
-      return material.materials
+    if (!material) {
+      return [];
+    } else if (Array.isArray(material)) {
+      return material;
+    } else if (material.materials) {
+      return material.materials;
     } else {
-      return [material]
+      return [material];
     }
   }
 });

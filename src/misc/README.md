@@ -8,4 +8,25 @@ Various other components.
 - **mesh-smooth**: Apply to models that looks "blocky", to have Three.js compute vertex normals on the fly for a "smoother" look.
 - **sphere-collider**: Detects collisions with specified objects. Required for `grab`.
 - **toggle-velocity**: Animates an object back and forth between two points, at a constant velocity.
-- **cube-env-map**: Applies a CubeTexture as the envMap of an entity, without otherwise modifying the preset materials. Usage: `cube-env-map="path: assets/folder/; extension: jpg; reflectivity: 0.5; materials: front, 0.2, back, 0.8;"`. Assumes naming scheme: negx, posx, ... Materials is an optional array of named materials to apply the map to (default is all); each name can optionally by followed by a specific reflectivity for that material.
+- **cube-env-map**: Applies a CubeTexture as the envMap of an entity, without otherwise modifying the preset materials.
+
+## `cube-env-map`
+
+Usage:
+
+```
+<a-entity gltf-model="src: url(my-model.gltf);"
+          cube-env-map="path: assets/folder/;
+                        extension: jpg;
+                        reflectivity: 0.5;
+                        materials: myPrimaryMaterial, myAccentMaterial;">
+</a-entity>
+```
+
+| Option | Description |
+|--------|-------------|
+| path | Folder containing cubemap images. Assumes naming scheme `negx.<ext>`, `posx.<ext>`, ... |
+| extension | File extension for each cubemap image. |
+| reflectivity | Amount [0,1] of the cubemap that should be reflected. |
+| materials | Names of materials to be modified. Defaults to all materials. |
+
