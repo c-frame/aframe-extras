@@ -84,7 +84,7 @@ module.exports = AFRAME.registerSystem('nav', {
   clampStep: function (start, end, groupID, node, endTarget) {
     if (!this.navMesh || !node) {
       endTarget.copy(end);
-      return this.navMesh ? pathfinder.getNode(ZONE, groupID) : null;
+      return this.navMesh ? this.getNode(end, groupID) : null;
     }
     return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
   }

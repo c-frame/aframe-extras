@@ -27,7 +27,7 @@
     "aframe": ">=0.5.0"
   },
   "dependencies": {
-    "three-pathfinding": "^0.5.1"
+    "three-pathfinding": "^0.5.5"
   },
   "devDependencies": {
     "aframe": ">=0.5.0",
