@@ -15,8 +15,6 @@ module.exports = AFRAME.registerComponent('jump-ability', {
     playerHeight: { default: 1.764 },
     maxJumps: { default: 1 },
     distance: { default: 5 },
-    soundJump: { default: '' },
-    soundLand: { default: '' },
     debug: { default: false }
   },
 
@@ -53,10 +51,12 @@ module.exports = AFRAME.registerComponent('jump-ability', {
           v = this.el.getAttribute('velocity');
       this.el.setAttribute('velocity', {x: v.x, y: initialVelocity, z: v.z});
       this.numJumps++;
+      this.el.emit('jumpstart');
     }
   },
 
   onCollide: function () {
+    if (this.numJumps > 0) this.el.emit('jumpend');
     this.numJumps = 0;
   }
 });
