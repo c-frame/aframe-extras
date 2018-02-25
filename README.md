@@ -5,6 +5,8 @@
 
 Add-ons and helpers for A-Frame VR.
 
+> **NOTE:** The `master` branch contains changes that are not yet released or documented, and may be unstable. Documentation will also be different. Use [v3.13.1](https://github.com/donmccurdy/aframe-extras/tree/v3.13.1) for the most recent stable version.
+
 Includes components for controls, model loaders, pathfinding, and more:
 
 <!-- tree src -I index.js -->
