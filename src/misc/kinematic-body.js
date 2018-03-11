@@ -28,7 +28,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
   schema: {
     mass:           { default: 5 },
     radius:         { default: 1.3 },
-    height:         { default: 1.764 },
+    userHeight:     { default: 1.6 },
     linearDamping:  { default: 0.05 },
     enableSlopes:   { default: true }
   },
@@ -60,6 +60,10 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
     this.body.el = this.el;
     this.el.body = this.body;
     this.system.addBody(this.body);
+
+    if (el.hasAttribute('wasd-controls')) {
+      console.warn('[kinematic-body] Not compatible with wasd-controls, use universal-controls.');
+    }
   },
 
   remove: function () {
@@ -83,10 +87,14 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
    *     the one that collides with current velocity, if any.
    */
   beforeStep: function (t, dt) {
-      if (!dt) return;
+    if (!dt) return;
 
-      this.body.velocity.copy(this.el.getAttribute('velocity'));
-      this.body.position.copy(this.el.getAttribute('position'));
+    const el = this.el;
+    const body = this.body;
+
+    body.velocity.copy(el.getAttribute('velocity'));
+    body.position.copy(el.getAttribute('position'));
+    body.position.y += this.data.userHeight;
   },
 
   step: (function () {
@@ -176,6 +184,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
 
       body.velocity.copy(velocity);
 
+      body.position.y -= data.userHeight;
       this.el.setAttribute('velocity', body.velocity);
       this.el.setAttribute('position', body.position);
     };
