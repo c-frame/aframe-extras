@@ -11,14 +11,17 @@
   <body>
     <a-scene fog="type: exponential; color: #FFF; density: 0.04;">
       <!-- Player -->
-      <a-entity id="player"
-                camera
+      <a-entity id="rig"
                 universal-controls
                 kinematic-body
-                position="15 0 10"
                 jump-ability="maxJumps: 3;
                               distance: 10;">
+        <a-entity id="camera"
+                  camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
       </a-entity>
+
 
       <!--
         Platforms

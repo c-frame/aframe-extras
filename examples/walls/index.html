@@ -11,7 +11,12 @@
   <body>
     <a-scene physics>
       <!-- Player -->
-      <a-entity camera universal-controls kinematic-body></a-entity>
+      <a-entity id="rig" universal-controls kinematic-body>
+        <a-entity id="camera"
+                  camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
 
       <!-- Ground -->
       <a-grid static-body></a-grid>
