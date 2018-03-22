@@ -96,16 +96,9 @@ AFRAME.registerComponent('custom-controls', {
 });
 ```
 
-## Input devices:
-
-- **checkpoint-controls**: Teleport or animate between checkpoints. See also: [checkpoint](/src/misc/checkpoint.js). Fires `navigation-start` and `navigation-end` events.
-- **gamepad-controls**: Gamepad position + (optional) rotation controls.
-- **keyboard-controls**: WASD+Arrow key movement controls, with improved support for ZQSD and Dvorak layouts.
-- **touch-controls**: Touch-to-move controls, e.g. for Cardboard.
-
 ## Other Controls
 
-I've written standalone components for several other control components.
+I've written standalone components for several other control components. These do not work with `movement-controls`, and are older and less well maintained.
 
 - [gamepad-controls](https://github.com/donmccurdy/aframe-gamepad-controls): A more advanced standalone gamepad controller than the version in this package.
 - [keyboard-controls](https://github.com/donmccurdy/aframe-keyboard-controls): A more advanced standalone keyboard controller than the version in this package.
