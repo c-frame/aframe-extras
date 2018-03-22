@@ -8,33 +8,56 @@ Extensible movement/rotation/hotkey controls, with support for a variety of inpu
   + **gamepad-controls**: Gamepad-based rotation and movement.
 - **checkpoint-controls**: Move to checkpoints created with the `checkpoint` component. *Not included by default with `movement-controls`, but may be added as shown in examples.*
 
-```html
-<a-scene movement-controls="constrainToNavMesh: true">
-  <a-entity look-controls camera></a-entity>
-</a-scene>
-
-```
-
 ## Usage
 
-Basic:
+The `movement-controls` component requires the use of a camera "rig" wrapping the camera element. The rig may be assigned any position within your scene, and should be placed at ground level. The camera should only have height offset (used for devices without positional tracking) such as `0 1.6 0`.
+
+Basic movement:
 
 ```html
-<a-entity camera movement-controls></a-entity>
+<a-entity id="rig"
+          movement-controls
+          position="25 0 25">
+  <a-entity camera
+            position="0 1.6 0"
+            look-controls="pointerLockEnabled: true"></a-entity>
+</a-entity>
 ```
 
-With checkpoint controls:
+With checkpoints, and other input methods disabled:
 
 ```html
-<a-entity camera movement-controls="controls: checkpoint"></a-entity>
+<a-entity id="rig"
+          movement-controls="controls: checkpoint"
+          checkpoint-controls="mode: animate">
+  <a-entity camera
+            position="0 1.6 0"
+            look-controls="pointerLockEnabled: true">
+  </a-entity>
+</a-entity>
 ```
 
-With custom controls:
+With navigation mesh:
 
 ```html
-<a-entity camera
-          movement-controls="controls: custom, gamepad;"
-          custom-controls></a-entity>
+<a-entity id="rig" movement-controls="constrainToNavMesh: true">
+  <a-entity camera
+            position="0 1.6 0"
+            look-controls="pointerLockEnabled: true">
+  </a-entity>
+</a-entity>
+```
+
+With physics-based movement.
+
+> **WARNING** *Using physics for movement is unstable and performs poorly. When preventing players from passing through obstacles, use a navigation mesh instead whenever possible.*
+
+```html
+<a-entity id="rig" movement-controls kinematic-body>
+  <a-entity camera
+            position="0 1.6 0"
+            look-controls="pointerLockEnabled: true"></a-entity>
+</a-entity>
 ```
 
 ## Options
