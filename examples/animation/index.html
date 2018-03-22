@@ -11,9 +11,11 @@
   <body>
     <a-scene environment="preset: checkerboard">
       <!-- Player -->
-      <a-entity camera
-                universal-controls
-                position="0 0 5">
+      <a-entity id="rig" movement-controls position="0 0 5">
+        <a-entity id="camera"
+                  camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
       </a-entity>
 
       <!-- Animation

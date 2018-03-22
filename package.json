@@ -11,6 +11,7 @@
   },
   "scripts": {
     "dev": "budo --live --port=9000 index.js:examples/bundle.js -- -t [ babelify --presets [ env ] ]",
+    "build": "browserify index.js -o examples/bundle.js -t [ babelify --presets [ env ] ]",
     "dist": "./scripts/dist.js",
     "test": "karma start ./tests/karma.conf.js",
     "test:once": "karma start ./tests/karma.conf.js --single-run",
