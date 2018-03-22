@@ -62,7 +62,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
     this.system.addBody(this.body);
 
     if (el.hasAttribute('wasd-controls')) {
-      console.warn('[kinematic-body] Not compatible with wasd-controls, use universal-controls.');
+      console.warn('[kinematic-body] Not compatible with wasd-controls, use movement-controls.');
     }
   },
 

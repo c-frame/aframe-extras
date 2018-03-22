@@ -1,5 +1,5 @@
 /**
- * Universal Controls
+ * Movement Controls
  *
  * @author Don McCurdy <dm@donmccurdy.com>
  */
@@ -8,24 +8,23 @@ const COMPONENT_SUFFIX = '-controls',
     MAX_DELTA = 0.2, // ms
     EPS = 10e-6;
 
-module.exports = AFRAME.registerComponent('universal-controls', {
+module.exports = AFRAME.registerComponent('movement-controls', {
 
   /*******************************************************************
    * Schema
    */
 
-  dependencies: ['velocity', 'rotation'],
+  dependencies: ['rotation'],
 
   schema: {
-    enabled:              { default: true },
-    movementEnabled:      { default: true },
-    movementControls:     { default: ['gamepad', 'keyboard', 'touch'] },
-    movementEasing:       { default: 15 }, // m/s2
-    movementEasingY:      { default: 0  }, // m/s2
-    movementAcceleration: { default: 80 }, // m/s2
-    fly:                  { default: false },
-    constrainToNavMesh:   { default: false },
-    headingEl:            { default: '[camera]', type: 'selector' }
+    enabled:      { default: true },
+    controls:     { default: ['gamepad', 'keyboard', 'touch'] },
+    easing:       { default: 15 }, // m/s2
+    easingY:      { default: 0  }, // m/s2
+    acceleration: { default: 80 }, // m/s2
+    fly:                { default: false },
+    constrainToNavMesh: { default: false },
+    camera:          { default: '[camera]', type: 'selector' }
   },
 
   /*******************************************************************
@@ -51,8 +50,7 @@ module.exports = AFRAME.registerComponent('universal-controls', {
     }
   },
 
-  update: function (prevData) {
-    const data = this.data;
+  update: function () {
     if (this.el.sceneEl.hasLoaded) {
       this.injectControls();
     }
@@ -62,8 +60,8 @@ module.exports = AFRAME.registerComponent('universal-controls', {
     const data = this.data;
     var name;
 
-    for (let i = 0; i < data.movementControls.length; i++) {
-      name = data.movementControls[i] + COMPONENT_SUFFIX;
+    for (let i = 0; i < data.controls.length; i++) {
+      name = data.controls[i] + COMPONENT_SUFFIX;
       if (!this.el.components[name]) {
         this.el.setAttribute(name, '');
       }
@@ -85,7 +83,7 @@ module.exports = AFRAME.registerComponent('universal-controls', {
       const el = this.el;
       const data = this.data;
 
-      if (!data.movementEnabled) return;
+      if (!data.enabled) return;
 
       this.updateVelocityCtrl();
       const velocityCtrl = this.velocityCtrl;
@@ -116,15 +114,12 @@ module.exports = AFRAME.registerComponent('universal-controls', {
         this.navNode = this.navNode || nav.getNode(start, this.navGroup);
         this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
         el.object3D.position.copy(clampedEnd);
-        // el.setAttribute('position', clampedEnd);
       } else if (AFRAME.components.velocity) {
         el.setAttribute('velocity', velocity);
       } else {
-        el.object3D.position.add(
-          velocity.x * dt / 1000,
-          velocity.y * dt / 1000,
-          velocity.z * dt / 1000
-        );
+        el.object3D.position.x += velocity.x * dt / 1000;
+        el.object3D.position.y += velocity.y * dt / 1000;
+        el.object3D.position.z += velocity.z * dt / 1000;
       }
 
     };
@@ -136,14 +131,15 @@ module.exports = AFRAME.registerComponent('universal-controls', {
 
   updateVelocityCtrl: function () {
     const data = this.data;
-    if (data.movementEnabled) {
-      for (let i = 0, l = data.movementControls.length; i < l; i++) {
-        const control = this.el.components[data.movementControls[i] + COMPONENT_SUFFIX];
+    if (data.enabled) {
+      for (let i = 0, l = data.controls.length; i < l; i++) {
+        const control = this.el.components[data.controls[i] + COMPONENT_SUFFIX];
         if (control && control.isVelocityActive()) {
           this.velocityCtrl = control;
           return;
         }
       }
+      this.velocityCtrl = null;
     }
   },
 
@@ -176,28 +172,28 @@ module.exports = AFRAME.registerComponent('universal-controls', {
       }
 
       if (AFRAME.components.velocity && !data.constrainToNavMesh) velocity.copy(this.el.getAttribute('velocity'));
-      velocity.x -= velocity.x * data.movementEasing * dt / 1000;
-      velocity.y -= velocity.y * data.movementEasingY * dt / 1000;
-      velocity.z -= velocity.z * data.movementEasing * dt / 1000;
+      velocity.x -= velocity.x * data.easing * dt / 1000;
+      velocity.y -= velocity.y * data.easingY * dt / 1000;
+      velocity.z -= velocity.z * data.easing * dt / 1000;
 
-      if (dVelocity && data.movementEnabled) {
+      if (dVelocity && data.enabled) {
         // Set acceleration
         if (dVelocity.length() > 1) {
-          dVelocity.setLength(this.data.movementAcceleration * dt / 1000);
+          dVelocity.setLength(this.data.acceleration * dt / 1000);
         } else {
-          dVelocity.multiplyScalar(this.data.movementAcceleration * dt / 1000);
+          dVelocity.multiplyScalar(this.data.acceleration * dt / 1000);
         }
 
         // TODO: Handle rotated rig.
-        // const headingEl = data.headingEl;
-        // matrix.copy(headingEl.object3D.matrixWorld);
+        const cameraEl = data.camera;
+        // matrix.copy(cameraEl.object3D.matrixWorld);
         // matrix2.getInverse(el.object3D.matrixWorld);
         // matrix.multiply(matrix2);
         // matrix.decompose(position, quaternion, scale);
         // dVelocity.applyQuaternion(quaternion);
 
         // Rotate to heading
-        dVelocity.applyQuaternion(data.headingEl.object3D.quaternion);
+        dVelocity.applyQuaternion(cameraEl.object3D.quaternion);
 
         if (!data.fly) dVelocity.y = 0;
 
