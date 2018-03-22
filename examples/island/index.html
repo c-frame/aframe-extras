@@ -10,7 +10,12 @@
   <body>
     <a-scene>
       <!-- Camera -->
-      <a-entity camera universal-controls position="3 3.4 -10"></a-entity>
+      <a-entity id="rig" movement-controls position="3 3.4 -10">
+        <a-entity id="camera"
+                  camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
 
       <!-- Island - Made in MagicaVoxel. -->
       <a-entity rotation="-90 0 0" scale="0.3 0.3 0.3" ply-model="src: url(../assets/island-hut/island-hut.bake.ply);"></a-entity>
