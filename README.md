@@ -29,7 +29,7 @@ src
 │   ├── cube-env-map.js
 │   ├── grab.js
 │   ├── jump-ability.js
-│   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
+│   ├── kinematic-body.js       <sub><img alt="Deprecated" src="https://img.shields.io/badge/status-deprecated-orange.svg"></sub>
 │   ├── mesh-smooth.js
 │   └── sphere-collider.js
 ├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
