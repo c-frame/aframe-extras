@@ -32,7 +32,13 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     enabled:           { default: true },
 
     // Debugging
-    debug:             { default: false }
+    debug:             { default: false },
+
+    // Heading element for rotation
+    camera:          { default: '[camera]', type: 'selector' },
+
+    // Rotation sensitivity
+    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
   },
 
   /*******************************************************************
@@ -49,6 +55,15 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Button state
     this.buttons = {};
 
+    // Rotation
+    const rotation = this.el.object3D.rotation;
+    this.pitch = new THREE.Object3D();
+    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+    this.yaw = new THREE.Object3D();
+    this.yaw.position.y = 10;
+    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
+    this.yaw.add(this.pitch);
+
     scene.addBehavior(this);
   },
 
@@ -61,8 +76,9 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   /**
    * Called on each iteration of main render loop.
    */
-  tick: function () {
+  tick: function (t, dt) {
     this.updateButtonState();
+    this.updateRotation(dt);
   },
 
   /**
@@ -72,7 +88,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   remove: function () { },
 
   /*******************************************************************
-   * Universal controls - movement
+   * Movement
    */
 
   isVelocityActive: function () {
@@ -104,7 +120,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   },
 
   /*******************************************************************
-   * Universal controls - rotation
+   * Rotation
    */
 
   isRotationActive: function () {
@@ -115,11 +131,27 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
   },
 
-  getRotationDelta: function () {
+  updateRotation: function (dt) {
+    if (!this.isRotationActive()) return;
+
     const lookVector = this.getJoystick(1);
+
     if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
     if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
-    return lookVector;
+
+    const data = this.data;
+    const yaw = this.yaw;
+    const pitch = this.pitch;
+
+    lookVector.multiplyScalar(data.rotationSensitivity * dt / 1000);
+    yaw.rotation.y -= lookVector.x;
+    pitch.rotation.x -= lookVector.y;
+    pitch.rotation.x = Math.max(- Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
+    data.camera.object3D.rotation.set(
+      THREE.Math.radToDeg(pitch.rotation.x),
+      THREE.Math.radToDeg(yaw.rotation.y),
+      0
+    );
   },
 
   /*******************************************************************

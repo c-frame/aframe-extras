@@ -11,34 +11,33 @@ Includes components for controls, model loaders, pathfinding, and more:
 <pre>
 src
 ├── <b>controls/</b> (<a href="/src/controls">Documentation</a>)
+│   ├── movement-controls.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── checkpoint-controls.js
 │   ├── gamepad-controls.js
-│   ├── hmd-controls.js
 │   ├── keyboard-controls.js
 │   ├── mouse-controls.js
-│   ├── touch-controls.js
-│   └── universal-controls.js
+│   └── touch-controls.js
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
 │   ├── animation-mixer.js
-│   ├── fbx-model.js            <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── gltf-model-legacy.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── fbx-model.js
+│   ├── gltf-model-legacy.js
 │   ├── json-model.js
 │   ├── object-model.js
 │   └── ply-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
-│   ├── cube-env-map.js         <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── cube-env-map.js
 │   ├── grab.js
 │   ├── jump-ability.js
 │   ├── kinematic-body.js       <sub><img alt="Experimental" src="https://img.shields.io/badge/status-experimental-orange.svg"></sub>
-│   ├── mesh-smooth.js          <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── mesh-smooth.js
 │   └── sphere-collider.js
 ├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
 │   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   └── nav-controller.js       <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   └── nav-agent.js            <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 └── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
     ├── a-grid.js
-    ├── a-hex-grid.js           <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+    ├── a-hex-grid.js
     ├── a-ocean.js
     └── a-tube.js
 </pre>
