@@ -6,6 +6,7 @@ Extensible movement/rotation/hotkey controls, with support for a variety of inpu
   + **keyboard-controls**: WASD + arrow controls for movement, and more.
   + **touch-controls**: Touch screen (or Cardboard button) to move forward.
   + **gamepad-controls**: Gamepad-based rotation and movement.
+  + trackpad-controls: Trackpad-based movement.
 - **checkpoint-controls**: Move to checkpoints created with the `checkpoint` component. *Not included by default with `movement-controls`, but may be added as shown in examples.*
 
 ## Usage
