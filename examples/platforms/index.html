@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Platforms</title>
+    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+    <script src="../bundle.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v2.1.0/dist/aframe-physics-system.min.js"></script>
+  </head>
+  <body>
+    <a-scene fog="type: exponential; color: #FFF; density: 0.04;">
+      <!-- Player -->
+      <a-entity id="rig"
+                movement-controls
+                kinematic-body
+                position="15 0 10"
+                jump-ability="maxJumps: 3;
+                              distance: 10;">
+        <a-entity id="camera"
+                  camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
+
+      <!--
+        Platforms
+        Just a placeholder - platforms.js will insert random blocks.
+      -->
+      <a-entity id="platforms"></a-entity>
+
+      <!-- Ground -->
+      <a-grid static-body></a-grid>
+
+      <!-- Sky -->
+      <a-sky id="sky" color="#AADDF0"></a-sky>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#ccc"></a-light>
+      <a-light color="#ddf" position="0 30 0" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
+
+    </a-scene>
+    <script>
+/* Platforms
+——————————————————————————————————————————————*/
+
+document.querySelector('a-scene').addEventListener('loaded', function () {
+  var MAP_SIZE = 10,
+      PLATFORM_SIZE = 5,
+      NUM_PLATFORMS = 50;
+
+  var platformsEl = document.querySelector('#platforms');
+
+  var v, box;
+  for (var i = 0;  i < NUM_PLATFORMS; i++) {
+    v = {
+      x: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE,
+      y: (Math.floor(Math.random() * MAP_SIZE)                ) * PLATFORM_SIZE + PLATFORM_SIZE / 2,
+      z: (Math.floor(Math.random() * MAP_SIZE) - PLATFORM_SIZE) * PLATFORM_SIZE
+    };
+
+    box = document.createElement('a-box');
+    platformsEl.appendChild(box);
+    box.setAttribute('color', '#39BB82');
+    box.setAttribute('width', PLATFORM_SIZE);
+    box.setAttribute('height', PLATFORM_SIZE);
+    box.setAttribute('depth', PLATFORM_SIZE);
+    box.setAttribute('position', v.x + ' ' + v.y + ' ' + v.z);
+    box.setAttribute('static-body', '');
+  }
+
+  console.info('Platforms loaded.');
+});
+    </script>
+  </body>
+</html>
