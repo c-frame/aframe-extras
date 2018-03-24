@@ -114,7 +114,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         this.navNode = this.navNode || nav.getNode(start, this.navGroup);
         this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
         el.object3D.position.copy(clampedEnd);
-      } else if (AFRAME.components.velocity) {
+      } else if (el.hasAttribute('velocity')) {
         el.setAttribute('velocity', velocity);
       } else {
         el.object3D.position.x += velocity.x * dt / 1000;
