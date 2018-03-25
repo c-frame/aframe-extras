@@ -46,6 +46,7 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
       this.el.setAttribute('position', this.targetPosition);
       this.checkpoint = null;
       el.emit('navigation-end', {checkpoint: checkpoint});
+      el.components['movement-controls'].updateNavNode();
     }
   },
 

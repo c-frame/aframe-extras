@@ -68,6 +68,10 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     }
   },
 
+  updateNavNode: function () {
+    this.navNode = null;
+  },
+
   /*******************************************************************
    * Tick
    */
