@@ -59,12 +59,13 @@ For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full
 
 **A-Frame Version Compatibility**
 
-| A-Frame   | Extras                |
-|-----------|-----------------------|
-| v0.5.X | aframe-extras/v4.0.0     |
-| v0.4.X | */v3.3.0     |
-| v0.3.X | */v2.6.1                 |
-| v0.2.X | */v1.17.0                |
+| A-Frame   | Extras            |
+|-----------|-------------------|
+| v0.8.X | aframe-extras/v4.0.0 |
+| v0.5.X | */v3.13.1            |
+| v0.4.X | */v3.3.0             |
+| v0.3.X | */v2.6.1             |
+| v0.2.X | */v1.17.0            |
 
 > **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/donmccurdy/aframe-physics-system).
 
