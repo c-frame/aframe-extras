@@ -1,5 +1,5 @@
 const vg = require('../../lib/hex-grid.min.js');
-const defaultHexGrid = require('../../lib/default-hex-grid.json');
+const defaultHexGrid = require('../../lib/default-hex-grid');
 
 /**
  * Hex grid.
