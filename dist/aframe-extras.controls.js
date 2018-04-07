@@ -1506,7 +1506,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         }
       }
 
-      if (AFRAME.components.velocity && !data.constrainToNavMesh) velocity.copy(this.el.getAttribute('velocity'));
+      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) velocity.copy(this.el.getAttribute('velocity'));
       velocity.x -= velocity.x * data.easing * dt / 1000;
       velocity.y -= velocity.y * data.easingY * dt / 1000;
       velocity.z -= velocity.z * data.easing * dt / 1000;
