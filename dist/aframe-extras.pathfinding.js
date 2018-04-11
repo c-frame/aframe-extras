@@ -1466,7 +1466,7 @@ module.exports = AFRAME.registerSystem('nav', {
    * @param {NavAgent} ctrl
    */
   removeAgent: function removeAgent(ctrl) {
-    this.agents.remove(ctrl);
+    this.agents.delete(ctrl);
   },
 
   /**
