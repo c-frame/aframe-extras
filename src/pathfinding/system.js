@@ -26,6 +26,21 @@ module.exports = AFRAME.registerSystem('nav', {
   },
 
   /**
+   * @param {object} zoneData
+   */
+  setJSONNavMesh: function (zoneData) {
+    const vertices = zoneData.vertices;
+
+    for (let i = 0; i < vertices.length; i++) {
+      const { x, y, z } = vertices[i];
+      vertices[i] = new THREE.Vector3(x, y, z);
+    }
+
+    this.navMesh = true;
+    pathfinder.setZoneData(ZONE, zoneData);
+  },
+
+  /**
    * @return {THREE.Mesh}
    */
   getNavMesh: function () {
