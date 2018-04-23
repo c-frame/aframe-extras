@@ -55,7 +55,7 @@ CDN builds for aframe-extras/v4.0.2:
 - [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.0.2/dist/aframe-extras.js) *(development)*
 - [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.0.2/dist/aframe-extras.min.js) *(production)*
 
-For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full list of packages below](#add-ons).
+For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full list of packages above.
 
 **A-Frame Version Compatibility**
 
