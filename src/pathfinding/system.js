@@ -15,14 +15,11 @@ module.exports = AFRAME.registerSystem('nav', {
   },
 
   /**
-   * @param {THREE.Mesh} mesh
+   * @param {THREE.Geometry} geometry
    */
-  setNavMesh: function (mesh) {
-    const geometry = mesh.geometry.isBufferGeometry
-      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
-      : mesh.geometry;
+  setNavMeshGeometry: function (geometry) {
     this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, Path.createZone(this.navMesh.geometry));
+    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
   },
 
   /**

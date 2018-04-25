@@ -7,12 +7,17 @@
 module.exports = AFRAME.registerComponent('nav-mesh', {
   init: function () {
     this.system = this.el.sceneEl.systems.nav;
-    this.loadNavMesh();
+    this.hasLoadedNavMesh = false;
     this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+  },
+
+  tick: function (t) {
+    if (t === 0) this.loadNavMesh();
   },
 
   loadNavMesh: function () {
     const object = this.el.getObject3D('mesh');
+    const scene = this.el.sceneEl.object3D;
 
     if (!object) return;
 
@@ -23,6 +28,19 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
 
     if (!navMesh) return;
 
-    this.system.setNavMesh(navMesh);
+    if (this.hasLoadedNavMesh) {
+      console.warn('[nav-mesh] Changing nav-mesh dynamically is not yet supported.');
+      return;
+    }
+
+    const navMeshGeometry = navMesh.geometry.isBufferGeometry
+      ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry)
+      : navMesh.geometry.clone();
+
+    scene.updateMatrixWorld();
+    navMeshGeometry.applyMatrix(navMesh.matrixWorld);
+    this.system.setNavMeshGeometry(navMeshGeometry);
+
+    this.hasLoadedNavMesh = true;
   }
 });
