@@ -8673,12 +8673,17 @@ module.exports = AFRAME.registerComponent('nav-agent', {
 module.exports = AFRAME.registerComponent('nav-mesh', {
   init: function init() {
     this.system = this.el.sceneEl.systems.nav;
-    this.loadNavMesh();
+    this.hasLoadedNavMesh = false;
     this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+  },
+
+  tick: function tick(t) {
+    if (t === 0) this.loadNavMesh();
   },
 
   loadNavMesh: function loadNavMesh() {
     var object = this.el.getObject3D('mesh');
+    var scene = this.el.sceneEl.object3D;
 
     if (!object) return;
 
@@ -8689,7 +8694,18 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
 
     if (!navMesh) return;
 
-    this.system.setNavMesh(navMesh);
+    if (this.hasLoadedNavMesh) {
+      console.warn('[nav-mesh] Changing nav-mesh dynamically is not yet supported.');
+      return;
+    }
+
+    var navMeshGeometry = navMesh.geometry.isBufferGeometry ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry) : navMesh.geometry.clone();
+
+    scene.updateMatrixWorld();
+    navMeshGeometry.applyMatrix(navMesh.matrixWorld);
+    this.system.setNavMeshGeometry(navMeshGeometry);
+
+    this.hasLoadedNavMesh = true;
   }
 });
 
@@ -8713,12 +8729,11 @@ module.exports = AFRAME.registerSystem('nav', {
   },
 
   /**
-   * @param {THREE.Mesh} mesh
+   * @param {THREE.Geometry} geometry
    */
-  setNavMesh: function setNavMesh(mesh) {
-    var geometry = mesh.geometry.isBufferGeometry ? new THREE.Geometry().fromBufferGeometry(mesh.geometry) : mesh.geometry;
+  setNavMeshGeometry: function setNavMeshGeometry(geometry) {
     this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, Path.createZone(this.navMesh.geometry));
+    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
   },
 
   /**
