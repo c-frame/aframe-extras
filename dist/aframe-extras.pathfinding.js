@@ -3,7 +3,259 @@
 
 require('./src/pathfinding');
 
-},{"./src/pathfinding":8}],2:[function(require,module,exports){
+},{"./src/pathfinding":2}],2:[function(require,module,exports){
+'use strict';
+
+require('./nav-mesh');
+require('./nav-agent');
+require('./system');
+
+},{"./nav-agent":3,"./nav-mesh":4,"./system":5}],3:[function(require,module,exports){
+'use strict';
+
+module.exports = AFRAME.registerComponent('nav-agent', {
+  schema: {
+    destination: { type: 'vec3' },
+    active: { default: false },
+    speed: { default: 2 }
+  },
+  init: function init() {
+    this.system = this.el.sceneEl.systems.nav;
+    this.system.addAgent(this);
+    this.group = null;
+    this.path = [];
+    this.raycaster = new THREE.Raycaster();
+  },
+  remove: function remove() {
+    this.system.removeAgent(this);
+  },
+  update: function update() {
+    this.path.length = 0;
+  },
+  updateNavLocation: function updateNavLocation() {
+    this.group = null;
+    this.path = [];
+  },
+  tick: function () {
+    var vDest = new THREE.Vector3();
+    var vDelta = new THREE.Vector3();
+    var vNext = new THREE.Vector3();
+
+    return function (t, dt) {
+      var el = this.el;
+      var data = this.data;
+      var raycaster = this.raycaster;
+      var speed = data.speed * dt / 1000;
+
+      if (!data.active) return;
+
+      // Use PatrolJS pathfinding system to get shortest path to target.
+      if (!this.path.length) {
+        var position = this.el.object3D.position;
+        this.group = this.group || this.system.getGroup(position);
+        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group) || [];
+        el.emit('nav-start');
+      }
+
+      // If no path is found, exit.
+      if (!this.path.length) {
+        console.warn('[nav] Unable to find path to %o.', data.destination);
+        this.el.setAttribute('nav-agent', { active: false });
+        el.emit('nav-end');
+        return;
+      }
+
+      // Current segment is a vector from current position to next waypoint.
+      var vCurrent = el.object3D.position;
+      var vWaypoint = this.path[0];
+      vDelta.subVectors(vWaypoint, vCurrent);
+
+      var distance = vDelta.length();
+      var gazeTarget = void 0;
+
+      if (distance < speed) {
+        // If <1 step from current waypoint, discard it and move toward next.
+        this.path.shift();
+
+        // After discarding the last waypoint, exit pathfinding.
+        if (!this.path.length) {
+          this.el.setAttribute('nav-agent', { active: false });
+          el.emit('nav-end');
+          return;
+        }
+
+        vNext.copy(vCurrent);
+        gazeTarget = this.path[0];
+      } else {
+        // If still far away from next waypoint, find next position for
+        // the current frame.
+        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
+        gazeTarget = vWaypoint;
+      }
+
+      // Look at the next waypoint.
+      gazeTarget.y = vCurrent.y;
+      el.object3D.lookAt(gazeTarget);
+
+      // Raycast against the nav mesh, to keep the agent moving along the
+      // ground, not traveling in a straight line from higher to lower waypoints.
+      raycaster.ray.origin.copy(vNext);
+      raycaster.ray.origin.y += 1.5;
+      raycaster.ray.direction.y = -1;
+      var intersections = raycaster.intersectObject(this.system.getNavMesh());
+
+      if (!intersections.length) {
+        // Raycasting failed. Step toward the waypoint and hope for the best.
+        vCurrent.copy(vNext);
+      } else {
+        // Re-project next position onto nav mesh.
+        vDelta.subVectors(intersections[0].point, vCurrent);
+        vCurrent.add(vDelta.setLength(speed));
+      }
+    };
+  }()
+});
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+/**
+ * nav-mesh
+ *
+ * Waits for a mesh to be loaded on the current entity, then sets it as the
+ * nav mesh in the pathfinding system.
+ */
+
+module.exports = AFRAME.registerComponent('nav-mesh', {
+  init: function init() {
+    this.system = this.el.sceneEl.systems.nav;
+    this.hasLoadedNavMesh = false;
+    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+  },
+
+  play: function play() {
+    if (!this.hasLoadedNavMesh) this.loadNavMesh();
+  },
+
+  loadNavMesh: function loadNavMesh() {
+    var object = this.el.getObject3D('mesh');
+    var scene = this.el.sceneEl.object3D;
+
+    if (!object) return;
+
+    var navMesh = void 0;
+    object.traverse(function (node) {
+      if (node.isMesh) navMesh = node;
+    });
+
+    if (!navMesh) return;
+
+    var navMeshGeometry = navMesh.geometry.isBufferGeometry ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry) : navMesh.geometry.clone();
+
+    scene.updateMatrixWorld();
+    navMeshGeometry.applyMatrix(navMesh.matrixWorld);
+    this.system.setNavMeshGeometry(navMeshGeometry);
+
+    this.hasLoadedNavMesh = true;
+  }
+});
+
+},{}],5:[function(require,module,exports){
+'use strict';
+
+var Path = require('three-pathfinding');
+
+var pathfinder = new Path();
+var ZONE = 'level';
+
+/**
+ * nav
+ *
+ * Pathfinding system, using PatrolJS.
+ */
+module.exports = AFRAME.registerSystem('nav', {
+  init: function init() {
+    this.navMesh = null;
+    this.agents = new Set();
+  },
+
+  /**
+   * @param {THREE.Geometry} geometry
+   */
+  setNavMeshGeometry: function setNavMeshGeometry(geometry) {
+    this.navMesh = new THREE.Mesh(geometry);
+    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
+    Array.from(this.agents).forEach(function (agent) {
+      return agent.updateNavLocation();
+    });
+  },
+
+  /**
+   * @return {THREE.Mesh}
+   */
+  getNavMesh: function getNavMesh() {
+    return this.navMesh;
+  },
+
+  /**
+   * @param {NavAgent} ctrl
+   */
+  addAgent: function addAgent(ctrl) {
+    this.agents.add(ctrl);
+  },
+
+  /**
+   * @param {NavAgent} ctrl
+   */
+  removeAgent: function removeAgent(ctrl) {
+    this.agents.delete(ctrl);
+  },
+
+  /**
+   * @param  {THREE.Vector3} start
+   * @param  {THREE.Vector3} end
+   * @param  {number} groupID
+   * @return {Array<THREE.Vector3>}
+   */
+  getPath: function getPath(start, end, groupID) {
+    return pathfinder.findPath(start, end, ZONE, groupID);
+  },
+
+  /**
+   * @param {THREE.Vector3} position
+   * @return {number}
+   */
+  getGroup: function getGroup(position) {
+    return pathfinder.getGroup(ZONE, position);
+  },
+
+  /**
+   * @param  {THREE.Vector3} position
+   * @param  {number} groupID
+   * @return {Node}
+   */
+  getNode: function getNode(position, groupID) {
+    return pathfinder.getClosestNode(position, ZONE, groupID, true);
+  },
+
+  /**
+   * @param  {THREE.Vector3} start Starting position.
+   * @param  {THREE.Vector3} end Desired ending position.
+   * @param  {number} groupID
+   * @param  {Node} node
+   * @param  {THREE.Vector3} endTarget (Output) Adjusted step end position.
+   * @return {Node} Current node, after step is taken.
+   */
+  clampStep: function clampStep(start, end, groupID, node, endTarget) {
+    if (!this.navMesh || !node) {
+      endTarget.copy(end);
+      return this.navMesh ? this.getNode(end, groupID) : null;
+    }
+    return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
+  }
+});
+
+},{"three-pathfinding":10}],6:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -148,7 +400,7 @@ var AStar = function () {
 
 module.exports = AStar;
 
-},{"./BinaryHeap":3,"./utils.js":7}],3:[function(require,module,exports){
+},{"./BinaryHeap":7,"./utils.js":11}],7:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -302,7 +554,7 @@ var BinaryHeap = function () {
 
 module.exports = BinaryHeap;
 
-},{}],4:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -528,7 +780,7 @@ var Builder = function () {
 
 module.exports = Builder;
 
-},{"./utils":7}],5:[function(require,module,exports){
+},{"./utils":11}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -639,7 +891,7 @@ var Channel = function () {
 
 module.exports = Channel;
 
-},{"./utils":7}],6:[function(require,module,exports){
+},{"./utils":11}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -944,7 +1196,7 @@ var Node = {}; // jshint ignore:line
 
 module.exports = Path;
 
-},{"./AStar":2,"./Builder":4,"./Channel":5,"./utils":7}],7:[function(require,module,exports){
+},{"./AStar":6,"./Builder":8,"./Channel":9,"./utils":11}],11:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1278,254 +1530,4 @@ var Utils = function () {
 
 module.exports = Utils;
 
-},{}],8:[function(require,module,exports){
-'use strict';
-
-require('./nav-mesh');
-require('./nav-agent');
-require('./system');
-
-},{"./nav-agent":9,"./nav-mesh":10,"./system":11}],9:[function(require,module,exports){
-'use strict';
-
-module.exports = AFRAME.registerComponent('nav-agent', {
-  schema: {
-    destination: { type: 'vec3' },
-    active: { default: false },
-    speed: { default: 2 }
-  },
-  init: function init() {
-    this.system = this.el.sceneEl.systems.nav;
-    this.system.addAgent(this);
-    this.group = null;
-    this.path = [];
-    this.raycaster = new THREE.Raycaster();
-  },
-  remove: function remove() {
-    this.system.removeAgent(this);
-  },
-  update: function update() {
-    this.path.length = 0;
-  },
-  tick: function () {
-    var vDest = new THREE.Vector3();
-    var vDelta = new THREE.Vector3();
-    var vNext = new THREE.Vector3();
-
-    return function (t, dt) {
-      var el = this.el;
-      var data = this.data;
-      var raycaster = this.raycaster;
-      var speed = data.speed * dt / 1000;
-
-      if (!data.active) return;
-
-      // Use PatrolJS pathfinding system to get shortest path to target.
-      if (!this.path.length) {
-        var position = this.el.object3D.position;
-        this.group = this.group || this.system.getGroup(position);
-        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group);
-        this.path = this.path || [];
-        el.emit('nav-start');
-      }
-
-      // If no path is found, exit.
-      if (!this.path.length) {
-        console.warn('[nav] Unable to find path to %o.', data.destination);
-        this.el.setAttribute('nav-agent', { active: false });
-        el.emit('nav-end');
-        return;
-      }
-
-      // Current segment is a vector from current position to next waypoint.
-      var vCurrent = el.object3D.position;
-      var vWaypoint = this.path[0];
-      vDelta.subVectors(vWaypoint, vCurrent);
-
-      var distance = vDelta.length();
-      var gazeTarget = void 0;
-
-      if (distance < speed) {
-        // If <1 step from current waypoint, discard it and move toward next.
-        this.path.shift();
-
-        // After discarding the last waypoint, exit pathfinding.
-        if (!this.path.length) {
-          this.el.setAttribute('nav-agent', { active: false });
-          el.emit('nav-end');
-          return;
-        } else {
-          gazeTarget = this.path[0];
-        }
-      } else {
-        // If still far away from next waypoint, find next position for
-        // the current frame.
-        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
-        gazeTarget = vWaypoint;
-      }
-
-      // Look at the next waypoint.
-      gazeTarget.y = vCurrent.y;
-      el.object3D.lookAt(gazeTarget);
-
-      // Raycast against the nav mesh, to keep the agent moving along the
-      // ground, not traveling in a straight line from higher to lower waypoints.
-      raycaster.ray.origin.copy(vNext);
-      raycaster.ray.origin.y += 1.5;
-      raycaster.ray.direction.y = -1;
-      var intersections = raycaster.intersectObject(this.system.getNavMesh());
-
-      if (!intersections.length) {
-        // Raycasting failed. Step toward the waypoint and hope for the best.
-        vCurrent.copy(vNext);
-      } else {
-        // Re-project next position onto nav mesh.
-        vDelta.subVectors(intersections[0].point, vCurrent);
-        vCurrent.add(vDelta.setLength(speed));
-      }
-    };
-  }()
-});
-
-},{}],10:[function(require,module,exports){
-'use strict';
-
-/**
- * nav-mesh
- *
- * Waits for a mesh to be loaded on the current entity, then sets it as the
- * nav mesh in the pathfinding system.
- */
-
-module.exports = AFRAME.registerComponent('nav-mesh', {
-  init: function init() {
-    this.system = this.el.sceneEl.systems.nav;
-    this.hasLoadedNavMesh = false;
-    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
-  },
-
-  tick: function tick(t) {
-    if (t === 0) this.loadNavMesh();
-  },
-
-  loadNavMesh: function loadNavMesh() {
-    var object = this.el.getObject3D('mesh');
-    var scene = this.el.sceneEl.object3D;
-
-    if (!object) return;
-
-    var navMesh = void 0;
-    object.traverse(function (node) {
-      if (node.isMesh) navMesh = node;
-    });
-
-    if (!navMesh) return;
-
-    if (this.hasLoadedNavMesh) {
-      console.warn('[nav-mesh] Changing nav-mesh dynamically is not yet supported.');
-      return;
-    }
-
-    var navMeshGeometry = navMesh.geometry.isBufferGeometry ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry) : navMesh.geometry.clone();
-
-    scene.updateMatrixWorld();
-    navMeshGeometry.applyMatrix(navMesh.matrixWorld);
-    this.system.setNavMeshGeometry(navMeshGeometry);
-
-    this.hasLoadedNavMesh = true;
-  }
-});
-
-},{}],11:[function(require,module,exports){
-'use strict';
-
-var Path = require('three-pathfinding');
-
-var pathfinder = new Path();
-var ZONE = 'level';
-
-/**
- * nav
- *
- * Pathfinding system, using PatrolJS.
- */
-module.exports = AFRAME.registerSystem('nav', {
-  init: function init() {
-    this.navMesh = null;
-    this.agents = new Set();
-  },
-
-  /**
-   * @param {THREE.Geometry} geometry
-   */
-  setNavMeshGeometry: function setNavMeshGeometry(geometry) {
-    this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
-  },
-
-  /**
-   * @return {THREE.Mesh}
-   */
-  getNavMesh: function getNavMesh() {
-    return this.navMesh;
-  },
-
-  /**
-   * @param {NavAgent} ctrl
-   */
-  addAgent: function addAgent(ctrl) {
-    this.agents.add(ctrl);
-  },
-
-  /**
-   * @param {NavAgent} ctrl
-   */
-  removeAgent: function removeAgent(ctrl) {
-    this.agents.delete(ctrl);
-  },
-
-  /**
-   * @param  {THREE.Vector3} start
-   * @param  {THREE.Vector3} end
-   * @param  {number} groupID
-   * @return {Array<THREE.Vector3>}
-   */
-  getPath: function getPath(start, end, groupID) {
-    return pathfinder.findPath(start, end, ZONE, groupID);
-  },
-
-  /**
-   * @param {THREE.Vector3} position
-   * @return {number}
-   */
-  getGroup: function getGroup(position) {
-    return pathfinder.getGroup(ZONE, position);
-  },
-
-  /**
-   * @param  {THREE.Vector3} position
-   * @param  {number} groupID
-   * @return {Node}
-   */
-  getNode: function getNode(position, groupID) {
-    return pathfinder.getClosestNode(position, ZONE, groupID, true);
-  },
-
-  /**
-   * @param  {THREE.Vector3} start Starting position.
-   * @param  {THREE.Vector3} end Desired ending position.
-   * @param  {number} groupID
-   * @param  {Node} node
-   * @param  {THREE.Vector3} endTarget (Output) Adjusted step end position.
-   * @return {Node} Current node, after step is taken.
-   */
-  clampStep: function clampStep(start, end, groupID, node, endTarget) {
-    if (!this.navMesh || !node) {
-      endTarget.copy(end);
-      return this.navMesh ? this.getNode(end, groupID) : null;
-    }
-    return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
-  }
-});
-
-},{"three-pathfinding":6}]},{},[1]);
+},{}]},{},[1]);

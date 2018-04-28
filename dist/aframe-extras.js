@@ -12,7 +12,7 @@ require('./src/misc');
 require('./src/pathfinding');
 require('./src/primitives');
 
-},{"./src/controls":19,"./src/loaders":27,"./src/misc":34,"./src/pathfinding":40,"./src/primitives":48}],3:[function(require,module,exports){
+},{"./src/controls":13,"./src/loaders":21,"./src/misc":28,"./src/pathfinding":34,"./src/primitives":42}],3:[function(require,module,exports){
 'use strict';
 
 var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -5140,6 +5140,2667 @@ var vg = module.exports = { VERSION: "0.1.1", PI: Math.PI, TAU: 2 * Math.PI, DEG
 },{}],11:[function(require,module,exports){
 'use strict';
 
+var EPS = 0.1;
+
+module.exports = AFRAME.registerComponent('checkpoint-controls', {
+  schema: {
+    enabled: { default: true },
+    mode: { default: 'teleport', oneOf: ['teleport', 'animate'] },
+    animateSpeed: { default: 3.0 }
+  },
+
+  init: function init() {
+    this.active = true;
+    this.checkpoint = null;
+
+    this.isNavMeshConstrained = false;
+
+    this.offset = new THREE.Vector3();
+    this.position = new THREE.Vector3();
+    this.targetPosition = new THREE.Vector3();
+  },
+
+  play: function play() {
+    this.active = true;
+  },
+  pause: function pause() {
+    this.active = false;
+  },
+
+  setCheckpoint: function setCheckpoint(checkpoint) {
+    var el = this.el;
+
+    if (!this.active) return;
+    if (this.checkpoint === checkpoint) return;
+
+    if (this.checkpoint) {
+      el.emit('navigation-end', { checkpoint: this.checkpoint });
+    }
+
+    this.checkpoint = checkpoint;
+    this.sync();
+
+    // Ignore new checkpoint if we're already there.
+    if (this.position.distanceTo(this.targetPosition) < EPS) {
+      this.checkpoint = null;
+      return;
+    }
+
+    el.emit('navigation-start', { checkpoint: checkpoint });
+
+    if (this.data.mode === 'teleport') {
+      this.el.setAttribute('position', this.targetPosition);
+      this.checkpoint = null;
+      el.emit('navigation-end', { checkpoint: checkpoint });
+      el.components['movement-controls'].updateNavLocation();
+    }
+  },
+
+  isVelocityActive: function isVelocityActive() {
+    return !!(this.active && this.checkpoint);
+  },
+
+  getVelocity: function getVelocity() {
+    if (!this.active) return;
+
+    var data = this.data;
+    var offset = this.offset;
+    var position = this.position;
+    var targetPosition = this.targetPosition;
+    var checkpoint = this.checkpoint;
+
+    this.sync();
+    if (position.distanceTo(targetPosition) < EPS) {
+      this.checkpoint = null;
+      this.el.emit('navigation-end', { checkpoint: checkpoint });
+      return offset.set(0, 0, 0);
+    }
+    offset.setLength(data.animateSpeed);
+    return offset;
+  },
+
+  sync: function sync() {
+    var offset = this.offset;
+    var position = this.position;
+    var targetPosition = this.targetPosition;
+
+    position.copy(this.el.getAttribute('position'));
+    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
+    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
+    offset.copy(targetPosition).sub(position);
+  }
+});
+
+},{}],12:[function(require,module,exports){
+'use strict';
+
+/**
+ * Gamepad controls for A-Frame.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
+ *
+ * For more information about the Gamepad API, see:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+ */
+
+var GamepadButton = require('../../lib/GamepadButton'),
+    GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
+
+var JOYSTICK_EPS = 0.2;
+
+module.exports = AFRAME.registerComponent('gamepad-controls', {
+
+  /*******************************************************************
+   * Statics
+   */
+
+  GamepadButton: GamepadButton,
+
+  /*******************************************************************
+   * Schema
+   */
+
+  schema: {
+    // Controller 0-3
+    controller: { default: 0, oneOf: [0, 1, 2, 3] },
+
+    // Enable/disable features
+    enabled: { default: true },
+
+    // Debugging
+    debug: { default: false },
+
+    // Heading element for rotation
+    camera: { default: '[camera]', type: 'selector' },
+
+    // Rotation sensitivity
+    rotationSensitivity: { default: 0.05 // radians/frame, ish
+    } },
+
+  /*******************************************************************
+   * Core
+   */
+
+  /**
+   * Called once when component is attached. Generally for initial setup.
+   */
+  init: function init() {
+    var scene = this.el.sceneEl;
+    this.prevTime = window.performance.now();
+
+    // Button state
+    this.buttons = {};
+
+    // Rotation
+    var rotation = this.el.object3D.rotation;
+    this.pitch = new THREE.Object3D();
+    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+    this.yaw = new THREE.Object3D();
+    this.yaw.position.y = 10;
+    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
+    this.yaw.add(this.pitch);
+
+    scene.addBehavior(this);
+  },
+
+  /**
+   * Called when component is attached and when component data changes.
+   * Generally modifies the entity based on the data.
+   */
+  update: function update() {
+    this.tick();
+  },
+
+  /**
+   * Called on each iteration of main render loop.
+   */
+  tick: function tick(t, dt) {
+    this.updateButtonState();
+    this.updateRotation(dt);
+  },
+
+  /**
+   * Called when a component is removed (e.g., via removeAttribute).
+   * Generally undoes all modifications to the entity.
+   */
+  remove: function remove() {},
+
+  /*******************************************************************
+   * Movement
+   */
+
+  isVelocityActive: function isVelocityActive() {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y;
+
+    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
+  },
+
+  getVelocityDelta: function getVelocityDelta() {
+    var dpad = this.getDpad(),
+        joystick0 = this.getJoystick(0),
+        inputX = dpad.x || joystick0.x,
+        inputY = dpad.y || joystick0.y,
+        dVelocity = new THREE.Vector3();
+
+    if (Math.abs(inputX) > JOYSTICK_EPS) {
+      dVelocity.x += inputX;
+    }
+    if (Math.abs(inputY) > JOYSTICK_EPS) {
+      dVelocity.z += inputY;
+    }
+
+    return dVelocity;
+  },
+
+  /*******************************************************************
+   * Rotation
+   */
+
+  isRotationActive: function isRotationActive() {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    var joystick1 = this.getJoystick(1);
+
+    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
+  },
+
+  updateRotation: function updateRotation(dt) {
+    if (!this.isRotationActive()) return;
+
+    var lookVector = this.getJoystick(1);
+
+    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
+    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
+
+    var data = this.data;
+    var yaw = this.yaw;
+    var pitch = this.pitch;
+
+    lookVector.multiplyScalar(data.rotationSensitivity * dt / 1000);
+    yaw.rotation.y -= lookVector.x;
+    pitch.rotation.x -= lookVector.y;
+    pitch.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
+    data.camera.object3D.rotation.set(THREE.Math.radToDeg(pitch.rotation.x), THREE.Math.radToDeg(yaw.rotation.y), 0);
+  },
+
+  /*******************************************************************
+   * Button events
+   */
+
+  updateButtonState: function updateButtonState() {
+    var gamepad = this.getGamepad();
+    if (this.data.enabled && gamepad) {
+
+      // Fire DOM events for button state changes.
+      for (var i = 0; i < gamepad.buttons.length; i++) {
+        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
+          this.emit(new GamepadButtonEvent('gamepadbuttondown', i, gamepad.buttons[i]));
+        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
+          this.emit(new GamepadButtonEvent('gamepadbuttonup', i, gamepad.buttons[i]));
+        }
+        this.buttons[i] = gamepad.buttons[i].pressed;
+      }
+    } else if (Object.keys(this.buttons)) {
+      // Reset state if controls are disabled or controller is lost.
+      this.buttons = {};
+    }
+  },
+
+  emit: function emit(event) {
+    // Emit original event.
+    this.el.emit(event.type, event);
+
+    // Emit convenience event, identifying button index.
+    this.el.emit(event.type + ':' + event.index, new GamepadButtonEvent(event.type, event.index, event));
+  },
+
+  /*******************************************************************
+   * Gamepad state
+   */
+
+  /**
+   * Returns the Gamepad instance attached to the component. If connected,
+   * a proxy-controls component may provide access to Gamepad input from a
+   * remote device.
+   *
+   * @return {Gamepad}
+   */
+  getGamepad: function getGamepad() {
+    var localGamepad = navigator.getGamepads && navigator.getGamepads()[this.data.controller],
+        proxyControls = this.el.sceneEl.components['proxy-controls'],
+        proxyGamepad = proxyControls && proxyControls.isConnected() && proxyControls.getGamepad(this.data.controller);
+    return proxyGamepad || localGamepad;
+  },
+
+  /**
+   * Returns the state of the given button.
+   * @param  {number} index The button (0-N) for which to find state.
+   * @return {GamepadButton}
+   */
+  getButton: function getButton(index) {
+    return this.getGamepad().buttons[index];
+  },
+
+  /**
+   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
+   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
+   * @param  {number} index The axis (0-N) for which to find state.
+   * @return {number} On the interval [-1,1].
+   */
+  getAxis: function getAxis(index) {
+    return this.getGamepad().axes[index];
+  },
+
+  /**
+   * Returns the state of the given joystick (0 or 1) as a THREE.Vector2.
+   * @param  {number} id The joystick (0, 1) for which to find state.
+   * @return {THREE.Vector2}
+   */
+  getJoystick: function getJoystick(index) {
+    var gamepad = this.getGamepad();
+    switch (index) {
+      case 0:
+        return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
+      case 1:
+        return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
+      default:
+        throw new Error('Unexpected joystick index "%d".', index);
+    }
+  },
+
+  /**
+   * Returns the state of the dpad as a THREE.Vector2.
+   * @return {THREE.Vector2}
+   */
+  getDpad: function getDpad() {
+    var gamepad = this.getGamepad();
+    if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
+      return new THREE.Vector2();
+    }
+    return new THREE.Vector2((gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0) + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0), (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0) + (gamepad.buttons[GamepadButton.DPAD_DOWN].pressed ? 1 : 0));
+  },
+
+  /**
+   * Returns true if the gamepad is currently connected to the system.
+   * @return {boolean}
+   */
+  isConnected: function isConnected() {
+    var gamepad = this.getGamepad();
+    return !!(gamepad && gamepad.connected);
+  },
+
+  /**
+   * Returns a string containing some information about the controller. Result
+   * may vary across browsers, for a given controller.
+   * @return {string}
+   */
+  getID: function getID() {
+    return this.getGamepad().id;
+  }
+});
+
+},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],13:[function(require,module,exports){
+'use strict';
+
+require('./checkpoint-controls');
+require('./gamepad-controls');
+require('./keyboard-controls');
+require('./touch-controls');
+require('./movement-controls');
+require('./trackpad-controls');
+
+},{"./checkpoint-controls":11,"./gamepad-controls":12,"./keyboard-controls":14,"./movement-controls":15,"./touch-controls":16,"./trackpad-controls":17}],14:[function(require,module,exports){
+'use strict';
+
+require('../../lib/keyboard.polyfill');
+
+var MAX_DELTA = 0.2,
+    PROXY_FLAG = '__keyboard-controls-proxy';
+
+var KeyboardEvent = window.KeyboardEvent;
+
+/**
+ * Keyboard Controls component.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
+ *
+ * Bind keyboard events to components, or control your entities with the WASD keys.
+ *
+ * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
+ * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
+ * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
+ * when you care about which physical key was pressed, rather thanwhich character it corresponds
+ * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
+ * player in different directions, and that mapping should ideally be independent of keyboard
+ * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
+ *
+ * @namespace wasd-controls
+ * keys the entity moves and if you release it will stop. Easing simulates friction.
+ * to the entity when pressing the keys.
+ * @param {bool} [enabled=true] - To completely enable or disable the controls
+ */
+module.exports = AFRAME.registerComponent('keyboard-controls', {
+  schema: {
+    enabled: { default: true },
+    debug: { default: false }
+  },
+
+  init: function init() {
+    this.dVelocity = new THREE.Vector3();
+    this.localKeys = {};
+    this.listeners = {
+      keydown: this.onKeyDown.bind(this),
+      keyup: this.onKeyUp.bind(this),
+      blur: this.onBlur.bind(this)
+    };
+    this.attachEventListeners();
+  },
+
+  /*******************************************************************
+  * Movement
+  */
+
+  isVelocityActive: function isVelocityActive() {
+    return this.data.enabled && !!Object.keys(this.getKeys()).length;
+  },
+
+  getVelocityDelta: function getVelocityDelta() {
+    var data = this.data,
+        keys = this.getKeys();
+
+    this.dVelocity.set(0, 0, 0);
+    if (data.enabled) {
+      if (keys.KeyW || keys.ArrowUp) {
+        this.dVelocity.z -= 1;
+      }
+      if (keys.KeyA || keys.ArrowLeft) {
+        this.dVelocity.x -= 1;
+      }
+      if (keys.KeyS || keys.ArrowDown) {
+        this.dVelocity.z += 1;
+      }
+      if (keys.KeyD || keys.ArrowRight) {
+        this.dVelocity.x += 1;
+      }
+    }
+
+    return this.dVelocity.clone();
+  },
+
+  /*******************************************************************
+  * Events
+  */
+
+  play: function play() {
+    this.attachEventListeners();
+  },
+
+  pause: function pause() {
+    this.removeEventListeners();
+  },
+
+  remove: function remove() {
+    this.pause();
+  },
+
+  attachEventListeners: function attachEventListeners() {
+    window.addEventListener('keydown', this.listeners.keydown, false);
+    window.addEventListener('keyup', this.listeners.keyup, false);
+    window.addEventListener('blur', this.listeners.blur, false);
+  },
+
+  removeEventListeners: function removeEventListeners() {
+    window.removeEventListener('keydown', this.listeners.keydown);
+    window.removeEventListener('keyup', this.listeners.keyup);
+    window.removeEventListener('blur', this.listeners.blur);
+  },
+
+  onKeyDown: function onKeyDown(event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      this.localKeys[event.code] = true;
+      this.emit(event);
+    }
+  },
+
+  onKeyUp: function onKeyUp(event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      delete this.localKeys[event.code];
+      this.emit(event);
+    }
+  },
+
+  onBlur: function onBlur() {
+    for (var code in this.localKeys) {
+      if (this.localKeys.hasOwnProperty(code)) {
+        delete this.localKeys[code];
+      }
+    }
+  },
+
+  emit: function emit(event) {
+    // TODO - keydown only initially?
+    // TODO - where the f is the spacebar
+
+    // Emit original event.
+    if (PROXY_FLAG in event) {
+      // TODO - Method never triggered.
+      this.el.emit(event.type, event);
+    }
+
+    // Emit convenience event, identifying key.
+    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
+    if (this.data.debug) console.log(event.type + ':' + event.code);
+  },
+
+  /*******************************************************************
+  * Accessors
+  */
+
+  isPressed: function isPressed(code) {
+    return code in this.getKeys();
+  },
+
+  getKeys: function getKeys() {
+    if (this.isProxied()) {
+      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
+    }
+    return this.localKeys;
+  },
+
+  isProxied: function isProxied() {
+    var proxyControls = this.el.sceneEl.components['proxy-controls'];
+    return proxyControls && proxyControls.isConnected();
+  }
+
+});
+
+},{"../../lib/keyboard.polyfill":10}],15:[function(require,module,exports){
+'use strict';
+
+/**
+ * Movement Controls
+ *
+ * @author Don McCurdy <dm@donmccurdy.com>
+ */
+
+var COMPONENT_SUFFIX = '-controls',
+    MAX_DELTA = 0.2,
+
+// ms
+EPS = 10e-6;
+
+module.exports = AFRAME.registerComponent('movement-controls', {
+
+  /*******************************************************************
+   * Schema
+   */
+
+  dependencies: ['rotation'],
+
+  schema: {
+    enabled: { default: true },
+    controls: { default: ['gamepad', 'trackpad', 'keyboard', 'touch'] },
+    speed: { default: 0.3, min: 0 },
+    fly: { default: false },
+    constrainToNavMesh: { default: false },
+    camera: { default: '[camera]', type: 'selector' }
+  },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
+  init: function init() {
+    var el = this.el;
+
+    this.velocityCtrl = null;
+
+    this.velocity = new THREE.Vector3();
+    this.heading = new THREE.Quaternion();
+
+    // Navigation
+    this.navGroup = null;
+    this.navNode = null;
+
+    if (el.sceneEl.hasLoaded) {
+      this.injectControls();
+    } else {
+      el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
+    }
+  },
+
+  update: function update(prevData) {
+    var el = this.el;
+    var data = this.data;
+    if (el.sceneEl.hasLoaded) {
+      this.injectControls();
+    }
+    if (data.constrainToNavMesh !== prevData.constrainToNavMesh) {
+      var nav = el.sceneEl.systems.nav;
+      data.constrainToNavMesh ? nav.addAgent(this) : nav.removeAgent(this);
+    }
+  },
+
+  injectControls: function injectControls() {
+    var data = this.data;
+    var name;
+
+    for (var i = 0; i < data.controls.length; i++) {
+      name = data.controls[i] + COMPONENT_SUFFIX;
+      if (!this.el.components[name]) {
+        this.el.setAttribute(name, '');
+      }
+    }
+  },
+
+  updateNavLocation: function updateNavLocation() {
+    this.navGroup = null;
+    this.navNode = null;
+  },
+
+  /*******************************************************************
+   * Tick
+   */
+
+  tick: function () {
+    var start = new THREE.Vector3();
+    var end = new THREE.Vector3();
+    var clampedEnd = new THREE.Vector3();
+
+    return function (t, dt) {
+      if (!dt) return;
+
+      var el = this.el;
+      var data = this.data;
+
+      if (!data.enabled) return;
+
+      this.updateVelocityCtrl();
+      var velocityCtrl = this.velocityCtrl;
+      var velocity = this.velocity;
+
+      if (!velocityCtrl) return;
+
+      // Update velocity. If FPS is too low, reset.
+      if (dt / 1000 > MAX_DELTA) {
+        velocity.set(0, 0, 0);
+      } else {
+        this.updateVelocity(dt);
+      }
+
+      if (data.constrainToNavMesh && velocityCtrl.isNavMeshConstrained !== false) {
+
+        if (velocity.lengthSq() < EPS) return;
+
+        start.copy(el.object3D.position);
+        end.copy(velocity).multiplyScalar(dt / 1000).add(start);
+
+        var nav = el.sceneEl.systems.nav;
+        this.navGroup = this.navGroup || nav.getGroup(start);
+        this.navNode = this.navNode || nav.getNode(start, this.navGroup);
+        this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
+        el.object3D.position.copy(clampedEnd);
+      } else if (el.hasAttribute('velocity')) {
+        el.setAttribute('velocity', velocity);
+      } else {
+        el.object3D.position.x += velocity.x * dt / 1000;
+        el.object3D.position.y += velocity.y * dt / 1000;
+        el.object3D.position.z += velocity.z * dt / 1000;
+      }
+    };
+  }(),
+
+  /*******************************************************************
+   * Movement
+   */
+
+  updateVelocityCtrl: function updateVelocityCtrl() {
+    var data = this.data;
+    if (data.enabled) {
+      for (var i = 0, l = data.controls.length; i < l; i++) {
+        var control = this.el.components[data.controls[i] + COMPONENT_SUFFIX];
+        if (control && control.isVelocityActive()) {
+          this.velocityCtrl = control;
+          return;
+        }
+      }
+      this.velocityCtrl = null;
+    }
+  },
+
+  updateVelocity: function () {
+    var vector2 = new THREE.Vector2();
+    // var matrix = new THREE.Matrix4();
+    // var matrix2 = new THREE.Matrix4();
+    // var position = new THREE.Vector3();
+    // var quaternion = new THREE.Quaternion();
+    // var scale = new THREE.Vector3();
+
+    return function (dt) {
+      var dVelocity = void 0;
+      var el = this.el;
+      var control = this.velocityCtrl;
+      var velocity = this.velocity;
+      var data = this.data;
+
+      if (control) {
+        if (control.getVelocityDelta) {
+          dVelocity = control.getVelocityDelta(dt);
+        } else if (control.getVelocity) {
+          velocity.copy(control.getVelocity());
+          return;
+        } else if (control.getPositionDelta) {
+          velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
+          return;
+        } else {
+          throw new Error('Incompatible movement controls: ', control);
+        }
+      }
+
+      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) {
+        velocity.copy(this.el.getAttribute('velocity'));
+      }
+
+      if (dVelocity && data.enabled) {
+        // TODO: Handle rotated rig.
+        var cameraEl = data.camera;
+        // matrix.copy(cameraEl.object3D.matrixWorld);
+        // matrix2.getInverse(el.object3D.matrixWorld);
+        // matrix.multiply(matrix2);
+        // matrix.decompose(position, quaternion, scale);
+        // dVelocity.applyQuaternion(quaternion);
+
+        // Rotate to heading
+        dVelocity.applyQuaternion(cameraEl.object3D.quaternion);
+
+        var factor = dVelocity.length();
+        if (data.fly) {
+          velocity.copy(dVelocity);
+          velocity.multiplyScalar(this.data.speed * dt);
+        } else {
+          vector2.set(dVelocity.x, dVelocity.z);
+          vector2.setLength(factor * this.data.speed * dt);
+          velocity.x = vector2.x;
+          velocity.z = vector2.y;
+        }
+      }
+    };
+  }()
+});
+
+},{}],16:[function(require,module,exports){
+'use strict';
+
+/**
+ * Touch-to-move-forward controls for mobile.
+ */
+
+module.exports = AFRAME.registerComponent('touch-controls', {
+  schema: {
+    enabled: { default: true }
+  },
+
+  init: function init() {
+    this.dVelocity = new THREE.Vector3();
+    this.bindMethods();
+  },
+
+  play: function play() {
+    this.addEventListeners();
+  },
+
+  pause: function pause() {
+    this.removeEventListeners();
+    this.dVelocity.set(0, 0, 0);
+  },
+
+  remove: function remove() {
+    this.pause();
+  },
+
+  addEventListeners: function addEventListeners() {
+    var sceneEl = this.el.sceneEl;
+    var canvasEl = sceneEl.canvas;
+
+    if (!canvasEl) {
+      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+      return;
+    }
+
+    canvasEl.addEventListener('touchstart', this.onTouchStart);
+    canvasEl.addEventListener('touchend', this.onTouchEnd);
+  },
+
+  removeEventListeners: function removeEventListeners() {
+    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    if (!canvasEl) {
+      return;
+    }
+
+    canvasEl.removeEventListener('touchstart', this.onTouchStart);
+    canvasEl.removeEventListener('touchend', this.onTouchEnd);
+  },
+
+  isVelocityActive: function isVelocityActive() {
+    return this.data.enabled && this.isMoving;
+  },
+
+  getVelocityDelta: function getVelocityDelta() {
+    this.dVelocity.z = this.isMoving ? -1 : 0;
+    return this.dVelocity.clone();
+  },
+
+  bindMethods: function bindMethods() {
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+  },
+
+  onTouchStart: function onTouchStart(e) {
+    this.isMoving = true;
+    e.preventDefault();
+  },
+
+  onTouchEnd: function onTouchEnd(e) {
+    this.isMoving = false;
+    e.preventDefault();
+  }
+});
+
+},{}],17:[function(require,module,exports){
+'use strict';
+
+/**
+ * 3dof (Gear VR, Daydream) controls for mobile.
+ */
+
+module.exports = AFRAME.registerComponent('trackpad-controls', {
+  schema: {
+    enabled: { default: true }
+  },
+
+  init: function init() {
+    this.dVelocity = new THREE.Vector3();
+    this.zVel = 0;
+    this.bindMethods();
+  },
+
+  play: function play() {
+    this.addEventListeners();
+  },
+
+  pause: function pause() {
+    this.removeEventListeners();
+    this.dVelocity.set(0, 0, 0);
+  },
+
+  remove: function remove() {
+    this.pause();
+  },
+
+  addEventListeners: function addEventListeners() {
+    var sceneEl = this.el.sceneEl;
+
+    sceneEl.addEventListener('axismove', this.onAxisMove);
+    sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
+    sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+  },
+
+  removeEventListeners: function removeEventListeners() {
+    var sceneEl = this.el.sceneEl;
+
+    sceneEl.removeEventListener('axismove', this.onAxisMove);
+    sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
+    sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
+  },
+
+  isVelocityActive: function isVelocityActive() {
+    return this.data.enabled && this.isMoving;
+  },
+
+  getVelocityDelta: function getVelocityDelta() {
+    this.dVelocity.z = this.isMoving ? -this.zVel : 1;
+    return this.dVelocity.clone();
+  },
+
+  bindMethods: function bindMethods() {
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onAxisMove = this.onAxisMove.bind(this);
+  },
+
+  onTouchStart: function onTouchStart(e) {
+    this.isMoving = true;
+    e.preventDefault();
+  },
+
+  onTouchEnd: function onTouchEnd(e) {
+    this.isMoving = false;
+    e.preventDefault();
+  },
+
+  onAxisMove: function onAxisMove(e) {
+    var axis_data = e.detail.axis;
+
+    if (axis_data[1] < 0) {
+      this.zVel = 1;
+    }
+
+    if (axis_data[1] > 0) {
+      this.zVel = -1;
+    }
+  }
+
+});
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+var LoopMode = {
+  once: THREE.LoopOnce,
+  repeat: THREE.LoopRepeat,
+  pingpong: THREE.LoopPingPong
+};
+
+/**
+ * animation-mixer
+ *
+ * Player for animation clips. Intended to be compatible with any model format that supports
+ * skeletal or morph animations through THREE.AnimationMixer.
+ * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
+ */
+module.exports = AFRAME.registerComponent('animation-mixer', {
+  schema: {
+    clip: { default: '*' },
+    duration: { default: 0 },
+    crossFadeDuration: { default: 0 },
+    loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
+    repetitions: { default: Infinity, min: 0 }
+  },
+
+  init: function init() {
+    var _this = this;
+
+    /** @type {THREE.Mesh} */
+    this.model = null;
+    /** @type {THREE.AnimationMixer} */
+    this.mixer = null;
+    /** @type {Array<THREE.AnimationAction>} */
+    this.activeActions = [];
+
+    var model = this.el.getObject3D('mesh');
+
+    if (model) {
+      this.load(model);
+    } else {
+      this.el.addEventListener('model-loaded', function (e) {
+        _this.load(e.detail.model);
+      });
+    }
+  },
+
+  load: function load(model) {
+    var el = this.el;
+    this.model = model;
+    this.mixer = new THREE.AnimationMixer(model);
+    this.mixer.addEventListener('loop', function (e) {
+      el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
+    });
+    this.mixer.addEventListener('finished', function (e) {
+      el.emit('animation-finished', { action: e.action, direction: e.direction });
+    });
+    if (this.data.clip) this.update({});
+  },
+
+  remove: function remove() {
+    if (this.mixer) this.mixer.stopAllAction();
+  },
+
+  update: function update(previousData) {
+    if (!previousData) return;
+
+    this.stopAction();
+
+    if (this.data.clip) {
+      this.playAction();
+    }
+  },
+
+  stopAction: function stopAction() {
+    var data = this.data;
+    for (var i = 0; i < this.activeActions.length; i++) {
+      data.crossFadeDuration ? this.activeActions[i].fadeOut(data.crossFadeDuration) : this.activeActions[i].stop();
+    }
+    this.activeActions.length = 0;
+  },
+
+  playAction: function playAction() {
+    if (!this.mixer) return;
+
+    var model = this.model,
+        data = this.data,
+        clips = model.animations || (model.geometry || {}).animations || [];
+
+    if (!clips.length) return;
+
+    var re = wildcardToRegExp(data.clip);
+
+    for (var clip, i = 0; clip = clips[i]; i++) {
+      if (clip.name.match(re)) {
+        var action = this.mixer.clipAction(clip, model);
+        action.enabled = true;
+        if (data.duration) action.setDuration(data.duration);
+        action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
+        this.activeActions.push(action);
+      }
+    }
+  },
+
+  tick: function tick(t, dt) {
+    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
+  }
+});
+
+/**
+ * Creates a RegExp from the given string, converting asterisks to .* expressions,
+ * and escaping all other characters.
+ */
+function wildcardToRegExp(s) {
+  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
+}
+
+/**
+ * RegExp-escapes all characters in the given string.
+ */
+function regExpEscape(s) {
+  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+}
+
+},{}],19:[function(require,module,exports){
+'use strict';
+
+THREE.FBXLoader = require('../../lib/FBXLoader');
+
+/**
+ * fbx-model
+ *
+ * Loader for FBX format. Supports ASCII, but *not* binary, models.
+ */
+module.exports = AFRAME.registerComponent('fbx-model', {
+  schema: {
+    src: { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function init() {
+    this.model = null;
+  },
+
+  update: function update() {
+    var data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    var loader = new THREE.FBXLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, this.load.bind(this));
+  },
+
+  load: function load(model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', { format: 'fbx', model: model });
+  },
+
+  remove: function remove() {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+});
+
+},{"../../lib/FBXLoader":3}],20:[function(require,module,exports){
+'use strict';
+
+var fetchScript = require('../../lib/fetch-script')();
+
+var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
+
+var loadLoader = function () {
+  var promise = void 0;
+  return function () {
+    promise = promise || fetchScript(LOADER_SRC);
+    return promise;
+  };
+}();
+
+/**
+ * Legacy loader for glTF 1.0 models.
+ * Asynchronously loads THREE.GLTFLoader from rawgit.
+ */
+module.exports = AFRAME.registerComponent('gltf-model-legacy', {
+  schema: { type: 'model' },
+
+  init: function init() {
+    var _this = this;
+
+    this.model = null;
+    this.loader = null;
+    this.loaderPromise = loadLoader().then(function () {
+      _this.loader = new THREE.GLTFLoader();
+      _this.loader.setCrossOrigin('Anonymous');
+    });
+  },
+
+  update: function update() {
+    var _this2 = this;
+
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+
+    if (!src) {
+      return;
+    }
+
+    this.remove();
+
+    this.loaderPromise.then(function () {
+      _this2.loader.load(src, function gltfLoaded(gltfModel) {
+        self.model = gltfModel.scene;
+        self.model.animations = gltfModel.animations;
+        el.setObject3D('mesh', self.model);
+        el.emit('model-loaded', { format: 'gltf', model: self.model });
+      });
+    });
+  },
+
+  remove: function remove() {
+    if (!this.model) {
+      return;
+    }
+    this.el.removeObject3D('mesh');
+  }
+});
+
+},{"../../lib/fetch-script":8}],21:[function(require,module,exports){
+'use strict';
+
+require('./animation-mixer');
+require('./fbx-model');
+require('./gltf-model-legacy');
+require('./json-model');
+require('./object-model');
+require('./ply-model');
+
+},{"./animation-mixer":18,"./fbx-model":19,"./gltf-model-legacy":20,"./json-model":22,"./object-model":23,"./ply-model":24}],22:[function(require,module,exports){
+'use strict';
+
+/**
+ * json-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.JsonLoader, which typically
+ * includes only a single mesh.
+ *
+ * Check the console for errors, if in doubt. You may need to use `object-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+
+module.exports = AFRAME.registerComponent('json-model', {
+  schema: {
+    src: { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function init() {
+    this.model = null;
+  },
+
+  update: function update() {
+    var _this = this;
+
+    var loader = void 0;
+    var data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.JSONLoader();
+    if (data.crossorigin) loader.crossOrigin = data.crossorigin;
+    loader.load(data.src, function (geometry, materials) {
+
+      // Attempt to automatically detect common material options.
+      materials.forEach(function (mat) {
+        mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
+        mat.skinning = !!(geometry.bones || []).length;
+        mat.morphTargets = !!(geometry.morphTargets || []).length;
+        mat.morphNormals = !!(geometry.morphNormals || []).length;
+      });
+
+      var model = (geometry.bones || []).length ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials)) : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+      _this.load(model);
+    });
+  },
+
+  load: function load(model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', { format: 'json', model: model });
+  },
+
+  remove: function remove() {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+});
+
+},{}],23:[function(require,module,exports){
+'use strict';
+
+/**
+ * object-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
+ * includes multiple meshes or an entire scene.
+ *
+ * Check the console for errors, if in doubt. You may need to use `json-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+
+module.exports = AFRAME.registerComponent('object-model', {
+  schema: {
+    src: { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function init() {
+    this.model = null;
+  },
+
+  update: function update() {
+    var _this = this;
+
+    var loader = void 0;
+    var data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.ObjectLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, function (object) {
+
+      // Enable skinning, if applicable.
+      object.traverse(function (o) {
+        if (o instanceof THREE.SkinnedMesh && o.material) {
+          o.material.skinning = !!(o.geometry && o.geometry.bones || []).length;
+        }
+      });
+
+      _this.load(object);
+    });
+  },
+
+  load: function load(model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', { format: 'json', model: model });
+  },
+
+  remove: function remove() {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+});
+
+},{}],24:[function(require,module,exports){
+'use strict';
+
+/**
+ * ply-model
+ *
+ * Wraps THREE.PLYLoader.
+ */
+
+THREE.PLYLoader = require('../../lib/PLYLoader');
+
+/**
+ * Loads, caches, resolves geometries.
+ *
+ * @member cache - Promises that resolve geometries keyed by `src`.
+ */
+module.exports.System = AFRAME.registerSystem('ply-model', {
+  init: function init() {
+    this.cache = {};
+  },
+
+  /**
+   * @returns {Promise}
+   */
+  getOrLoadGeometry: function getOrLoadGeometry(src, skipCache) {
+    var cache = this.cache;
+    var cacheItem = cache[src];
+
+    if (!skipCache && cacheItem) {
+      return cacheItem;
+    }
+
+    cache[src] = new Promise(function (resolve) {
+      var loader = new THREE.PLYLoader();
+      loader.load(src, function (geometry) {
+        resolve(geometry);
+      });
+    });
+    return cache[src];
+  }
+});
+
+module.exports.Component = AFRAME.registerComponent('ply-model', {
+  schema: {
+    skipCache: { type: 'boolean', default: false },
+    src: { type: 'asset' }
+  },
+
+  init: function init() {
+    this.model = null;
+  },
+
+  update: function update() {
+    var data = this.data;
+    var el = this.el;
+
+    if (!data.src) {
+      console.warn('[%s] `src` property is required.', this.name);
+      return;
+    }
+
+    // Get geometry from system, create and set mesh.
+    this.system.getOrLoadGeometry(data.src, data.skipCache).then(function (geometry) {
+      var model = createModel(geometry);
+      el.setObject3D('mesh', model);
+      el.emit('model-loaded', { format: 'ply', model: model });
+    });
+  },
+
+  remove: function remove() {
+    if (this.model) {
+      this.el.removeObject3D('mesh');
+    }
+  }
+});
+
+function createModel(geometry) {
+  return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+    color: 0xFFFFFF,
+    shading: THREE.FlatShading,
+    vertexColors: THREE.VertexColors,
+    shininess: 0
+  }));
+}
+
+},{"../../lib/PLYLoader":6}],25:[function(require,module,exports){
+'use strict';
+
+module.exports = AFRAME.registerComponent('checkpoint', {
+  schema: {
+    offset: { default: { x: 0, y: 0, z: 0 }, type: 'vec3' }
+  },
+
+  init: function init() {
+    this.active = false;
+    this.targetEl = null;
+    this.fire = this.fire.bind(this);
+    this.offset = new THREE.Vector3();
+  },
+
+  update: function update() {
+    this.offset.copy(this.data.offset);
+  },
+
+  play: function play() {
+    this.el.addEventListener('click', this.fire);
+  },
+  pause: function pause() {
+    this.el.removeEventListener('click', this.fire);
+  },
+  remove: function remove() {
+    this.pause();
+  },
+
+  fire: function fire() {
+    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+    if (!targetEl) {
+      throw new Error('No `checkpoint-controls` component found.');
+    }
+    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
+  },
+
+  getOffset: function getOffset() {
+    return this.offset.copy(this.data.offset);
+  }
+});
+
+},{}],26:[function(require,module,exports){
+'use strict';
+
+/**
+ * @param  {Array<THREE.Material>|THREE.Material} material
+ * @return {Array<THREE.Material>}
+ */
+
+function ensureMaterialArray(material) {
+  if (!material) {
+    return [];
+  } else if (Array.isArray(material)) {
+    return material;
+  } else if (material.materials) {
+    return material.materials;
+  } else {
+    return [material];
+  }
+}
+
+/**
+ * @param  {THREE.Object3D} mesh
+ * @param  {Array<string>} materialNames
+ * @param  {THREE.Texture} envMap
+ * @param  {number} reflectivity  [description]
+ */
+function applyEnvMap(mesh, materialNames, envMap, reflectivity) {
+  if (!mesh) return;
+
+  materialNames = materialNames || [];
+
+  mesh.traverse(function (node) {
+
+    if (!node.isMesh) return;
+
+    var meshMaterials = ensureMaterialArray(node.material);
+
+    meshMaterials.forEach(function (material) {
+
+      if (material && !('envMap' in material)) return;
+      if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
+
+      material.envMap = envMap;
+      material.reflectivity = reflectivity;
+      material.needsUpdate = true;
+    });
+  });
+}
+
+/**
+ * Specifies an envMap on an entity, without replacing any existing material
+ * properties.
+ */
+module.exports = AFRAME.registerComponent('cube-env-map', {
+  multiple: true,
+
+  schema: {
+    path: { default: '' },
+    extension: { default: 'jpg', oneOf: ['jpg', 'png'] },
+    format: { default: 'RGBFormat', oneOf: ['RGBFormat', 'RGBAFormat'] },
+    enableBackground: { default: false },
+    reflectivity: { default: 1, min: 0, max: 1 },
+    materials: { default: [] }
+  },
+
+  init: function init() {
+    var _this = this;
+
+    var data = this.data;
+
+    this.texture = new THREE.CubeTextureLoader().load([data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension, data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension, data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension]);
+    this.texture.format = THREE[data.format];
+
+    this.object3dsetHandler = function () {
+      var mesh = _this.el.getObject3D('mesh');
+      var data = _this.data;
+      applyEnvMap(mesh, data.materials, _this.texture, data.reflectivity);
+    };
+    this.el.addEventListener('object3dset', this.object3dsetHandler);
+  },
+
+  update: function update(oldData) {
+    var data = this.data;
+    var mesh = this.el.getObject3D('mesh');
+
+    var addedMaterialNames = [];
+    var removedMaterialNames = [];
+
+    if (data.materials.length) {
+      if (oldData.materials) {
+        addedMaterialNames = data.materials.filter(function (name) {
+          return !oldData.materials.includes(name);
+        });
+        removedMaterialNames = oldData.materials.filter(function (name) {
+          return !data.materials.includes(name);
+        });
+      } else {
+        addedMaterialNames = data.materials;
+      }
+    }
+    if (addedMaterialNames.length) {
+      applyEnvMap(mesh, addedMaterialNames, this.texture, data.reflectivity);
+    }
+    if (removedMaterialNames.length) {
+      applyEnvMap(mesh, removedMaterialNames, null, 1);
+    }
+
+    if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
+      var maintainedMaterialNames = data.materials.filter(function (name) {
+        return oldData.materials.includes(name);
+      });
+      if (maintainedMaterialNames.length) {
+        applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
+      }
+    }
+
+    if (this.data.enableBackground && !oldData.enableBackground) {
+      this.setBackground(this.texture);
+    } else if (!this.data.enableBackground && oldData.enableBackground) {
+      this.setBackground(null);
+    }
+  },
+
+  remove: function remove() {
+    this.el.removeEventListener('object3dset', this.object3dsetHandler);
+    var mesh = this.el.getObject3D('mesh');
+    var data = this.data;
+
+    applyEnvMap(mesh, data.materials, null, 1);
+    if (data.enableBackground) this.setBackground(null);
+  },
+
+  setBackground: function setBackground(texture) {
+    this.el.sceneEl.object3D.background = texture;
+  }
+});
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+/* global CANNON */
+
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Handles events coming from the hand-controls.
+ * Determines if the entity is grabbed or released.
+ * Updates its position to move along the controller.
+ */
+
+module.exports = AFRAME.registerComponent('grab', {
+  init: function init() {
+    this.system = this.el.sceneEl.systems.physics;
+
+    this.GRABBED_STATE = 'grabbed';
+
+    this.grabbing = false;
+    this.hitEl = /** @type {AFRAME.Element}    */null;
+    this.physics = /** @type {AFRAME.System}     */this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */null;
+
+    // Bind event handlers
+    this.onHit = this.onHit.bind(this);
+    this.onGripOpen = this.onGripOpen.bind(this);
+    this.onGripClose = this.onGripClose.bind(this);
+  },
+
+  play: function play() {
+    var el = this.el;
+    el.addEventListener('hit', this.onHit);
+    el.addEventListener('gripdown', this.onGripClose);
+    el.addEventListener('gripup', this.onGripOpen);
+    el.addEventListener('trackpaddown', this.onGripClose);
+    el.addEventListener('trackpadup', this.onGripOpen);
+    el.addEventListener('triggerdown', this.onGripClose);
+    el.addEventListener('triggerup', this.onGripOpen);
+  },
+
+  pause: function pause() {
+    var el = this.el;
+    el.removeEventListener('hit', this.onHit);
+    el.removeEventListener('gripdown', this.onGripClose);
+    el.removeEventListener('gripup', this.onGripOpen);
+    el.removeEventListener('trackpaddown', this.onGripClose);
+    el.removeEventListener('trackpadup', this.onGripOpen);
+    el.removeEventListener('triggerdown', this.onGripClose);
+    el.removeEventListener('triggerup', this.onGripOpen);
+  },
+
+  onGripClose: function onGripClose() {
+    this.grabbing = true;
+  },
+
+  onGripOpen: function onGripOpen() {
+    var hitEl = this.hitEl;
+    this.grabbing = false;
+    if (!hitEl) {
+      return;
+    }
+    hitEl.removeState(this.GRABBED_STATE);
+    this.hitEl = undefined;
+    this.system.removeConstraint(this.constraint);
+    this.constraint = null;
+  },
+
+  onHit: function onHit(evt) {
+    var hitEl = evt.detail.el;
+    // If the element is already grabbed (it could be grabbed by another controller).
+    // If the hand is not grabbing the element does not stick.
+    // If we're already grabbing something you can't grab again.
+    if (!hitEl || hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) {
+      return;
+    }
+    hitEl.addState(this.GRABBED_STATE);
+    this.hitEl = hitEl;
+    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
+    this.system.addConstraint(this.constraint);
+  }
+});
+
+},{}],28:[function(require,module,exports){
+'use strict';
+
+require('./checkpoint');
+require('./cube-env-map');
+require('./grab');
+require('./jump-ability');
+require('./kinematic-body');
+require('./mesh-smooth');
+require('./normal-material');
+require('./sphere-collider');
+
+},{"./checkpoint":25,"./cube-env-map":26,"./grab":27,"./jump-ability":29,"./kinematic-body":30,"./mesh-smooth":31,"./normal-material":32,"./sphere-collider":33}],29:[function(require,module,exports){
+'use strict';
+
+var ACCEL_G = -9.8,
+
+// m/s^2
+EASING = -15; // m/s^2
+
+/**
+ * Jump ability.
+ */
+module.exports = AFRAME.registerComponent('jump-ability', {
+  dependencies: ['velocity'],
+
+  /* Schema
+  ——————————————————————————————————————————————*/
+
+  schema: {
+    on: { default: 'keydown:Space gamepadbuttondown:0' },
+    playerHeight: { default: 1.764 },
+    maxJumps: { default: 1 },
+    distance: { default: 5 },
+    debug: { default: false }
+  },
+
+  init: function init() {
+    this.velocity = 0;
+    this.numJumps = 0;
+
+    var beginJump = this.beginJump.bind(this),
+        events = this.data.on.split(' ');
+    this.bindings = {};
+    for (var i = 0; i < events.length; i++) {
+      this.bindings[events[i]] = beginJump;
+      this.el.addEventListener(events[i], beginJump);
+    }
+    this.bindings.collide = this.onCollide.bind(this);
+    this.el.addEventListener('collide', this.bindings.collide);
+  },
+
+  remove: function remove() {
+    for (var event in this.bindings) {
+      if (this.bindings.hasOwnProperty(event)) {
+        this.el.removeEventListener(event, this.bindings[event]);
+        delete this.bindings[event];
+      }
+    }
+    this.el.removeEventListener('collide', this.bindings.collide);
+    delete this.bindings.collide;
+  },
+
+  beginJump: function beginJump() {
+    if (this.numJumps < this.data.maxJumps) {
+      var data = this.data,
+          initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
+          v = this.el.getAttribute('velocity');
+      this.el.setAttribute('velocity', { x: v.x, y: initialVelocity, z: v.z });
+      this.numJumps++;
+      this.el.emit('jumpstart');
+    }
+  },
+
+  onCollide: function onCollide() {
+    if (this.numJumps > 0) this.el.emit('jumpend');
+    this.numJumps = 0;
+  }
+});
+
+},{}],30:[function(require,module,exports){
+'use strict';
+
+/* global CANNON */
+
+/**
+ * Kinematic body.
+ *
+ * Managed dynamic body, which moves but is not affected (directly) by the
+ * physics engine. This is not a true kinematic body, in the sense that we are
+ * letting the physics engine _compute_ collisions against it and selectively
+ * applying those collisions to the object. The physics engine does not decide
+ * the position/velocity/rotation of the element.
+ *
+ * Used for the camera object, because full physics simulation would create
+ * movement that feels unnatural to the player. Bipedal movement does not
+ * translate nicely to rigid body physics.
+ *
+ * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
+ * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
+ */
+
+var EPS = 0.000001;
+
+module.exports = AFRAME.registerComponent('kinematic-body', {
+  dependencies: ['velocity'],
+
+  /*******************************************************************
+   * Schema
+   */
+
+  schema: {
+    mass: { default: 5 },
+    radius: { default: 1.3 },
+    userHeight: { default: 1.6 },
+    linearDamping: { default: 0.05 },
+    enableSlopes: { default: true }
+  },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
+  init: function init() {
+    this.system = this.el.sceneEl.systems.physics;
+    this.system.addComponent(this);
+
+    var el = this.el,
+        data = this.data,
+        position = new CANNON.Vec3().copy(el.getAttribute('position'));
+
+    this.body = new CANNON.Body({
+      material: this.system.material,
+      position: position,
+      mass: data.mass,
+      linearDamping: data.linearDamping,
+      fixedRotation: true
+    });
+    this.body.addShape(new CANNON.Sphere(data.radius), new CANNON.Vec3(0, data.radius - data.height, 0));
+
+    this.body.el = this.el;
+    this.el.body = this.body;
+    this.system.addBody(this.body);
+
+    if (el.hasAttribute('wasd-controls')) {
+      console.warn('[kinematic-body] Not compatible with wasd-controls, use movement-controls.');
+    }
+  },
+
+  remove: function remove() {
+    this.system.removeBody(this.body);
+    this.system.removeComponent(this);
+    delete this.el.body;
+  },
+
+  /*******************************************************************
+   * Update
+   */
+
+  /**
+   * Checks CANNON.World for collisions and attempts to apply them to the
+   * element automatically, in a player-friendly way.
+   *
+   * There's extra logic for horizontal surfaces here. The basic requirements:
+   * (1) Only apply gravity when not in contact with _any_ horizontal surface.
+   * (2) When moving, project the velocity against exactly one ground surface.
+   *     If in contact with two ground surfaces (e.g. ground + ramp), choose
+   *     the one that collides with current velocity, if any.
+   */
+  beforeStep: function beforeStep(t, dt) {
+    if (!dt) return;
+
+    var el = this.el;
+    var body = this.body;
+
+    body.velocity.copy(el.getAttribute('velocity'));
+    body.position.copy(el.getAttribute('position'));
+    body.position.y += this.data.userHeight;
+  },
+
+  step: function () {
+    var velocity = new THREE.Vector3(),
+        normalizedVelocity = new THREE.Vector3(),
+        currentSurfaceNormal = new THREE.Vector3(),
+        groundNormal = new THREE.Vector3();
+
+    return function (t, dt) {
+      if (!dt) return;
+
+      var body = this.body,
+          data = this.data,
+          didCollide = false,
+          height = void 0,
+          groundHeight = -Infinity,
+          groundBody = void 0,
+          contacts = this.system.getContacts();
+
+      dt = Math.min(dt, this.system.data.maxInterval * 1000);
+
+      groundNormal.set(0, 0, 0);
+      velocity.copy(this.el.getAttribute('velocity'));
+      body.velocity.copy(velocity);
+
+      for (var i = 0, contact; contact = contacts[i]; i++) {
+        // 1. Find any collisions involving this element. Get the contact
+        // normal, and make sure it's oriented _out_ of the other object and
+        // enabled (body.collisionReponse is true for both bodies)
+        if (!contact.enabled) {
+          continue;
+        }
+        if (body.id === contact.bi.id) {
+          contact.ni.negate(currentSurfaceNormal);
+        } else if (body.id === contact.bj.id) {
+          currentSurfaceNormal.copy(contact.ni);
+        } else {
+          continue;
+        }
+
+        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
+        if (didCollide && currentSurfaceNormal.y <= 0.5) {
+          // 2. If current trajectory attempts to move _through_ another
+          // object, project the velocity against the collision plane to
+          // prevent passing through.
+          velocity = velocity.projectOnPlane(currentSurfaceNormal);
+        } else if (currentSurfaceNormal.y > 0.5) {
+          // 3. If in contact with something roughly horizontal (+/- 45º) then
+          // consider that the current ground. Only the highest qualifying
+          // ground is retained.
+          height = body.id === contact.bi.id ? Math.abs(contact.rj.y + contact.bj.position.y) : Math.abs(contact.ri.y + contact.bi.position.y);
+          if (height > groundHeight) {
+            groundHeight = height;
+            groundNormal.copy(currentSurfaceNormal);
+            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
+          }
+        }
+      }
+
+      normalizedVelocity.copy(velocity).normalize();
+      if (groundBody && normalizedVelocity.y < 0.5) {
+        if (!data.enableSlopes) {
+          groundNormal.set(0, 1, 0);
+        } else if (groundNormal.y < 1 - EPS) {
+          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
+        }
+
+        // 4. Project trajectory onto the top-most ground object, unless
+        // trajectory is > 45º.
+        velocity = velocity.projectOnPlane(groundNormal);
+      } else if (this.system.driver.world) {
+        // 5. If not in contact with anything horizontal, apply world gravity.
+        // TODO - Why is the 4x scalar necessary.
+        // NOTE: Does not work if physics runs on a worker.
+        velocity.add(this.system.driver.world.gravity.scale(dt * 4.0 / 1000));
+      }
+
+      // 6. If the ground surface has a velocity, apply it directly to current
+      // position, not velocity, to preserve relative velocity.
+      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
+        var groundVelocity = groundBody.el.getAttribute('velocity');
+        body.position.copy({
+          x: body.position.x + groundVelocity.x * dt / 1000,
+          y: body.position.y + groundVelocity.y * dt / 1000,
+          z: body.position.z + groundVelocity.z * dt / 1000
+        });
+      }
+
+      body.velocity.copy(velocity);
+
+      body.position.y -= data.userHeight;
+      this.el.setAttribute('velocity', body.velocity);
+      this.el.setAttribute('position', body.position);
+    };
+  }(),
+
+  /**
+   * When walking on complex surfaces (trimeshes, borders between two shapes),
+   * the collision normals returned for the player sphere can be very
+   * inconsistent. To address this, raycast straight down, find the collision
+   * normal, and return whichever normal is more vertical.
+   * @param  {CANNON.Body} groundBody
+   * @param  {CANNON.Vec3} groundNormal
+   * @return {CANNON.Vec3}
+   */
+  raycastToGround: function raycastToGround(groundBody, groundNormal) {
+    var ray = void 0,
+        hitNormal = void 0,
+        vFrom = this.body.position,
+        vTo = this.body.position.clone();
+
+    vTo.y -= this.data.height;
+    ray = new CANNON.Ray(vFrom, vTo);
+    ray._updateDirection(); // TODO - Report bug.
+    ray.intersectBody(groundBody);
+
+    if (!ray.hasHit) return groundNormal;
+
+    // Compare ABS, in case we're projecting against the inside of the face.
+    hitNormal = ray.result.hitNormalWorld;
+    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
+  }
+});
+
+},{}],31:[function(require,module,exports){
+'use strict';
+
+/**
+ * Apply this component to models that looks "blocky", to have Three.js compute
+ * vertex normals on the fly for a "smoother" look.
+ */
+
+module.exports = AFRAME.registerComponent('mesh-smooth', {
+  init: function init() {
+    this.el.addEventListener('model-loaded', function (e) {
+      e.detail.model.traverse(function (node) {
+        if (node.isMesh) node.geometry.computeVertexNormals();
+      });
+    });
+  }
+});
+
+},{}],32:[function(require,module,exports){
+'use strict';
+
+/**
+ * Recursively applies a MeshNormalMaterial to the entity, such that
+ * face colors are determined by their orientation. Helpful for
+ * debugging geometry
+ */
+
+module.exports = AFRAME.registerComponent('normal-material', {
+  init: function init() {
+    this.material = new THREE.MeshNormalMaterial({ flatShading: true });
+    this.applyMaterial = this.applyMaterial.bind(this);
+    this.el.addEventListener('object3dset', this.applyMaterial);
+  },
+
+  remove: function remove() {
+    this.el.removeEventListener('object3dset', this.applyMaterial);
+  },
+
+  applyMaterial: function applyMaterial() {
+    var _this = this;
+
+    this.el.object3D.traverse(function (node) {
+      if (node.isMesh) node.material = _this.material;
+    });
+  }
+});
+
+},{}],33:[function(require,module,exports){
+'use strict';
+
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Implement bounding sphere collision detection for entities with a mesh.
+ * Sets the specified state on the intersected entities.
+ *
+ * @property {string} objects - Selector of the entities to test for collision.
+ * @property {string} state - State to set on collided entities.
+ *
+ */
+
+module.exports = AFRAME.registerComponent('sphere-collider', {
+  schema: {
+    objects: { default: '' },
+    state: { default: 'collided' },
+    radius: { default: 0.05 },
+    watch: { default: true }
+  },
+
+  init: function init() {
+    /** @type {MutationObserver} */
+    this.observer = null;
+    /** @type {Array<Element>} Elements to watch for collisions. */
+    this.els = [];
+    /** @type {Array<Element>} Elements currently in collision state. */
+    this.collisions = [];
+
+    this.handleHit = this.handleHit.bind(this);
+    this.handleHitEnd = this.handleHitEnd.bind(this);
+  },
+
+  remove: function remove() {
+    this.pause();
+  },
+
+  play: function play() {
+    var sceneEl = this.el.sceneEl;
+
+    if (this.data.watch) {
+      this.observer = new MutationObserver(this.update.bind(this, null));
+      this.observer.observe(sceneEl, { childList: true, subtree: true });
+    }
+  },
+
+  pause: function pause() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+  },
+
+  /**
+   * Update list of entities to test for collision.
+   */
+  update: function update() {
+    var data = this.data;
+    var objectEls = void 0;
+
+    // Push entities into list of els to intersect.
+    if (data.objects) {
+      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
+    } else {
+      // If objects not defined, intersect with everything.
+      objectEls = this.el.sceneEl.children;
+    }
+    // Convert from NodeList to Array
+    this.els = Array.prototype.slice.call(objectEls);
+  },
+
+  tick: function () {
+    var position = new THREE.Vector3(),
+        meshPosition = new THREE.Vector3(),
+        colliderScale = new THREE.Vector3(),
+        distanceMap = new Map();
+    return function () {
+      var el = this.el,
+          data = this.data,
+          mesh = el.getObject3D('mesh'),
+          collisions = [];
+      var colliderRadius = void 0;
+
+      if (!mesh) {
+        return;
+      }
+
+      distanceMap.clear();
+      position.copy(el.object3D.getWorldPosition());
+      el.object3D.getWorldScale(colliderScale);
+      colliderRadius = data.radius * scaleFactor(colliderScale);
+      // Update collision list.
+      this.els.forEach(intersect);
+
+      // Emit events and add collision states, in order of distance.
+      collisions.sort(function (a, b) {
+        return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
+      }).forEach(this.handleHit);
+
+      // Remove collision state from current element.
+      if (collisions.length === 0) {
+        el.emit('hit', { el: null });
+      }
+
+      // Remove collision state from other elements.
+      this.collisions.filter(function (el) {
+        return !distanceMap.has(el);
+      }).forEach(this.handleHitEnd);
+
+      // Store new collisions
+      this.collisions = collisions;
+
+      // Bounding sphere collision detection
+      function intersect(el) {
+        var radius = void 0,
+            mesh = void 0,
+            distance = void 0,
+            box = void 0,
+            extent = void 0,
+            size = void 0;
+
+        if (!el.isEntity) {
+          return;
+        }
+
+        mesh = el.getObject3D('mesh');
+
+        if (!mesh) {
+          return;
+        }
+
+        box = new THREE.Box3().setFromObject(mesh);
+        size = box.getSize();
+        extent = Math.max(size.x, size.y, size.z) / 2;
+        radius = Math.sqrt(2 * extent * extent);
+        box.getCenter(meshPosition);
+
+        if (!radius) {
+          return;
+        }
+
+        distance = position.distanceTo(meshPosition);
+        if (distance < radius + colliderRadius) {
+          collisions.push(el);
+          distanceMap.set(el, distance);
+        }
+      }
+      // use max of scale factors to maintain bounding sphere collision
+      function scaleFactor(scaleVec) {
+        return Math.max.apply(null, scaleVec.toArray());
+      }
+    };
+  }(),
+
+  handleHit: function handleHit(targetEl) {
+    targetEl.emit('hit');
+    targetEl.addState(this.data.state);
+    this.el.emit('hit', { el: targetEl });
+  },
+  handleHitEnd: function handleHitEnd(targetEl) {
+    targetEl.emit('hitend');
+    targetEl.removeState(this.data.state);
+    this.el.emit('hitend', { el: targetEl });
+  }
+});
+
+},{}],34:[function(require,module,exports){
+'use strict';
+
+require('./nav-mesh');
+require('./nav-agent');
+require('./system');
+
+},{"./nav-agent":35,"./nav-mesh":36,"./system":37}],35:[function(require,module,exports){
+'use strict';
+
+module.exports = AFRAME.registerComponent('nav-agent', {
+  schema: {
+    destination: { type: 'vec3' },
+    active: { default: false },
+    speed: { default: 2 }
+  },
+  init: function init() {
+    this.system = this.el.sceneEl.systems.nav;
+    this.system.addAgent(this);
+    this.group = null;
+    this.path = [];
+    this.raycaster = new THREE.Raycaster();
+  },
+  remove: function remove() {
+    this.system.removeAgent(this);
+  },
+  update: function update() {
+    this.path.length = 0;
+  },
+  updateNavLocation: function updateNavLocation() {
+    this.group = null;
+    this.path = [];
+  },
+  tick: function () {
+    var vDest = new THREE.Vector3();
+    var vDelta = new THREE.Vector3();
+    var vNext = new THREE.Vector3();
+
+    return function (t, dt) {
+      var el = this.el;
+      var data = this.data;
+      var raycaster = this.raycaster;
+      var speed = data.speed * dt / 1000;
+
+      if (!data.active) return;
+
+      // Use PatrolJS pathfinding system to get shortest path to target.
+      if (!this.path.length) {
+        var position = this.el.object3D.position;
+        this.group = this.group || this.system.getGroup(position);
+        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group) || [];
+        el.emit('nav-start');
+      }
+
+      // If no path is found, exit.
+      if (!this.path.length) {
+        console.warn('[nav] Unable to find path to %o.', data.destination);
+        this.el.setAttribute('nav-agent', { active: false });
+        el.emit('nav-end');
+        return;
+      }
+
+      // Current segment is a vector from current position to next waypoint.
+      var vCurrent = el.object3D.position;
+      var vWaypoint = this.path[0];
+      vDelta.subVectors(vWaypoint, vCurrent);
+
+      var distance = vDelta.length();
+      var gazeTarget = void 0;
+
+      if (distance < speed) {
+        // If <1 step from current waypoint, discard it and move toward next.
+        this.path.shift();
+
+        // After discarding the last waypoint, exit pathfinding.
+        if (!this.path.length) {
+          this.el.setAttribute('nav-agent', { active: false });
+          el.emit('nav-end');
+          return;
+        }
+
+        vNext.copy(vCurrent);
+        gazeTarget = this.path[0];
+      } else {
+        // If still far away from next waypoint, find next position for
+        // the current frame.
+        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
+        gazeTarget = vWaypoint;
+      }
+
+      // Look at the next waypoint.
+      gazeTarget.y = vCurrent.y;
+      el.object3D.lookAt(gazeTarget);
+
+      // Raycast against the nav mesh, to keep the agent moving along the
+      // ground, not traveling in a straight line from higher to lower waypoints.
+      raycaster.ray.origin.copy(vNext);
+      raycaster.ray.origin.y += 1.5;
+      raycaster.ray.direction.y = -1;
+      var intersections = raycaster.intersectObject(this.system.getNavMesh());
+
+      if (!intersections.length) {
+        // Raycasting failed. Step toward the waypoint and hope for the best.
+        vCurrent.copy(vNext);
+      } else {
+        // Re-project next position onto nav mesh.
+        vDelta.subVectors(intersections[0].point, vCurrent);
+        vCurrent.add(vDelta.setLength(speed));
+      }
+    };
+  }()
+});
+
+},{}],36:[function(require,module,exports){
+'use strict';
+
+/**
+ * nav-mesh
+ *
+ * Waits for a mesh to be loaded on the current entity, then sets it as the
+ * nav mesh in the pathfinding system.
+ */
+
+module.exports = AFRAME.registerComponent('nav-mesh', {
+  init: function init() {
+    this.system = this.el.sceneEl.systems.nav;
+    this.hasLoadedNavMesh = false;
+    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+  },
+
+  play: function play() {
+    if (!this.hasLoadedNavMesh) this.loadNavMesh();
+  },
+
+  loadNavMesh: function loadNavMesh() {
+    var object = this.el.getObject3D('mesh');
+    var scene = this.el.sceneEl.object3D;
+
+    if (!object) return;
+
+    var navMesh = void 0;
+    object.traverse(function (node) {
+      if (node.isMesh) navMesh = node;
+    });
+
+    if (!navMesh) return;
+
+    var navMeshGeometry = navMesh.geometry.isBufferGeometry ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry) : navMesh.geometry.clone();
+
+    scene.updateMatrixWorld();
+    navMeshGeometry.applyMatrix(navMesh.matrixWorld);
+    this.system.setNavMeshGeometry(navMeshGeometry);
+
+    this.hasLoadedNavMesh = true;
+  }
+});
+
+},{}],37:[function(require,module,exports){
+'use strict';
+
+var Path = require('three-pathfinding');
+
+var pathfinder = new Path();
+var ZONE = 'level';
+
+/**
+ * nav
+ *
+ * Pathfinding system, using PatrolJS.
+ */
+module.exports = AFRAME.registerSystem('nav', {
+  init: function init() {
+    this.navMesh = null;
+    this.agents = new Set();
+  },
+
+  /**
+   * @param {THREE.Geometry} geometry
+   */
+  setNavMeshGeometry: function setNavMeshGeometry(geometry) {
+    this.navMesh = new THREE.Mesh(geometry);
+    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
+    Array.from(this.agents).forEach(function (agent) {
+      return agent.updateNavLocation();
+    });
+  },
+
+  /**
+   * @return {THREE.Mesh}
+   */
+  getNavMesh: function getNavMesh() {
+    return this.navMesh;
+  },
+
+  /**
+   * @param {NavAgent} ctrl
+   */
+  addAgent: function addAgent(ctrl) {
+    this.agents.add(ctrl);
+  },
+
+  /**
+   * @param {NavAgent} ctrl
+   */
+  removeAgent: function removeAgent(ctrl) {
+    this.agents.delete(ctrl);
+  },
+
+  /**
+   * @param  {THREE.Vector3} start
+   * @param  {THREE.Vector3} end
+   * @param  {number} groupID
+   * @return {Array<THREE.Vector3>}
+   */
+  getPath: function getPath(start, end, groupID) {
+    return pathfinder.findPath(start, end, ZONE, groupID);
+  },
+
+  /**
+   * @param {THREE.Vector3} position
+   * @return {number}
+   */
+  getGroup: function getGroup(position) {
+    return pathfinder.getGroup(ZONE, position);
+  },
+
+  /**
+   * @param  {THREE.Vector3} position
+   * @param  {number} groupID
+   * @return {Node}
+   */
+  getNode: function getNode(position, groupID) {
+    return pathfinder.getClosestNode(position, ZONE, groupID, true);
+  },
+
+  /**
+   * @param  {THREE.Vector3} start Starting position.
+   * @param  {THREE.Vector3} end Desired ending position.
+   * @param  {number} groupID
+   * @param  {Node} node
+   * @param  {THREE.Vector3} endTarget (Output) Adjusted step end position.
+   * @return {Node} Current node, after step is taken.
+   */
+  clampStep: function clampStep(start, end, groupID, node, endTarget) {
+    if (!this.navMesh || !node) {
+      endTarget.copy(end);
+      return this.navMesh ? this.getNode(end, groupID) : null;
+    }
+    return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
+  }
+});
+
+},{"three-pathfinding":47}],38:[function(require,module,exports){
+'use strict';
+
+/**
+ * Flat grid.
+ *
+ * Defaults to 75x75.
+ */
+
+module.exports = AFRAME.registerPrimitive('a-grid', {
+  defaultComponents: {
+    geometry: {
+      primitive: 'plane',
+      width: 75,
+      height: 75
+    },
+    rotation: { x: -90, y: 0, z: 0 },
+    material: {
+      src: 'url(https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.3/assets/grid.png)',
+      repeat: '75 75'
+    }
+  },
+  mappings: {
+    width: 'geometry.width',
+    height: 'geometry.height',
+    src: 'material.src'
+  }
+});
+
+},{}],39:[function(require,module,exports){
+'use strict';
+
+var vg = require('../../lib/hex-grid.min.js');
+var defaultHexGrid = require('../../lib/default-hex-grid');
+
+/**
+ * Hex grid.
+ */
+module.exports.Primitive = AFRAME.registerPrimitive('a-hexgrid', {
+  defaultComponents: {
+    'hexgrid': {}
+  },
+  mappings: {
+    src: 'hexgrid.src'
+  }
+});
+
+module.exports.Component = AFRAME.registerComponent('hexgrid', {
+  dependencies: ['material'],
+  schema: {
+    src: { type: 'asset' }
+  },
+  init: function init() {
+    var _this = this;
+
+    var data = this.data;
+    if (data.src) {
+      fetch(data.src).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return _this.addMesh(json);
+      });
+    } else {
+      this.addMesh(defaultHexGrid);
+    }
+  },
+  addMesh: function addMesh(json) {
+    var grid = new vg.HexGrid();
+    grid.fromJSON(json);
+    var board = new vg.Board(grid);
+    board.generateTilemap();
+    this.el.setObject3D('mesh', board.group);
+    this.addMaterial();
+  },
+  addMaterial: function addMaterial() {
+    var materialComponent = this.el.components.material;
+    var material = (materialComponent || {}).material;
+    if (!material) return;
+    this.el.object3D.traverse(function (node) {
+      if (node.isMesh) {
+        node.material = material;
+      }
+    });
+  },
+  remove: function remove() {
+    this.el.removeObject3D('mesh');
+  }
+});
+
+},{"../../lib/default-hex-grid":7,"../../lib/hex-grid.min.js":9}],40:[function(require,module,exports){
+'use strict';
+
+/**
+ * Flat-shaded ocean primitive.
+ *
+ * Based on a Codrops tutorial:
+ * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
+ */
+
+module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
+  defaultComponents: {
+    ocean: {},
+    rotation: { x: -90, y: 0, z: 0 }
+  },
+  mappings: {
+    width: 'ocean.width',
+    depth: 'ocean.depth',
+    density: 'ocean.density',
+    amplitude: 'ocean.amplitude',
+    amplitudeVariance: 'ocean.amplitudeVariance',
+    speed: 'ocean.speed',
+    speedVariance: 'ocean.speedVariance',
+    color: 'ocean.color',
+    opacity: 'ocean.opacity'
+  }
+});
+
+module.exports.Component = AFRAME.registerComponent('ocean', {
+  schema: {
+    // Dimensions of the ocean area.
+    width: { default: 10, min: 0 },
+    depth: { default: 10, min: 0 },
+
+    // Density of waves.
+    density: { default: 10 },
+
+    // Wave amplitude and variance.
+    amplitude: { default: 0.1 },
+    amplitudeVariance: { default: 0.3 },
+
+    // Wave speed and variance.
+    speed: { default: 1 },
+    speedVariance: { default: 2 },
+
+    // Material.
+    color: { default: '#7AD2F7', type: 'color' },
+    opacity: { default: 0.8 }
+  },
+
+  /**
+   * Use play() instead of init(), because component mappings – unavailable as dependencies – are
+   * not guaranteed to have parsed when this component is initialized.
+   */
+  play: function play() {
+    var el = this.el,
+        data = this.data;
+    var material = el.components.material;
+
+    var geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
+    geometry.mergeVertices();
+    this.waves = [];
+    for (var v, i = 0, l = geometry.vertices.length; i < l; i++) {
+      v = geometry.vertices[i];
+      this.waves.push({
+        z: v.z,
+        ang: Math.random() * Math.PI * 2,
+        amp: data.amplitude + Math.random() * data.amplitudeVariance,
+        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
+      });
+    }
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial({
+        color: data.color,
+        transparent: data.opacity < 1,
+        opacity: data.opacity,
+        shading: THREE.FlatShading
+      });
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    el.setObject3D('mesh', this.mesh);
+  },
+
+  remove: function remove() {
+    this.el.removeObject3D('mesh');
+  },
+
+  tick: function tick(t, dt) {
+    if (!dt) return;
+
+    var verts = this.mesh.geometry.vertices;
+    for (var v, vprops, i = 0; v = verts[i]; i++) {
+      vprops = this.waves[i];
+      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+      vprops.ang += vprops.speed * dt;
+    }
+    this.mesh.geometry.verticesNeedUpdate = true;
+  }
+});
+
+},{}],41:[function(require,module,exports){
+'use strict';
+
+/**
+ * Tube following a custom path.
+ *
+ * Usage:
+ *
+ * ```html
+ * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
+ * ```
+ */
+
+module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
+  defaultComponents: {
+    tube: {}
+  },
+  mappings: {
+    path: 'tube.path',
+    segments: 'tube.segments',
+    radius: 'tube.radius',
+    radialSegments: 'tube.radialSegments',
+    closed: 'tube.closed'
+  }
+});
+
+module.exports.Component = AFRAME.registerComponent('tube', {
+  schema: {
+    path: { default: [] },
+    segments: { default: 64 },
+    radius: { default: 1 },
+    radialSegments: { default: 8 },
+    closed: { default: false }
+  },
+
+  init: function init() {
+    var el = this.el,
+        data = this.data;
+    var material = el.components.material;
+
+    if (!data.path.length) {
+      console.error('[a-tube] `path` property expected but not found.');
+      return;
+    }
+
+    var curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
+      point = point.split(' ');
+      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
+    }));
+    var geometry = new THREE.TubeGeometry(curve, data.segments, data.radius, data.radialSegments, data.closed);
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial();
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    this.el.setObject3D('mesh', this.mesh);
+  },
+
+  remove: function remove() {
+    if (this.mesh) this.el.removeObject3D('mesh');
+  }
+});
+
+},{}],42:[function(require,module,exports){
+'use strict';
+
+require('./a-grid');
+require('./a-hexgrid');
+require('./a-ocean');
+require('./a-tube');
+
+},{"./a-grid":38,"./a-hexgrid":39,"./a-ocean":40,"./a-tube":41}],43:[function(require,module,exports){
+'use strict';
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -5282,7 +7943,7 @@ var AStar = function () {
 
 module.exports = AStar;
 
-},{"./BinaryHeap":12,"./utils.js":16}],12:[function(require,module,exports){
+},{"./BinaryHeap":44,"./utils.js":48}],44:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5436,7 +8097,7 @@ var BinaryHeap = function () {
 
 module.exports = BinaryHeap;
 
-},{}],13:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5662,7 +8323,7 @@ var Builder = function () {
 
 module.exports = Builder;
 
-},{"./utils":16}],14:[function(require,module,exports){
+},{"./utils":48}],46:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5773,7 +8434,7 @@ var Channel = function () {
 
 module.exports = Channel;
 
-},{"./utils":16}],15:[function(require,module,exports){
+},{"./utils":48}],47:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -6078,7 +8739,7 @@ var Node = {}; // jshint ignore:line
 
 module.exports = Path;
 
-},{"./AStar":11,"./Builder":13,"./Channel":14,"./utils":16}],16:[function(require,module,exports){
+},{"./AStar":43,"./Builder":45,"./Channel":46,"./utils":48}],48:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -6412,2658 +9073,4 @@ var Utils = function () {
 
 module.exports = Utils;
 
-},{}],17:[function(require,module,exports){
-'use strict';
-
-var EPS = 0.1;
-
-module.exports = AFRAME.registerComponent('checkpoint-controls', {
-  schema: {
-    enabled: { default: true },
-    mode: { default: 'teleport', oneOf: ['teleport', 'animate'] },
-    animateSpeed: { default: 3.0 }
-  },
-
-  init: function init() {
-    this.active = true;
-    this.checkpoint = null;
-
-    this.isNavMeshConstrained = false;
-
-    this.offset = new THREE.Vector3();
-    this.position = new THREE.Vector3();
-    this.targetPosition = new THREE.Vector3();
-  },
-
-  play: function play() {
-    this.active = true;
-  },
-  pause: function pause() {
-    this.active = false;
-  },
-
-  setCheckpoint: function setCheckpoint(checkpoint) {
-    var el = this.el;
-
-    if (!this.active) return;
-    if (this.checkpoint === checkpoint) return;
-
-    if (this.checkpoint) {
-      el.emit('navigation-end', { checkpoint: this.checkpoint });
-    }
-
-    this.checkpoint = checkpoint;
-    this.sync();
-
-    // Ignore new checkpoint if we're already there.
-    if (this.position.distanceTo(this.targetPosition) < EPS) {
-      this.checkpoint = null;
-      return;
-    }
-
-    el.emit('navigation-start', { checkpoint: checkpoint });
-
-    if (this.data.mode === 'teleport') {
-      this.el.setAttribute('position', this.targetPosition);
-      this.checkpoint = null;
-      el.emit('navigation-end', { checkpoint: checkpoint });
-      el.components['movement-controls'].updateNavNode();
-    }
-  },
-
-  isVelocityActive: function isVelocityActive() {
-    return !!(this.active && this.checkpoint);
-  },
-
-  getVelocity: function getVelocity() {
-    if (!this.active) return;
-
-    var data = this.data;
-    var offset = this.offset;
-    var position = this.position;
-    var targetPosition = this.targetPosition;
-    var checkpoint = this.checkpoint;
-
-    this.sync();
-    if (position.distanceTo(targetPosition) < EPS) {
-      this.checkpoint = null;
-      this.el.emit('navigation-end', { checkpoint: checkpoint });
-      return offset.set(0, 0, 0);
-    }
-    offset.setLength(data.animateSpeed);
-    return offset;
-  },
-
-  sync: function sync() {
-    var offset = this.offset;
-    var position = this.position;
-    var targetPosition = this.targetPosition;
-
-    position.copy(this.el.getAttribute('position'));
-    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
-    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
-    offset.copy(targetPosition).sub(position);
-  }
-});
-
-},{}],18:[function(require,module,exports){
-'use strict';
-
-/**
- * Gamepad controls for A-Frame.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
- *
- * For more information about the Gamepad API, see:
- * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
- */
-
-var GamepadButton = require('../../lib/GamepadButton'),
-    GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
-
-var JOYSTICK_EPS = 0.2;
-
-module.exports = AFRAME.registerComponent('gamepad-controls', {
-
-  /*******************************************************************
-   * Statics
-   */
-
-  GamepadButton: GamepadButton,
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    // Controller 0-3
-    controller: { default: 0, oneOf: [0, 1, 2, 3] },
-
-    // Enable/disable features
-    enabled: { default: true },
-
-    // Debugging
-    debug: { default: false },
-
-    // Heading element for rotation
-    camera: { default: '[camera]', type: 'selector' },
-
-    // Rotation sensitivity
-    rotationSensitivity: { default: 0.05 // radians/frame, ish
-    } },
-
-  /*******************************************************************
-   * Core
-   */
-
-  /**
-   * Called once when component is attached. Generally for initial setup.
-   */
-  init: function init() {
-    var scene = this.el.sceneEl;
-    this.prevTime = window.performance.now();
-
-    // Button state
-    this.buttons = {};
-
-    // Rotation
-    var rotation = this.el.object3D.rotation;
-    this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
-    this.yaw = new THREE.Object3D();
-    this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
-    this.yaw.add(this.pitch);
-
-    scene.addBehavior(this);
-  },
-
-  /**
-   * Called when component is attached and when component data changes.
-   * Generally modifies the entity based on the data.
-   */
-  update: function update() {
-    this.tick();
-  },
-
-  /**
-   * Called on each iteration of main render loop.
-   */
-  tick: function tick(t, dt) {
-    this.updateButtonState();
-    this.updateRotation(dt);
-  },
-
-  /**
-   * Called when a component is removed (e.g., via removeAttribute).
-   * Generally undoes all modifications to the entity.
-   */
-  remove: function remove() {},
-
-  /*******************************************************************
-   * Movement
-   */
-
-  isVelocityActive: function isVelocityActive() {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    var dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y;
-
-    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
-  },
-
-  getVelocityDelta: function getVelocityDelta() {
-    var dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y,
-        dVelocity = new THREE.Vector3();
-
-    if (Math.abs(inputX) > JOYSTICK_EPS) {
-      dVelocity.x += inputX;
-    }
-    if (Math.abs(inputY) > JOYSTICK_EPS) {
-      dVelocity.z += inputY;
-    }
-
-    return dVelocity;
-  },
-
-  /*******************************************************************
-   * Rotation
-   */
-
-  isRotationActive: function isRotationActive() {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    var joystick1 = this.getJoystick(1);
-
-    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
-  },
-
-  updateRotation: function updateRotation(dt) {
-    if (!this.isRotationActive()) return;
-
-    var lookVector = this.getJoystick(1);
-
-    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
-    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
-
-    var data = this.data;
-    var yaw = this.yaw;
-    var pitch = this.pitch;
-
-    lookVector.multiplyScalar(data.rotationSensitivity * dt / 1000);
-    yaw.rotation.y -= lookVector.x;
-    pitch.rotation.x -= lookVector.y;
-    pitch.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
-    data.camera.object3D.rotation.set(THREE.Math.radToDeg(pitch.rotation.x), THREE.Math.radToDeg(yaw.rotation.y), 0);
-  },
-
-  /*******************************************************************
-   * Button events
-   */
-
-  updateButtonState: function updateButtonState() {
-    var gamepad = this.getGamepad();
-    if (this.data.enabled && gamepad) {
-
-      // Fire DOM events for button state changes.
-      for (var i = 0; i < gamepad.buttons.length; i++) {
-        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttondown', i, gamepad.buttons[i]));
-        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttonup', i, gamepad.buttons[i]));
-        }
-        this.buttons[i] = gamepad.buttons[i].pressed;
-      }
-    } else if (Object.keys(this.buttons)) {
-      // Reset state if controls are disabled or controller is lost.
-      this.buttons = {};
-    }
-  },
-
-  emit: function emit(event) {
-    // Emit original event.
-    this.el.emit(event.type, event);
-
-    // Emit convenience event, identifying button index.
-    this.el.emit(event.type + ':' + event.index, new GamepadButtonEvent(event.type, event.index, event));
-  },
-
-  /*******************************************************************
-   * Gamepad state
-   */
-
-  /**
-   * Returns the Gamepad instance attached to the component. If connected,
-   * a proxy-controls component may provide access to Gamepad input from a
-   * remote device.
-   *
-   * @return {Gamepad}
-   */
-  getGamepad: function getGamepad() {
-    var localGamepad = navigator.getGamepads && navigator.getGamepads()[this.data.controller],
-        proxyControls = this.el.sceneEl.components['proxy-controls'],
-        proxyGamepad = proxyControls && proxyControls.isConnected() && proxyControls.getGamepad(this.data.controller);
-    return proxyGamepad || localGamepad;
-  },
-
-  /**
-   * Returns the state of the given button.
-   * @param  {number} index The button (0-N) for which to find state.
-   * @return {GamepadButton}
-   */
-  getButton: function getButton(index) {
-    return this.getGamepad().buttons[index];
-  },
-
-  /**
-   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
-   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
-   * @param  {number} index The axis (0-N) for which to find state.
-   * @return {number} On the interval [-1,1].
-   */
-  getAxis: function getAxis(index) {
-    return this.getGamepad().axes[index];
-  },
-
-  /**
-   * Returns the state of the given joystick (0 or 1) as a THREE.Vector2.
-   * @param  {number} id The joystick (0, 1) for which to find state.
-   * @return {THREE.Vector2}
-   */
-  getJoystick: function getJoystick(index) {
-    var gamepad = this.getGamepad();
-    switch (index) {
-      case 0:
-        return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
-      case 1:
-        return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
-      default:
-        throw new Error('Unexpected joystick index "%d".', index);
-    }
-  },
-
-  /**
-   * Returns the state of the dpad as a THREE.Vector2.
-   * @return {THREE.Vector2}
-   */
-  getDpad: function getDpad() {
-    var gamepad = this.getGamepad();
-    if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
-      return new THREE.Vector2();
-    }
-    return new THREE.Vector2((gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0) + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0), (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0) + (gamepad.buttons[GamepadButton.DPAD_DOWN].pressed ? 1 : 0));
-  },
-
-  /**
-   * Returns true if the gamepad is currently connected to the system.
-   * @return {boolean}
-   */
-  isConnected: function isConnected() {
-    var gamepad = this.getGamepad();
-    return !!(gamepad && gamepad.connected);
-  },
-
-  /**
-   * Returns a string containing some information about the controller. Result
-   * may vary across browsers, for a given controller.
-   * @return {string}
-   */
-  getID: function getID() {
-    return this.getGamepad().id;
-  }
-});
-
-},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],19:[function(require,module,exports){
-'use strict';
-
-require('./checkpoint-controls');
-require('./gamepad-controls');
-require('./keyboard-controls');
-require('./touch-controls');
-require('./movement-controls');
-require('./trackpad-controls');
-
-},{"./checkpoint-controls":17,"./gamepad-controls":18,"./keyboard-controls":20,"./movement-controls":21,"./touch-controls":22,"./trackpad-controls":23}],20:[function(require,module,exports){
-'use strict';
-
-require('../../lib/keyboard.polyfill');
-
-var MAX_DELTA = 0.2,
-    PROXY_FLAG = '__keyboard-controls-proxy';
-
-var KeyboardEvent = window.KeyboardEvent;
-
-/**
- * Keyboard Controls component.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
- *
- * Bind keyboard events to components, or control your entities with the WASD keys.
- *
- * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
- * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
- * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
- * when you care about which physical key was pressed, rather thanwhich character it corresponds
- * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
- * player in different directions, and that mapping should ideally be independent of keyboard
- * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
- *
- * @namespace wasd-controls
- * keys the entity moves and if you release it will stop. Easing simulates friction.
- * to the entity when pressing the keys.
- * @param {bool} [enabled=true] - To completely enable or disable the controls
- */
-module.exports = AFRAME.registerComponent('keyboard-controls', {
-  schema: {
-    enabled: { default: true },
-    debug: { default: false }
-  },
-
-  init: function init() {
-    this.dVelocity = new THREE.Vector3();
-    this.localKeys = {};
-    this.listeners = {
-      keydown: this.onKeyDown.bind(this),
-      keyup: this.onKeyUp.bind(this),
-      blur: this.onBlur.bind(this)
-    };
-    this.attachEventListeners();
-  },
-
-  /*******************************************************************
-  * Movement
-  */
-
-  isVelocityActive: function isVelocityActive() {
-    return this.data.enabled && !!Object.keys(this.getKeys()).length;
-  },
-
-  getVelocityDelta: function getVelocityDelta() {
-    var data = this.data,
-        keys = this.getKeys();
-
-    this.dVelocity.set(0, 0, 0);
-    if (data.enabled) {
-      if (keys.KeyW || keys.ArrowUp) {
-        this.dVelocity.z -= 1;
-      }
-      if (keys.KeyA || keys.ArrowLeft) {
-        this.dVelocity.x -= 1;
-      }
-      if (keys.KeyS || keys.ArrowDown) {
-        this.dVelocity.z += 1;
-      }
-      if (keys.KeyD || keys.ArrowRight) {
-        this.dVelocity.x += 1;
-      }
-    }
-
-    return this.dVelocity.clone();
-  },
-
-  /*******************************************************************
-  * Events
-  */
-
-  play: function play() {
-    this.attachEventListeners();
-  },
-
-  pause: function pause() {
-    this.removeEventListeners();
-  },
-
-  remove: function remove() {
-    this.pause();
-  },
-
-  attachEventListeners: function attachEventListeners() {
-    window.addEventListener('keydown', this.listeners.keydown, false);
-    window.addEventListener('keyup', this.listeners.keyup, false);
-    window.addEventListener('blur', this.listeners.blur, false);
-  },
-
-  removeEventListeners: function removeEventListeners() {
-    window.removeEventListener('keydown', this.listeners.keydown);
-    window.removeEventListener('keyup', this.listeners.keyup);
-    window.removeEventListener('blur', this.listeners.blur);
-  },
-
-  onKeyDown: function onKeyDown(event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      this.localKeys[event.code] = true;
-      this.emit(event);
-    }
-  },
-
-  onKeyUp: function onKeyUp(event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      delete this.localKeys[event.code];
-      this.emit(event);
-    }
-  },
-
-  onBlur: function onBlur() {
-    for (var code in this.localKeys) {
-      if (this.localKeys.hasOwnProperty(code)) {
-        delete this.localKeys[code];
-      }
-    }
-  },
-
-  emit: function emit(event) {
-    // TODO - keydown only initially?
-    // TODO - where the f is the spacebar
-
-    // Emit original event.
-    if (PROXY_FLAG in event) {
-      // TODO - Method never triggered.
-      this.el.emit(event.type, event);
-    }
-
-    // Emit convenience event, identifying key.
-    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
-    if (this.data.debug) console.log(event.type + ':' + event.code);
-  },
-
-  /*******************************************************************
-  * Accessors
-  */
-
-  isPressed: function isPressed(code) {
-    return code in this.getKeys();
-  },
-
-  getKeys: function getKeys() {
-    if (this.isProxied()) {
-      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
-    }
-    return this.localKeys;
-  },
-
-  isProxied: function isProxied() {
-    var proxyControls = this.el.sceneEl.components['proxy-controls'];
-    return proxyControls && proxyControls.isConnected();
-  }
-
-});
-
-},{"../../lib/keyboard.polyfill":10}],21:[function(require,module,exports){
-'use strict';
-
-/**
- * Movement Controls
- *
- * @author Don McCurdy <dm@donmccurdy.com>
- */
-
-var COMPONENT_SUFFIX = '-controls',
-    MAX_DELTA = 0.2,
-
-// ms
-EPS = 10e-6;
-
-module.exports = AFRAME.registerComponent('movement-controls', {
-
-  /*******************************************************************
-   * Schema
-   */
-
-  dependencies: ['rotation'],
-
-  schema: {
-    enabled: { default: true },
-    controls: { default: ['gamepad', 'trackpad', 'keyboard', 'touch'] },
-    easing: { default: 15 }, // m/s2
-    easingY: { default: 0 }, // m/s2
-    acceleration: { default: 80 }, // m/s2
-    fly: { default: false },
-    constrainToNavMesh: { default: false },
-    camera: { default: '[camera]', type: 'selector' }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function init() {
-    var el = this.el;
-
-    this.velocityCtrl = null;
-
-    this.velocity = new THREE.Vector3();
-    this.heading = new THREE.Quaternion();
-
-    // Navigation
-    this.navGroup = null;
-    this.navNode = null;
-
-    if (el.sceneEl.hasLoaded) {
-      this.injectControls();
-    } else {
-      el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
-    }
-  },
-
-  update: function update() {
-    if (this.el.sceneEl.hasLoaded) {
-      this.injectControls();
-    }
-  },
-
-  injectControls: function injectControls() {
-    var data = this.data;
-    var name;
-
-    for (var i = 0; i < data.controls.length; i++) {
-      name = data.controls[i] + COMPONENT_SUFFIX;
-      if (!this.el.components[name]) {
-        this.el.setAttribute(name, '');
-      }
-    }
-  },
-
-  updateNavNode: function updateNavNode() {
-    this.navNode = null;
-  },
-
-  /*******************************************************************
-   * Tick
-   */
-
-  tick: function () {
-    var start = new THREE.Vector3();
-    var end = new THREE.Vector3();
-    var clampedEnd = new THREE.Vector3();
-
-    return function (t, dt) {
-      if (!dt) return;
-
-      var el = this.el;
-      var data = this.data;
-
-      if (!data.enabled) return;
-
-      this.updateVelocityCtrl();
-      var velocityCtrl = this.velocityCtrl;
-      var velocity = this.velocity;
-
-      if (!velocityCtrl) return;
-
-      // Update velocity. If FPS is too low, reset.
-      if (dt / 1000 > MAX_DELTA) {
-        velocity.set(0, 0, 0);
-      } else {
-        this.updateVelocity(dt);
-      }
-
-      if (data.constrainToNavMesh && velocityCtrl.isNavMeshConstrained !== false) {
-
-        if (velocity.lengthSq() < EPS) return;
-
-        start.copy(el.object3D.position);
-        end.copy(velocity).multiplyScalar(dt / 1000).add(start);
-
-        var nav = el.sceneEl.systems.nav;
-        this.navGroup = this.navGroup || nav.getGroup(start);
-        this.navNode = this.navNode || nav.getNode(start, this.navGroup);
-        this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
-        el.object3D.position.copy(clampedEnd);
-      } else if (el.hasAttribute('velocity')) {
-        el.setAttribute('velocity', velocity);
-      } else {
-        el.object3D.position.x += velocity.x * dt / 1000;
-        el.object3D.position.y += velocity.y * dt / 1000;
-        el.object3D.position.z += velocity.z * dt / 1000;
-      }
-    };
-  }(),
-
-  /*******************************************************************
-   * Movement
-   */
-
-  updateVelocityCtrl: function updateVelocityCtrl() {
-    var data = this.data;
-    if (data.enabled) {
-      for (var i = 0, l = data.controls.length; i < l; i++) {
-        var control = this.el.components[data.controls[i] + COMPONENT_SUFFIX];
-        if (control && control.isVelocityActive()) {
-          this.velocityCtrl = control;
-          return;
-        }
-      }
-      this.velocityCtrl = null;
-    }
-  },
-
-  updateVelocity: function () {
-    // var matrix = new THREE.Matrix4();
-    // var matrix2 = new THREE.Matrix4();
-    // var position = new THREE.Vector3();
-    // var quaternion = new THREE.Quaternion();
-    // var scale = new THREE.Vector3();
-
-    return function (dt) {
-      var dVelocity = void 0;
-      var el = this.el;
-      var control = this.velocityCtrl;
-      var velocity = this.velocity;
-      var data = this.data;
-
-      if (control) {
-        if (control.getVelocityDelta) {
-          dVelocity = control.getVelocityDelta(dt);
-        } else if (control.getVelocity) {
-          velocity.copy(control.getVelocity());
-          return;
-        } else if (control.getPositionDelta) {
-          velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
-          return;
-        } else {
-          throw new Error('Incompatible movement controls: ', control);
-        }
-      }
-
-      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) velocity.copy(this.el.getAttribute('velocity'));
-      velocity.x -= velocity.x * data.easing * dt / 1000;
-      velocity.y -= velocity.y * data.easingY * dt / 1000;
-      velocity.z -= velocity.z * data.easing * dt / 1000;
-
-      if (dVelocity && data.enabled) {
-        // Set acceleration
-        if (dVelocity.length() > 1) {
-          dVelocity.setLength(this.data.acceleration * dt / 1000);
-        } else {
-          dVelocity.multiplyScalar(this.data.acceleration * dt / 1000);
-        }
-
-        // TODO: Handle rotated rig.
-        var cameraEl = data.camera;
-        // matrix.copy(cameraEl.object3D.matrixWorld);
-        // matrix2.getInverse(el.object3D.matrixWorld);
-        // matrix.multiply(matrix2);
-        // matrix.decompose(position, quaternion, scale);
-        // dVelocity.applyQuaternion(quaternion);
-
-        // Rotate to heading
-        dVelocity.applyQuaternion(cameraEl.object3D.quaternion);
-
-        if (!data.fly) dVelocity.y = 0;
-
-        velocity.add(dVelocity);
-      }
-    };
-  }()
-});
-
-},{}],22:[function(require,module,exports){
-'use strict';
-
-/**
- * Touch-to-move-forward controls for mobile.
- */
-
-module.exports = AFRAME.registerComponent('touch-controls', {
-  schema: {
-    enabled: { default: true }
-  },
-
-  init: function init() {
-    this.dVelocity = new THREE.Vector3();
-    this.bindMethods();
-  },
-
-  play: function play() {
-    this.addEventListeners();
-  },
-
-  pause: function pause() {
-    this.removeEventListeners();
-    this.dVelocity.set(0, 0, 0);
-  },
-
-  remove: function remove() {
-    this.pause();
-  },
-
-  addEventListeners: function addEventListeners() {
-    var sceneEl = this.el.sceneEl;
-    var canvasEl = sceneEl.canvas;
-
-    if (!canvasEl) {
-      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-      return;
-    }
-
-    canvasEl.addEventListener('touchstart', this.onTouchStart);
-    canvasEl.addEventListener('touchend', this.onTouchEnd);
-  },
-
-  removeEventListeners: function removeEventListeners() {
-    var canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
-    if (!canvasEl) {
-      return;
-    }
-
-    canvasEl.removeEventListener('touchstart', this.onTouchStart);
-    canvasEl.removeEventListener('touchend', this.onTouchEnd);
-  },
-
-  isVelocityActive: function isVelocityActive() {
-    return this.data.enabled && this.isMoving;
-  },
-
-  getVelocityDelta: function getVelocityDelta() {
-    this.dVelocity.z = this.isMoving ? -1 : 0;
-    return this.dVelocity.clone();
-  },
-
-  bindMethods: function bindMethods() {
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-  },
-
-  onTouchStart: function onTouchStart(e) {
-    this.isMoving = true;
-    e.preventDefault();
-  },
-
-  onTouchEnd: function onTouchEnd(e) {
-    this.isMoving = false;
-    e.preventDefault();
-  }
-});
-
-},{}],23:[function(require,module,exports){
-'use strict';
-
-/**
- * 3dof (Gear VR, Daydream) controls for mobile.
- */
-
-module.exports = AFRAME.registerComponent('trackpad-controls', {
-  schema: {
-    enabled: { default: true }
-  },
-
-  init: function init() {
-    this.dVelocity = new THREE.Vector3();
-    this.zVel = 0;
-    this.bindMethods();
-  },
-
-  play: function play() {
-    this.addEventListeners();
-  },
-
-  pause: function pause() {
-    this.removeEventListeners();
-    this.dVelocity.set(0, 0, 0);
-  },
-
-  remove: function remove() {
-    this.pause();
-  },
-
-  addEventListeners: function addEventListeners() {
-    var sceneEl = this.el.sceneEl;
-
-    sceneEl.addEventListener('axismove', this.onAxisMove);
-    sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
-    sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
-  },
-
-  removeEventListeners: function removeEventListeners() {
-    var sceneEl = this.el.sceneEl;
-
-    sceneEl.removeEventListener('axismove', this.onAxisMove);
-    sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
-    sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
-  },
-
-  isVelocityActive: function isVelocityActive() {
-    return this.data.enabled && this.isMoving;
-  },
-
-  getVelocityDelta: function getVelocityDelta() {
-    this.dVelocity.z = this.isMoving ? -this.zVel : 1;
-    return this.dVelocity.clone();
-  },
-
-  bindMethods: function bindMethods() {
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-    this.onAxisMove = this.onAxisMove.bind(this);
-  },
-
-  onTouchStart: function onTouchStart(e) {
-    this.isMoving = true;
-    e.preventDefault();
-  },
-
-  onTouchEnd: function onTouchEnd(e) {
-    this.isMoving = false;
-    e.preventDefault();
-  },
-
-  onAxisMove: function onAxisMove(e) {
-    var axis_data = e.detail.axis;
-
-    if (axis_data[1] < 0) {
-      this.zVel = 1;
-    }
-
-    if (axis_data[1] > 0) {
-      this.zVel = -1;
-    }
-  }
-
-});
-
-},{}],24:[function(require,module,exports){
-'use strict';
-
-var LoopMode = {
-  once: THREE.LoopOnce,
-  repeat: THREE.LoopRepeat,
-  pingpong: THREE.LoopPingPong
-};
-
-/**
- * animation-mixer
- *
- * Player for animation clips. Intended to be compatible with any model format that supports
- * skeletal or morph animations through THREE.AnimationMixer.
- * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
- */
-module.exports = AFRAME.registerComponent('animation-mixer', {
-  schema: {
-    clip: { default: '*' },
-    duration: { default: 0 },
-    crossFadeDuration: { default: 0 },
-    loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
-    repetitions: { default: Infinity, min: 0 }
-  },
-
-  init: function init() {
-    var _this = this;
-
-    /** @type {THREE.Mesh} */
-    this.model = null;
-    /** @type {THREE.AnimationMixer} */
-    this.mixer = null;
-    /** @type {Array<THREE.AnimationAction>} */
-    this.activeActions = [];
-
-    var model = this.el.getObject3D('mesh');
-
-    if (model) {
-      this.load(model);
-    } else {
-      this.el.addEventListener('model-loaded', function (e) {
-        _this.load(e.detail.model);
-      });
-    }
-  },
-
-  load: function load(model) {
-    var el = this.el;
-    this.model = model;
-    this.mixer = new THREE.AnimationMixer(model);
-    this.mixer.addEventListener('loop', function (e) {
-      el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
-    });
-    this.mixer.addEventListener('finished', function (e) {
-      el.emit('animation-finished', { action: e.action, direction: e.direction });
-    });
-    if (this.data.clip) this.update({});
-  },
-
-  remove: function remove() {
-    if (this.mixer) this.mixer.stopAllAction();
-  },
-
-  update: function update(previousData) {
-    if (!previousData) return;
-
-    this.stopAction();
-
-    if (this.data.clip) {
-      this.playAction();
-    }
-  },
-
-  stopAction: function stopAction() {
-    var data = this.data;
-    for (var i = 0; i < this.activeActions.length; i++) {
-      data.crossFadeDuration ? this.activeActions[i].fadeOut(data.crossFadeDuration) : this.activeActions[i].stop();
-    }
-    this.activeActions.length = 0;
-  },
-
-  playAction: function playAction() {
-    if (!this.mixer) return;
-
-    var model = this.model,
-        data = this.data,
-        clips = model.animations || (model.geometry || {}).animations || [];
-
-    if (!clips.length) return;
-
-    var re = wildcardToRegExp(data.clip);
-
-    for (var clip, i = 0; clip = clips[i]; i++) {
-      if (clip.name.match(re)) {
-        var action = this.mixer.clipAction(clip, model);
-        action.enabled = true;
-        if (data.duration) action.setDuration(data.duration);
-        action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
-        this.activeActions.push(action);
-      }
-    }
-  },
-
-  tick: function tick(t, dt) {
-    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
-  }
-});
-
-/**
- * Creates a RegExp from the given string, converting asterisks to .* expressions,
- * and escaping all other characters.
- */
-function wildcardToRegExp(s) {
-  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
-}
-
-/**
- * RegExp-escapes all characters in the given string.
- */
-function regExpEscape(s) {
-  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
-}
-
-},{}],25:[function(require,module,exports){
-'use strict';
-
-THREE.FBXLoader = require('../../lib/FBXLoader');
-
-/**
- * fbx-model
- *
- * Loader for FBX format. Supports ASCII, but *not* binary, models.
- */
-module.exports = AFRAME.registerComponent('fbx-model', {
-  schema: {
-    src: { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function init() {
-    this.model = null;
-  },
-
-  update: function update() {
-    var data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    var loader = new THREE.FBXLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, this.load.bind(this));
-  },
-
-  load: function load(model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', { format: 'fbx', model: model });
-  },
-
-  remove: function remove() {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-},{"../../lib/FBXLoader":3}],26:[function(require,module,exports){
-'use strict';
-
-var fetchScript = require('../../lib/fetch-script')();
-
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
-
-var loadLoader = function () {
-  var promise = void 0;
-  return function () {
-    promise = promise || fetchScript(LOADER_SRC);
-    return promise;
-  };
-}();
-
-/**
- * Legacy loader for glTF 1.0 models.
- * Asynchronously loads THREE.GLTFLoader from rawgit.
- */
-module.exports = AFRAME.registerComponent('gltf-model-legacy', {
-  schema: { type: 'model' },
-
-  init: function init() {
-    var _this = this;
-
-    this.model = null;
-    this.loader = null;
-    this.loaderPromise = loadLoader().then(function () {
-      _this.loader = new THREE.GLTFLoader();
-      _this.loader.setCrossOrigin('Anonymous');
-    });
-  },
-
-  update: function update() {
-    var _this2 = this;
-
-    var self = this;
-    var el = this.el;
-    var src = this.data;
-
-    if (!src) {
-      return;
-    }
-
-    this.remove();
-
-    this.loaderPromise.then(function () {
-      _this2.loader.load(src, function gltfLoaded(gltfModel) {
-        self.model = gltfModel.scene;
-        self.model.animations = gltfModel.animations;
-        el.setObject3D('mesh', self.model);
-        el.emit('model-loaded', { format: 'gltf', model: self.model });
-      });
-    });
-  },
-
-  remove: function remove() {
-    if (!this.model) {
-      return;
-    }
-    this.el.removeObject3D('mesh');
-  }
-});
-
-},{"../../lib/fetch-script":8}],27:[function(require,module,exports){
-'use strict';
-
-require('./animation-mixer');
-require('./fbx-model');
-require('./gltf-model-legacy');
-require('./json-model');
-require('./object-model');
-require('./ply-model');
-
-},{"./animation-mixer":24,"./fbx-model":25,"./gltf-model-legacy":26,"./json-model":28,"./object-model":29,"./ply-model":30}],28:[function(require,module,exports){
-'use strict';
-
-/**
- * json-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
- * both having the .json extension. This loader supports only THREE.JsonLoader, which typically
- * includes only a single mesh.
- *
- * Check the console for errors, if in doubt. You may need to use `object-model` or
- * `blend-character-model` for some .js and .json files.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-
-module.exports = AFRAME.registerComponent('json-model', {
-  schema: {
-    src: { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function init() {
-    this.model = null;
-  },
-
-  update: function update() {
-    var _this = this;
-
-    var loader = void 0;
-    var data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.JSONLoader();
-    if (data.crossorigin) loader.crossOrigin = data.crossorigin;
-    loader.load(data.src, function (geometry, materials) {
-
-      // Attempt to automatically detect common material options.
-      materials.forEach(function (mat) {
-        mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
-        mat.skinning = !!(geometry.bones || []).length;
-        mat.morphTargets = !!(geometry.morphTargets || []).length;
-        mat.morphNormals = !!(geometry.morphNormals || []).length;
-      });
-
-      var model = (geometry.bones || []).length ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials)) : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-      _this.load(model);
-    });
-  },
-
-  load: function load(model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', { format: 'json', model: model });
-  },
-
-  remove: function remove() {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-},{}],29:[function(require,module,exports){
-'use strict';
-
-/**
- * object-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
- * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
- * includes multiple meshes or an entire scene.
- *
- * Check the console for errors, if in doubt. You may need to use `json-model` or
- * `blend-character-model` for some .js and .json files.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-
-module.exports = AFRAME.registerComponent('object-model', {
-  schema: {
-    src: { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function init() {
-    this.model = null;
-  },
-
-  update: function update() {
-    var _this = this;
-
-    var loader = void 0;
-    var data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.ObjectLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, function (object) {
-
-      // Enable skinning, if applicable.
-      object.traverse(function (o) {
-        if (o instanceof THREE.SkinnedMesh && o.material) {
-          o.material.skinning = !!(o.geometry && o.geometry.bones || []).length;
-        }
-      });
-
-      _this.load(object);
-    });
-  },
-
-  load: function load(model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', { format: 'json', model: model });
-  },
-
-  remove: function remove() {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-},{}],30:[function(require,module,exports){
-'use strict';
-
-/**
- * ply-model
- *
- * Wraps THREE.PLYLoader.
- */
-
-THREE.PLYLoader = require('../../lib/PLYLoader');
-
-/**
- * Loads, caches, resolves geometries.
- *
- * @member cache - Promises that resolve geometries keyed by `src`.
- */
-module.exports.System = AFRAME.registerSystem('ply-model', {
-  init: function init() {
-    this.cache = {};
-  },
-
-  /**
-   * @returns {Promise}
-   */
-  getOrLoadGeometry: function getOrLoadGeometry(src, skipCache) {
-    var cache = this.cache;
-    var cacheItem = cache[src];
-
-    if (!skipCache && cacheItem) {
-      return cacheItem;
-    }
-
-    cache[src] = new Promise(function (resolve) {
-      var loader = new THREE.PLYLoader();
-      loader.load(src, function (geometry) {
-        resolve(geometry);
-      });
-    });
-    return cache[src];
-  }
-});
-
-module.exports.Component = AFRAME.registerComponent('ply-model', {
-  schema: {
-    skipCache: { type: 'boolean', default: false },
-    src: { type: 'asset' }
-  },
-
-  init: function init() {
-    this.model = null;
-  },
-
-  update: function update() {
-    var data = this.data;
-    var el = this.el;
-
-    if (!data.src) {
-      console.warn('[%s] `src` property is required.', this.name);
-      return;
-    }
-
-    // Get geometry from system, create and set mesh.
-    this.system.getOrLoadGeometry(data.src, data.skipCache).then(function (geometry) {
-      var model = createModel(geometry);
-      el.setObject3D('mesh', model);
-      el.emit('model-loaded', { format: 'ply', model: model });
-    });
-  },
-
-  remove: function remove() {
-    if (this.model) {
-      this.el.removeObject3D('mesh');
-    }
-  }
-});
-
-function createModel(geometry) {
-  return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
-    color: 0xFFFFFF,
-    shading: THREE.FlatShading,
-    vertexColors: THREE.VertexColors,
-    shininess: 0
-  }));
-}
-
-},{"../../lib/PLYLoader":6}],31:[function(require,module,exports){
-'use strict';
-
-module.exports = AFRAME.registerComponent('checkpoint', {
-  schema: {
-    offset: { default: { x: 0, y: 0, z: 0 }, type: 'vec3' }
-  },
-
-  init: function init() {
-    this.active = false;
-    this.targetEl = null;
-    this.fire = this.fire.bind(this);
-    this.offset = new THREE.Vector3();
-  },
-
-  update: function update() {
-    this.offset.copy(this.data.offset);
-  },
-
-  play: function play() {
-    this.el.addEventListener('click', this.fire);
-  },
-  pause: function pause() {
-    this.el.removeEventListener('click', this.fire);
-  },
-  remove: function remove() {
-    this.pause();
-  },
-
-  fire: function fire() {
-    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
-    if (!targetEl) {
-      throw new Error('No `checkpoint-controls` component found.');
-    }
-    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
-  },
-
-  getOffset: function getOffset() {
-    return this.offset.copy(this.data.offset);
-  }
-});
-
-},{}],32:[function(require,module,exports){
-'use strict';
-
-/**
- * @param  {Array<THREE.Material>|THREE.Material} material
- * @return {Array<THREE.Material>}
- */
-
-function ensureMaterialArray(material) {
-  if (!material) {
-    return [];
-  } else if (Array.isArray(material)) {
-    return material;
-  } else if (material.materials) {
-    return material.materials;
-  } else {
-    return [material];
-  }
-}
-
-/**
- * @param  {THREE.Object3D} mesh
- * @param  {Array<string>} materialNames
- * @param  {THREE.Texture} envMap
- * @param  {number} reflectivity  [description]
- */
-function applyEnvMap(mesh, materialNames, envMap, reflectivity) {
-  if (!mesh) return;
-
-  materialNames = materialNames || [];
-
-  mesh.traverse(function (node) {
-
-    if (!node.isMesh) return;
-
-    var meshMaterials = ensureMaterialArray(node.material);
-
-    meshMaterials.forEach(function (material) {
-
-      if (material && !('envMap' in material)) return;
-      if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
-
-      material.envMap = envMap;
-      material.reflectivity = reflectivity;
-      material.needsUpdate = true;
-    });
-  });
-}
-
-/**
- * Specifies an envMap on an entity, without replacing any existing material
- * properties.
- */
-module.exports = AFRAME.registerComponent('cube-env-map', {
-  multiple: true,
-
-  schema: {
-    path: { default: '' },
-    extension: { default: 'jpg', oneOf: ['jpg', 'png'] },
-    format: { default: 'RGBFormat', oneOf: ['RGBFormat', 'RGBAFormat'] },
-    enableBackground: { default: false },
-    reflectivity: { default: 1, min: 0, max: 1 },
-    materials: { default: [] }
-  },
-
-  init: function init() {
-    var _this = this;
-
-    var data = this.data;
-
-    this.texture = new THREE.CubeTextureLoader().load([data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension, data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension, data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension]);
-    this.texture.format = THREE[data.format];
-
-    this.object3dsetHandler = function () {
-      var mesh = _this.el.getObject3D('mesh');
-      var data = _this.data;
-      applyEnvMap(mesh, data.materials, _this.texture, data.reflectivity);
-    };
-    this.el.addEventListener('object3dset', this.object3dsetHandler);
-  },
-
-  update: function update(oldData) {
-    var data = this.data;
-    var mesh = this.el.getObject3D('mesh');
-
-    var addedMaterialNames = [];
-    var removedMaterialNames = [];
-
-    if (data.materials.length) {
-      if (oldData.materials) {
-        addedMaterialNames = data.materials.filter(function (name) {
-          return !oldData.materials.includes(name);
-        });
-        removedMaterialNames = oldData.materials.filter(function (name) {
-          return !data.materials.includes(name);
-        });
-      } else {
-        addedMaterialNames = data.materials;
-      }
-    }
-    if (addedMaterialNames.length) {
-      applyEnvMap(mesh, addedMaterialNames, this.texture, data.reflectivity);
-    }
-    if (removedMaterialNames.length) {
-      applyEnvMap(mesh, removedMaterialNames, null, 1);
-    }
-
-    if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
-      var maintainedMaterialNames = data.materials.filter(function (name) {
-        return oldData.materials.includes(name);
-      });
-      if (maintainedMaterialNames.length) {
-        applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
-      }
-    }
-
-    if (this.data.enableBackground && !oldData.enableBackground) {
-      this.setBackground(this.texture);
-    } else if (!this.data.enableBackground && oldData.enableBackground) {
-      this.setBackground(null);
-    }
-  },
-
-  remove: function remove() {
-    this.el.removeEventListener('object3dset', this.object3dsetHandler);
-    var mesh = this.el.getObject3D('mesh');
-    var data = this.data;
-
-    applyEnvMap(mesh, data.materials, null, 1);
-    if (data.enableBackground) this.setBackground(null);
-  },
-
-  setBackground: function setBackground(texture) {
-    this.el.sceneEl.object3D.background = texture;
-  }
-});
-
-},{}],33:[function(require,module,exports){
-'use strict';
-
-/* global CANNON */
-
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Handles events coming from the hand-controls.
- * Determines if the entity is grabbed or released.
- * Updates its position to move along the controller.
- */
-
-module.exports = AFRAME.registerComponent('grab', {
-  init: function init() {
-    this.system = this.el.sceneEl.systems.physics;
-
-    this.GRABBED_STATE = 'grabbed';
-
-    this.grabbing = false;
-    this.hitEl = /** @type {AFRAME.Element}    */null;
-    this.physics = /** @type {AFRAME.System}     */this.el.sceneEl.systems.physics;
-    this.constraint = /** @type {CANNON.Constraint} */null;
-
-    // Bind event handlers
-    this.onHit = this.onHit.bind(this);
-    this.onGripOpen = this.onGripOpen.bind(this);
-    this.onGripClose = this.onGripClose.bind(this);
-  },
-
-  play: function play() {
-    var el = this.el;
-    el.addEventListener('hit', this.onHit);
-    el.addEventListener('gripdown', this.onGripClose);
-    el.addEventListener('gripup', this.onGripOpen);
-    el.addEventListener('trackpaddown', this.onGripClose);
-    el.addEventListener('trackpadup', this.onGripOpen);
-    el.addEventListener('triggerdown', this.onGripClose);
-    el.addEventListener('triggerup', this.onGripOpen);
-  },
-
-  pause: function pause() {
-    var el = this.el;
-    el.removeEventListener('hit', this.onHit);
-    el.removeEventListener('gripdown', this.onGripClose);
-    el.removeEventListener('gripup', this.onGripOpen);
-    el.removeEventListener('trackpaddown', this.onGripClose);
-    el.removeEventListener('trackpadup', this.onGripOpen);
-    el.removeEventListener('triggerdown', this.onGripClose);
-    el.removeEventListener('triggerup', this.onGripOpen);
-  },
-
-  onGripClose: function onGripClose() {
-    this.grabbing = true;
-  },
-
-  onGripOpen: function onGripOpen() {
-    var hitEl = this.hitEl;
-    this.grabbing = false;
-    if (!hitEl) {
-      return;
-    }
-    hitEl.removeState(this.GRABBED_STATE);
-    this.hitEl = undefined;
-    this.system.removeConstraint(this.constraint);
-    this.constraint = null;
-  },
-
-  onHit: function onHit(evt) {
-    var hitEl = evt.detail.el;
-    // If the element is already grabbed (it could be grabbed by another controller).
-    // If the hand is not grabbing the element does not stick.
-    // If we're already grabbing something you can't grab again.
-    if (!hitEl || hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) {
-      return;
-    }
-    hitEl.addState(this.GRABBED_STATE);
-    this.hitEl = hitEl;
-    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
-    this.system.addConstraint(this.constraint);
-  }
-});
-
-},{}],34:[function(require,module,exports){
-'use strict';
-
-require('./checkpoint');
-require('./cube-env-map');
-require('./grab');
-require('./jump-ability');
-require('./kinematic-body');
-require('./mesh-smooth');
-require('./normal-material');
-require('./sphere-collider');
-
-},{"./checkpoint":31,"./cube-env-map":32,"./grab":33,"./jump-ability":35,"./kinematic-body":36,"./mesh-smooth":37,"./normal-material":38,"./sphere-collider":39}],35:[function(require,module,exports){
-'use strict';
-
-var ACCEL_G = -9.8,
-
-// m/s^2
-EASING = -15; // m/s^2
-
-/**
- * Jump ability.
- */
-module.exports = AFRAME.registerComponent('jump-ability', {
-  dependencies: ['velocity'],
-
-  /* Schema
-  ——————————————————————————————————————————————*/
-
-  schema: {
-    on: { default: 'keydown:Space gamepadbuttondown:0' },
-    playerHeight: { default: 1.764 },
-    maxJumps: { default: 1 },
-    distance: { default: 5 },
-    debug: { default: false }
-  },
-
-  init: function init() {
-    this.velocity = 0;
-    this.numJumps = 0;
-
-    var beginJump = this.beginJump.bind(this),
-        events = this.data.on.split(' ');
-    this.bindings = {};
-    for (var i = 0; i < events.length; i++) {
-      this.bindings[events[i]] = beginJump;
-      this.el.addEventListener(events[i], beginJump);
-    }
-    this.bindings.collide = this.onCollide.bind(this);
-    this.el.addEventListener('collide', this.bindings.collide);
-  },
-
-  remove: function remove() {
-    for (var event in this.bindings) {
-      if (this.bindings.hasOwnProperty(event)) {
-        this.el.removeEventListener(event, this.bindings[event]);
-        delete this.bindings[event];
-      }
-    }
-    this.el.removeEventListener('collide', this.bindings.collide);
-    delete this.bindings.collide;
-  },
-
-  beginJump: function beginJump() {
-    if (this.numJumps < this.data.maxJumps) {
-      var data = this.data,
-          initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
-          v = this.el.getAttribute('velocity');
-      this.el.setAttribute('velocity', { x: v.x, y: initialVelocity, z: v.z });
-      this.numJumps++;
-      this.el.emit('jumpstart');
-    }
-  },
-
-  onCollide: function onCollide() {
-    if (this.numJumps > 0) this.el.emit('jumpend');
-    this.numJumps = 0;
-  }
-});
-
-},{}],36:[function(require,module,exports){
-'use strict';
-
-/* global CANNON */
-
-/**
- * Kinematic body.
- *
- * Managed dynamic body, which moves but is not affected (directly) by the
- * physics engine. This is not a true kinematic body, in the sense that we are
- * letting the physics engine _compute_ collisions against it and selectively
- * applying those collisions to the object. The physics engine does not decide
- * the position/velocity/rotation of the element.
- *
- * Used for the camera object, because full physics simulation would create
- * movement that feels unnatural to the player. Bipedal movement does not
- * translate nicely to rigid body physics.
- *
- * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
- * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
- */
-
-var EPS = 0.000001;
-
-module.exports = AFRAME.registerComponent('kinematic-body', {
-  dependencies: ['velocity'],
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    mass: { default: 5 },
-    radius: { default: 1.3 },
-    userHeight: { default: 1.6 },
-    linearDamping: { default: 0.05 },
-    enableSlopes: { default: true }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function init() {
-    this.system = this.el.sceneEl.systems.physics;
-    this.system.addComponent(this);
-
-    var el = this.el,
-        data = this.data,
-        position = new CANNON.Vec3().copy(el.getAttribute('position'));
-
-    this.body = new CANNON.Body({
-      material: this.system.material,
-      position: position,
-      mass: data.mass,
-      linearDamping: data.linearDamping,
-      fixedRotation: true
-    });
-    this.body.addShape(new CANNON.Sphere(data.radius), new CANNON.Vec3(0, data.radius - data.height, 0));
-
-    this.body.el = this.el;
-    this.el.body = this.body;
-    this.system.addBody(this.body);
-
-    if (el.hasAttribute('wasd-controls')) {
-      console.warn('[kinematic-body] Not compatible with wasd-controls, use movement-controls.');
-    }
-  },
-
-  remove: function remove() {
-    this.system.removeBody(this.body);
-    this.system.removeComponent(this);
-    delete this.el.body;
-  },
-
-  /*******************************************************************
-   * Update
-   */
-
-  /**
-   * Checks CANNON.World for collisions and attempts to apply them to the
-   * element automatically, in a player-friendly way.
-   *
-   * There's extra logic for horizontal surfaces here. The basic requirements:
-   * (1) Only apply gravity when not in contact with _any_ horizontal surface.
-   * (2) When moving, project the velocity against exactly one ground surface.
-   *     If in contact with two ground surfaces (e.g. ground + ramp), choose
-   *     the one that collides with current velocity, if any.
-   */
-  beforeStep: function beforeStep(t, dt) {
-    if (!dt) return;
-
-    var el = this.el;
-    var body = this.body;
-
-    body.velocity.copy(el.getAttribute('velocity'));
-    body.position.copy(el.getAttribute('position'));
-    body.position.y += this.data.userHeight;
-  },
-
-  step: function () {
-    var velocity = new THREE.Vector3(),
-        normalizedVelocity = new THREE.Vector3(),
-        currentSurfaceNormal = new THREE.Vector3(),
-        groundNormal = new THREE.Vector3();
-
-    return function (t, dt) {
-      if (!dt) return;
-
-      var body = this.body,
-          data = this.data,
-          didCollide = false,
-          height = void 0,
-          groundHeight = -Infinity,
-          groundBody = void 0,
-          contacts = this.system.getContacts();
-
-      dt = Math.min(dt, this.system.data.maxInterval * 1000);
-
-      groundNormal.set(0, 0, 0);
-      velocity.copy(this.el.getAttribute('velocity'));
-      body.velocity.copy(velocity);
-
-      for (var i = 0, contact; contact = contacts[i]; i++) {
-        // 1. Find any collisions involving this element. Get the contact
-        // normal, and make sure it's oriented _out_ of the other object and
-        // enabled (body.collisionReponse is true for both bodies)
-        if (!contact.enabled) {
-          continue;
-        }
-        if (body.id === contact.bi.id) {
-          contact.ni.negate(currentSurfaceNormal);
-        } else if (body.id === contact.bj.id) {
-          currentSurfaceNormal.copy(contact.ni);
-        } else {
-          continue;
-        }
-
-        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
-        if (didCollide && currentSurfaceNormal.y <= 0.5) {
-          // 2. If current trajectory attempts to move _through_ another
-          // object, project the velocity against the collision plane to
-          // prevent passing through.
-          velocity = velocity.projectOnPlane(currentSurfaceNormal);
-        } else if (currentSurfaceNormal.y > 0.5) {
-          // 3. If in contact with something roughly horizontal (+/- 45º) then
-          // consider that the current ground. Only the highest qualifying
-          // ground is retained.
-          height = body.id === contact.bi.id ? Math.abs(contact.rj.y + contact.bj.position.y) : Math.abs(contact.ri.y + contact.bi.position.y);
-          if (height > groundHeight) {
-            groundHeight = height;
-            groundNormal.copy(currentSurfaceNormal);
-            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
-          }
-        }
-      }
-
-      normalizedVelocity.copy(velocity).normalize();
-      if (groundBody && normalizedVelocity.y < 0.5) {
-        if (!data.enableSlopes) {
-          groundNormal.set(0, 1, 0);
-        } else if (groundNormal.y < 1 - EPS) {
-          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
-        }
-
-        // 4. Project trajectory onto the top-most ground object, unless
-        // trajectory is > 45º.
-        velocity = velocity.projectOnPlane(groundNormal);
-      } else if (this.system.driver.world) {
-        // 5. If not in contact with anything horizontal, apply world gravity.
-        // TODO - Why is the 4x scalar necessary.
-        // NOTE: Does not work if physics runs on a worker.
-        velocity.add(this.system.driver.world.gravity.scale(dt * 4.0 / 1000));
-      }
-
-      // 6. If the ground surface has a velocity, apply it directly to current
-      // position, not velocity, to preserve relative velocity.
-      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        var groundVelocity = groundBody.el.getAttribute('velocity');
-        body.position.copy({
-          x: body.position.x + groundVelocity.x * dt / 1000,
-          y: body.position.y + groundVelocity.y * dt / 1000,
-          z: body.position.z + groundVelocity.z * dt / 1000
-        });
-      }
-
-      body.velocity.copy(velocity);
-
-      body.position.y -= data.userHeight;
-      this.el.setAttribute('velocity', body.velocity);
-      this.el.setAttribute('position', body.position);
-    };
-  }(),
-
-  /**
-   * When walking on complex surfaces (trimeshes, borders between two shapes),
-   * the collision normals returned for the player sphere can be very
-   * inconsistent. To address this, raycast straight down, find the collision
-   * normal, and return whichever normal is more vertical.
-   * @param  {CANNON.Body} groundBody
-   * @param  {CANNON.Vec3} groundNormal
-   * @return {CANNON.Vec3}
-   */
-  raycastToGround: function raycastToGround(groundBody, groundNormal) {
-    var ray = void 0,
-        hitNormal = void 0,
-        vFrom = this.body.position,
-        vTo = this.body.position.clone();
-
-    vTo.y -= this.data.height;
-    ray = new CANNON.Ray(vFrom, vTo);
-    ray._updateDirection(); // TODO - Report bug.
-    ray.intersectBody(groundBody);
-
-    if (!ray.hasHit) return groundNormal;
-
-    // Compare ABS, in case we're projecting against the inside of the face.
-    hitNormal = ray.result.hitNormalWorld;
-    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
-  }
-});
-
-},{}],37:[function(require,module,exports){
-'use strict';
-
-/**
- * Apply this component to models that looks "blocky", to have Three.js compute
- * vertex normals on the fly for a "smoother" look.
- */
-
-module.exports = AFRAME.registerComponent('mesh-smooth', {
-  init: function init() {
-    this.el.addEventListener('model-loaded', function (e) {
-      e.detail.model.traverse(function (node) {
-        if (node.isMesh) node.geometry.computeVertexNormals();
-      });
-    });
-  }
-});
-
-},{}],38:[function(require,module,exports){
-'use strict';
-
-/**
- * Recursively applies a MeshNormalMaterial to the entity, such that
- * face colors are determined by their orientation. Helpful for
- * debugging geometry
- */
-
-module.exports = AFRAME.registerComponent('normal-material', {
-  init: function init() {
-    this.material = new THREE.MeshNormalMaterial({ flatShading: true });
-    this.applyMaterial = this.applyMaterial.bind(this);
-    this.el.addEventListener('object3dset', this.applyMaterial);
-  },
-
-  remove: function remove() {
-    this.el.removeEventListener('object3dset', this.applyMaterial);
-  },
-
-  applyMaterial: function applyMaterial() {
-    var _this = this;
-
-    this.el.object3D.traverse(function (node) {
-      if (node.isMesh) node.material = _this.material;
-    });
-  }
-});
-
-},{}],39:[function(require,module,exports){
-'use strict';
-
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Implement bounding sphere collision detection for entities with a mesh.
- * Sets the specified state on the intersected entities.
- *
- * @property {string} objects - Selector of the entities to test for collision.
- * @property {string} state - State to set on collided entities.
- *
- */
-
-module.exports = AFRAME.registerComponent('sphere-collider', {
-  schema: {
-    objects: { default: '' },
-    state: { default: 'collided' },
-    radius: { default: 0.05 },
-    watch: { default: true }
-  },
-
-  init: function init() {
-    /** @type {MutationObserver} */
-    this.observer = null;
-    /** @type {Array<Element>} Elements to watch for collisions. */
-    this.els = [];
-    /** @type {Array<Element>} Elements currently in collision state. */
-    this.collisions = [];
-
-    this.handleHit = this.handleHit.bind(this);
-    this.handleHitEnd = this.handleHitEnd.bind(this);
-  },
-
-  remove: function remove() {
-    this.pause();
-  },
-
-  play: function play() {
-    var sceneEl = this.el.sceneEl;
-
-    if (this.data.watch) {
-      this.observer = new MutationObserver(this.update.bind(this, null));
-      this.observer.observe(sceneEl, { childList: true, subtree: true });
-    }
-  },
-
-  pause: function pause() {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-  },
-
-  /**
-   * Update list of entities to test for collision.
-   */
-  update: function update() {
-    var data = this.data;
-    var objectEls = void 0;
-
-    // Push entities into list of els to intersect.
-    if (data.objects) {
-      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
-    } else {
-      // If objects not defined, intersect with everything.
-      objectEls = this.el.sceneEl.children;
-    }
-    // Convert from NodeList to Array
-    this.els = Array.prototype.slice.call(objectEls);
-  },
-
-  tick: function () {
-    var position = new THREE.Vector3(),
-        meshPosition = new THREE.Vector3(),
-        colliderScale = new THREE.Vector3(),
-        distanceMap = new Map();
-    return function () {
-      var el = this.el,
-          data = this.data,
-          mesh = el.getObject3D('mesh'),
-          collisions = [];
-      var colliderRadius = void 0;
-
-      if (!mesh) {
-        return;
-      }
-
-      distanceMap.clear();
-      position.copy(el.object3D.getWorldPosition());
-      el.object3D.getWorldScale(colliderScale);
-      colliderRadius = data.radius * scaleFactor(colliderScale);
-      // Update collision list.
-      this.els.forEach(intersect);
-
-      // Emit events and add collision states, in order of distance.
-      collisions.sort(function (a, b) {
-        return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
-      }).forEach(this.handleHit);
-
-      // Remove collision state from current element.
-      if (collisions.length === 0) {
-        el.emit('hit', { el: null });
-      }
-
-      // Remove collision state from other elements.
-      this.collisions.filter(function (el) {
-        return !distanceMap.has(el);
-      }).forEach(this.handleHitEnd);
-
-      // Store new collisions
-      this.collisions = collisions;
-
-      // Bounding sphere collision detection
-      function intersect(el) {
-        var radius = void 0,
-            mesh = void 0,
-            distance = void 0,
-            box = void 0,
-            extent = void 0,
-            size = void 0;
-
-        if (!el.isEntity) {
-          return;
-        }
-
-        mesh = el.getObject3D('mesh');
-
-        if (!mesh) {
-          return;
-        }
-
-        box = new THREE.Box3().setFromObject(mesh);
-        size = box.getSize();
-        extent = Math.max(size.x, size.y, size.z) / 2;
-        radius = Math.sqrt(2 * extent * extent);
-        box.getCenter(meshPosition);
-
-        if (!radius) {
-          return;
-        }
-
-        distance = position.distanceTo(meshPosition);
-        if (distance < radius + colliderRadius) {
-          collisions.push(el);
-          distanceMap.set(el, distance);
-        }
-      }
-      // use max of scale factors to maintain bounding sphere collision
-      function scaleFactor(scaleVec) {
-        return Math.max.apply(null, scaleVec.toArray());
-      }
-    };
-  }(),
-
-  handleHit: function handleHit(targetEl) {
-    targetEl.emit('hit');
-    targetEl.addState(this.data.state);
-    this.el.emit('hit', { el: targetEl });
-  },
-  handleHitEnd: function handleHitEnd(targetEl) {
-    targetEl.emit('hitend');
-    targetEl.removeState(this.data.state);
-    this.el.emit('hitend', { el: targetEl });
-  }
-});
-
-},{}],40:[function(require,module,exports){
-'use strict';
-
-require('./nav-mesh');
-require('./nav-agent');
-require('./system');
-
-},{"./nav-agent":41,"./nav-mesh":42,"./system":43}],41:[function(require,module,exports){
-'use strict';
-
-module.exports = AFRAME.registerComponent('nav-agent', {
-  schema: {
-    destination: { type: 'vec3' },
-    active: { default: false },
-    speed: { default: 2 }
-  },
-  init: function init() {
-    this.system = this.el.sceneEl.systems.nav;
-    this.system.addAgent(this);
-    this.group = null;
-    this.path = [];
-    this.raycaster = new THREE.Raycaster();
-  },
-  remove: function remove() {
-    this.system.removeAgent(this);
-  },
-  update: function update() {
-    this.path.length = 0;
-  },
-  tick: function () {
-    var vDest = new THREE.Vector3();
-    var vDelta = new THREE.Vector3();
-    var vNext = new THREE.Vector3();
-
-    return function (t, dt) {
-      var el = this.el;
-      var data = this.data;
-      var raycaster = this.raycaster;
-      var speed = data.speed * dt / 1000;
-
-      if (!data.active) return;
-
-      // Use PatrolJS pathfinding system to get shortest path to target.
-      if (!this.path.length) {
-        var position = this.el.object3D.position;
-        this.group = this.group || this.system.getGroup(position);
-        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group);
-        this.path = this.path || [];
-        el.emit('nav-start');
-      }
-
-      // If no path is found, exit.
-      if (!this.path.length) {
-        console.warn('[nav] Unable to find path to %o.', data.destination);
-        this.el.setAttribute('nav-agent', { active: false });
-        el.emit('nav-end');
-        return;
-      }
-
-      // Current segment is a vector from current position to next waypoint.
-      var vCurrent = el.object3D.position;
-      var vWaypoint = this.path[0];
-      vDelta.subVectors(vWaypoint, vCurrent);
-
-      var distance = vDelta.length();
-      var gazeTarget = void 0;
-
-      if (distance < speed) {
-        // If <1 step from current waypoint, discard it and move toward next.
-        this.path.shift();
-
-        // After discarding the last waypoint, exit pathfinding.
-        if (!this.path.length) {
-          this.el.setAttribute('nav-agent', { active: false });
-          el.emit('nav-end');
-          return;
-        } else {
-          gazeTarget = this.path[0];
-        }
-      } else {
-        // If still far away from next waypoint, find next position for
-        // the current frame.
-        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
-        gazeTarget = vWaypoint;
-      }
-
-      // Look at the next waypoint.
-      gazeTarget.y = vCurrent.y;
-      el.object3D.lookAt(gazeTarget);
-
-      // Raycast against the nav mesh, to keep the agent moving along the
-      // ground, not traveling in a straight line from higher to lower waypoints.
-      raycaster.ray.origin.copy(vNext);
-      raycaster.ray.origin.y += 1.5;
-      raycaster.ray.direction.y = -1;
-      var intersections = raycaster.intersectObject(this.system.getNavMesh());
-
-      if (!intersections.length) {
-        // Raycasting failed. Step toward the waypoint and hope for the best.
-        vCurrent.copy(vNext);
-      } else {
-        // Re-project next position onto nav mesh.
-        vDelta.subVectors(intersections[0].point, vCurrent);
-        vCurrent.add(vDelta.setLength(speed));
-      }
-    };
-  }()
-});
-
-},{}],42:[function(require,module,exports){
-'use strict';
-
-/**
- * nav-mesh
- *
- * Waits for a mesh to be loaded on the current entity, then sets it as the
- * nav mesh in the pathfinding system.
- */
-
-module.exports = AFRAME.registerComponent('nav-mesh', {
-  init: function init() {
-    this.system = this.el.sceneEl.systems.nav;
-    this.hasLoadedNavMesh = false;
-    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
-  },
-
-  tick: function tick(t) {
-    if (t === 0) this.loadNavMesh();
-  },
-
-  loadNavMesh: function loadNavMesh() {
-    var object = this.el.getObject3D('mesh');
-    var scene = this.el.sceneEl.object3D;
-
-    if (!object) return;
-
-    var navMesh = void 0;
-    object.traverse(function (node) {
-      if (node.isMesh) navMesh = node;
-    });
-
-    if (!navMesh) return;
-
-    if (this.hasLoadedNavMesh) {
-      console.warn('[nav-mesh] Changing nav-mesh dynamically is not yet supported.');
-      return;
-    }
-
-    var navMeshGeometry = navMesh.geometry.isBufferGeometry ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry) : navMesh.geometry.clone();
-
-    scene.updateMatrixWorld();
-    navMeshGeometry.applyMatrix(navMesh.matrixWorld);
-    this.system.setNavMeshGeometry(navMeshGeometry);
-
-    this.hasLoadedNavMesh = true;
-  }
-});
-
-},{}],43:[function(require,module,exports){
-'use strict';
-
-var Path = require('three-pathfinding');
-
-var pathfinder = new Path();
-var ZONE = 'level';
-
-/**
- * nav
- *
- * Pathfinding system, using PatrolJS.
- */
-module.exports = AFRAME.registerSystem('nav', {
-  init: function init() {
-    this.navMesh = null;
-    this.agents = new Set();
-  },
-
-  /**
-   * @param {THREE.Geometry} geometry
-   */
-  setNavMeshGeometry: function setNavMeshGeometry(geometry) {
-    this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
-  },
-
-  /**
-   * @return {THREE.Mesh}
-   */
-  getNavMesh: function getNavMesh() {
-    return this.navMesh;
-  },
-
-  /**
-   * @param {NavAgent} ctrl
-   */
-  addAgent: function addAgent(ctrl) {
-    this.agents.add(ctrl);
-  },
-
-  /**
-   * @param {NavAgent} ctrl
-   */
-  removeAgent: function removeAgent(ctrl) {
-    this.agents.delete(ctrl);
-  },
-
-  /**
-   * @param  {THREE.Vector3} start
-   * @param  {THREE.Vector3} end
-   * @param  {number} groupID
-   * @return {Array<THREE.Vector3>}
-   */
-  getPath: function getPath(start, end, groupID) {
-    return pathfinder.findPath(start, end, ZONE, groupID);
-  },
-
-  /**
-   * @param {THREE.Vector3} position
-   * @return {number}
-   */
-  getGroup: function getGroup(position) {
-    return pathfinder.getGroup(ZONE, position);
-  },
-
-  /**
-   * @param  {THREE.Vector3} position
-   * @param  {number} groupID
-   * @return {Node}
-   */
-  getNode: function getNode(position, groupID) {
-    return pathfinder.getClosestNode(position, ZONE, groupID, true);
-  },
-
-  /**
-   * @param  {THREE.Vector3} start Starting position.
-   * @param  {THREE.Vector3} end Desired ending position.
-   * @param  {number} groupID
-   * @param  {Node} node
-   * @param  {THREE.Vector3} endTarget (Output) Adjusted step end position.
-   * @return {Node} Current node, after step is taken.
-   */
-  clampStep: function clampStep(start, end, groupID, node, endTarget) {
-    if (!this.navMesh || !node) {
-      endTarget.copy(end);
-      return this.navMesh ? this.getNode(end, groupID) : null;
-    }
-    return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
-  }
-});
-
-},{"three-pathfinding":15}],44:[function(require,module,exports){
-'use strict';
-
-/**
- * Flat grid.
- *
- * Defaults to 75x75.
- */
-
-module.exports = AFRAME.registerPrimitive('a-grid', {
-  defaultComponents: {
-    geometry: {
-      primitive: 'plane',
-      width: 75,
-      height: 75
-    },
-    rotation: { x: -90, y: 0, z: 0 },
-    material: {
-      src: 'url(https://cdn.rawgit.com/donmccurdy/aframe-extras/v1.16.3/assets/grid.png)',
-      repeat: '75 75'
-    }
-  },
-  mappings: {
-    width: 'geometry.width',
-    height: 'geometry.height',
-    src: 'material.src'
-  }
-});
-
-},{}],45:[function(require,module,exports){
-'use strict';
-
-var vg = require('../../lib/hex-grid.min.js');
-var defaultHexGrid = require('../../lib/default-hex-grid');
-
-/**
- * Hex grid.
- */
-module.exports.Primitive = AFRAME.registerPrimitive('a-hexgrid', {
-  defaultComponents: {
-    'hexgrid': {}
-  },
-  mappings: {
-    src: 'hexgrid.src'
-  }
-});
-
-module.exports.Component = AFRAME.registerComponent('hexgrid', {
-  dependencies: ['material'],
-  schema: {
-    src: { type: 'asset' }
-  },
-  init: function init() {
-    var _this = this;
-
-    var data = this.data;
-    if (data.src) {
-      fetch(data.src).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this.addMesh(json);
-      });
-    } else {
-      this.addMesh(defaultHexGrid);
-    }
-  },
-  addMesh: function addMesh(json) {
-    var grid = new vg.HexGrid();
-    grid.fromJSON(json);
-    var board = new vg.Board(grid);
-    board.generateTilemap();
-    this.el.setObject3D('mesh', board.group);
-    this.addMaterial();
-  },
-  addMaterial: function addMaterial() {
-    var materialComponent = this.el.components.material;
-    var material = (materialComponent || {}).material;
-    if (!material) return;
-    this.el.object3D.traverse(function (node) {
-      if (node.isMesh) {
-        node.material = material;
-      }
-    });
-  },
-  remove: function remove() {
-    this.el.removeObject3D('mesh');
-  }
-});
-
-},{"../../lib/default-hex-grid":7,"../../lib/hex-grid.min.js":9}],46:[function(require,module,exports){
-'use strict';
-
-/**
- * Flat-shaded ocean primitive.
- *
- * Based on a Codrops tutorial:
- * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
- */
-
-module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
-  defaultComponents: {
-    ocean: {},
-    rotation: { x: -90, y: 0, z: 0 }
-  },
-  mappings: {
-    width: 'ocean.width',
-    depth: 'ocean.depth',
-    density: 'ocean.density',
-    amplitude: 'ocean.amplitude',
-    amplitudeVariance: 'ocean.amplitudeVariance',
-    speed: 'ocean.speed',
-    speedVariance: 'ocean.speedVariance',
-    color: 'ocean.color',
-    opacity: 'ocean.opacity'
-  }
-});
-
-module.exports.Component = AFRAME.registerComponent('ocean', {
-  schema: {
-    // Dimensions of the ocean area.
-    width: { default: 10, min: 0 },
-    depth: { default: 10, min: 0 },
-
-    // Density of waves.
-    density: { default: 10 },
-
-    // Wave amplitude and variance.
-    amplitude: { default: 0.1 },
-    amplitudeVariance: { default: 0.3 },
-
-    // Wave speed and variance.
-    speed: { default: 1 },
-    speedVariance: { default: 2 },
-
-    // Material.
-    color: { default: '#7AD2F7', type: 'color' },
-    opacity: { default: 0.8 }
-  },
-
-  /**
-   * Use play() instead of init(), because component mappings – unavailable as dependencies – are
-   * not guaranteed to have parsed when this component is initialized.
-   */
-  play: function play() {
-    var el = this.el,
-        data = this.data;
-    var material = el.components.material;
-
-    var geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
-    geometry.mergeVertices();
-    this.waves = [];
-    for (var v, i = 0, l = geometry.vertices.length; i < l; i++) {
-      v = geometry.vertices[i];
-      this.waves.push({
-        z: v.z,
-        ang: Math.random() * Math.PI * 2,
-        amp: data.amplitude + Math.random() * data.amplitudeVariance,
-        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
-      });
-    }
-
-    if (!material) {
-      material = {};
-      material.material = new THREE.MeshPhongMaterial({
-        color: data.color,
-        transparent: data.opacity < 1,
-        opacity: data.opacity,
-        shading: THREE.FlatShading
-      });
-    }
-
-    this.mesh = new THREE.Mesh(geometry, material.material);
-    el.setObject3D('mesh', this.mesh);
-  },
-
-  remove: function remove() {
-    this.el.removeObject3D('mesh');
-  },
-
-  tick: function tick(t, dt) {
-    if (!dt) return;
-
-    var verts = this.mesh.geometry.vertices;
-    for (var v, vprops, i = 0; v = verts[i]; i++) {
-      vprops = this.waves[i];
-      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
-      vprops.ang += vprops.speed * dt;
-    }
-    this.mesh.geometry.verticesNeedUpdate = true;
-  }
-});
-
-},{}],47:[function(require,module,exports){
-'use strict';
-
-/**
- * Tube following a custom path.
- *
- * Usage:
- *
- * ```html
- * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
- * ```
- */
-
-module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
-  defaultComponents: {
-    tube: {}
-  },
-  mappings: {
-    path: 'tube.path',
-    segments: 'tube.segments',
-    radius: 'tube.radius',
-    radialSegments: 'tube.radialSegments',
-    closed: 'tube.closed'
-  }
-});
-
-module.exports.Component = AFRAME.registerComponent('tube', {
-  schema: {
-    path: { default: [] },
-    segments: { default: 64 },
-    radius: { default: 1 },
-    radialSegments: { default: 8 },
-    closed: { default: false }
-  },
-
-  init: function init() {
-    var el = this.el,
-        data = this.data;
-    var material = el.components.material;
-
-    if (!data.path.length) {
-      console.error('[a-tube] `path` property expected but not found.');
-      return;
-    }
-
-    var curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
-      point = point.split(' ');
-      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
-    }));
-    var geometry = new THREE.TubeGeometry(curve, data.segments, data.radius, data.radialSegments, data.closed);
-
-    if (!material) {
-      material = {};
-      material.material = new THREE.MeshPhongMaterial();
-    }
-
-    this.mesh = new THREE.Mesh(geometry, material.material);
-    this.el.setObject3D('mesh', this.mesh);
-  },
-
-  remove: function remove() {
-    if (this.mesh) this.el.removeObject3D('mesh');
-  }
-});
-
-},{}],48:[function(require,module,exports){
-'use strict';
-
-require('./a-grid');
-require('./a-hexgrid');
-require('./a-ocean');
-require('./a-tube');
-
-},{"./a-grid":44,"./a-hexgrid":45,"./a-ocean":46,"./a-tube":47}]},{},[1]);
+},{}]},{},[1]);
