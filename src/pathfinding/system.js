@@ -20,6 +20,7 @@ module.exports = AFRAME.registerSystem('nav', {
   setNavMeshGeometry: function (geometry) {
     this.navMesh = new THREE.Mesh(geometry);
     pathfinder.setZoneData(ZONE, Path.createZone(geometry));
+    Array.from(this.agents).forEach((agent) => agent.updateNavLocation());
   },
 
   /**

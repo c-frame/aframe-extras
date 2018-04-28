@@ -17,6 +17,10 @@ module.exports = AFRAME.registerComponent('nav-agent', {
   update: function () {
     this.path.length = 0;
   },
+  updateNavLocation: function () {
+    this.group = null;
+    this.path = [];
+  },
   tick: (function () {
     const vDest = new THREE.Vector3();
     const vDelta = new THREE.Vector3();

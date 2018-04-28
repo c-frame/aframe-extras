@@ -11,8 +11,8 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
     this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
   },
 
-  tick: function (t) {
-    if (t === 0) this.loadNavMesh();
+  play: function () {
+    if (!this.hasLoadedNavMesh) this.loadNavMesh();
   },
 
   loadNavMesh: function () {
@@ -27,11 +27,6 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
     });
 
     if (!navMesh) return;
-
-    if (this.hasLoadedNavMesh) {
-      console.warn('[nav-mesh] Changing nav-mesh dynamically is not yet supported.');
-      return;
-    }
 
     const navMeshGeometry = navMesh.geometry.isBufferGeometry
       ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry)

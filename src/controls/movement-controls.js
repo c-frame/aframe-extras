@@ -50,9 +50,17 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     }
   },
 
-  update: function () {
-    if (this.el.sceneEl.hasLoaded) {
+  update: function (prevData) {
+    const el = this.el;
+    const data = this.data;
+    if (el.sceneEl.hasLoaded) {
       this.injectControls();
+    }
+    if (data.constrainToNavMesh !== prevData.constrainToNavMesh) {
+      const nav = el.sceneEl.systems.nav;
+      data.constrainToNavMesh
+        ? nav.addAgent(this)
+        : nav.removeAgent(this);
     }
   },
 
@@ -68,7 +76,8 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     }
   },
 
-  updateNavNode: function () {
+  updateNavLocation: function () {
+    this.navGroup = null;
     this.navNode = null;
   },
 
