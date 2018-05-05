@@ -38,7 +38,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     camera:          { default: '[camera]', type: 'selector' },
 
     // Rotation sensitivity
-    rotationSensitivity:  { default: 0.05 }, // radians/frame, ish
+    rotationSensitivity:  { default: 2.0 },
   },
 
   /*******************************************************************
@@ -134,24 +134,34 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   updateRotation: function (dt) {
     if (!this.isRotationActive()) return;
 
+    const data = this.data;
+    const yaw = this.yaw;
+    const pitch = this.pitch;
+    const lookControls = data.camera.components['look-controls'];
+    const hasLookControls = lookControls && lookControls.pitchObject && lookControls.yawObject;
+
+    // Sync with look-controls pitch/yaw if available.
+    if (hasLookControls) {
+      pitch.rotation.copy(lookControls.pitchObject.rotation);
+      yaw.rotation.copy(lookControls.yawObject.rotation);
+    }
+
     const lookVector = this.getJoystick(1);
 
     if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
     if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
 
-    const data = this.data;
-    const yaw = this.yaw;
-    const pitch = this.pitch;
-
     lookVector.multiplyScalar(data.rotationSensitivity * dt / 1000);
     yaw.rotation.y -= lookVector.x;
     pitch.rotation.x -= lookVector.y;
     pitch.rotation.x = Math.max(- Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
-    data.camera.object3D.rotation.set(
-      THREE.Math.radToDeg(pitch.rotation.x),
-      THREE.Math.radToDeg(yaw.rotation.y),
-      0
-    );
+    data.camera.object3D.rotation.set(pitch.rotation.x, yaw.rotation.y, 0);
+
+    // Sync with look-controls pitch/yaw if available.
+    if (hasLookControls) {
+      lookControls.pitchObject.rotation.copy(pitch.rotation);
+      lookControls.yawObject.rotation.copy(yaw.rotation);
+    }
   },
 
   /*******************************************************************
