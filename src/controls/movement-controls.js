@@ -17,14 +17,12 @@ module.exports = AFRAME.registerComponent('movement-controls', {
   dependencies: ['rotation'],
 
   schema: {
-    enabled:      { default: true },
-    controls:     { default: ['gamepad', 'trackpad', 'keyboard', 'touch'] },
-    easing:       { default: 15 }, // m/s2
-    easingY:      { default: 0  }, // m/s2
-    acceleration: { default: 80 }, // m/s2
+    enabled:            { default: true },
+    controls:           { default: ['gamepad', 'trackpad', 'keyboard', 'touch'] },
+    speed:              { default: 0.3, min: 0 },
     fly:                { default: false },
     constrainToNavMesh: { default: false },
-    camera:          { default: '[camera]', type: 'selector' }
+    camera:             { default: '[camera]', type: 'selector' }
   },
 
   /*******************************************************************
@@ -50,9 +48,17 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     }
   },
 
-  update: function () {
-    if (this.el.sceneEl.hasLoaded) {
+  update: function (prevData) {
+    const el = this.el;
+    const data = this.data;
+    if (el.sceneEl.hasLoaded) {
       this.injectControls();
+    }
+    if (data.constrainToNavMesh !== prevData.constrainToNavMesh) {
+      const nav = el.sceneEl.systems.nav;
+      data.constrainToNavMesh
+        ? nav.addAgent(this)
+        : nav.removeAgent(this);
     }
   },
 
@@ -68,7 +74,8 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     }
   },
 
-  updateNavNode: function () {
+  updateNavLocation: function () {
+    this.navGroup = null;
     this.navNode = null;
   },
 
@@ -114,7 +121,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
           .add(start);
 
         const nav = el.sceneEl.systems.nav;
-        this.navGroup = this.navGroup || nav.getGroup(start);
+        this.navGroup = this.navGroup === null ? nav.getGroup(start) : this.navGroup;
         this.navNode = this.navNode || nav.getNode(start, this.navGroup);
         this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
         el.object3D.position.copy(clampedEnd);
@@ -148,6 +155,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
   },
 
   updateVelocity: (function () {
+    const vector2 = new THREE.Vector2();
     // var matrix = new THREE.Matrix4();
     // var matrix2 = new THREE.Matrix4();
     // var position = new THREE.Vector3();
@@ -175,19 +183,11 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         }
       }
 
-      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) velocity.copy(this.el.getAttribute('velocity'));
-      velocity.x -= velocity.x * data.easing * dt / 1000;
-      velocity.y -= velocity.y * data.easingY * dt / 1000;
-      velocity.z -= velocity.z * data.easing * dt / 1000;
+      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) {
+        velocity.copy(this.el.getAttribute('velocity'));
+      }
 
       if (dVelocity && data.enabled) {
-        // Set acceleration
-        if (dVelocity.length() > 1) {
-          dVelocity.setLength(this.data.acceleration * dt / 1000);
-        } else {
-          dVelocity.multiplyScalar(this.data.acceleration * dt / 1000);
-        }
-
         // TODO: Handle rotated rig.
         const cameraEl = data.camera;
         // matrix.copy(cameraEl.object3D.matrixWorld);
@@ -199,9 +199,16 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         // Rotate to heading
         dVelocity.applyQuaternion(cameraEl.object3D.quaternion);
 
-        if (!data.fly) dVelocity.y = 0;
-
-        velocity.add(dVelocity);
+        const factor = dVelocity.length();
+        if (data.fly) {
+          velocity.copy(dVelocity);
+          velocity.multiplyScalar(this.data.speed * dt);
+        } else {
+          vector2.set(dVelocity.x, dVelocity.z);
+          vector2.setLength(factor * this.data.speed * dt);
+          velocity.x = vector2.x;
+          velocity.z = vector2.y;
+        }
       }
     };
 

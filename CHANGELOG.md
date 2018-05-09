@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.1.0
+* **movement-controls** — Replace acceleration/easing with `speed` property.
+
 ## v4.0.0
 
 * Added CHANGELOG.md

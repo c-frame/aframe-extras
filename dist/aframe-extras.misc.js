@@ -397,7 +397,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
         position = new CANNON.Vec3().copy(el.getAttribute('position'));
 
     this.body = new CANNON.Body({
-      material: this.system.material,
+      material: this.system.getMaterial('staticMaterial'),
       position: position,
       mass: data.mass,
       linearDamping: data.linearDamping,

@@ -67,9 +67,7 @@ With physics-based movement.
 |--------------------|---------|-------------|
 | enabled            | true    | Enables/disables movement controls. |
 | controls           | gamepad, keyboard, touch | Ordered list of controls to be injected. |
-| easing             | 15       | Rate at which movement decelerates horizontally each frame. |
-| easingY            | 0        | Rate at which movement decelerates vertically each frame. |
-| acceleration       | 80       | Rate at which movement increases with input.        |
+| speed              | 0.3      | Movement speed. |
 | fly                | false    | Whether vertical movement is enabled.               |
 | constrainToNavMesh | false    | Whether to use navigation system to clamp movement. |
 | camera             | [camera] | Camera element used for heading of the camera rig.  |

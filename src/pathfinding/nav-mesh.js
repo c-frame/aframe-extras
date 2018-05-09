@@ -30,8 +30,13 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
     }
   },
 
+  play: function () {
+    if (!this.hasLoadedNavMesh && !this.data.src) this.loadNavMesh();
+  },
+
   loadNavMesh: function () {
     const object = this.el.getObject3D('mesh');
+    const scene = this.el.sceneEl.object3D;
 
     if (!object) return;
 
@@ -42,6 +47,14 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
 
     if (!navMesh) return;
 
-    this.system.setNavMesh(navMesh);
+    const navMeshGeometry = navMesh.geometry.isBufferGeometry
+      ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry)
+      : navMesh.geometry.clone();
+
+    scene.updateMatrixWorld();
+    navMeshGeometry.applyMatrix(navMesh.matrixWorld);
+    this.system.setNavMeshGeometry(navMeshGeometry);
+
+    this.hasLoadedNavMesh = true;
   }
 });

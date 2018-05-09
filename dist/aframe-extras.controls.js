@@ -842,7 +842,7 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
       this.el.setAttribute('position', this.targetPosition);
       this.checkpoint = null;
       el.emit('navigation-end', { checkpoint: checkpoint });
-      el.components['movement-controls'].updateNavNode();
+      el.components['movement-controls'].updateNavLocation();
     }
   },
 
@@ -924,8 +924,8 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     camera: { default: '[camera]', type: 'selector' },
 
     // Rotation sensitivity
-    rotationSensitivity: { default: 0.05 // radians/frame, ish
-    } },
+    rotationSensitivity: { default: 2.0 }
+  },
 
   /*******************************************************************
    * Core
@@ -1022,20 +1022,34 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   updateRotation: function updateRotation(dt) {
     if (!this.isRotationActive()) return;
 
+    var data = this.data;
+    var yaw = this.yaw;
+    var pitch = this.pitch;
+    var lookControls = data.camera.components['look-controls'];
+    var hasLookControls = lookControls && lookControls.pitchObject && lookControls.yawObject;
+
+    // Sync with look-controls pitch/yaw if available.
+    if (hasLookControls) {
+      pitch.rotation.copy(lookControls.pitchObject.rotation);
+      yaw.rotation.copy(lookControls.yawObject.rotation);
+    }
+
     var lookVector = this.getJoystick(1);
 
     if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
     if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
 
-    var data = this.data;
-    var yaw = this.yaw;
-    var pitch = this.pitch;
-
     lookVector.multiplyScalar(data.rotationSensitivity * dt / 1000);
     yaw.rotation.y -= lookVector.x;
     pitch.rotation.x -= lookVector.y;
     pitch.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
-    data.camera.object3D.rotation.set(THREE.Math.radToDeg(pitch.rotation.x), THREE.Math.radToDeg(yaw.rotation.y), 0);
+    data.camera.object3D.rotation.set(pitch.rotation.x, yaw.rotation.y, 0);
+
+    // Sync with look-controls pitch/yaw if available.
+    if (hasLookControls) {
+      lookControls.pitchObject.rotation.copy(pitch.rotation);
+      lookControls.yawObject.rotation.copy(yaw.rotation);
+    }
   },
 
   /*******************************************************************
@@ -1355,9 +1369,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
   schema: {
     enabled: { default: true },
     controls: { default: ['gamepad', 'trackpad', 'keyboard', 'touch'] },
-    easing: { default: 15 }, // m/s2
-    easingY: { default: 0 }, // m/s2
-    acceleration: { default: 80 }, // m/s2
+    speed: { default: 0.3, min: 0 },
     fly: { default: false },
     constrainToNavMesh: { default: false },
     camera: { default: '[camera]', type: 'selector' }
@@ -1386,9 +1398,15 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     }
   },
 
-  update: function update() {
-    if (this.el.sceneEl.hasLoaded) {
+  update: function update(prevData) {
+    var el = this.el;
+    var data = this.data;
+    if (el.sceneEl.hasLoaded) {
       this.injectControls();
+    }
+    if (data.constrainToNavMesh !== prevData.constrainToNavMesh) {
+      var nav = el.sceneEl.systems.nav;
+      data.constrainToNavMesh ? nav.addAgent(this) : nav.removeAgent(this);
     }
   },
 
@@ -1404,7 +1422,8 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     }
   },
 
-  updateNavNode: function updateNavNode() {
+  updateNavLocation: function updateNavLocation() {
+    this.navGroup = null;
     this.navNode = null;
   },
 
@@ -1446,7 +1465,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         end.copy(velocity).multiplyScalar(dt / 1000).add(start);
 
         var nav = el.sceneEl.systems.nav;
-        this.navGroup = this.navGroup || nav.getGroup(start);
+        this.navGroup = this.navGroup === null ? nav.getGroup(start) : this.navGroup;
         this.navNode = this.navNode || nav.getNode(start, this.navGroup);
         this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
         el.object3D.position.copy(clampedEnd);
@@ -1479,6 +1498,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
   },
 
   updateVelocity: function () {
+    var vector2 = new THREE.Vector2();
     // var matrix = new THREE.Matrix4();
     // var matrix2 = new THREE.Matrix4();
     // var position = new THREE.Vector3();
@@ -1506,19 +1526,11 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         }
       }
 
-      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) velocity.copy(this.el.getAttribute('velocity'));
-      velocity.x -= velocity.x * data.easing * dt / 1000;
-      velocity.y -= velocity.y * data.easingY * dt / 1000;
-      velocity.z -= velocity.z * data.easing * dt / 1000;
+      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) {
+        velocity.copy(this.el.getAttribute('velocity'));
+      }
 
       if (dVelocity && data.enabled) {
-        // Set acceleration
-        if (dVelocity.length() > 1) {
-          dVelocity.setLength(this.data.acceleration * dt / 1000);
-        } else {
-          dVelocity.multiplyScalar(this.data.acceleration * dt / 1000);
-        }
-
         // TODO: Handle rotated rig.
         var cameraEl = data.camera;
         // matrix.copy(cameraEl.object3D.matrixWorld);
@@ -1530,9 +1542,16 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         // Rotate to heading
         dVelocity.applyQuaternion(cameraEl.object3D.quaternion);
 
-        if (!data.fly) dVelocity.y = 0;
-
-        velocity.add(dVelocity);
+        var factor = dVelocity.length();
+        if (data.fly) {
+          velocity.copy(dVelocity);
+          velocity.multiplyScalar(this.data.speed * dt);
+        } else {
+          vector2.set(dVelocity.x, dVelocity.z);
+          vector2.setLength(factor * this.data.speed * dt);
+          velocity.x = vector2.x;
+          velocity.z = vector2.y;
+        }
       }
     };
   }()

@@ -17,6 +17,10 @@ module.exports = AFRAME.registerComponent('nav-agent', {
   update: function () {
     this.path.length = 0;
   },
+  updateNavLocation: function () {
+    this.group = null;
+    this.path = [];
+  },
   tick: (function () {
     const vDest = new THREE.Vector3();
     const vDelta = new THREE.Vector3();
@@ -34,8 +38,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
       if (!this.path.length) {
         const position = this.el.object3D.position;
         this.group = this.group || this.system.getGroup(position);
-        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group);
-        this.path = this.path || [];
+        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group) || [];
         el.emit('nav-start');
       }
 
@@ -64,9 +67,10 @@ module.exports = AFRAME.registerComponent('nav-agent', {
           this.el.setAttribute('nav-agent', {active: false});
           el.emit('nav-end');
           return;
-        } else {
-          gazeTarget = this.path[0];
         }
+
+        vNext.copy(vCurrent);
+        gazeTarget = this.path[0];
       } else {
         // If still far away from next waypoint, find next position for
         // the current frame.
