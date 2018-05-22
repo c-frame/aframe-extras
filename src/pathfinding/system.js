@@ -51,7 +51,9 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {Array<THREE.Vector3>}
    */
   getPath: function (start, end, groupID) {
-    return pathfinder.findPath(start, end, ZONE, groupID);
+    return this.navMesh
+      ? pathfinder.findPath(start, end, ZONE, groupID)
+      : null;
   },
 
   /**
@@ -59,7 +61,9 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {number}
    */
   getGroup: function (position) {
-    return pathfinder.getGroup(ZONE, position);
+    return this.navMesh
+      ? pathfinder.getGroup(ZONE, position)
+      : null;
   },
 
   /**
@@ -68,7 +72,9 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {Node}
    */
   getNode: function (position, groupID) {
-    return pathfinder.getClosestNode(position, ZONE, groupID, true);
+    return this.navMesh
+      ? pathfinder.getClosestNode(position, ZONE, groupID, true)
+      : null;
   },
 
   /**
@@ -80,9 +86,12 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {Node} Current node, after step is taken.
    */
   clampStep: function (start, end, groupID, node, endTarget) {
-    if (!this.navMesh || !node) {
+    if (!this.navMesh) {
       endTarget.copy(end);
-      return this.navMesh ? this.getNode(end, groupID) : null;
+      return null;
+    } else if (!node) {
+      endTarget.copy(end);
+      return this.getNode(end, groupID);
     }
     return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
   }
