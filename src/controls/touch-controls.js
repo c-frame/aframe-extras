@@ -51,6 +51,10 @@ module.exports = AFRAME.registerComponent('touch-controls', {
 
   getVelocityDelta: function () {
     this.dVelocity.z = this.isMoving ? -1 : 0;
+    if (this.isBackwards) {
+      this.dVelocity.z = this.dVelocity.z * -1;
+    }
+
     return this.dVelocity.clone();
   },
 
@@ -61,11 +65,13 @@ module.exports = AFRAME.registerComponent('touch-controls', {
 
   onTouchStart: function (e) {
     this.isMoving = true;
+    this.isBackwards = (e.targetTouches.length === 2);
     e.preventDefault();
   },
 
   onTouchEnd: function (e) {
     this.isMoving = false;
+    this.isBackwards = false;
     e.preventDefault();
   }
 });
