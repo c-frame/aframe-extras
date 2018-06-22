@@ -65,17 +65,5 @@
     "vr",
     "webgl",
     "webvr"
-  ],
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "env"
-          ]
-        }
-      ]
-    ]
-  }
+  ]
 }
