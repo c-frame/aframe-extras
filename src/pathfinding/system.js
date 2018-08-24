@@ -15,14 +15,12 @@ module.exports = AFRAME.registerSystem('nav', {
   },
 
   /**
-   * @param {THREE.Mesh} mesh
+   * @param {THREE.Geometry} geometry
    */
-  setNavMesh: function (mesh) {
-    const geometry = mesh.geometry.isBufferGeometry
-      ? new THREE.Geometry().fromBufferGeometry(mesh.geometry)
-      : mesh.geometry;
+  setNavMeshGeometry: function (geometry) {
     this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, Path.createZone(this.navMesh.geometry));
+    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
+    Array.from(this.agents).forEach((agent) => agent.updateNavLocation());
   },
 
   /**
@@ -43,7 +41,7 @@ module.exports = AFRAME.registerSystem('nav', {
    * @param {NavAgent} ctrl
    */
   removeAgent: function (ctrl) {
-    this.agents.remove(ctrl);
+    this.agents.delete(ctrl);
   },
 
   /**
@@ -53,7 +51,9 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {Array<THREE.Vector3>}
    */
   getPath: function (start, end, groupID) {
-    return pathfinder.findPath(start, end, ZONE, groupID);
+    return this.navMesh
+      ? pathfinder.findPath(start, end, ZONE, groupID)
+      : null;
   },
 
   /**
@@ -61,7 +61,9 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {number}
    */
   getGroup: function (position) {
-    return pathfinder.getGroup(ZONE, position);
+    return this.navMesh
+      ? pathfinder.getGroup(ZONE, position)
+      : null;
   },
 
   /**
@@ -70,7 +72,9 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {Node}
    */
   getNode: function (position, groupID) {
-    return pathfinder.getClosestNode(position, ZONE, groupID, true);
+    return this.navMesh
+      ? pathfinder.getClosestNode(position, ZONE, groupID, true)
+      : null;
   },
 
   /**
@@ -82,9 +86,12 @@ module.exports = AFRAME.registerSystem('nav', {
    * @return {Node} Current node, after step is taken.
    */
   clampStep: function (start, end, groupID, node, endTarget) {
-    if (!this.navMesh || !node) {
+    if (!this.navMesh) {
       endTarget.copy(end);
-      return this.navMesh ? this.getNode(end, groupID) : null;
+      return null;
+    } else if (!node) {
+      endTarget.copy(end);
+      return this.getNode(end, groupID);
     }
     return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
   }

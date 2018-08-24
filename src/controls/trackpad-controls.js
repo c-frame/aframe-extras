@@ -74,6 +74,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   onAxisMove: function(e){
     var axis_data = e.detail.axis;
 
+<<<<<<< HEAD
     if(this.canRecordAxis){
       this.canRecordAxis = false
 
@@ -116,7 +117,6 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
         }
 
       }
-
 
     }
 

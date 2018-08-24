@@ -5,10 +5,6 @@
 
 Add-ons and helpers for A-Frame VR.
 
-> **IMPORTANT:** This project is not yet compatible with A-Frame 0.8.0. Stay tuned for the next (v4) release.
-
-> **NOTE:** The `master` branch contains changes that are not yet released or documented, and may be unstable. Documentation will also be different. Use [v3.13.1](https://github.com/donmccurdy/aframe-extras/tree/v3.13.1) for the most recent stable version.
-
 Includes components for controls, model loaders, pathfinding, and more:
 
 <!-- tree src -I index.js -->
@@ -51,24 +47,25 @@ src
 In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.13.1/dist/aframe-extras.min.js"></script>
+<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v4.1.2/dist/aframe-extras.min.js"></script>
 ```
 
-CDN builds for aframe-extras/v3.13.1:
+CDN builds for aframe-extras/v4.1.2:
 
-- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.13.1/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.13.1/dist/aframe-extras.min.js) *(production)*
+- [aframe-extras.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.1.2/dist/aframe-extras.js) *(development)*
+- [aframe-extras.min.js](https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.1.2/dist/aframe-extras.min.js) *(production)*
 
-For partial builds, use a subpackage like `aframe-extras.controls.min.js`. [Full list of packages below](#add-ons).
+For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full list of packages above.
 
 **A-Frame Version Compatibility**
 
-| A-Frame   | Extras                |
-|-----------|-----------------------|
-| v0.5.X | aframe-extras/v3.13.1     |
-| v0.4.X | */v3.3.0     |
-| v0.3.X | */v2.6.1                 |
-| v0.2.X | */v1.17.0                |
+| A-Frame   | Extras            |
+|-----------|-------------------|
+| v0.8.X | aframe-extras/v4.1.2 |
+| v0.5.X | */v3.13.1            |
+| v0.4.X | */v3.3.0             |
+| v0.3.X | */v2.6.1             |
+| v0.2.X | */v1.17.0            |
 
 > **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/donmccurdy/aframe-physics-system).
 
