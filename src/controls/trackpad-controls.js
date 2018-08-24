@@ -49,6 +49,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
 
   getVelocityDelta: function () {
     this.dVelocity.z = this.isMoving ? -this.zVel : 1;
+    this.dVelocity.x = this.isMoving ? this.xVel : 1;
     return this.dVelocity.clone();
   },
 
@@ -59,11 +60,13 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   onTouchStart: function (e) {
-    this.isMoving = true;
+    this.startingAxisData = [];
+    this.canRecordAxis = true
     e.preventDefault();
   },
 
   onTouchEnd: function (e) {
+    this.startingAxisData = []
     this.isMoving = false;
     e.preventDefault();
   },
@@ -71,12 +74,50 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   onAxisMove: function(e){
     var axis_data = e.detail.axis;
 
-    if(axis_data[1] < 0){
-      this.zVel = 1;
+    if(this.canRecordAxis){
+      this.canRecordAxis = false
+
+      this.startingAxisData[0] = axis_data[0]
+      this.startingAxisData[1] = axis_data[1]
     }
 
-    if(axis_data[1] > 0){
-      this.zVel = -1;
+
+    if(this.startingAxisData.length > 0){
+      var movingLeft     = this.startingAxisData[0] > 0 && axis_data[0] < 0
+      var movingRight    = this.startingAxisData[0] < 0 && axis_data[0] > 0
+      var movingForward  = this.startingAxisData[1] > 0 && axis_data[1] < 0
+      var movingBackward = this.startingAxisData[1] < 0 && axis_data[1] > 0
+
+      var absChangeZ = Math.abs(this.startingAxisData[1] - axis_data[1])
+      var absChangeX = Math.abs(this.startingAxisData[0] - axis_data[0])
+
+      if(absChangeZ > absChangeX) {
+        this.xVel = 0;
+        if(movingForward){
+          this.zVel = 1;
+          this.isMoving = true
+        }
+
+        if(movingBackward){
+          this.zVel = -1;
+          this.isMoving = true;
+        }
+
+      }else{
+        this.zVel = 0;
+        if(movingRight){
+          this.xVel = 1;
+          this.isMoving = true;
+        }
+
+        if(movingLeft) {
+          this.xVel = -1;
+          this.isMoving = true;
+        }
+
+      }
+
+
     }
 
   }
