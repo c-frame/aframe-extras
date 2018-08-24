@@ -3690,6 +3690,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
   schema: {
     clip: { default: '*' },
     duration: { default: 0 },
+    clampWhenFinished: { default: false, type: 'boolean' },
     crossFadeDuration: { default: 0 },
     loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
     repetitions: { default: Infinity, min: 0 }
@@ -3766,6 +3767,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
       if (clip.name.match(re)) {
         var action = this.mixer.clipAction(clip, model);
         action.enabled = true;
+        action.clampWhenFinished = data.clampWhenFinished;
         if (data.duration) action.setDuration(data.duration);
         action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
         this.activeActions.push(action);

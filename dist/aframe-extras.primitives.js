@@ -890,7 +890,7 @@ module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
     path: 'tube.path',
     segments: 'tube.segments',
     radius: 'tube.radius',
-    radialSegments: 'tube.radialSegments',
+    'radial-segments': 'tube.radialSegments',
     closed: 'tube.closed'
   }
 });
@@ -927,6 +927,13 @@ module.exports.Component = AFRAME.registerComponent('tube', {
 
     this.mesh = new THREE.Mesh(geometry, material.material);
     this.el.setObject3D('mesh', this.mesh);
+  },
+
+  update: function update(prevData) {
+    if (!Object.keys(prevData).length) return;
+
+    this.remove();
+    this.init();
   },
 
   remove: function remove() {
