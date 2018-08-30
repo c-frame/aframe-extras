@@ -1,6 +1,6 @@
-const Path = require('three-pathfinding');
+const { Pathfinding } = require('three-pathfinding');
 
-const pathfinder = new Path();
+const pathfinder = new Pathfinding();
 const ZONE = 'level';
 
 /**
@@ -19,7 +19,7 @@ module.exports = AFRAME.registerSystem('nav', {
    */
   setNavMeshGeometry: function (geometry) {
     this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, Path.createZone(geometry));
+    pathfinder.setZoneData(ZONE, Pathfinding.createZone(geometry));
     Array.from(this.agents).forEach((agent) => agent.updateNavLocation());
   },
 
