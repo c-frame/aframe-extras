@@ -61,7 +61,6 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
 
   onTouchStart: function (e) {
     this.startingAxisData = [];
-    this.canRecordAxis = true;
     e.preventDefault();
   },
 
