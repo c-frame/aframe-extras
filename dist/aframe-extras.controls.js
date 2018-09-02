@@ -1401,11 +1401,11 @@ module.exports = AFRAME.registerComponent('movement-controls', {
   update: function update(prevData) {
     var el = this.el;
     var data = this.data;
+    var nav = el.sceneEl.systems.nav;
     if (el.sceneEl.hasLoaded) {
       this.injectControls();
     }
-    if (data.constrainToNavMesh !== prevData.constrainToNavMesh) {
-      var nav = el.sceneEl.systems.nav;
+    if (nav && data.constrainToNavMesh !== prevData.constrainToNavMesh) {
       data.constrainToNavMesh ? nav.addAgent(this) : nav.removeAgent(this);
     }
   },
