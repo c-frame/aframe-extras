@@ -80,14 +80,8 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
 
 
     if(this.startingAxisData.length > 0){
-      var movingLeft     = this.startingAxisData[0] > 0 && axis_data[0] < 0
-      var movingRight    = this.startingAxisData[0] < 0 && axis_data[0] > 0
-      var movingForward  = this.startingAxisData[1] > 0 && axis_data[1] < 0
-      var movingBackward = this.startingAxisData[1] < 0 && axis_data[1] > 0
-
       var velX = axis_data[0] < this.startingAxisData[0] ? -1 : 1
       var velZ = axis_data[1] < this.startingAxisData[1] ? 1 : -1
-
 
       var absChangeZ = Math.abs(this.startingAxisData[1] - axis_data[1])
       var absChangeX = Math.abs(this.startingAxisData[0] - axis_data[0])
