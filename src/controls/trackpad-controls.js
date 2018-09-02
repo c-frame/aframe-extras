@@ -60,6 +60,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   onTouchStart: function (e) {
+    this.canRecordAxis = true;
     this.startingAxisData = [];
     e.preventDefault();
   },
@@ -73,29 +74,30 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   onAxisMove: function(e){
     var axis_data = e.detail.axis;
 
-    if(this.startingAxisData.length === 0){
-      this.startingAxisData[0] = axis_data[0]
-      this.startingAxisData[1] = axis_data[1]
+    if(this.startingAxisData.length === 0 && this.canRecordAxis){
+      this.canRecordAxis = false;
+      this.startingAxisData[0] = axis_data[0];
+      this.startingAxisData[1] = axis_data[1];
+      this.isMoving = true;
     }
 
 
     if(this.startingAxisData.length > 0){
-      var velX = axis_data[0] < this.startingAxisData[0] ? -1 : 1
-      var velZ = axis_data[1] < this.startingAxisData[1] ? 1 : -1
+      const velX = axis_data[0] < this.startingAxisData[0] ? -1 : 1;
+      const velZ = axis_data[1] < this.startingAxisData[1] ? 1 : -1;
 
-      var absChangeZ = Math.abs(this.startingAxisData[1] - axis_data[1])
-      var absChangeX = Math.abs(this.startingAxisData[0] - axis_data[0])
+      const absChangeZ = Math.abs(this.startingAxisData[1] - axis_data[1]);
+      const absChangeX = Math.abs(this.startingAxisData[0] - axis_data[0]);
 
       if(absChangeZ > absChangeX) {
         this.xVel = 0;
         this.zVel = velZ;
-        this.isMoving = true;
 
       }else{
         this.zVel = 0;
-        this.xVel = velX
-        this.isMoving = true;
+        this.xVel = velX;
       }
+
     }
   }
 });
