@@ -73,8 +73,11 @@ ${package.description}
 }
 
 function createDist (package, dir) {
+  let resolve;
   const componentName = package.name.replace(/^[\w-]+\./, ''),
-        deferred = Promise.defer(),
+        promise = new Promise((res) => {
+          resolve = res;
+        }),
         inputStream = new Readable(),
         writeStream = fs.createWriteStream(`${dir}/dist/${package.name}.js`);
 
@@ -97,7 +100,7 @@ function createDist (package, dir) {
 
     fs.outputFileSync(`${dir}/dist/${package.name}.min.js`, minJS.code);
     console.log(chalk.yellow('  ⇢  Bundled "%s".'), package.name);
-    deferred.resolve();
+    resolve();
   });
 
   browserify()
@@ -105,7 +108,7 @@ function createDist (package, dir) {
     .bundle()
     .pipe(writeStream);
 
-  return deferred.promise;
+  return promise;
 }
 
 process.on('exit', (err) => {
