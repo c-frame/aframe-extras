@@ -202,10 +202,10 @@ module.exports = AFRAME.registerComponent('movement-controls', {
         const factor = dVelocity.length();
         if (data.fly) {
           velocity.copy(dVelocity);
-          velocity.multiplyScalar(this.data.speed * dt);
+          velocity.multiplyScalar(this.data.speed * 16.66667);
         } else {
           vector2.set(dVelocity.x, dVelocity.z);
-          vector2.setLength(factor * this.data.speed * dt);
+          vector2.setLength(factor * this.data.speed * 16.66667);
           velocity.x = vector2.x;
           velocity.z = vector2.y;
         }
