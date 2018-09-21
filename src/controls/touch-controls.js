@@ -51,7 +51,7 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   getVelocityDelta: function () {
-    zDir = this.isReverse && this.data.reverseEnabled ? 1 : -1
+    const zDir = this.isReverse && this.data.reverseEnabled ? 1 : -1
     this.dVelocity.z = this.isMoving ? zDir : 0;
     return this.dVelocity.clone();
   },
