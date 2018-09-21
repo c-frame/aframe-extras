@@ -3,7 +3,8 @@
  */
 module.exports = AFRAME.registerComponent('touch-controls', {
   schema: {
-    enabled: { default: true }
+    enabled: { default: true },
+    reverseEnabled: { default: true }
   },
 
   init: function () {
@@ -50,7 +51,8 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   getVelocityDelta: function () {
-    this.dVelocity.z = this.isMoving ? -1 : 0;
+    zDir = this.isReverse && this.data.reverseEnabled ? 1 : -1
+    this.dVelocity.z = this.isMoving ? zDir : 0;
     return this.dVelocity.clone();
   },
 
@@ -60,7 +62,8 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   onTouchStart: function (e) {
-    this.isMoving = true;
+    this.isMoving  = true;
+    this.isReverse = e.touches.length == 2
     e.preventDefault();
   },
 
