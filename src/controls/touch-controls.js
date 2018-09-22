@@ -10,6 +10,7 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   init: function () {
     this.dVelocity = new THREE.Vector3();
     this.bindMethods();
+    this.direction = 0;
   },
 
   play: function () {
@@ -47,12 +48,11 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   isVelocityActive: function () {
-    return this.data.enabled && this.isMoving;
+    return this.data.enabled && !!this.direction;
   },
 
   getVelocityDelta: function () {
-    const zDir = this.isReverse && this.data.reverseEnabled ? 1 : -1;
-    this.dVelocity.z = this.isMoving ? zDir : 0;
+    this.dVelocity.z = this.direction;
     return this.dVelocity.clone();
   },
 
@@ -62,13 +62,15 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   onTouchStart: function (e) {
-    this.isMoving  = true;
-    this.isReverse = e.touches.length == 2;
+    this.direction = -1;
+    if (this.data.reverseEnabled && e.touches.length === 2) {
+      this.direction = 1;
+    }
     e.preventDefault();
   },
 
   onTouchEnd: function (e) {
-    this.isMoving = false;
+    this.direction = 0;
     e.preventDefault();
   }
 });
