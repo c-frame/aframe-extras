@@ -39,7 +39,7 @@ npcEl.setAttribute('nav-agent', {
 
 The `nav-agent` component will emit two events:
 
-- `nav-start`: Entity beginning travel to a destination.
+- `navigation-start`: Entity beginning travel to a destination.
 - `navigation-end`: Entity has reached destination.
 
 ## Important notes

@@ -1,6 +1,15 @@
 # Changelog
 
+## v4.2.0
+
+* **movement-controls** Added support for setting rig rotation. Fixed bug with `speed` implementation.
+* **nav** Improved nav-mesh load handling, renamed `nav-start` and `nav-end` events to `navigation-start` and `navigation-end`.
+* **animation-mixer** Allows property updates while playing, added `timeScale` property.
+* **touch-controls** Support two-finger touch to move backwards.
+* **fbx-model** Updated to FBXLoader r96.
+
 ## v4.1.0
+
 * **movement-controls** — Replace acceleration/easing with `speed` property.
 
 ## v4.0.0

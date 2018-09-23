@@ -39,7 +39,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
         const position = this.el.object3D.position;
         this.group = this.group || this.system.getGroup(position);
         this.path = this.system.getPath(position, vDest.copy(data.destination), this.group) || [];
-        el.emit('nav-start');
+        el.emit('navigation-start');
       }
 
       // If no path is found, exit.
