@@ -1499,11 +1499,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
 
   updateVelocity: function () {
     var vector2 = new THREE.Vector2();
-    // var matrix = new THREE.Matrix4();
-    // var matrix2 = new THREE.Matrix4();
-    // var position = new THREE.Vector3();
-    // var quaternion = new THREE.Quaternion();
-    // var scale = new THREE.Vector3();
+    var quaternion = new THREE.Quaternion();
 
     return function (dt) {
       var dVelocity = void 0;
@@ -1531,24 +1527,20 @@ module.exports = AFRAME.registerComponent('movement-controls', {
       }
 
       if (dVelocity && data.enabled) {
-        // TODO: Handle rotated rig.
         var cameraEl = data.camera;
-        // matrix.copy(cameraEl.object3D.matrixWorld);
-        // matrix2.getInverse(el.object3D.matrixWorld);
-        // matrix.multiply(matrix2);
-        // matrix.decompose(position, quaternion, scale);
-        // dVelocity.applyQuaternion(quaternion);
 
         // Rotate to heading
-        dVelocity.applyQuaternion(cameraEl.object3D.quaternion);
+        quaternion.copy(cameraEl.object3D.quaternion);
+        quaternion.premultiply(el.object3D.quaternion);
+        dVelocity.applyQuaternion(quaternion);
 
         var factor = dVelocity.length();
         if (data.fly) {
           velocity.copy(dVelocity);
-          velocity.multiplyScalar(this.data.speed * dt);
+          velocity.multiplyScalar(this.data.speed * 16.66667);
         } else {
           vector2.set(dVelocity.x, dVelocity.z);
-          vector2.setLength(factor * this.data.speed * dt);
+          vector2.setLength(factor * this.data.speed * 16.66667);
           velocity.x = vector2.x;
           velocity.z = vector2.y;
         }
@@ -1566,12 +1558,14 @@ module.exports = AFRAME.registerComponent('movement-controls', {
 
 module.exports = AFRAME.registerComponent('touch-controls', {
   schema: {
-    enabled: { default: true }
+    enabled: { default: true },
+    reverseEnabled: { default: true }
   },
 
   init: function init() {
     this.dVelocity = new THREE.Vector3();
     this.bindMethods();
+    this.direction = 0;
   },
 
   play: function play() {
@@ -1611,11 +1605,11 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   isVelocityActive: function isVelocityActive() {
-    return this.data.enabled && this.isMoving;
+    return this.data.enabled && !!this.direction;
   },
 
   getVelocityDelta: function getVelocityDelta() {
-    this.dVelocity.z = this.isMoving ? -1 : 0;
+    this.dVelocity.z = this.direction;
     return this.dVelocity.clone();
   },
 
@@ -1625,12 +1619,15 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   },
 
   onTouchStart: function onTouchStart(e) {
-    this.isMoving = true;
+    this.direction = -1;
+    if (this.data.reverseEnabled && e.touches.length === 2) {
+      this.direction = 1;
+    }
     e.preventDefault();
   },
 
   onTouchEnd: function onTouchEnd(e) {
-    this.isMoving = false;
+    this.direction = 0;
     e.preventDefault();
   }
 });
