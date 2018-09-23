@@ -156,11 +156,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
 
   updateVelocity: (function () {
     const vector2 = new THREE.Vector2();
-    // var matrix = new THREE.Matrix4();
-    // var matrix2 = new THREE.Matrix4();
-    // var position = new THREE.Vector3();
-    // var quaternion = new THREE.Quaternion();
-    // var scale = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
 
     return function (dt) {
       let dVelocity;
@@ -188,16 +184,12 @@ module.exports = AFRAME.registerComponent('movement-controls', {
       }
 
       if (dVelocity && data.enabled) {
-        // TODO: Handle rotated rig.
         const cameraEl = data.camera;
-        // matrix.copy(cameraEl.object3D.matrixWorld);
-        // matrix2.getInverse(el.object3D.matrixWorld);
-        // matrix.multiply(matrix2);
-        // matrix.decompose(position, quaternion, scale);
-        // dVelocity.applyQuaternion(quaternion);
 
         // Rotate to heading
-        dVelocity.applyQuaternion(cameraEl.object3D.quaternion);
+        quaternion.copy(cameraEl.object3D.quaternion);
+        quaternion.premultiply(el.object3D.quaternion);
+        dVelocity.applyQuaternion(quaternion);
 
         const factor = dVelocity.length();
         if (data.fly) {

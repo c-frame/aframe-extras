@@ -6,12 +6,12 @@
     <title>Examples • Walls</title>
     <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
     <script src="../bundle.js"></script>
-    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v2.1.0/dist/aframe-physics-system.min.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v3.2.0/dist/aframe-physics-system.min.js"></script>
   </head>
   <body>
     <a-scene physics renderer="gammaOutput: true">
       <!-- Player -->
-      <a-entity id="rig" movement-controls kinematic-body>
+      <a-entity id="rig" movement-controls kinematic-body rotation="0 -90 0">
         <a-entity id="camera"
                   camera
                   position="0 1.6 0"
