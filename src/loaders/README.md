@@ -39,6 +39,7 @@ an animation and its duration:
 | crossFadeDuration | 0        | Duration of cross-fades between clips, in seconds.        |
 | loop              | repeat   | `once`, `repeat`, or `pingpong`. In `repeat` and `pingpong` modes, the clip plays once plus the specified number of repetitions. For `pingpong`, every second clip plays in reverse. |
 | repetitions       | Infinity | Number of times to play the clip, in addition to the first play. Repetitions are ignored for `loop: once`. |
+| timeScale         | 1        | Scaling factor for playback speed. A value of 0 causes the animation to pause. Negative values cause the animation to play backwards. |
 
 A list of available animations can usually be found by inspecting the model file or its documentation. All animations will play by default. To play only a specific set of animations, use wildcards: `animation-mixer="clip: run_*"`.
 
