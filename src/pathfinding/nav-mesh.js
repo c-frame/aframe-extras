@@ -8,7 +8,7 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
   init: function () {
     this.system = this.el.sceneEl.systems.nav;
     this.hasLoadedNavMesh = false;
-    this.el.addEventListener('model-loaded', this.loadNavMesh.bind(this));
+    this.el.addEventListener('object3dset', this.loadNavMesh.bind(this));
   },
 
   play: function () {
