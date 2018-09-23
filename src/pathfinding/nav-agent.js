@@ -46,7 +46,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
       if (!this.path.length) {
         console.warn('[nav] Unable to find path to %o.', data.destination);
         this.el.setAttribute('nav-agent', {active: false});
-        el.emit('nav-end');
+        el.emit('navigation-end');
         return;
       }
 
@@ -65,7 +65,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
         // After discarding the last waypoint, exit pathfinding.
         if (!this.path.length) {
           this.el.setAttribute('nav-agent', {active: false});
-          el.emit('nav-end');
+          el.emit('navigation-end');
           return;
         }
 
