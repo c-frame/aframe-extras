@@ -3,12 +3,16 @@
  */
 module.exports = AFRAME.registerComponent('trackpad-controls', {
   schema: {
-    enabled: { default: true }
+    enabled: { default: true },
+    allowStrafe: { default: true },
+    mode: { type: 'string', default: 'swipe', oneOf: ['swipe', 'touch', 'press'] }
+
   },
 
   init: function () {
     this.dVelocity = new THREE.Vector3();
     this.zVel      = 0;
+    this.xVel      = 0;
     this.bindMethods();
   },
 
@@ -29,8 +33,16 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
     const sceneEl = this.el.sceneEl;
 
     sceneEl.addEventListener('axismove', this.onAxisMove);
-    sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
-    sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+
+    if(this.data.mode == 'swipe' || this.data.mode == 'touch') {
+      sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
+      sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+    }
+
+    if(this.data.mode == 'press') {
+      sceneEl.addEventListener('trackpaddown', this.onTouchStart);
+      sceneEl.addEventListener('trackpadup', this.onTouchEnd);
+    }
 
   },
 
@@ -38,8 +50,16 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
     const sceneEl = this.el.sceneEl;
 
     sceneEl.removeEventListener('axismove', this.onAxisMove);
-    sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
-    sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
+
+    if(this.data.mode == 'swipe' || this.data.mode == 'touch') {
+      sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
+      sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
+    }
+
+    if(this.data.mode == 'press') {
+      sceneEl.removeEventListener('trackpaddown', this.onTouchStart);
+      sceneEl.removeEventListener('trackpadup', this.onTouchEnd);
+    }
 
   },
 
@@ -60,45 +80,86 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   onTouchStart: function (e) {
-    this.canRecordAxis = true;
-    this.startingAxisData = [];
+    switch(this.data.mode){
+      case 'swipe':
+        this.canRecordAxis = true;
+        this.startingAxisData = [];
+        break;
+      case 'touch':
+        this.isMoving = true;
+        break;
+      case 'press':
+        this.isMoving = true;
+        break;
+    }
+
     e.preventDefault();
   },
 
   onTouchEnd: function (e) {
-    this.startingAxisData = [];
+    if(this.data.mode == 'swipe') {
+        this.startingAxisData = [];
+    }
+
     this.isMoving = false;
     e.preventDefault();
   },
 
   onAxisMove: function(e){
-    var axis_data = e.detail.axis;
+    if(this.data.mode == 'swipe') {
+      return this.handleSwipeAxis(e);
+    }
+
+    if(this.data.mode == 'touch' || this.data.mode == 'press') {
+      return this.handleTouchAxis(e);
+    }
+
+  },
+
+  handleSwipeAxis: function(e) {
+    var axisData = e.detail.axis;
 
     if(this.startingAxisData.length === 0 && this.canRecordAxis){
       this.canRecordAxis = false;
-      this.startingAxisData[0] = axis_data[0];
-      this.startingAxisData[1] = axis_data[1];
+      this.startingAxisData[0] = axisData[0];
+      this.startingAxisData[1] = axisData[1];
       this.isMoving = true;
     }
 
 
     if(this.startingAxisData.length > 0){
-      const velX = axis_data[0] < this.startingAxisData[0] ? -1 : 1;
-      const velZ = axis_data[1] < this.startingAxisData[1] ? 1 : -1;
+      const velX = axisData[0] < this.startingAxisData[0] ? -1 : 1;
+      const velZ = axisData[1] < this.startingAxisData[1] ? 1 : -1;
 
-      const absChangeZ = Math.abs(this.startingAxisData[1] - axis_data[1]);
-      const absChangeX = Math.abs(this.startingAxisData[0] - axis_data[0]);
+      const absChangeZ = Math.abs(this.startingAxisData[1] - axisData[1]);
+      const absChangeX = Math.abs(this.startingAxisData[0] - axisData[0]);
 
-      if(absChangeZ > absChangeX) {
-        this.xVel = 0;
-        this.zVel = velZ;
-
-      }else{
+      if((absChangeX > absChangeZ) && this.data.allowStrafe == true) {
         this.zVel = 0;
         this.xVel = velX;
+      }else{
+        this.xVel = 0;
+        this.zVel = velZ;
       }
 
     }
+  },
+
+  handleTouchAxis: function(e) {
+    var axisData = e.detail.axis;
+
+    const velX = axisData[0] < 0 ? -1 : 1;
+    const velZ = axisData[1] < 0 ? 1 : -1;
+
+    if(Math.abs(axisData[0]) > Math.abs(axisData[1]) && this.data.allowStrafe) {
+      this.zVel = 0;
+      this.xVel = velX;
+    }else{
+      this.xVel = 0;
+      this.zVel = velZ;
+    }
+
   }
+
 });
 
