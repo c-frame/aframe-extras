@@ -4,7 +4,10 @@
 module.exports = AFRAME.registerComponent('trackpad-controls', {
   schema: {
     enabled: { default: true },
-    allowStrafe: { default: true },
+    enableNegX: { default: true },
+    enablePosX: { default: true },
+    enableNegZ: { default: true },
+    enablePosZ: { default: true },
     mode: { type: 'string', default: 'swipe', oneOf: ['swipe', 'touch', 'press'] }
 
   },
@@ -128,13 +131,29 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
 
 
     if(this.startingAxisData.length > 0){
-      const velX = axisData[0] < this.startingAxisData[0] ? -1 : 1;
-      const velZ = axisData[1] < this.startingAxisData[1] ? 1 : -1;
+      let velX = 0;
+      let velZ = 0;
+
+      if(this.data.enableNegX && ( axisData[0] < this.startingAxisData[0] )) {
+        velX = -1;
+      }
+
+      if(this.data.enablePosX && ( axisData[0] > this.startingAxisData[0] )) {
+        velX = 1;
+      }
+
+      if(this.data.enableNegZ && ( axisData[1] > this.startingAxisData[1] )) {
+        velZ = -1;
+      }
+
+      if(this.data.enableNegZ && ( axisData[1] < this.startingAxisData[1] )) {
+        velZ = 1;
+      }
 
       const absChangeZ = Math.abs(this.startingAxisData[1] - axisData[1]);
       const absChangeX = Math.abs(this.startingAxisData[0] - axisData[0]);
 
-      if((absChangeX > absChangeZ) && this.data.allowStrafe == true) {
+      if(absChangeX > absChangeZ)  {
         this.zVel = 0;
         this.xVel = velX;
       }else{
@@ -148,10 +167,26 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   handleTouchAxis: function(e) {
     var axisData = e.detail.axis;
 
-    const velX = axisData[0] < 0 ? -1 : 1;
-    const velZ = axisData[1] < 0 ? 1 : -1;
+    let velX = 0;
+    let velZ = 0;
 
-    if(Math.abs(axisData[0]) > Math.abs(axisData[1]) && this.data.allowStrafe) {
+    if(this.data.enableNegX && ( axisData[0] < 0 )) {
+      velX = -1;
+    }
+
+    if(this.data.enablePosX && ( axisData[0] > 0 )) {
+      velX = 1;
+    }
+
+    if(this.data.enableNegZ && ( axisData[1] > 0 )) {
+      velZ = -1;
+    }
+
+    if(this.data.enableNegZ && ( axisData[1] < 0 )) {
+      velZ = 1;
+    }
+
+    if(Math.abs(axisData[0]) > Math.abs(axisData[1])) {
       this.zVel = 0;
       this.xVel = velX;
     }else{
