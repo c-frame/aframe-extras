@@ -134,19 +134,19 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
       let velX = 0;
       let velZ = 0;
 
-      if(this.data.enableNegX && ( axisData[0] < this.startingAxisData[0] )) {
+      if(this.data.enableNegX == true && ( axisData[0] < this.startingAxisData[0] )) {
         velX = -1;
       }
 
-      if(this.data.enablePosX && ( axisData[0] > this.startingAxisData[0] )) {
+      if(this.data.enablePosX == true && ( axisData[0] > this.startingAxisData[0] )) {
         velX = 1;
       }
 
-      if(this.data.enableNegZ && ( axisData[1] > this.startingAxisData[1] )) {
+      if(this.data.enableNegZ == true && ( axisData[1] > this.startingAxisData[1] )) {
         velZ = -1;
       }
 
-      if(this.data.enableNegZ && ( axisData[1] < this.startingAxisData[1] )) {
+      if(this.data.enableNegZ == true && ( axisData[1] < this.startingAxisData[1] )) {
         velZ = 1;
       }
 
@@ -170,19 +170,19 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
     let velX = 0;
     let velZ = 0;
 
-    if(this.data.enableNegX && ( axisData[0] < 0 )) {
+    if(this.data.enableNegX == true && ( axisData[0] < 0 )) {
       velX = -1;
     }
 
-    if(this.data.enablePosX && ( axisData[0] > 0 )) {
+    if(this.data.enablePosX == true && ( axisData[0] > 0 )) {
       velX = 1;
     }
 
-    if(this.data.enableNegZ && ( axisData[1] > 0 )) {
+    if(this.data.enableNegZ == true && ( axisData[1] > 0 )) {
       velZ = -1;
     }
 
-    if(this.data.enableNegZ && ( axisData[1] < 0 )) {
+    if(this.data.enableNegZ == true && ( axisData[1] < 0 )) {
       velZ = 1;
     }
 
