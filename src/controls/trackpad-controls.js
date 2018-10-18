@@ -126,7 +126,6 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
       this.canRecordAxis = false;
       this.startingAxisData[0] = axisData[0];
       this.startingAxisData[1] = axisData[1];
-      this.isMoving = true;
     }
 
 
@@ -142,7 +141,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
         velX = 1;
       }
 
-      if(this.data.enableNegZ == true && ( axisData[1] > this.startingAxisData[1] )) {
+      if(this.data.enablePosZ == true && ( axisData[1] > this.startingAxisData[1] )) {
         velZ = -1;
       }
 
@@ -150,15 +149,17 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
         velZ = 1;
       }
 
-      const absChangeZ = Math.abs(this.startingAxisData[1] - axisData[1]);
-      const absChangeX = Math.abs(this.startingAxisData[0] - axisData[0]);
+      const absChangeZ  = Math.abs(this.startingAxisData[1] - axisData[1]);
+      const absChangeX  = Math.abs(this.startingAxisData[0] - axisData[0]);
 
       if(absChangeX > absChangeZ)  {
         this.zVel = 0;
         this.xVel = velX;
+        this.isMoving = true;
       }else{
         this.xVel = 0;
         this.zVel = velZ;
+        this.isMoving = true;
       }
 
     }
@@ -178,7 +179,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
       velX = 1;
     }
 
-    if(this.data.enableNegZ == true && ( axisData[1] > 0 )) {
+    if(this.data.enablePosZ == true && ( axisData[1] > 0 )) {
       velZ = -1;
     }
 
