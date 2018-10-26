@@ -8,7 +8,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
     enablePosX: { default: true },
     enableNegZ: { default: true },
     enablePosZ: { default: true },
-    mode: { type: 'string', default: 'swipe', oneOf: ['swipe', 'touch', 'press'] }
+    mode: { type: 'string', default: 'touch', oneOf: ['swipe', 'touch', 'press'] }
 
   },
 
