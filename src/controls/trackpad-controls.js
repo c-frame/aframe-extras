@@ -33,35 +33,35 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   addEventListeners: function () {
-    const targetEl = this.el;
+    const sceneEl = this.el.sceneEl;
 
-    targetEl.addEventListener('axismove', this.onAxisMove);
+    sceneEl.addEventListener('axismove', this.onAxisMove);
 
     if(this.data.mode == 'swipe' || this.data.mode == 'touch') {
-      targetEl.addEventListener('trackpadtouchstart', this.onTouchStart);
-      targetEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+      sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
+      sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
     }
 
     if(this.data.mode == 'press') {
-      targetEl.addEventListener('trackpaddown', this.onTouchStart);
-      targetEl.addEventListener('trackpadup', this.onTouchEnd);
+      sceneEl.addEventListener('trackpaddown', this.onTouchStart);
+      sceneEl.addEventListener('trackpadup', this.onTouchEnd);
     }
 
   },
 
   removeEventListeners: function () {
-    const targetEl = this.el;
+    const sceneEl = this.el.sceneEl;
 
-    targetEl.removeEventListener('axismove', this.onAxisMove);
+    sceneEl.removeEventListener('axismove', this.onAxisMove);
 
     if(this.data.mode == 'swipe' || this.data.mode == 'touch') {
-      targetEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
-      targetEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
+      sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
+      sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
     }
 
     if(this.data.mode == 'press') {
-      targetEl.removeEventListener('trackpaddown', this.onTouchStart);
-      targetEl.removeEventListener('trackpadup', this.onTouchEnd);
+      sceneEl.removeEventListener('trackpaddown', this.onTouchStart);
+      sceneEl.removeEventListener('trackpadup', this.onTouchEnd);
     }
 
   },
