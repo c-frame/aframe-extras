@@ -8,7 +8,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
     enablePosX: { default: true },
     enableNegZ: { default: true },
     enablePosZ: { default: true },
-    mode: { type: 'string', default: 'touch', oneOf: ['swipe', 'touch', 'press'] }
+    mode: { default: 'touch', oneOf: ['swipe', 'touch', 'press'] }
 
   },
 
@@ -33,18 +33,22 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   addEventListeners: function () {
+    const data = this.data;
     const sceneEl = this.el.sceneEl;
 
     sceneEl.addEventListener('axismove', this.onAxisMove);
 
-    if(this.data.mode == 'swipe' || this.data.mode == 'touch') {
-      sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
-      sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
-    }
+    switch (data.mode) {
+      case 'swipe':
+      case 'touch':
+        sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
+        sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+        break;
 
-    if(this.data.mode == 'press') {
-      sceneEl.addEventListener('trackpaddown', this.onTouchStart);
-      sceneEl.addEventListener('trackpadup', this.onTouchEnd);
+      case 'press':
+        sceneEl.addEventListener('trackpaddown', this.onTouchStart);
+        sceneEl.addEventListener('trackpadup', this.onTouchEnd);
+        break;
     }
 
   },
@@ -53,17 +57,10 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
     const sceneEl = this.el.sceneEl;
 
     sceneEl.removeEventListener('axismove', this.onAxisMove);
-
-    if(this.data.mode == 'swipe' || this.data.mode == 'touch') {
-      sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
-      sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
-    }
-
-    if(this.data.mode == 'press') {
-      sceneEl.removeEventListener('trackpaddown', this.onTouchStart);
-      sceneEl.removeEventListener('trackpadup', this.onTouchEnd);
-    }
-
+    sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
+    sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
+    sceneEl.removeEventListener('trackpaddown', this.onTouchStart);
+    sceneEl.removeEventListener('trackpadup', this.onTouchEnd);
   },
 
   isVelocityActive: function () {
@@ -109,18 +106,18 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   onAxisMove: function(e){
-    if(this.data.mode == 'swipe') {
-      return this.handleSwipeAxis(e);
+    switch (this.data.mode) {
+      case 'swipe':
+        return this.handleSwipeAxis(e);
+      case 'touch':
+      case 'press':
+        return this.handleTouchAxis(e);
     }
-
-    if(this.data.mode == 'touch' || this.data.mode == 'press') {
-      return this.handleTouchAxis(e);
-    }
-
   },
 
   handleSwipeAxis: function(e) {
-    var axisData = e.detail.axis;
+    const data = this.data;
+    const axisData = e.detail.axis;
 
     if(this.startingAxisData.length === 0 && this.canRecordAxis){
       this.canRecordAxis = false;
@@ -128,35 +125,34 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
       this.startingAxisData[1] = axisData[1];
     }
 
-
     if(this.startingAxisData.length > 0){
       let velX = 0;
       let velZ = 0;
 
-      if(this.data.enableNegX == true && ( axisData[0] < this.startingAxisData[0] )) {
+      if (data.enableNegX && axisData[0] < this.startingAxisData[0]) {
         velX = -1;
       }
 
-      if(this.data.enablePosX == true && ( axisData[0] > this.startingAxisData[0] )) {
+      if (data.enablePosX && axisData[0] > this.startingAxisData[0]) {
         velX = 1;
       }
 
-      if(this.data.enablePosZ == true && ( axisData[1] > this.startingAxisData[1] )) {
+      if (data.enablePosZ && axisData[1] > this.startingAxisData[1]) {
         velZ = -1;
       }
 
-      if(this.data.enableNegZ == true && ( axisData[1] < this.startingAxisData[1] )) {
+      if (data.enableNegZ && axisData[1] < this.startingAxisData[1]) {
         velZ = 1;
       }
 
       const absChangeZ  = Math.abs(this.startingAxisData[1] - axisData[1]);
       const absChangeX  = Math.abs(this.startingAxisData[0] - axisData[0]);
 
-      if(absChangeX > absChangeZ)  {
+      if (absChangeX > absChangeZ) {
         this.zVel = 0;
         this.xVel = velX;
         this.isMoving = true;
-      }else{
+      } else {
         this.xVel = 0;
         this.zVel = velZ;
         this.isMoving = true;
@@ -166,31 +162,32 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   handleTouchAxis: function(e) {
-    var axisData = e.detail.axis;
+    const data = this.data;
+    const axisData = e.detail.axis;
 
     let velX = 0;
     let velZ = 0;
 
-    if(this.data.enableNegX == true && ( axisData[0] < 0 )) {
+    if (data.enableNegX && axisData[0] < 0) {
       velX = -1;
     }
 
-    if(this.data.enablePosX == true && ( axisData[0] > 0 )) {
+    if (data.enablePosX && axisData[0] > 0) {
       velX = 1;
     }
 
-    if(this.data.enablePosZ == true && ( axisData[1] > 0 )) {
+    if (data.enablePosZ && axisData[1] > 0) {
       velZ = -1;
     }
 
-    if(this.data.enableNegZ == true && ( axisData[1] < 0 )) {
+    if (data.enableNegZ && axisData[1] < 0) {
       velZ = 1;
     }
 
-    if(Math.abs(axisData[0]) > Math.abs(axisData[1])) {
+    if (Math.abs(axisData[0]) > Math.abs(axisData[1])) {
       this.zVel = 0;
       this.xVel = velX;
-    }else{
+    } else {
       this.xVel = 0;
       this.zVel = velZ;
     }
