@@ -17,14 +17,13 @@ src
 │   ├── gamepad-controls.js
 │   ├── keyboard-controls.js
 │   ├── mouse-controls.js
-│   └── touch-controls.js
+│   ├── touch-controls.js
+│   └── trackpad-controls.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
 │   ├── animation-mixer.js
 │   ├── fbx-model.js
 │   ├── gltf-model-legacy.js
-│   ├── json-model.js
-│   ├── object-model.js
-│   └── ply-model.js
+│   └── object-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
 │   ├── cube-env-map.js
@@ -32,6 +31,7 @@ src
 │   ├── jump-ability.js
 │   ├── kinematic-body.js       <sub><img alt="Deprecated" src="https://img.shields.io/badge/status-deprecated-orange.svg"></sub>
 │   ├── mesh-smooth.js
+│   ├── normal-material.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   └── sphere-collider.js
 ├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
 │   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
