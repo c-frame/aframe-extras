@@ -1,10 +1,5 @@
 [
   {
-    "name": "aframe-extras.json-model",
-    "description": "Loader for THREE.JSONLoader-compatible models.",
-    "main": "src/loaders/json-model"
-  },
-  {
     "name": "aframe-extras.object-model",
     "description": "Loader for THREE.ObjectLoader-compatible models.",
     "main": "src/loaders/object-model"
