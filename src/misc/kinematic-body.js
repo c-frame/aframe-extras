@@ -28,9 +28,9 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
   schema: {
     mass:           { default: 5 },
     radius:         { default: 1.3 },
-    userHeight:     { default: 1.6 },
     linearDamping:  { default: 0.05 },
-    enableSlopes:   { default: true }
+    enableSlopes:   { default: true },
+    enableJumps:    { default: false },
   },
 
   /*******************************************************************
@@ -43,7 +43,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
 
     const el = this.el,
         data = this.data,
-        position = (new CANNON.Vec3()).copy(el.getAttribute('position'));
+        position = (new CANNON.Vec3()).copy(el.object3D.getWorldPosition(new THREE.Vector3()));
 
     this.body = new CANNON.Body({
       material: this.system.getMaterial('staticMaterial'),
@@ -54,7 +54,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
     });
     this.body.addShape(
       new CANNON.Sphere(data.radius),
-      new CANNON.Vec3(0, data.radius - data.height, 0)
+      new CANNON.Vec3(0, data.radius, 0)
     );
 
     this.body.el = this.el;
@@ -90,15 +90,15 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
     if (!dt) return;
 
     const el = this.el;
+    const data = this.data
     const body = this.body;
 
-    body.velocity.copy(el.getAttribute('velocity'));
+    if (!data.enableJumps) body.velocity.set(0, 0, 0);
     body.position.copy(el.getAttribute('position'));
-    body.position.y += this.data.userHeight;
   },
 
   step: (function () {
-    var velocity = new THREE.Vector3(),
+    const velocity = new THREE.Vector3(),
         normalizedVelocity = new THREE.Vector3(),
         currentSurfaceNormal = new THREE.Vector3(),
         groundNormal = new THREE.Vector3();
@@ -137,7 +137,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
           // 2. If current trajectory attempts to move _through_ another
           // object, project the velocity against the collision plane to
           // prevent passing through.
-          velocity = velocity.projectOnPlane(currentSurfaceNormal);
+          velocity.projectOnPlane(currentSurfaceNormal);
         } else if (currentSurfaceNormal.y > 0.5) {
           // 3. If in contact with something roughly horizontal (+/- 45º) then
           // consider that the current ground. Only the highest qualifying
@@ -154,7 +154,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
       }
 
       normalizedVelocity.copy(velocity).normalize();
-      if (groundBody && normalizedVelocity.y < 0.5) {
+      if (groundBody && (!data.enableJumps || normalizedVelocity.y < 0.5)) {
         if (!data.enableSlopes) {
           groundNormal.set(0, 1, 0);
         } else if (groundNormal.y < 1 - EPS) {
@@ -163,7 +163,8 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
 
         // 4. Project trajectory onto the top-most ground object, unless
         // trajectory is > 45º.
-        velocity = velocity.projectOnPlane(groundNormal);
+        velocity.projectOnPlane(groundNormal);
+
       } else if (this.system.driver.world) {
         // 5. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
@@ -171,20 +172,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
         velocity.add(this.system.driver.world.gravity.scale(dt * 4.0 / 1000));
       }
 
-      // 6. If the ground surface has a velocity, apply it directly to current
-      // position, not velocity, to preserve relative velocity.
-      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        const groundVelocity = groundBody.el.getAttribute('velocity');
-        body.position.copy({
-          x: body.position.x + groundVelocity.x * dt / 1000,
-          y: body.position.y + groundVelocity.y * dt / 1000,
-          z: body.position.z + groundVelocity.z * dt / 1000
-        });
-      }
-
       body.velocity.copy(velocity);
-
-      body.position.y -= data.userHeight;
       this.el.setAttribute('velocity', body.velocity);
       this.el.setAttribute('position', body.position);
     };
@@ -205,7 +193,6 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
         vFrom = this.body.position,
         vTo = this.body.position.clone();
 
-    vTo.y -= this.data.height;
     ray = new CANNON.Ray(vFrom, vTo);
     ray._updateDirection(); // TODO - Report bug.
     ray.intersectBody(groundBody);
