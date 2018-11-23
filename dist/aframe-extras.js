@@ -12,7 +12,7 @@ require('./src/misc');
 require('./src/pathfinding');
 require('./src/primitives');
 
-},{"./src/controls":14,"./src/loaders":22,"./src/misc":29,"./src/pathfinding":35,"./src/primitives":43}],3:[function(require,module,exports){
+},{"./src/controls":13,"./src/loaders":21,"./src/misc":26,"./src/pathfinding":32,"./src/primitives":40}],3:[function(require,module,exports){
 'use strict';
 
 var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3654,435 +3654,6 @@ function GamepadButtonEvent(type, index, details) {
 module.exports = GamepadButtonEvent;
 
 },{}],6:[function(require,module,exports){
-'use strict';
-
-/**
- * @author Wei Meng / http://about.me/menway
- *
- * Description: A THREE loader for PLY ASCII files (known as the Polygon File Format or the Stanford Triangle Format).
- *
- *
- * Limitations: ASCII decoding assumes file is UTF-8.
- *
- * Usage:
- *  var loader = new THREE.PLYLoader();
- *  loader.load('./models/ply/ascii/dolphins.ply', function (geometry) {
- *
- *    scene.add( new THREE.Mesh( geometry ) );
- *
- *  } );
- *
- * If the PLY file uses non standard property names, they can be mapped while
- * loading. For example, the following maps the properties
- * “diffuse_(red|green|blue)” in the file to standard color names.
- *
- * loader.setPropertyNameMapping( {
- *  diffuse_red: 'red',
- *  diffuse_green: 'green',
- *  diffuse_blue: 'blue'
- * } );
- *
- */
-
-module.exports = THREE.PLYLoader = function (manager) {
-
-  this.manager = manager !== undefined ? manager : THREE.DefaultLoadingManager;
-
-  this.propertyNameMapping = {};
-};
-
-THREE.PLYLoader.prototype = {
-
-  constructor: THREE.PLYLoader,
-
-  load: function load(url, onLoad, onProgress, onError) {
-
-    var scope = this;
-
-    var loader = new THREE.XHRLoader(this.manager);
-    loader.setResponseType('arraybuffer');
-    loader.load(url, function (text) {
-
-      onLoad(scope.parse(text));
-    }, onProgress, onError);
-  },
-
-  setPropertyNameMapping: function setPropertyNameMapping(mapping) {
-
-    this.propertyNameMapping = mapping;
-  },
-
-  bin2str: function bin2str(buf) {
-
-    var array_buffer = new Uint8Array(buf);
-    var str = '';
-    for (var i = 0; i < buf.byteLength; i++) {
-
-      str += String.fromCharCode(array_buffer[i]); // implicitly assumes little-endian
-    }
-
-    return str;
-  },
-
-  isASCII: function isASCII(data) {
-
-    var header = this.parseHeader(this.bin2str(data));
-
-    return header.format === "ascii";
-  },
-
-  parse: function parse(data) {
-
-    if (data instanceof ArrayBuffer) {
-
-      return this.isASCII(data) ? this.parseASCII(this.bin2str(data)) : this.parseBinary(data);
-    } else {
-
-      return this.parseASCII(data);
-    }
-  },
-
-  parseHeader: function parseHeader(data) {
-
-    var patternHeader = /ply([\s\S]*)end_header\s/;
-    var headerText = "";
-    var headerLength = 0;
-    var result = patternHeader.exec(data);
-    if (result !== null) {
-
-      headerText = result[1];
-      headerLength = result[0].length;
-    }
-
-    var header = {
-      comments: [],
-      elements: [],
-      headerLength: headerLength
-    };
-
-    var lines = headerText.split('\n');
-    var currentElement = undefined;
-    var lineType, lineValues;
-
-    function make_ply_element_property(propertValues, propertyNameMapping) {
-
-      var property = {
-        type: propertValues[0]
-      };
-
-      if (property.type === 'list') {
-
-        property.name = propertValues[3];
-        property.countType = propertValues[1];
-        property.itemType = propertValues[2];
-      } else {
-
-        property.name = propertValues[1];
-      }
-
-      if (property.name in propertyNameMapping) {
-
-        property.name = propertyNameMapping[property.name];
-      }
-
-      return property;
-    }
-
-    for (var i = 0; i < lines.length; i++) {
-
-      var line = lines[i];
-      line = line.trim();
-      if (line === "") {
-
-        continue;
-      }
-      lineValues = line.split(/\s+/);
-      lineType = lineValues.shift();
-      line = lineValues.join(" ");
-
-      switch (lineType) {
-
-        case "format":
-
-          header.format = lineValues[0];
-          header.version = lineValues[1];
-
-          break;
-
-        case "comment":
-
-          header.comments.push(line);
-
-          break;
-
-        case "element":
-
-          if (!(currentElement === undefined)) {
-
-            header.elements.push(currentElement);
-          }
-
-          currentElement = Object();
-          currentElement.name = lineValues[0];
-          currentElement.count = parseInt(lineValues[1]);
-          currentElement.properties = [];
-
-          break;
-
-        case "property":
-
-          currentElement.properties.push(make_ply_element_property(lineValues, this.propertyNameMapping));
-
-          break;
-
-        default:
-
-          console.log("unhandled", lineType, lineValues);
-
-      }
-    }
-
-    if (!(currentElement === undefined)) {
-
-      header.elements.push(currentElement);
-    }
-
-    return header;
-  },
-
-  parseASCIINumber: function parseASCIINumber(n, type) {
-
-    switch (type) {
-
-      case 'char':case 'uchar':case 'short':case 'ushort':case 'int':case 'uint':
-      case 'int8':case 'uint8':case 'int16':case 'uint16':case 'int32':case 'uint32':
-
-        return parseInt(n);
-
-      case 'float':case 'double':case 'float32':case 'float64':
-
-        return parseFloat(n);
-
-    }
-  },
-
-  parseASCIIElement: function parseASCIIElement(properties, line) {
-
-    var values = line.split(/\s+/);
-
-    var element = Object();
-
-    for (var i = 0; i < properties.length; i++) {
-
-      if (properties[i].type === "list") {
-
-        var list = [];
-        var n = this.parseASCIINumber(values.shift(), properties[i].countType);
-
-        for (var j = 0; j < n; j++) {
-
-          list.push(this.parseASCIINumber(values.shift(), properties[i].itemType));
-        }
-
-        element[properties[i].name] = list;
-      } else {
-
-        element[properties[i].name] = this.parseASCIINumber(values.shift(), properties[i].type);
-      }
-    }
-
-    return element;
-  },
-
-  parseASCII: function parseASCII(data) {
-
-    // PLY ascii format specification, as per http://en.wikipedia.org/wiki/PLY_(file_format)
-
-    var geometry = new THREE.Geometry();
-
-    var result;
-
-    var header = this.parseHeader(data);
-
-    var patternBody = /end_header\s([\s\S]*)$/;
-    var body = "";
-    if ((result = patternBody.exec(data)) !== null) {
-
-      body = result[1];
-    }
-
-    var lines = body.split('\n');
-    var currentElement = 0;
-    var currentElementCount = 0;
-    geometry.useColor = false;
-
-    for (var i = 0; i < lines.length; i++) {
-
-      var line = lines[i];
-      line = line.trim();
-      if (line === "") {
-
-        continue;
-      }
-
-      if (currentElementCount >= header.elements[currentElement].count) {
-
-        currentElement++;
-        currentElementCount = 0;
-      }
-
-      var element = this.parseASCIIElement(header.elements[currentElement].properties, line);
-
-      this.handleElement(geometry, header.elements[currentElement].name, element);
-
-      currentElementCount++;
-    }
-
-    return this.postProcess(geometry);
-  },
-
-  postProcess: function postProcess(geometry) {
-
-    if (geometry.useColor) {
-
-      for (var i = 0; i < geometry.faces.length; i++) {
-
-        geometry.faces[i].vertexColors = [geometry.colors[geometry.faces[i].a], geometry.colors[geometry.faces[i].b], geometry.colors[geometry.faces[i].c]];
-      }
-
-      geometry.elementsNeedUpdate = true;
-    }
-
-    geometry.computeBoundingSphere();
-
-    return geometry;
-  },
-
-  handleElement: function handleElement(geometry, elementName, element) {
-
-    if (elementName === "vertex") {
-
-      geometry.vertices.push(new THREE.Vector3(element.x, element.y, element.z));
-
-      if ('red' in element && 'green' in element && 'blue' in element) {
-
-        geometry.useColor = true;
-
-        var color = new THREE.Color();
-        color.setRGB(element.red / 255.0, element.green / 255.0, element.blue / 255.0);
-        geometry.colors.push(color);
-      }
-    } else if (elementName === "face") {
-
-      // BEGIN: Edits by donmccurdy.
-      var vertex_indices = element.vertex_indices || element.vertex_index;
-      // END: Edits by donmccurdy.
-
-      if (vertex_indices.length === 3) {
-
-        geometry.faces.push(new THREE.Face3(vertex_indices[0], vertex_indices[1], vertex_indices[2]));
-      } else if (vertex_indices.length === 4) {
-
-        geometry.faces.push(new THREE.Face3(vertex_indices[0], vertex_indices[1], vertex_indices[3]), new THREE.Face3(vertex_indices[1], vertex_indices[2], vertex_indices[3]));
-      }
-    }
-  },
-
-  binaryRead: function binaryRead(dataview, at, type, little_endian) {
-
-    switch (type) {
-
-      // corespondences for non-specific length types here match rply:
-      case 'int8':case 'char':
-        return [dataview.getInt8(at), 1];
-
-      case 'uint8':case 'uchar':
-        return [dataview.getUint8(at), 1];
-
-      case 'int16':case 'short':
-        return [dataview.getInt16(at, little_endian), 2];
-
-      case 'uint16':case 'ushort':
-        return [dataview.getUint16(at, little_endian), 2];
-
-      case 'int32':case 'int':
-        return [dataview.getInt32(at, little_endian), 4];
-
-      case 'uint32':case 'uint':
-        return [dataview.getUint32(at, little_endian), 4];
-
-      case 'float32':case 'float':
-        return [dataview.getFloat32(at, little_endian), 4];
-
-      case 'float64':case 'double':
-        return [dataview.getFloat64(at, little_endian), 8];
-
-    }
-  },
-
-  binaryReadElement: function binaryReadElement(dataview, at, properties, little_endian) {
-
-    var element = Object();
-    var result,
-        read = 0;
-
-    for (var i = 0; i < properties.length; i++) {
-
-      if (properties[i].type === "list") {
-
-        var list = [];
-
-        result = this.binaryRead(dataview, at + read, properties[i].countType, little_endian);
-        var n = result[0];
-        read += result[1];
-
-        for (var j = 0; j < n; j++) {
-
-          result = this.binaryRead(dataview, at + read, properties[i].itemType, little_endian);
-          list.push(result[0]);
-          read += result[1];
-        }
-
-        element[properties[i].name] = list;
-      } else {
-
-        result = this.binaryRead(dataview, at + read, properties[i].type, little_endian);
-        element[properties[i].name] = result[0];
-        read += result[1];
-      }
-    }
-
-    return [element, read];
-  },
-
-  parseBinary: function parseBinary(data) {
-
-    var geometry = new THREE.Geometry();
-
-    var header = this.parseHeader(this.bin2str(data));
-    var little_endian = header.format === "binary_little_endian";
-    var body = new DataView(data, header.headerLength);
-    var result,
-        loc = 0;
-
-    for (var currentElement = 0; currentElement < header.elements.length; currentElement++) {
-
-      for (var currentElementCount = 0; currentElementCount < header.elements[currentElement].count; currentElementCount++) {
-
-        result = this.binaryReadElement(body, loc, header.elements[currentElement].properties, little_endian);
-        loc += result[1];
-        var element = result[0];
-
-        this.handleElement(geometry, header.elements[currentElement].name, element);
-      }
-    }
-
-    return this.postProcess(geometry);
-  }
-
-};
-
-},{}],7:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -4149,7 +3720,7 @@ module.exports = {
   }]
 };
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 /**
@@ -4230,7 +3801,7 @@ function fetchScript(settings) {
 
 module.exports = fetchScript;
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4837,7 +4408,7 @@ var vg = module.exports = { VERSION: "0.1.1", PI: Math.PI, TAU: 2 * Math.PI, DEG
   } };
 
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 /**
@@ -5584,11 +5155,11 @@ var vg = module.exports = { VERSION: "0.1.1", PI: Math.PI, TAU: 2 * Math.PI, DEG
   };
 })(window);
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var e=function(){};e.computeCentroids=function(e){var t,n,r;for(t=0,n=e.faces.length;t<n;t++)(r=e.faces[t]).centroid=new THREE.Vector3(0,0,0),r.centroid.add(e.vertices[r.a]),r.centroid.add(e.vertices[r.b]),r.centroid.add(e.vertices[r.c]),r.centroid.divideScalar(3)},e.roundNumber=function(e,t){return Number(e.toFixed(t))},e.sample=function(e){return e[Math.floor(Math.random()*e.length)]},e.mergeVertexIds=function(e,t){var n=[];if(e.forEach(function(e){t.indexOf(e)>=0&&n.push(e)}),n.length<2)return[];n.includes(e[0])&&n.includes(e[e.length-1])&&e.push(e.shift()),n.includes(t[0])&&n.includes(t[t.length-1])&&t.push(t.shift()),n=[],e.forEach(function(e){t.includes(e)&&n.push(e)});for(var r=n[1],o=n[0],i=e.slice();i[0]!==r;)i.push(i.shift());for(var s=0,u=t.slice();u[0]!==o;)if(u.push(u.shift()),s++>10)throw new Error("Unexpected state");return u.shift(),u.pop(),i=i.concat(u)},e.setPolygonCentroid=function(e,t){var n=new THREE.Vector3,r=t.vertices;e.vertexIds.forEach(function(e){n.add(r[e])}),n.divideScalar(e.vertexIds.length),e.centroid.copy(n)},e.cleanPolygon=function(e,t){for(var n=[],r=t.vertices,o=0;o<e.vertexIds.length;o++){var i,s,u,c=r[e.vertexIds[o]];0===o?(i=e.vertexIds[1],s=e.vertexIds[e.vertexIds.length-1]):o===e.vertexIds.length-1?(i=e.vertexIds[0],s=e.vertexIds[e.vertexIds.length-2]):(i=e.vertexIds[o+1],s=e.vertexIds[o-1]),u=r[s];var h=r[i].clone().sub(c),a=u.clone().sub(c),d=h.angleTo(a);if(d>Math.PI-.01&&d<Math.PI+.01){var f=[];e.neighbours.forEach(function(t){t.vertexIds.includes(e.vertexIds[o])||f.push(t)}),e.neighbours=f}else n.push(e.vertexIds[o])}e.vertexIds=n,this.setPolygonCentroid(e,t)},e.isConvex=function(e,t){var n=t.vertices;if(e.vertexIds.length<3)return!1;for(var r=!0,o=[],i=0;i<e.vertexIds.length;i++){var s,u,c=n[e.vertexIds[i]];0===i?(s=n[e.vertexIds[1]],u=n[e.vertexIds[e.vertexIds.length-1]]):i===e.vertexIds.length-1?(s=n[e.vertexIds[0]],u=n[e.vertexIds[e.vertexIds.length-2]]):(s=n[e.vertexIds[i+1]],u=n[e.vertexIds[i-1]]);var h=s.clone().sub(c),a=u.clone().sub(c),d=h.angleTo(a);if(d===Math.PI||0===d)return!1;var f=h.cross(a).y;o.push(f)}return o.forEach(function(e){0===e&&(r=!1)}),o.forEach(o[0]>0?function(e){e<0&&(r=!1)}:function(e){e>0&&(r=!1)}),r},e.distanceToSquared=function(e,t){var n=e.x-t.x,r=e.y-t.y,o=e.z-t.z;return n*n+r*r+o*o},e.isPointInPoly=function(e,t){for(var n=!1,r=-1,o=e.length,i=o-1;++r<o;i=r)(e[r].z<=t.z&&t.z<e[i].z||e[i].z<=t.z&&t.z<e[r].z)&&t.x<(e[i].x-e[r].x)*(t.z-e[r].z)/(e[i].z-e[r].z)+e[r].x&&(n=!n);return n},e.isVectorInPolygon=function(e,t,n){var r=1e5,o=-1e5,i=[];return t.vertexIds.forEach(function(e){r=Math.min(n[e].y,r),o=Math.max(n[e].y,o),i.push(n[e])}),!!(e.y<o+.5&&e.y>r-.5&&this.isPointInPoly(i,e))},e.triarea2=function(e,t,n){return(n.x-e.x)*(t.z-e.z)-(t.x-e.x)*(n.z-e.z)},e.vequal=function(e,t){return this.distanceToSquared(e,t)<1e-5};var t=function(e){this.content=[],this.scoreFunction=e};t.prototype.push=function(e){this.content.push(e),this.sinkDown(this.content.length-1)},t.prototype.pop=function(){var e=this.content[0],t=this.content.pop();return this.content.length>0&&(this.content[0]=t,this.bubbleUp(0)),e},t.prototype.remove=function(e){var t=this.content.indexOf(e),n=this.content.pop();t!==this.content.length-1&&(this.content[t]=n,this.scoreFunction(n)<this.scoreFunction(e)?this.sinkDown(t):this.bubbleUp(t))},t.prototype.size=function(){return this.content.length},t.prototype.rescoreElement=function(e){this.sinkDown(this.content.indexOf(e))},t.prototype.sinkDown=function(e){for(var t=this.content[e];e>0;){var n=(e+1>>1)-1,r=this.content[n];if(!(this.scoreFunction(t)<this.scoreFunction(r)))break;this.content[n]=t,this.content[e]=r,e=n}},t.prototype.bubbleUp=function(e){for(var t=this.content.length,n=this.content[e],r=this.scoreFunction(n);;){var o=e+1<<1,i=o-1,s=null,u=void 0;if(i<t)(u=this.scoreFunction(this.content[i]))<r&&(s=i);if(o<t)this.scoreFunction(this.content[o])<(null===s?r:u)&&(s=o);if(null===s)break;this.content[e]=this.content[s],this.content[s]=n,e=s}};var n=function(){};n.init=function(e){for(var t=0;t<e.length;t++){var n=e[t];n.f=0,n.g=0,n.h=0,n.cost=1,n.visited=!1,n.closed=!1,n.parent=null}},n.cleanUp=function(e){for(var t=0;t<e.length;t++){var n=e[t];delete n.f,delete n.g,delete n.h,delete n.cost,delete n.visited,delete n.closed,delete n.parent}},n.heap=function(){return new t(function(e){return e.f})},n.search=function(e,t,n){this.init(e);var r=this.heap();for(r.push(t);r.size()>0;){var o=r.pop();if(o===n){for(var i=o,s=[];i.parent;)s.push(i),i=i.parent;return this.cleanUp(s),s.reverse()}o.closed=!0;for(var u=this.neighbours(e,o),c=0,h=u.length;c<h;c++){var a=u[c];if(!a.closed){var d=o.g+a.cost,f=a.visited;if(!f||d<a.g){if(a.visited=!0,a.parent=o,!a.centroid||!n.centroid)throw new Error("Unexpected state");a.h=a.h||this.heuristic(a.centroid,n.centroid),a.g=d,a.f=a.g+a.h,f?r.rescoreElement(a):r.push(a)}}}}return[]},n.heuristic=function(t,n){return e.distanceToSquared(t,n)},n.neighbours=function(e,t){for(var n=[],r=0;r<t.neighbours.length;r++)n.push(e[t.neighbours[r]]);return n};var r=1,o=function(){};o.buildZone=function(t){var n=this,r=this._buildNavigationMesh(t),o={};r.vertices.forEach(function(t){t.x=e.roundNumber(t.x,2),t.y=e.roundNumber(t.y,2),t.z=e.roundNumber(t.z,2)}),o.vertices=r.vertices;var i=this._buildPolygonGroups(r);o.groups=[];var s=function(e,t){for(var n=0;n<e.length;n++)if(t===e[n])return n};return i.forEach(function(t){var r=[];t.forEach(function(o){var i=o.neighbours.map(function(e){return s(t,e)}),u=o.neighbours.map(function(e){return n._getSharedVerticesInOrder(o,e)});o.centroid.x=e.roundNumber(o.centroid.x,2),o.centroid.y=e.roundNumber(o.centroid.y,2),o.centroid.z=e.roundNumber(o.centroid.z,2),r.push({id:s(t,o),neighbours:i,vertexIds:o.vertexIds,centroid:o.centroid,portals:u})}),o.groups.push(r)}),o},o._buildNavigationMesh=function(t){return e.computeCentroids(t),t.mergeVertices(),this._buildPolygonsFromGeometry(t)},o._buildPolygonGroups=function(e){var t=[],n=0,r=function(e){e.neighbours.forEach(function(t){void 0===t.group&&(t.group=e.group,r(t))})};return e.polygons.forEach(function(e){void 0===e.group&&(e.group=n++,r(e)),t[e.group]||(t[e.group]=[]),t[e.group].push(e)}),t},o._buildPolygonNeighbours=function(e,t,n){var r=new Set,o=n.get(e.vertexIds[0]),i=n.get(e.vertexIds[1]),s=n.get(e.vertexIds[2]);o.forEach(function(e){(i.has(e)||s.has(e))&&r.add(t.polygons[e])}),i.forEach(function(e){s.has(e)&&r.add(t.polygons[e])}),e.neighbours=Array.from(r)},o._buildPolygonsFromGeometry=function(e){for(var t=this,n=[],o=e.vertices,i=e.faceVertexUvs,s=new Map,u=0;u<o.length;u++)s.set(u,new Set);e.faces.forEach(function(e){n.push({id:r++,vertexIds:[e.a,e.b,e.c],centroid:e.centroid,normal:e.normal,neighbours:[]}),s.get(e.a).add(n.length-1),s.get(e.b).add(n.length-1),s.get(e.c).add(n.length-1)});var c={polygons:n,vertices:o,faceVertexUvs:i};return n.forEach(function(e){t._buildPolygonNeighbours(e,c,s)}),c},o._getSharedVerticesInOrder=function(e,t){var n=e.vertexIds,r=t.vertexIds,o=new Set;if(n.forEach(function(e){r.includes(e)&&o.add(e)}),o.size<2)return[];o.has(n[0])&&o.has(n[n.length-1])&&n.push(n.shift()),o.has(r[0])&&o.has(r[r.length-1])&&r.push(r.shift());var i=[];return n.forEach(function(e){r.includes(e)&&i.push(e)}),i};var i=function(){this.portals=[]};i.prototype.push=function(e,t){void 0===t&&(t=e),this.portals.push({left:e,right:t})},i.prototype.stringPull=function(){var t,n,r,o=this.portals,i=[],s=0,u=0,c=0;n=o[0].left,r=o[0].right,i.push(t=o[0].left);for(var h=1;h<o.length;h++){var a=o[h].left,d=o[h].right;if(e.triarea2(t,r,d)<=0){if(!(e.vequal(t,r)||e.triarea2(t,n,d)>0)){i.push(n),n=t=n,r=t,u=s=u,c=s,h=s;continue}r=d,c=h}if(e.triarea2(t,n,a)>=0){if(!(e.vequal(t,n)||e.triarea2(t,r,a)<0)){i.push(r),n=t=r,r=t,u=s=c,c=s,h=s;continue}n=a,u=h}}return 0!==i.length&&e.vequal(i[i.length-1],o[o.length-1].left)||i.push(o[o.length-1].left),this.path=i,i};var s,u,c,h,a,d,f=function(){this.zones={}};f.createZone=function(e){return o.buildZone(e)},f.prototype.setZoneData=function(e,t){this.zones[e]=t},f.prototype.getGroup=function(t,n){if(!this.zones[t])return null;var r=null,o=Math.pow(50,2);return this.zones[t].groups.forEach(function(t,i){t.forEach(function(t){var s=e.distanceToSquared(t.centroid,n);s<o&&(r=i,o=s)})}),r},f.prototype.getRandomNode=function(t,n,r,o){if(!this.zones[t])return new THREE.Vector3;r=r||null,o=o||0;var i=[];return this.zones[t].groups[n].forEach(function(t){r&&o?e.distanceToSquared(r,t.centroid)<o*o&&i.push(t.centroid):i.push(t.centroid)}),e.sample(i)||new THREE.Vector3},f.prototype.getClosestNode=function(t,n,r,o){void 0===o&&(o=!1);var i=this.zones[n].vertices,s=null,u=Infinity;return this.zones[n].groups[r].forEach(function(n){var r=e.distanceToSquared(n.centroid,t);r<u&&(!o||e.isVectorInPolygon(t,n,i))&&(s=n,u=r)}),s},f.prototype.findPath=function(e,t,r,o){var s=this.zones[r].groups[o],u=this.zones[r].vertices,c=this.getClosestNode(e,r,o),h=this.getClosestNode(t,r,o,!0);if(!c||!h)return null;var a=n.search(s,c,h),d=function(e,t){for(var n=0;n<e.neighbours.length;n++)if(e.neighbours[n]===t.id)return e.portals[n]},f=new i;f.push(e);for(var l=0;l<a.length;l++){var v=a[l+1];if(v){var p=d(a[l],v);f.push(u[p[0]],u[p[1]])}}f.push(t),f.stringPull();var g=f.path.map(function(e){return new THREE.Vector3(e.x,e.y,e.z)});return g.shift(),g},f.prototype.clampStep=(c=new THREE.Vector3,h=new THREE.Plane,a=new THREE.Triangle,d=new THREE.Vector3,function(e,t,n,r,o,i){var f=this.zones[r].vertices,l=this.zones[r].groups[o],v=[n],p={};p[n.id]=0,s=void 0,d.set(0,0,0),u=Infinity,h.setFromCoplanarPoints(f[n.vertexIds[0]],f[n.vertexIds[1]],f[n.vertexIds[2]]),h.projectPoint(t,c),t.copy(c);for(var g=v.pop();g;g=v.pop()){a.set(f[g.vertexIds[0]],f[g.vertexIds[1]],f[g.vertexIds[2]]),a.closestPointToPoint(t,c),c.distanceToSquared(t)<u&&(s=g,d.copy(c),u=c.distanceToSquared(t));var x=p[g];if(!(x>2))for(var I=0;I<g.neighbours.length;I++){var b=l[g.neighbours[I]];b.id in p||(v.push(b),p[b.id]=x+1)}}return i.copy(d),s}),exports.Pathfinding=f;
 
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var EPS = 0.1;
@@ -5682,7 +5253,7 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
   }
 });
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 /**
@@ -5969,7 +5540,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   }
 });
 
-},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],14:[function(require,module,exports){
+},{"../../lib/GamepadButton":4,"../../lib/GamepadButtonEvent":5}],13:[function(require,module,exports){
 'use strict';
 
 require('./checkpoint-controls');
@@ -5979,7 +5550,7 @@ require('./touch-controls');
 require('./movement-controls');
 require('./trackpad-controls');
 
-},{"./checkpoint-controls":12,"./gamepad-controls":13,"./keyboard-controls":15,"./movement-controls":16,"./touch-controls":17,"./trackpad-controls":18}],15:[function(require,module,exports){
+},{"./checkpoint-controls":11,"./gamepad-controls":12,"./keyboard-controls":14,"./movement-controls":15,"./touch-controls":16,"./trackpad-controls":17}],14:[function(require,module,exports){
 'use strict';
 
 require('../../lib/keyboard.polyfill');
@@ -6144,7 +5715,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
 
 });
 
-},{"../../lib/keyboard.polyfill":10}],16:[function(require,module,exports){
+},{"../../lib/keyboard.polyfill":9}],15:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6350,7 +5921,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
   }()
 });
 
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6433,7 +6004,7 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   }
 });
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6442,12 +6013,19 @@ module.exports = AFRAME.registerComponent('touch-controls', {
 
 module.exports = AFRAME.registerComponent('trackpad-controls', {
   schema: {
-    enabled: { default: true }
+    enabled: { default: true },
+    enableNegX: { default: true },
+    enablePosX: { default: true },
+    enableNegZ: { default: true },
+    enablePosZ: { default: true },
+    mode: { default: 'touch', oneOf: ['swipe', 'touch', 'press'] }
+
   },
 
   init: function init() {
     this.dVelocity = new THREE.Vector3();
     this.zVel = 0;
+    this.xVel = 0;
     this.bindMethods();
   },
 
@@ -6465,11 +6043,23 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   addEventListeners: function addEventListeners() {
+    var data = this.data;
     var sceneEl = this.el.sceneEl;
 
     sceneEl.addEventListener('axismove', this.onAxisMove);
-    sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
-    sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+
+    switch (data.mode) {
+      case 'swipe':
+      case 'touch':
+        sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
+        sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+        break;
+
+      case 'press':
+        sceneEl.addEventListener('trackpaddown', this.onTouchStart);
+        sceneEl.addEventListener('trackpadup', this.onTouchEnd);
+        break;
+    }
   },
 
   removeEventListeners: function removeEventListeners() {
@@ -6478,6 +6068,8 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
     sceneEl.removeEventListener('axismove', this.onAxisMove);
     sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
     sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
+    sceneEl.removeEventListener('trackpaddown', this.onTouchStart);
+    sceneEl.removeEventListener('trackpadup', this.onTouchEnd);
   },
 
   isVelocityActive: function isVelocityActive() {
@@ -6486,6 +6078,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
 
   getVelocityDelta: function getVelocityDelta() {
     this.dVelocity.z = this.isMoving ? -this.zVel : 1;
+    this.dVelocity.x = this.isMoving ? this.xVel : 1;
     return this.dVelocity.clone();
   },
 
@@ -6496,30 +6089,121 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
   },
 
   onTouchStart: function onTouchStart(e) {
-    this.isMoving = true;
+    switch (this.data.mode) {
+      case 'swipe':
+        this.canRecordAxis = true;
+        this.startingAxisData = [];
+        break;
+      case 'touch':
+        this.isMoving = true;
+        break;
+      case 'press':
+        this.isMoving = true;
+        break;
+    }
+
     e.preventDefault();
   },
 
   onTouchEnd: function onTouchEnd(e) {
+    if (this.data.mode == 'swipe') {
+      this.startingAxisData = [];
+    }
+
     this.isMoving = false;
     e.preventDefault();
   },
 
   onAxisMove: function onAxisMove(e) {
-    var axis_data = e.detail.axis;
+    switch (this.data.mode) {
+      case 'swipe':
+        return this.handleSwipeAxis(e);
+      case 'touch':
+      case 'press':
+        return this.handleTouchAxis(e);
+    }
+  },
 
-    if (axis_data[1] < 0) {
-      this.zVel = 1;
+  handleSwipeAxis: function handleSwipeAxis(e) {
+    var data = this.data;
+    var axisData = e.detail.axis;
+
+    if (this.startingAxisData.length === 0 && this.canRecordAxis) {
+      this.canRecordAxis = false;
+      this.startingAxisData[0] = axisData[0];
+      this.startingAxisData[1] = axisData[1];
     }
 
-    if (axis_data[1] > 0) {
-      this.zVel = -1;
+    if (this.startingAxisData.length > 0) {
+      var velX = 0;
+      var velZ = 0;
+
+      if (data.enableNegX && axisData[0] < this.startingAxisData[0]) {
+        velX = -1;
+      }
+
+      if (data.enablePosX && axisData[0] > this.startingAxisData[0]) {
+        velX = 1;
+      }
+
+      if (data.enablePosZ && axisData[1] > this.startingAxisData[1]) {
+        velZ = -1;
+      }
+
+      if (data.enableNegZ && axisData[1] < this.startingAxisData[1]) {
+        velZ = 1;
+      }
+
+      var absChangeZ = Math.abs(this.startingAxisData[1] - axisData[1]);
+      var absChangeX = Math.abs(this.startingAxisData[0] - axisData[0]);
+
+      if (absChangeX > absChangeZ) {
+        this.zVel = 0;
+        this.xVel = velX;
+        this.isMoving = true;
+      } else {
+        this.xVel = 0;
+        this.zVel = velZ;
+        this.isMoving = true;
+      }
+    }
+  },
+
+  handleTouchAxis: function handleTouchAxis(e) {
+    var data = this.data;
+    var axisData = e.detail.axis;
+
+    var velX = 0;
+    var velZ = 0;
+
+    if (data.enableNegX && axisData[0] < 0) {
+      velX = -1;
+    }
+
+    if (data.enablePosX && axisData[0] > 0) {
+      velX = 1;
+    }
+
+    if (data.enablePosZ && axisData[1] > 0) {
+      velZ = -1;
+    }
+
+    if (data.enableNegZ && axisData[1] < 0) {
+      velZ = 1;
+    }
+
+    if (Math.abs(axisData[0]) > Math.abs(axisData[1])) {
+      this.zVel = 0;
+      this.xVel = velX;
+    } else {
+      this.xVel = 0;
+      this.zVel = velZ;
     }
   }
 
 });
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var LoopMode = {
@@ -6639,7 +6323,8 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
         action.enabled = true;
         action.clampWhenFinished = data.clampWhenFinished;
         if (data.duration) action.setDuration(data.duration);
-        action.setLoop(LoopMode[data.loop], data.repetitions).setEffectiveTimeScale(data.timeScale).fadeIn(data.crossFadeDuration).play();
+        if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
+        action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
         this.activeActions.push(action);
       }
     }
@@ -6665,7 +6350,7 @@ function regExpEscape(s) {
   return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 }
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 THREE.FBXLoader = require('../../lib/FBXLoader');
@@ -6706,7 +6391,7 @@ module.exports = AFRAME.registerComponent('fbx-model', {
   }
 });
 
-},{"../../lib/FBXLoader":3}],21:[function(require,module,exports){
+},{"../../lib/FBXLoader":3}],20:[function(require,module,exports){
 'use strict';
 
 var fetchScript = require('../../lib/fetch-script')();
@@ -6770,80 +6455,15 @@ module.exports = AFRAME.registerComponent('gltf-model-legacy', {
   }
 });
 
-},{"../../lib/fetch-script":8}],22:[function(require,module,exports){
+},{"../../lib/fetch-script":7}],21:[function(require,module,exports){
 'use strict';
 
 require('./animation-mixer');
 require('./fbx-model');
 require('./gltf-model-legacy');
-require('./json-model');
 require('./object-model');
-require('./ply-model');
 
-},{"./animation-mixer":19,"./fbx-model":20,"./gltf-model-legacy":21,"./json-model":23,"./object-model":24,"./ply-model":25}],23:[function(require,module,exports){
-'use strict';
-
-/**
- * json-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
- * both having the .json extension. This loader supports only THREE.JsonLoader, which typically
- * includes only a single mesh.
- *
- * Check the console for errors, if in doubt. You may need to use `object-model` or
- * `blend-character-model` for some .js and .json files.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-
-module.exports = AFRAME.registerComponent('json-model', {
-  schema: {
-    src: { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function init() {
-    this.model = null;
-  },
-
-  update: function update() {
-    var _this = this;
-
-    var loader = void 0;
-    var data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.JSONLoader();
-    if (data.crossorigin) loader.crossOrigin = data.crossorigin;
-    loader.load(data.src, function (geometry, materials) {
-
-      // Attempt to automatically detect common material options.
-      materials.forEach(function (mat) {
-        mat.vertexColors = (geometry.faces[0] || {}).color ? THREE.FaceColors : THREE.NoColors;
-        mat.skinning = !!(geometry.bones || []).length;
-        mat.morphTargets = !!(geometry.morphTargets || []).length;
-        mat.morphNormals = !!(geometry.morphNormals || []).length;
-      });
-
-      var model = (geometry.bones || []).length ? new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials)) : new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-      _this.load(model);
-    });
-  },
-
-  load: function load(model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', { format: 'json', model: model });
-  },
-
-  remove: function remove() {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-},{}],24:[function(require,module,exports){
+},{"./animation-mixer":18,"./fbx-model":19,"./gltf-model-legacy":20,"./object-model":22}],22:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6903,92 +6523,7 @@ module.exports = AFRAME.registerComponent('object-model', {
   }
 });
 
-},{}],25:[function(require,module,exports){
-'use strict';
-
-/**
- * ply-model
- *
- * Wraps THREE.PLYLoader.
- */
-
-THREE.PLYLoader = require('../../lib/PLYLoader');
-
-/**
- * Loads, caches, resolves geometries.
- *
- * @member cache - Promises that resolve geometries keyed by `src`.
- */
-module.exports.System = AFRAME.registerSystem('ply-model', {
-  init: function init() {
-    this.cache = {};
-  },
-
-  /**
-   * @returns {Promise}
-   */
-  getOrLoadGeometry: function getOrLoadGeometry(src, skipCache) {
-    var cache = this.cache;
-    var cacheItem = cache[src];
-
-    if (!skipCache && cacheItem) {
-      return cacheItem;
-    }
-
-    cache[src] = new Promise(function (resolve) {
-      var loader = new THREE.PLYLoader();
-      loader.load(src, function (geometry) {
-        resolve(geometry);
-      });
-    });
-    return cache[src];
-  }
-});
-
-module.exports.Component = AFRAME.registerComponent('ply-model', {
-  schema: {
-    skipCache: { type: 'boolean', default: false },
-    src: { type: 'asset' }
-  },
-
-  init: function init() {
-    this.model = null;
-  },
-
-  update: function update() {
-    var data = this.data;
-    var el = this.el;
-
-    if (!data.src) {
-      console.warn('[%s] `src` property is required.', this.name);
-      return;
-    }
-
-    // Get geometry from system, create and set mesh.
-    this.system.getOrLoadGeometry(data.src, data.skipCache).then(function (geometry) {
-      var model = createModel(geometry);
-      el.setObject3D('mesh', model);
-      el.emit('model-loaded', { format: 'ply', model: model });
-    });
-  },
-
-  remove: function remove() {
-    if (this.model) {
-      this.el.removeObject3D('mesh');
-    }
-  }
-});
-
-function createModel(geometry) {
-  return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
-    color: 0xFFFFFF,
-    shading: THREE.FlatShading,
-    vertexColors: THREE.VertexColors,
-    shininess: 0
-  }));
-}
-
-},{"../../lib/PLYLoader":6}],26:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = AFRAME.registerComponent('checkpoint', {
@@ -7030,7 +6565,7 @@ module.exports = AFRAME.registerComponent('checkpoint', {
   }
 });
 
-},{}],27:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7167,7 +6702,7 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
   }
 });
 
-},{}],28:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 /* global CANNON */
@@ -7250,7 +6785,7 @@ module.exports = AFRAME.registerComponent('grab', {
   }
 });
 
-},{}],29:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 require('./checkpoint');
@@ -7262,7 +6797,7 @@ require('./mesh-smooth');
 require('./normal-material');
 require('./sphere-collider');
 
-},{"./checkpoint":26,"./cube-env-map":27,"./grab":28,"./jump-ability":30,"./kinematic-body":31,"./mesh-smooth":32,"./normal-material":33,"./sphere-collider":34}],30:[function(require,module,exports){
+},{"./checkpoint":23,"./cube-env-map":24,"./grab":25,"./jump-ability":27,"./kinematic-body":28,"./mesh-smooth":29,"./normal-material":30,"./sphere-collider":31}],27:[function(require,module,exports){
 'use strict';
 
 var ACCEL_G = -9.8,
@@ -7330,7 +6865,7 @@ module.exports = AFRAME.registerComponent('jump-ability', {
   }
 });
 
-},{}],31:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 /* global CANNON */
@@ -7364,9 +6899,9 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
   schema: {
     mass: { default: 5 },
     radius: { default: 1.3 },
-    userHeight: { default: 1.6 },
     linearDamping: { default: 0.05 },
-    enableSlopes: { default: true }
+    enableSlopes: { default: true },
+    enableJumps: { default: false }
   },
 
   /*******************************************************************
@@ -7379,7 +6914,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
 
     var el = this.el,
         data = this.data,
-        position = new CANNON.Vec3().copy(el.getAttribute('position'));
+        position = new CANNON.Vec3().copy(el.object3D.getWorldPosition(new THREE.Vector3()));
 
     this.body = new CANNON.Body({
       material: this.system.getMaterial('staticMaterial'),
@@ -7388,7 +6923,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
       linearDamping: data.linearDamping,
       fixedRotation: true
     });
-    this.body.addShape(new CANNON.Sphere(data.radius), new CANNON.Vec3(0, data.radius - data.height, 0));
+    this.body.addShape(new CANNON.Sphere(data.radius), new CANNON.Vec3(0, data.radius, 0));
 
     this.body.el = this.el;
     this.el.body = this.body;
@@ -7423,11 +6958,11 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
     if (!dt) return;
 
     var el = this.el;
+    var data = this.data;
     var body = this.body;
 
-    body.velocity.copy(el.getAttribute('velocity'));
+    if (!data.enableJumps) body.velocity.set(0, 0, 0);
     body.position.copy(el.getAttribute('position'));
-    body.position.y += this.data.userHeight;
   },
 
   step: function () {
@@ -7473,7 +7008,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
           // 2. If current trajectory attempts to move _through_ another
           // object, project the velocity against the collision plane to
           // prevent passing through.
-          velocity = velocity.projectOnPlane(currentSurfaceNormal);
+          velocity.projectOnPlane(currentSurfaceNormal);
         } else if (currentSurfaceNormal.y > 0.5) {
           // 3. If in contact with something roughly horizontal (+/- 45º) then
           // consider that the current ground. Only the highest qualifying
@@ -7488,7 +7023,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
       }
 
       normalizedVelocity.copy(velocity).normalize();
-      if (groundBody && normalizedVelocity.y < 0.5) {
+      if (groundBody && (!data.enableJumps || normalizedVelocity.y < 0.5)) {
         if (!data.enableSlopes) {
           groundNormal.set(0, 1, 0);
         } else if (groundNormal.y < 1 - EPS) {
@@ -7497,7 +7032,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
 
         // 4. Project trajectory onto the top-most ground object, unless
         // trajectory is > 45º.
-        velocity = velocity.projectOnPlane(groundNormal);
+        velocity.projectOnPlane(groundNormal);
       } else if (this.system.driver.world) {
         // 5. If not in contact with anything horizontal, apply world gravity.
         // TODO - Why is the 4x scalar necessary.
@@ -7505,20 +7040,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
         velocity.add(this.system.driver.world.gravity.scale(dt * 4.0 / 1000));
       }
 
-      // 6. If the ground surface has a velocity, apply it directly to current
-      // position, not velocity, to preserve relative velocity.
-      if (groundBody && groundBody.el && groundBody.el.components.velocity) {
-        var groundVelocity = groundBody.el.getAttribute('velocity');
-        body.position.copy({
-          x: body.position.x + groundVelocity.x * dt / 1000,
-          y: body.position.y + groundVelocity.y * dt / 1000,
-          z: body.position.z + groundVelocity.z * dt / 1000
-        });
-      }
-
       body.velocity.copy(velocity);
-
-      body.position.y -= data.userHeight;
       this.el.setAttribute('velocity', body.velocity);
       this.el.setAttribute('position', body.position);
     };
@@ -7539,7 +7061,6 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
         vFrom = this.body.position,
         vTo = this.body.position.clone();
 
-    vTo.y -= this.data.height;
     ray = new CANNON.Ray(vFrom, vTo);
     ray._updateDirection(); // TODO - Report bug.
     ray.intersectBody(groundBody);
@@ -7552,7 +7073,7 @@ module.exports = AFRAME.registerComponent('kinematic-body', {
   }
 });
 
-},{}],32:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7570,7 +7091,7 @@ module.exports = AFRAME.registerComponent('mesh-smooth', {
   }
 });
 
-},{}],33:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7599,7 +7120,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
   }
 });
 
-},{}],34:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7766,14 +7287,14 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   }
 });
 
-},{}],35:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 require('./nav-mesh');
 require('./nav-agent');
 require('./system');
 
-},{"./nav-agent":36,"./nav-mesh":37,"./system":38}],36:[function(require,module,exports){
+},{"./nav-agent":33,"./nav-mesh":34,"./system":35}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = AFRAME.registerComponent('nav-agent', {
@@ -7879,7 +7400,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
   }()
 });
 
-},{}],37:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7923,7 +7444,7 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
   }
 });
 
-},{}],38:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 var _require = require('three-pathfinding'),
@@ -8022,7 +7543,7 @@ module.exports = AFRAME.registerSystem('nav', {
   }
 });
 
-},{"three-pathfinding":11}],39:[function(require,module,exports){
+},{"three-pathfinding":10}],36:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8051,7 +7572,7 @@ module.exports = AFRAME.registerPrimitive('a-grid', {
   }
 });
 
-},{}],40:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 var vg = require('../../lib/hex-grid.min.js');
@@ -8111,7 +7632,7 @@ module.exports.Component = AFRAME.registerComponent('hexgrid', {
   }
 });
 
-},{"../../lib/default-hex-grid":7,"../../lib/hex-grid.min.js":9}],41:[function(require,module,exports){
+},{"../../lib/default-hex-grid":6,"../../lib/hex-grid.min.js":8}],38:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8214,7 +7735,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   }
 });
 
-},{}],42:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8286,7 +7807,7 @@ module.exports.Component = AFRAME.registerComponent('tube', {
   }
 });
 
-},{}],43:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 require('./a-grid');
@@ -8294,4 +7815,4 @@ require('./a-hexgrid');
 require('./a-ocean');
 require('./a-tube');
 
-},{"./a-grid":39,"./a-hexgrid":40,"./a-ocean":41,"./a-tube":42}]},{},[1]);
+},{"./a-grid":36,"./a-hexgrid":37,"./a-ocean":38,"./a-tube":39}]},{},[1]);
