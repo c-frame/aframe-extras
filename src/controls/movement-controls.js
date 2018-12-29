@@ -22,7 +22,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     speed:              { default: 0.3, min: 0 },
     fly:                { default: false },
     constrainToNavMesh: { default: false },
-    camera:             { default: '[camera]', type: 'selector' }
+    camera:             { default: '[movement-controls] [camera]', type: 'selector' }
   },
 
   /*******************************************************************
