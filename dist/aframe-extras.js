@@ -43,14 +43,6 @@ var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "sym
  *		https://code.blender.org/2013/08/fbx-binary-file-format-specification/
  */
 
-// Monkeypatch for <r89
-THREE.LoaderUtils = {
-	extractUrlBase: THREE.Loader.prototype.extractUrlBase,
-	decodeText: function decodeText(array) {
-		return new TextDecoder().decode(array);
-	}
-};
-
 module.exports = THREE.FBXLoader = function () {
 
 	var fbxTree;
