@@ -2,24 +2,23 @@
 
 Loaders for various 3D model types. All are trivial wrappers around one of the [many THREE.js loader classes](https://github.com/mrdoob/three.js/tree/master/examples/js/loaders).
 
-- **gltf-model-legacy**: Loader for glTF 1.0 format, removed from A-Frame core with v0.7.0 release. For glTF 2.0, use the `gltf-model` component that ships with A-Frame.
-- **object-model**: Loader for THREE.js .JSON format, generally containing multiple meshes or an entire scene.
+- **collada-model-legacy**: Loader for COLLADA (`.dae`) format, removed from A-Frame core with v0.9.0 release. Where possible, use the `gltf-model` component that ships with A-Frame instead.
+- **gltf-model-legacy**: Loader for glTF 1.0 format, removed from A-Frame core with v0.7.0 release. For glTF 2.0, use the `gltf-model` component that ships with A-Frame instead.
+- **object-model**: Loader for THREE.js .JSON format, generally containing multiple meshes or an entire scene. Where possible, use the `gltf-model` component that ships with A-Frame instead.
 - **fbx-model**: Loader for FBX format.
 - **animation-mixer**: Controls animations embedded in a glTF model.
-
-Unsure whether to use `json-model` or `object-model`? Check the console for errors. See also: [Clara.io | THREE.js Export](https://clara.io/learn/user-guide/data_exchange/threejs_export).
 
 ## Usage
 
 ```html
-<!-- three.js JSON -->
-<a-entity json-model="src: url(my-model.json);"></a-entity>
+<!-- FBX -->
+<a-entity fbx-model="src: url(my-model.fbx);"></a-entity>
 ```
 
 THREE.js models often need to be scaled down. Example:
 
 ```html
-<a-entity scale="0.5 0.5 0.5" object-model="src: url(my-model.json);">
+<a-entity scale="0.5 0.5 0.5" fbx-model="src: url(my-model.fbx);">
 </a-entity>
 ```
 

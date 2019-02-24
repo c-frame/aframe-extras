@@ -21,6 +21,7 @@ src
 │   └── trackpad-controls.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
 │   ├── animation-mixer.js
+│   ├── collada-model-legacy.js <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
 │   ├── fbx-model.js
 │   ├── gltf-model-legacy.js
 │   └── object-model.js
