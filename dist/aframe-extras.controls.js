@@ -875,7 +875,7 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
     var targetPosition = this.targetPosition;
 
     position.copy(this.el.getAttribute('position'));
-    targetPosition.copy(this.checkpoint.object3D.getWorldPosition());
+    this.checkpoint.object3D.getWorldPosition(targetPosition);
     targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
     offset.copy(targetPosition).sub(position);
   }
