@@ -70,6 +70,8 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     const position = new THREE.Vector3(),
         meshPosition = new THREE.Vector3(),
         colliderScale = new THREE.Vector3(),
+        size = new THREE.Vector3(),
+        box = new THREE.Box3(),
         distanceMap = new Map();
     return function () {
       const el = this.el,
@@ -81,7 +83,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
       if (!mesh) { return; }
 
       distanceMap.clear();
-      position.copy(el.object3D.getWorldPosition());
+      el.object3D.getWorldPosition(position);
       el.object3D.getWorldScale(colliderScale);
       colliderRadius = data.radius * scaleFactor(colliderScale);
       // Update collision list.
@@ -105,7 +107,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
 
       // Bounding sphere collision detection
       function intersect (el) {
-        let radius, mesh, distance, box, extent, size;
+        let radius, mesh, distance, extent;
 
         if (!el.isEntity) { return; }
 
@@ -113,8 +115,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
 
         if (!mesh) { return; }
 
-        box = new THREE.Box3().setFromObject(mesh);
-        size = box.getSize();
+        box.setFromObject(mesh).getSize(size);
         extent = Math.max(size.x, size.y, size.z) / 2;
         radius = Math.sqrt(2 * extent * extent);
         box.getCenter(meshPosition);
