@@ -1,6 +1,6 @@
 const fetchScript = require('../../lib/fetch-script')();
 
-const LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
+const LOADER_SRC = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r86/examples/js/loaders/GLTFLoader.js';
 
 const loadLoader = (function () {
   let promise;
