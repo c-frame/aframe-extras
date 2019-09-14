@@ -19,7 +19,7 @@
     "test:chrome": "karma start ./tests/karma.conf.js --browsers Chrome",
     "test:ci": "TEST_ENV=ci karma start ./tests/karma.conf.js --single-run --browsers Firefox",
     "preversion": "npm run test:once",
-    "preversion:readme": "replace 'aframe-extras/v\\d+\\.\\d+\\.\\d+' \"aframe-extras/v$npm_package_version\" ./README.md",
+    "preversion:readme": "replace 'aframe-extras@v\\d+\\.\\d+\\.\\d+' \"aframe-extras@v$npm_package_version\" ./README.md",
     "version": "npm run preversion:readme && npm run dist && git add -A dist README.md",
     "postversion": "git push && git push --tags && npm publish",
     "postpublish": "./scripts/publish.js"
