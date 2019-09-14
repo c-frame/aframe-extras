@@ -7503,7 +7503,7 @@ module.exports = AFRAME.registerComponent('fbx-model', {
 
 var fetchScript = require('../../lib/fetch-script')();
 
-var LOADER_SRC = 'https://rawgit.com/mrdoob/three.js/r86/examples/js/loaders/GLTFLoader.js';
+var LOADER_SRC = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r86/examples/js/loaders/GLTFLoader.js';
 
 var loadLoader = function () {
   var promise = void 0;
