@@ -12,16 +12,16 @@ Includes components for controls, model loaders, pathfinding, and more:
 <pre>
 src
 ├── <b>controls/</b> (<a href="/src/controls">Documentation</a>)
-│   ├── movement-controls.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── movement-controls.js
 │   ├── checkpoint-controls.js
 │   ├── gamepad-controls.js
 │   ├── keyboard-controls.js
 │   ├── mouse-controls.js
 │   ├── touch-controls.js
-│   └── trackpad-controls.js    <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   └── trackpad-controls.js
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
 │   ├── animation-mixer.js
-│   ├── collada-model-legacy.js <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── collada-model-legacy.js
 │   ├── fbx-model.js
 │   ├── gltf-model-legacy.js
 │   └── object-model.js
@@ -32,11 +32,11 @@ src
 │   ├── jump-ability.js
 │   ├── kinematic-body.js       <sub><img alt="Deprecated" src="https://img.shields.io/badge/status-deprecated-orange.svg"></sub>
 │   ├── mesh-smooth.js
-│   ├── normal-material.js      <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── normal-material.js
 │   └── sphere-collider.js
 ├── <b>pathfinding/</b> (<a href="/src/pathfinding">Documentation</a>)
-│   ├── nav-mesh.js             <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
-│   └── nav-agent.js            <sub><img alt="New" src="https://img.shields.io/badge/status-new-green.svg"></sub>
+│   ├── nav-mesh.js
+│   └── nav-agent.js
 └── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
     ├── a-grid.js
     ├── a-hex-grid.js
