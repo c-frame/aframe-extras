@@ -12,6 +12,11 @@ const GamepadButton = require('../../lib/GamepadButton'),
 
 const JOYSTICK_EPS = 0.2;
 
+const Joystick = {
+  MOVEMENT: 1,
+  ROTATION: 2
+};
+
 module.exports = AFRAME.registerComponent('gamepad-controls', {
 
   /*******************************************************************
@@ -49,7 +54,10 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * Called once when component is attached. Generally for initial setup.
    */
   init: function () {
-    const scene = this.el.sceneEl;
+    const sceneEl = this.el.sceneEl;
+
+    this.system = sceneEl.systems['tracked-controls-webxr'] || {controllers: []};
+
     this.prevTime = window.performance.now();
 
     // Button state
@@ -64,7 +72,11 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
     this.yaw.add(this.pitch);
 
-    scene.addBehavior(this);
+    this._lookVector = new THREE.Vector2();
+    this._moveVector = new THREE.Vector2();
+    this._dpadVector = new THREE.Vector2();
+
+    sceneEl.addBehavior(this);
   },
 
   /**
@@ -94,20 +106,28 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   isVelocityActive: function () {
     if (!this.data.enabled || !this.isConnected()) return false;
 
-    const dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y;
+    const dpad = this._dpadVector;
+    const joystick = this._moveVector;
+
+    this.getDpad(dpad);
+    this.getJoystick(Joystick.MOVEMENT, joystick);
+
+    const inputX = dpad.x || joystick.x;
+    const inputY = dpad.y || joystick.y;
 
     return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
   },
 
   getVelocityDelta: function () {
-    const dpad = this.getDpad(),
-        joystick0 = this.getJoystick(0),
-        inputX = dpad.x || joystick0.x,
-        inputY = dpad.y || joystick0.y,
-        dVelocity = new THREE.Vector3();
+    const dpad = this._dpadVector;
+    const joystick = this._moveVector;
+
+    this.getDpad(dpad);
+    this.getJoystick(Joystick.MOVEMENT, joystick);
+
+    const inputX = dpad.x || joystick.x;
+    const inputY = dpad.y || joystick.y;
+    const dVelocity = new THREE.Vector3();
 
     if (Math.abs(inputX) > JOYSTICK_EPS) {
       dVelocity.x += inputX;
@@ -126,9 +146,11 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   isRotationActive: function () {
     if (!this.data.enabled || !this.isConnected()) return false;
 
-    const joystick1 = this.getJoystick(1);
+    const joystick = this._lookVector;
 
-    return Math.abs(joystick1.x) > JOYSTICK_EPS || Math.abs(joystick1.y) > JOYSTICK_EPS;
+    this.getJoystick(Joystick.ROTATION, joystick);
+
+    return Math.abs(joystick.x) > JOYSTICK_EPS || Math.abs(joystick.y) > JOYSTICK_EPS;
   },
 
   updateRotation: function (dt) {
@@ -146,7 +168,9 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
       yaw.rotation.copy(lookControls.yawObject.rotation);
     }
 
-    const lookVector = this.getJoystick(1);
+    const lookVector = this._lookVector;
+
+    this.getJoystick(Joystick.ROTATION, lookVector);
 
     if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
     if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
@@ -211,12 +235,14 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {Gamepad}
    */
   getGamepad: function () {
-    const localGamepad = navigator.getGamepads
+    const stdGamepad = navigator.getGamepads
           && navigator.getGamepads()[this.data.controller],
+        xrController = this.system.controllers[this.data.controller],
+        xrGamepad = xrController && xrController.gamepad,
         proxyControls = this.el.sceneEl.components['proxy-controls'],
         proxyGamepad = proxyControls && proxyControls.isConnected()
           && proxyControls.getGamepad(this.data.controller);
-    return proxyGamepad || localGamepad;
+    return proxyGamepad || xrGamepad || stdGamepad;
   },
 
   /**
@@ -239,29 +265,39 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   },
 
   /**
-   * Returns the state of the given joystick (0 or 1) as a THREE.Vector2.
-   * @param  {number} id The joystick (0, 1) for which to find state.
+   * Returns the state of the specified joystick as a THREE.Vector2.
+   * @param  {Joystick} role
+   * @param  {THREE.Vector2} target
    * @return {THREE.Vector2}
    */
-  getJoystick: function (index) {
+  getJoystick: function (index, target) {
     const gamepad = this.getGamepad();
-    switch (index) {
-      case 0: return new THREE.Vector2(gamepad.axes[0], gamepad.axes[1]);
-      case 1: return new THREE.Vector2(gamepad.axes[2], gamepad.axes[3]);
-      default: throw new Error('Unexpected joystick index "%d".', index);
+    if (gamepad.mapping === 'xr-standard') {
+      // See: https://github.com/donmccurdy/aframe-extras/issues/307
+      switch (index) {
+        case Joystick.MOVEMENT: return target.set(gamepad.axes[2], gamepad.axes[3]);
+        case Joystick.ROTATION: return target.set(gamepad.axes[0], gamepad.axes[1]);
+      }
+    } else {
+      switch (index) {
+        case Joystick.MOVEMENT: return target.set(gamepad.axes[0], gamepad.axes[1]);
+        case Joystick.ROTATION: return target.set(gamepad.axes[2], gamepad.axes[3]);
+      }
     }
+    throw new Error('Unexpected joystick index "%d".', index);
   },
 
   /**
    * Returns the state of the dpad as a THREE.Vector2.
+   * @param {THREE.Vector2} target
    * @return {THREE.Vector2}
    */
-  getDpad: function () {
+  getDpad: function (target) {
     const gamepad = this.getGamepad();
     if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
-      return new THREE.Vector2();
+      return target.set(0, 0);
     }
-    return new THREE.Vector2(
+    return target.set(
       (gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0)
       + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0),
       (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0)
