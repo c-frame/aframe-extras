@@ -31,7 +31,7 @@
     "three-pathfinding": "^0.7.0"
   },
   "devDependencies": {
-    "aframe": "^1.0.3",
+    "aframe": "^0.8.2",
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
