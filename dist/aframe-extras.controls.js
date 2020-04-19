@@ -1322,7 +1322,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   onKeyDown: function onKeyDown(event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event) || document.pointerLockElement) {
       this.localKeys[event.code] = true;
       this.emit(event);
     }
