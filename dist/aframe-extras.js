@@ -9269,7 +9269,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   onKeyUp: function onKeyUp(event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event) || document.pointerLockElement) {
       delete this.localKeys[event.code];
       this.emit(event);
     }
@@ -9277,7 +9277,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
 
   onBlur: function onBlur() {
     for (var code in this.localKeys) {
-      if (this.localKeys.hasOwnProperty(code)) {
+      if (this.localKeys.hasOwnProperty(code) || document.pointerLockElement) {
         delete this.localKeys[code];
       }
     }
@@ -10067,7 +10067,7 @@ var loadLoader = function () {
 
 /**
  * Legacy loader for glTF 1.0 models.
- * Asynchronously loads THREE.GLTFLoader from rawgit.
+ * Asynchronously loads THREE.GLTFLoader from jsdelivr.
  */
 module.exports = AFRAME.registerComponent('gltf-model-legacy', {
   schema: { type: 'model' },
