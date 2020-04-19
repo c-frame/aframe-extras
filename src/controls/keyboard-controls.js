@@ -101,7 +101,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   onKeyUp: function (event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event) || document.pointerLockElement) {
       delete this.localKeys[event.code];
       this.emit(event);
     }
@@ -109,7 +109,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
 
   onBlur: function () {
     for (let code in this.localKeys) {
-      if (this.localKeys.hasOwnProperty(code)) {
+      if (this.localKeys.hasOwnProperty(code) || document.pointerLockElement) {
         delete this.localKeys[code];
       }
     }
