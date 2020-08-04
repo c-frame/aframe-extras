@@ -273,15 +273,27 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
   getJoystick: function (index, target) {
     const gamepad = this.getGamepad();
     if (gamepad.mapping === 'xr-standard') {
+      const handedness = this.system.controllers[this.data.controller].handedness;
+      if (handedness === 'right') {
+        this.data.controller = 1;
+      }
       // See: https://github.com/donmccurdy/aframe-extras/issues/307
       switch (index) {
-        case Joystick.MOVEMENT: return target.set(gamepad.axes[2], gamepad.axes[3]);
-        case Joystick.ROTATION: return target.set(gamepad.axes[0], gamepad.axes[1]);
+        case Joystick.MOVEMENT:
+          return target.set(gamepad.axes[2], gamepad.axes[3]);
+        case Joystick.ROTATION:
+          return target.set(gamepad.axes[0], gamepad.axes[1]);
       }
     } else {
+      const hand = navigator.getGamepads && navigator.getGamepads()[this.data.controller].hand;
+      if (hand === 'right') {
+        this.data.controller = 1;
+      }
       switch (index) {
-        case Joystick.MOVEMENT: return target.set(gamepad.axes[0], gamepad.axes[1]);
-        case Joystick.ROTATION: return target.set(gamepad.axes[2], gamepad.axes[3]);
+        case Joystick.MOVEMENT:
+          return target.set(gamepad.axes[0], gamepad.axes[1]);
+        case Joystick.ROTATION:
+          return target.set(gamepad.axes[2], gamepad.axes[3]);
       }
     }
     throw new Error('Unexpected joystick index "%d".', index);
