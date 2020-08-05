@@ -7515,7 +7515,7 @@ var loadLoader = function () {
 
 /**
  * Legacy loader for glTF 1.0 models.
- * Asynchronously loads THREE.GLTFLoader from jsdelivr.
+ * Asynchronously loads THREE.GLTFLoader from rawgit.
  */
 module.exports = AFRAME.registerComponent('gltf-model-legacy', {
   schema: { type: 'model' },
