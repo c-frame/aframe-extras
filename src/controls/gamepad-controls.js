@@ -271,20 +271,21 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {THREE.Vector2}
    */
   getJoystick: function (index, target) {
+    const xrController = this.system.controllers[this.data.controller];
+    if (xrController && xrController.handedness === 'right') {
+      this.el.setAttribute('gamepad-controls', 'controller', 1);
+    }
     const gamepad = this.getGamepad();
+    
     if (gamepad.mapping === 'xr-standard') {
-      const handedness = this.system.controllers[this.data.controller].handedness;
-      if (handedness === 'right') {
-        this.el.setAttribute('gamepad-controls', 'controller', 1);
-      }
       // See: https://github.com/donmccurdy/aframe-extras/issues/307
       switch (index) {
         case Joystick.MOVEMENT: return target.set(gamepad.axes[2], gamepad.axes[3]);
         case Joystick.ROTATION: return target.set(gamepad.axes[0], gamepad.axes[1]);
       }
     } else {
-      const hand = navigator.getGamepads && navigator.getGamepads()[this.data.controller].hand;
-      if (hand === 'right') {
+      const stdGamepad = navigator.getGamepads && navigator.getGamepads()[this.data.controller];
+      if (stdGamepad.hand === 'right') {
         this.el.setAttribute('gamepad-controls', 'controller', 1);
       }
       switch (index) {
