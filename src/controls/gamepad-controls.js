@@ -234,25 +234,36 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @param {string} handPreference
    * @return {Gamepad}
    */
-  getGamepad: function (handPreference) {
-    // https://github.com/donmccurdy/aframe-proxy-controls
-    const proxyControls = this.el.sceneEl.components['proxy-controls'];
-    const proxyGamepad = proxyControls && proxyControls.isConnected()
-      && proxyControls.getGamepad(0);
-    if (proxyGamepad) return proxyGamepad;
+  getGamepad: (function () {
+    const _xrGamepads = [];
+    const _empty = [];
 
-    // https://www.w3.org/TR/webxr/#dom-xrinputsource-handedness
-    const xrGamepads = this.system.controllers.map((ctrl) => ctrl.gamepad);
-    const xrGamepad = xrGamepads && xrGamepads.find((g) => g.handedness === handPreference);
-    if (xrGamepad) return xrGamepad;
+    return function (handPreference) {
+      // https://github.com/donmccurdy/aframe-proxy-controls
+      const proxyControls = this.el.sceneEl.components['proxy-controls'];
+      const proxyGamepad = proxyControls && proxyControls.isConnected()
+        && proxyControls.getGamepad(0);
+      if (proxyGamepad) return proxyGamepad;
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad/hand
-    const stdGamepads = navigator.getGamepads && navigator.getGamepads();
-    const stdGamepad = stdGamepads && stdGamepads.find((g) => g.hand === handPreference);
-    if (stdGamepad) return stdGamepad;
+      // https://www.w3.org/TR/webxr/#dom-xrinputsource-handedness
+      _xrGamepads.length = 0;
+      for (let i = 0; i < this.system.controllers.length; i++) {
+        const xrController = this.system.controllers[i];
+        const xrGamepad = xrController ? xrController.gamepad : null;
+        _xrGamepads.push(xrGamepad);
+        if (xrGamepad && xrGamepad.handedness === handPreference) return xrGamepad;
+      }
 
-    return xrGamepads[0] || stdGamepads[0];
-  },
+      // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad/hand
+      const navGamepads = navigator.getGamepads ? navigator.getGamepads() : _empty;
+      for (let i = 0; i < navGamepads.length; i++) {
+        const navGamepad = navGamepads[i];
+        if (navGamepad && navGamepad.hand === handPreference) return navGamepad;
+      }
+
+      return _xrGamepads[0] || navGamepads[0];
+    };
+  })(),
 
   /**
    * Returns the state of the given button.
