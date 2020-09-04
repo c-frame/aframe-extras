@@ -898,6 +898,11 @@ var GamepadButton = require('../../lib/GamepadButton'),
 
 var JOYSTICK_EPS = 0.2;
 
+var Hand = {
+  LEFT: 'left',
+  RIGHT: 'right'
+};
+
 var Joystick = {
   MOVEMENT: 1,
   ROTATION: 2
@@ -916,14 +921,8 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    */
 
   schema: {
-    // Controller 0-3
-    controller: { default: 0, oneOf: [0, 1, 2, 3] },
-
-    // Enable/disable features
+    // Enable/disable gamepad-controls
     enabled: { default: true },
-
-    // Debugging
-    debug: { default: false },
 
     // Heading element for rotation
     camera: { default: '[camera]', type: 'selector' },
@@ -1081,7 +1080,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    */
 
   updateButtonState: function updateButtonState() {
-    var gamepad = this.getGamepad();
+    var gamepad = this.getGamepad(Hand.RIGHT);
     if (this.data.enabled && gamepad) {
 
       // Fire DOM events for button state changes.
@@ -1116,16 +1115,38 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * a proxy-controls component may provide access to Gamepad input from a
    * remote device.
    *
+   * @param {string} handPreference
    * @return {Gamepad}
    */
-  getGamepad: function getGamepad() {
-    var stdGamepad = navigator.getGamepads && navigator.getGamepads()[this.data.controller],
-        xrController = this.system.controllers[this.data.controller],
-        xrGamepad = xrController && xrController.gamepad,
-        proxyControls = this.el.sceneEl.components['proxy-controls'],
-        proxyGamepad = proxyControls && proxyControls.isConnected() && proxyControls.getGamepad(this.data.controller);
-    return proxyGamepad || xrGamepad || stdGamepad;
-  },
+  getGamepad: function () {
+    var _xrGamepads = [];
+    var _empty = [];
+
+    return function (handPreference) {
+      // https://github.com/donmccurdy/aframe-proxy-controls
+      var proxyControls = this.el.sceneEl.components['proxy-controls'];
+      var proxyGamepad = proxyControls && proxyControls.isConnected() && proxyControls.getGamepad(0);
+      if (proxyGamepad) return proxyGamepad;
+
+      // https://www.w3.org/TR/webxr/#dom-xrinputsource-handedness
+      _xrGamepads.length = 0;
+      for (var i = 0; i < this.system.controllers.length; i++) {
+        var xrController = this.system.controllers[i];
+        var xrGamepad = xrController ? xrController.gamepad : null;
+        _xrGamepads.push(xrGamepad);
+        if (xrGamepad && xrGamepad.handedness === handPreference) return xrGamepad;
+      }
+
+      // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad/hand
+      var navGamepads = navigator.getGamepads ? navigator.getGamepads() : _empty;
+      for (var _i = 0; _i < navGamepads.length; _i++) {
+        var navGamepad = navGamepads[_i];
+        if (navGamepad && navGamepad.hand === handPreference) return navGamepad;
+      }
+
+      return _xrGamepads[0] || navGamepads[0];
+    };
+  }(),
 
   /**
    * Returns the state of the given button.
@@ -1133,7 +1154,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {GamepadButton}
    */
   getButton: function getButton(index) {
-    return this.getGamepad().buttons[index];
+    return this.getGamepad(Hand.RIGHT).buttons[index];
   },
 
   /**
@@ -1143,7 +1164,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {number} On the interval [-1,1].
    */
   getAxis: function getAxis(index) {
-    return this.getGamepad().axes[index];
+    return this.getGamepad(index > 1 ? Hand.RIGHT : Hand.LEFT).axes[index];
   },
 
   /**
@@ -1153,7 +1174,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {THREE.Vector2}
    */
   getJoystick: function getJoystick(index, target) {
-    var gamepad = this.getGamepad();
+    var gamepad = this.getGamepad(index === Joystick.MOVEMENT ? Hand.LEFT : Hand.RIGHT);
     if (gamepad.mapping === 'xr-standard') {
       // See: https://github.com/donmccurdy/aframe-extras/issues/307
       switch (index) {
@@ -1179,7 +1200,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {THREE.Vector2}
    */
   getDpad: function getDpad(target) {
-    var gamepad = this.getGamepad();
+    var gamepad = this.getGamepad(Hand.LEFT);
     if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
       return target.set(0, 0);
     }
@@ -1191,7 +1212,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {boolean}
    */
   isConnected: function isConnected() {
-    var gamepad = this.getGamepad();
+    var gamepad = this.getGamepad(Hand.LEFT);
     return !!(gamepad && gamepad.connected);
   },
 
@@ -1201,7 +1222,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    * @return {string}
    */
   getID: function getID() {
-    return this.getGamepad().id;
+    return this.getGamepad(Hand.LEFT).id;
   }
 });
 
