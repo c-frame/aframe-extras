@@ -13,13 +13,14 @@ const LoopMode = {
  */
 module.exports = AFRAME.registerComponent('animation-mixer', {
   schema: {
-    clip:  {default: '*'},
-    duration: {default: 0},
-    clampWhenFinished: {default: false, type: 'boolean'},
-    crossFadeDuration: {default: 0},
-    loop: {default: 'repeat', oneOf: Object.keys(LoopMode)},
-    repetitions: {default: Infinity, min: 0},
-    timeScale: {default: 1}
+    clip: { default: '*' },
+    duration: { default: 0 },
+    clampWhenFinished: { default: false, type: 'boolean' },
+    crossFadeDuration: { default: 0 },
+    loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
+    repetitions: { default: Infinity, min: 0 },
+    timeScale: { default: 1 },
+    startFrame: { default: 0 }
   },
 
   init: function () {
@@ -46,10 +47,10 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
     this.model = model;
     this.mixer = new THREE.AnimationMixer(model);
     this.mixer.addEventListener('loop', (e) => {
-      el.emit('animation-loop', {action: e.action, loopDelta: e.loopDelta});
+      el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
     });
     this.mixer.addEventListener('finished', (e) => {
-      el.emit('animation-finished', {action: e.action, direction: e.direction});
+      el.emit('animation-finished', { action: e.action, direction: e.direction });
     });
     if (this.data.clip) this.update({});
   },
@@ -102,8 +103,8 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
     if (!this.mixer) return;
 
     const model = this.model,
-        data = this.data,
-        clips = model.animations || (model.geometry || {}).animations || [];
+      data = this.data,
+      clips = model.animations || (model.geometry || {}).animations || [];
 
     if (!clips.length) return;
 
@@ -112,6 +113,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
     for (let clip, i = 0; (clip = clips[i]); i++) {
       if (clip.name.match(re)) {
         const action = this.mixer.clipAction(clip, model);
+
         action.enabled = true;
         action.clampWhenFinished = data.clampWhenFinished;
         if (data.duration) action.setDuration(data.duration);
@@ -121,6 +123,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
           .fadeIn(data.crossFadeDuration)
           .play();
         this.activeActions.push(action);
+        this.mixer.setTime(data.startFrame / 1000);
       }
     }
   },
@@ -134,13 +137,13 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
  * Creates a RegExp from the given string, converting asterisks to .* expressions,
  * and escaping all other characters.
  */
-function wildcardToRegExp (s) {
+function wildcardToRegExp(s) {
   return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
 }
 
 /**
  * RegExp-escapes all characters in the given string.
  */
-function regExpEscape (s) {
+function regExpEscape(s) {
   return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 }
