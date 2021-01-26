@@ -9218,7 +9218,8 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
     this.listeners = {
       keydown: this.onKeyDown.bind(this),
       keyup: this.onKeyUp.bind(this),
-      blur: this.onBlur.bind(this)
+      blur: this.onBlur.bind(this),
+      onContextMenu: this.onContextMenu.bind(this)
     };
     this.attachEventListeners();
   },
@@ -9271,9 +9272,18 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   attachEventListeners: function attachEventListeners() {
-    window.addEventListener('keydown', this.listeners.keydown, false);
-    window.addEventListener('keyup', this.listeners.keyup, false);
-    window.addEventListener('blur', this.listeners.blur, false);
+    window.oncontextmenu = this.listeners.onContextMenu;
+    window.addEventListener("keydown", this.listeners.keydown, false);
+    window.addEventListener("keyup", this.listeners.keyup, false);
+    window.addEventListener("blur", this.listeners.blur, false);
+  },
+
+  onContextMenu: function onContextMenu() {
+    for (var code in this.localKeys) {
+      if (this.localKeys.hasOwnProperty(code)) {
+        delete this.localKeys[code];
+      }
+    }
   },
 
   removeEventListeners: function removeEventListeners() {
@@ -11065,7 +11075,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
       // ground, not traveling in a straight line from higher to lower waypoints.
       raycaster.ray.origin.copy(vNext);
       raycaster.ray.origin.y += 1.5;
-      raycaster.ray.direction.y = -1;
+      raycaster.ray.direction = { x: 0, y: -1, z: 0 };
       var intersections = raycaster.intersectObject(this.system.getNavMesh());
 
       if (!intersections.length) {

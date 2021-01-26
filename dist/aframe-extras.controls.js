@@ -1278,7 +1278,8 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
     this.listeners = {
       keydown: this.onKeyDown.bind(this),
       keyup: this.onKeyUp.bind(this),
-      blur: this.onBlur.bind(this)
+      blur: this.onBlur.bind(this),
+      onContextMenu: this.onContextMenu.bind(this)
     };
     this.attachEventListeners();
   },
@@ -1331,9 +1332,18 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   attachEventListeners: function attachEventListeners() {
-    window.addEventListener('keydown', this.listeners.keydown, false);
-    window.addEventListener('keyup', this.listeners.keyup, false);
-    window.addEventListener('blur', this.listeners.blur, false);
+    window.oncontextmenu = this.listeners.onContextMenu;
+    window.addEventListener("keydown", this.listeners.keydown, false);
+    window.addEventListener("keyup", this.listeners.keyup, false);
+    window.addEventListener("blur", this.listeners.blur, false);
+  },
+
+  onContextMenu: function onContextMenu() {
+    for (var code in this.localKeys) {
+      if (this.localKeys.hasOwnProperty(code)) {
+        delete this.localKeys[code];
+      }
+    }
   },
 
   removeEventListeners: function removeEventListeners() {
