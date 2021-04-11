@@ -36,7 +36,7 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
     if (!navMesh) return;
 
     const navMeshGeometry = navMesh.geometry.isBufferGeometry
-      ? new THREE.BufferGeometry().fromBufferGeometry(navMesh.geometry)
+      ? new THREE.Geometry().fromBufferGeometry(navMesh.geometry)
       : navMesh.geometry.clone();
 
     scene.updateMatrixWorld();
