@@ -7,7 +7,7 @@
 module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
   defaultComponents: {
     ocean: {},
-    rotation: { x: -90, y: 0, z: 0 }
+    rotation: {x: -90, y: 0, z: 0}
   },
   mappings: {
     width: 'ocean.width',
@@ -25,23 +25,23 @@ module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
 module.exports.Component = AFRAME.registerComponent('ocean', {
   schema: {
     // Dimensions of the ocean area.
-    width: { default: 10, min: 0 },
-    depth: { default: 10, min: 0 },
+    width: {default: 10, min: 0},
+    depth: {default: 10, min: 0},
 
     // Density of waves.
-    density: { default: 10 },
+    density: {default: 10},
 
     // Wave amplitude and variance.
-    amplitude: { default: 0.1 },
-    amplitudeVariance: { default: 0.3 },
+    amplitude: {default: 0.1},
+    amplitudeVariance: {default: 0.3},
 
     // Wave speed and variance.
-    speed: { default: 1 },
-    speedVariance: { default: 2 },
+    speed: {default: 1},
+    speedVariance: {default: 2},
 
     // Material.
-    color: { default: '#7AD2F7', type: 'color' },
-    opacity: { default: 0.8 }
+    color: {default: '#7AD2F7', type: 'color'},
+    opacity: {default: 0.8}
   },
 
   /**
@@ -49,17 +49,17 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
    * not guaranteed to have parsed when this component is initialized.
    */
   play: function () {
-    const el = this.el;
-    const data = this.data;
+    const el = this.el,
+        data = this.data;
     let material = el.components.material;
 
-    let geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
-    geometry = THREE.BufferGeometryUtils.mergeVertices(geometry);
+    const geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
+    geometry.mergeVertices();
     this.waves = [];
-    for (let v, i = 0, l = geometry.attributes.position.count; i < l; i++) {
-      v = geometry.attributes.position;
+    for (let v, i = 0, l = geometry.vertices.length; i < l; i++) {
+      v = geometry.vertices[i];
       this.waves.push({
-        z: v.getZ(i),
+        z: v.z,
         ang: Math.random() * Math.PI * 2,
         amp: data.amplitude + Math.random() * data.amplitudeVariance,
         speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
@@ -72,7 +72,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
         color: data.color,
         transparent: data.opacity < 1,
         opacity: data.opacity,
-        flatShading: true
+        shading: THREE.FlatShading,
       });
     }
 
@@ -87,12 +87,12 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   tick: function (t, dt) {
     if (!dt) return;
 
-    const verts = this.mesh.geometry.attributes.position.array;
-    for (let i = 0, j = 2; i < this.waves.length; i++, j = j + 3) {
-      const vprops = this.waves[i];
-      verts[j] = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+    const verts = this.mesh.geometry.vertices;
+    for (let v, vprops, i = 0; (v = verts[i]); i++){
+      vprops = this.waves[i];
+      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
       vprops.ang += vprops.speed * dt;
     }
-    this.mesh.geometry.attributes.position.needsUpdate = true;
+    this.mesh.geometry.verticesNeedUpdate = true;
   }
 });
