@@ -53,18 +53,17 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
         data = this.data;
     let material = el.components.material;
 
-    const geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
-    geometry.mergeVertices();
+    const geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);    
+        
     this.waves = [];
-    for (let v, i = 0, l = geometry.vertices.length; i < l; i++) {
-      v = geometry.vertices[i];
+    for (let i = 2; i < geometry.attributes.position.count; i += 3) {      
       this.waves.push({
-        z: v.z,
+        z: geometry.attributes.position.array[i],
         ang: Math.random() * Math.PI * 2,
         amp: data.amplitude + Math.random() * data.amplitudeVariance,
         speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
       });
-    }
+    }    
 
     if (!material) {
       material = {};
@@ -87,12 +86,13 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   tick: function (t, dt) {
     if (!dt) return;
 
-    const verts = this.mesh.geometry.vertices;
-    for (let v, vprops, i = 0; (v = verts[i]); i++){
-      vprops = this.waves[i];
-      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
-      vprops.ang += vprops.speed * dt;
+    let j = 0;
+    for (let i = 2; i < this.mesh.geometry.attributes.position.count; i += 3) {      
+      this.mesh.geometry.attributes.position.array[i] = this.waves[j].z + Math.sin(this.waves[j].ang) * this.waves[j].amp;
+      this.waves[j].ang += this.waves[j].speed * dt;
+      j++;
     }
-    this.mesh.geometry.verticesNeedUpdate = true;
+    
+    this.mesh.geometry.attributes.position.needsUpdate = true;    
   }
 });
