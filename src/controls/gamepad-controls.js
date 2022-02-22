@@ -178,7 +178,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     yaw.rotation.y -= lookVector.x;
     pitch.rotation.x -= lookVector.y;
     pitch.rotation.x = Math.max(- Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
-    data.camera.object3D.rotation.set(pitch.rotation.x, yaw.rotation.y, 0);
+    this.el.object3D.rotation.set(pitch.rotation.x, yaw.rotation.y, 0);
 
     // Sync with look-controls pitch/yaw if available.
     if (hasLookControls) {
@@ -296,7 +296,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
       // See: https://github.com/donmccurdy/aframe-extras/issues/307
       switch (index) {
         case Joystick.MOVEMENT: return target.set(gamepad.axes[2], gamepad.axes[3]);
-        case Joystick.ROTATION: return target.set(gamepad.axes[0], gamepad.axes[1]);
+        case Joystick.ROTATION: return target.set(gamepad.axes[2], 0);
       }
     } else {
       switch (index) {
