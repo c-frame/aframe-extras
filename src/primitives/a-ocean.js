@@ -55,14 +55,16 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
 
     let geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
     geometry = THREE.BufferGeometryUtils.mergeVertices(geometry);
+    const posAttribute = geometry.getAttribute( 'position' );
+
     this.waves = [];
-    for (let v, i = 0, l = geometry.attributes.position.count; i < l; i++) {
-      v = geometry.attributes.position;
+    
+    for (let v, i=0; i<posAttribute.count; i++){
       this.waves.push({
-        z: v.getZ(i),
+        z:posAttribute.getZ(i),
         ang: Math.random() * Math.PI * 2,
         amp: data.amplitude + Math.random() * data.amplitudeVariance,
-        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
+        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame 
       });
     }
 
@@ -86,13 +88,18 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
 
   tick: function (t, dt) {
     if (!dt) return;
+    const verts = this.mesh.geometry.getAttribute("position");
 
-    const verts = this.mesh.geometry.attributes.position.array;
-    for (let i = 0, j = 2; i < this.waves.length; i++, j = j + 3) {
-      const vprops = this.waves[i];
-      verts[j] = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+    for (let value, vprops, i = 0; i<verts.count; i++){
+      /* assign values to variables */
+      vprops = this.waves[i];
+      value = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+      /* set the value for z axis */
+      verts.setZ(i, value);
+      /* update vprops.ang */
       vprops.ang += vprops.speed * dt;
     }
-    this.mesh.geometry.attributes.position.needsUpdate = true;
+    /* update mesh to show changes to vertex position attribute */
+    verts.needsUpdate = true;
   }
 });
