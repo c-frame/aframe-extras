@@ -2533,7 +2533,7 @@ THREE.ColladaLoader.prototype = {
         case 'rotate':
           data.obj = new THREE.Vector3();
           data.obj.fromArray(array);
-          data.angle = THREE.Math.degToRad(array[3]);
+          data.angle = THREE.MathUtils.degToRad(array[3]);
           break;
 
       }
@@ -2782,7 +2782,7 @@ THREE.ColladaLoader.prototype = {
                   switch (joint.type) {
 
                     case 'revolute':
-                      matrix.multiply(m0.makeRotationAxis(axis, THREE.Math.degToRad(value)));
+                      matrix.multiply(m0.makeRotationAxis(axis, THREE.MathUtils.degToRad(value)));
                       break;
 
                     case 'prismatic':
@@ -2870,7 +2870,7 @@ THREE.ColladaLoader.prototype = {
           case 'rotate':
             var array = parseFloats(child.textContent);
             var vector = new THREE.Vector3().fromArray(array);
-            var angle = THREE.Math.degToRad(array[3]);
+            var angle = THREE.MathUtils.degToRad(array[3]);
             transforms.push({
               sid: child.getAttribute('sid'),
               type: child.nodeName,
@@ -2972,7 +2972,7 @@ THREE.ColladaLoader.prototype = {
 
           case 'rotate':
             var array = parseFloats(child.textContent);
-            var angle = THREE.Math.degToRad(array[3]);
+            var angle = THREE.MathUtils.degToRad(array[3]);
             data.matrix.multiply(matrix.makeRotationAxis(vector.fromArray(array), angle));
             data.transforms[child.getAttribute('sid')] = child.nodeName;
             break;
@@ -4601,7 +4601,7 @@ module.exports = THREE.FBXLoader = function () {
 
 						if (lightAttribute.InnerAngle !== undefined) {
 
-							angle = THREE.Math.degToRad(lightAttribute.InnerAngle.value);
+							angle = THREE.MathUtils.degToRad(lightAttribute.InnerAngle.value);
 						}
 
 						var penumbra = 0;
@@ -4610,7 +4610,7 @@ module.exports = THREE.FBXLoader = function () {
 							// TODO: this is not correct - FBX calculates outer and inner angle in degrees
 							// with OuterAngle > InnerAngle && OuterAngle <= Math.PI
 							// while three.js uses a penumbra between (0, 1) to attenuate the inner angle
-							penumbra = THREE.Math.degToRad(lightAttribute.OuterAngle.value);
+							penumbra = THREE.MathUtils.degToRad(lightAttribute.OuterAngle.value);
 							penumbra = Math.max(penumbra, 1);
 						}
 
@@ -5956,17 +5956,17 @@ module.exports = THREE.FBXLoader = function () {
 			if (curves.x !== undefined) {
 
 				this.interpolateRotations(curves.x);
-				curves.x.values = curves.x.values.map(THREE.Math.degToRad);
+				curves.x.values = curves.x.values.map(THREE.MathUtils.degToRad);
 			}
 			if (curves.y !== undefined) {
 
 				this.interpolateRotations(curves.y);
-				curves.y.values = curves.y.values.map(THREE.Math.degToRad);
+				curves.y.values = curves.y.values.map(THREE.MathUtils.degToRad);
 			}
 			if (curves.z !== undefined) {
 
 				this.interpolateRotations(curves.z);
-				curves.z.values = curves.z.values.map(THREE.Math.degToRad);
+				curves.z.values = curves.z.values.map(THREE.MathUtils.degToRad);
 			}
 
 			var times = this.getTimesForAllAxes(curves);
@@ -5974,7 +5974,7 @@ module.exports = THREE.FBXLoader = function () {
 
 			if (preRotations !== undefined) {
 
-				preRotations = preRotations.map(THREE.Math.degToRad);
+				preRotations = preRotations.map(THREE.MathUtils.degToRad);
 				preRotations.push('ZYX');
 
 				preRotations = new THREE.Euler().fromArray(preRotations);
@@ -5983,7 +5983,7 @@ module.exports = THREE.FBXLoader = function () {
 
 			if (postRotations !== undefined) {
 
-				postRotations = postRotations.map(THREE.Math.degToRad);
+				postRotations = postRotations.map(THREE.MathUtils.degToRad);
 				postRotations.push('ZYX');
 
 				postRotations = new THREE.Euler().fromArray(postRotations);
@@ -7084,14 +7084,14 @@ module.exports = THREE.FBXLoader = function () {
 
 		if (transformData.rotation) {
 
-			var array = transformData.rotation.map(THREE.Math.degToRad);
+			var array = transformData.rotation.map(THREE.MathUtils.degToRad);
 			array.push(order);
 			rotation.makeRotationFromEuler(tempEuler.fromArray(array));
 		}
 
 		if (transformData.preRotation) {
 
-			var array = transformData.preRotation.map(THREE.Math.degToRad);
+			var array = transformData.preRotation.map(THREE.MathUtils.degToRad);
 			array.push(order);
 			tempMat.makeRotationFromEuler(tempEuler.fromArray(array));
 
@@ -7100,7 +7100,7 @@ module.exports = THREE.FBXLoader = function () {
 
 		if (transformData.postRotation) {
 
-			var array = transformData.postRotation.map(THREE.Math.degToRad);
+			var array = transformData.postRotation.map(THREE.MathUtils.degToRad);
 			array.push(order);
 			tempMat.makeRotationFromEuler(tempEuler.fromArray(array));
 
@@ -44560,10 +44560,10 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Rotation
     var rotation = this.el.object3D.rotation;
     this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+    this.pitch.rotation.x = THREE.MathUtils.degToRad(rotation.x);
     this.yaw = new THREE.Object3D();
     this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
+    this.yaw.rotation.y = THREE.MathUtils.degToRad(rotation.y);
     this.yaw.add(this.pitch);
 
     this._lookVector = new THREE.Vector2();
@@ -45221,6 +45221,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
           vector2.set(dVelocity.x, dVelocity.z);
           vector2.setLength(factor * this.data.speed * 16.66667);
           velocity.x = vector2.x;
+          velocity.y = 0;
           velocity.z = vector2.y;
         }
       }
@@ -45633,9 +45634,9 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
         action.clampWhenFinished = data.clampWhenFinished;
         if (data.duration) action.setDuration(data.duration);
         if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
+        this.mixer.setTime(data.startFrame / 1000);
         action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
         this.activeActions.push(action);
-        this.mixer.setTime(data.startFrame / 1000);
       }
     }
   },

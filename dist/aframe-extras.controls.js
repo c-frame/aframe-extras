@@ -951,10 +951,10 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Rotation
     var rotation = this.el.object3D.rotation;
     this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+    this.pitch.rotation.x = THREE.MathUtils.degToRad(rotation.x);
     this.yaw = new THREE.Object3D();
     this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.Math.degToRad(rotation.y);
+    this.yaw.rotation.y = THREE.MathUtils.degToRad(rotation.y);
     this.yaw.add(this.pitch);
 
     this._lookVector = new THREE.Vector2();
@@ -1612,6 +1612,7 @@ module.exports = AFRAME.registerComponent('movement-controls', {
           vector2.set(dVelocity.x, dVelocity.z);
           vector2.setLength(factor * this.data.speed * 16.66667);
           velocity.x = vector2.x;
+          velocity.y = 0;
           velocity.z = vector2.y;
         }
       }
