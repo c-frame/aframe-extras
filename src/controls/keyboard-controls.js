@@ -84,7 +84,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   attachEventListeners: function () {
-    window.oncontextmenu = this.listeners.onContextMenu;
+    window.addEventListener("contextmenu", this.listeners.onContextMenu, false);
     window.addEventListener("keydown", this.listeners.keydown, false);
     window.addEventListener("keyup", this.listeners.keyup, false);
     window.addEventListener("blur", this.listeners.blur, false);
