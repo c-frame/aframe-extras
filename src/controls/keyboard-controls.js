@@ -41,7 +41,6 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
       blur: this.onBlur.bind(this),
       onContextMenu: this.onContextMenu.bind(this),
     };
-    this.attachEventListeners();
   },
 
   /*******************************************************************
@@ -77,10 +76,6 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
 
   pause: function () {
     this.removeEventListeners();
-  },
-
-  remove: function () {
-    this.pause();
   },
 
   attachEventListeners: function () {
