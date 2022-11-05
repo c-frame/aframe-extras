@@ -65,10 +65,10 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Rotation
     const rotation = this.el.object3D.rotation;
     this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.MathUtils.degToRad(rotation.x);
+    this.pitch.rotation.x = rotation.x;
     this.yaw = new THREE.Object3D();
     this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.MathUtils.degToRad(rotation.y);
+    this.yaw.rotation.y = rotation.y;
     this.yaw.add(this.pitch);
 
     this._lookVector = new THREE.Vector2();
