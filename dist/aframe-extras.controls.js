@@ -951,10 +951,10 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Rotation
     var rotation = this.el.object3D.rotation;
     this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.MathUtils.degToRad(rotation.x);
+    this.pitch.rotation.x = rotation.x;
     this.yaw = new THREE.Object3D();
     this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.MathUtils.degToRad(rotation.y);
+    this.yaw.rotation.y = rotation.y;
     this.yaw.add(this.pitch);
 
     this._lookVector = new THREE.Vector2();
@@ -1175,6 +1175,11 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    */
   getJoystick: function getJoystick(index, target) {
     var gamepad = this.getGamepad(index === Joystick.MOVEMENT ? Hand.LEFT : Hand.RIGHT);
+    // gamepad can be null here if it becomes disconnected even if isConnected() was called
+    // in the same tick before calling getJoystick.
+    if (!gamepad) {
+      return target.set(0, 0);
+    }
     if (gamepad.mapping === 'xr-standard') {
       // See: https://github.com/donmccurdy/aframe-extras/issues/307
       switch (index) {
@@ -1201,6 +1206,9 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    */
   getDpad: function getDpad(target) {
     var gamepad = this.getGamepad(Hand.LEFT);
+    if (!gamepad) {
+      return target.set(0, 0);
+    }
     if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
       return target.set(0, 0);
     }
@@ -1239,10 +1247,12 @@ require('./trackpad-controls');
 },{"./checkpoint-controls":5,"./gamepad-controls":6,"./keyboard-controls":8,"./movement-controls":9,"./touch-controls":10,"./trackpad-controls":11}],8:[function(require,module,exports){
 'use strict';
 
+/* global AFRAME, THREE */
+/* eslint-disable no-prototype-builtins */
+
 require('../../lib/keyboard.polyfill');
 
-var MAX_DELTA = 0.2,
-    PROXY_FLAG = '__keyboard-controls-proxy';
+var PROXY_FLAG = '__keyboard-controls-proxy';
 
 var KeyboardEvent = window.KeyboardEvent;
 
@@ -1281,7 +1291,6 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
       blur: this.onBlur.bind(this),
       onContextMenu: this.onContextMenu.bind(this)
     };
-    this.attachEventListeners();
   },
 
   /*******************************************************************
@@ -1293,8 +1302,8 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   getVelocityDelta: function getVelocityDelta() {
-    var data = this.data,
-        keys = this.getKeys();
+    var data = this.data;
+    var keys = this.getKeys();
 
     this.dVelocity.set(0, 0, 0);
     if (data.enabled) {
@@ -1327,12 +1336,8 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
     this.removeEventListeners();
   },
 
-  remove: function remove() {
-    this.pause();
-  },
-
   attachEventListeners: function attachEventListeners() {
-    window.oncontextmenu = this.listeners.onContextMenu;
+    window.addEventListener("contextmenu", this.listeners.onContextMenu, false);
     window.addEventListener("keydown", this.listeners.keydown, false);
     window.addEventListener("keyup", this.listeners.keyup, false);
     window.addEventListener("blur", this.listeners.blur, false);
