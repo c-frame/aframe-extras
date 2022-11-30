@@ -1,7 +1,8 @@
+/* global AFRAME, THREE */
+/* eslint-disable no-prototype-builtins */
 require('../../lib/keyboard.polyfill');
 
-const MAX_DELTA = 0.2,
-    PROXY_FLAG = '__keyboard-controls-proxy';
+const PROXY_FLAG = '__keyboard-controls-proxy';
 
 const KeyboardEvent = window.KeyboardEvent;
 
@@ -40,7 +41,6 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
       blur: this.onBlur.bind(this),
       onContextMenu: this.onContextMenu.bind(this),
     };
-    this.attachEventListeners();
   },
 
   /*******************************************************************
@@ -52,8 +52,8 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   getVelocityDelta: function () {
-    const data = this.data,
-        keys = this.getKeys();
+    const data = this.data;
+    const keys = this.getKeys();
 
     this.dVelocity.set(0, 0, 0);
     if (data.enabled) {
@@ -78,19 +78,15 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
     this.removeEventListeners();
   },
 
-  remove: function () {
-    this.pause();
-  },
-
   attachEventListeners: function () {
-    window.oncontextmenu = this.listeners.onContextMenu;
+    window.addEventListener("contextmenu", this.listeners.onContextMenu, false);
     window.addEventListener("keydown", this.listeners.keydown, false);
     window.addEventListener("keyup", this.listeners.keyup, false);
     window.addEventListener("blur", this.listeners.blur, false);
   },
 
   onContextMenu: function () {
-    for (let code in this.localKeys) {
+    for (const code in this.localKeys) {
       if (this.localKeys.hasOwnProperty(code)) {
         delete this.localKeys[code];
       }
@@ -118,7 +114,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
   },
 
   onBlur: function () {
-    for (let code in this.localKeys) {
+    for (const code in this.localKeys) {
       if (this.localKeys.hasOwnProperty(code)) {
         delete this.localKeys[code];
       }

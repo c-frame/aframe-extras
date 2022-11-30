@@ -65,10 +65,10 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Rotation
     const rotation = this.el.object3D.rotation;
     this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = THREE.MathUtils.degToRad(rotation.x);
+    this.pitch.rotation.x = rotation.x;
     this.yaw = new THREE.Object3D();
     this.yaw.position.y = 10;
-    this.yaw.rotation.y = THREE.MathUtils.degToRad(rotation.y);
+    this.yaw.rotation.y = rotation.y;
     this.yaw.add(this.pitch);
 
     this._lookVector = new THREE.Vector2();
@@ -292,6 +292,11 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    */
   getJoystick: function (index, target) {
     const gamepad = this.getGamepad(index === Joystick.MOVEMENT ? Hand.LEFT : Hand.RIGHT);
+    // gamepad can be null here if it becomes disconnected even if isConnected() was called
+    // in the same tick before calling getJoystick.
+    if (!gamepad) {
+      return target.set(0, 0);
+    }
     if (gamepad.mapping === 'xr-standard') {
       // See: https://github.com/donmccurdy/aframe-extras/issues/307
       switch (index) {
@@ -314,6 +319,9 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
    */
   getDpad: function (target) {
     const gamepad = this.getGamepad(Hand.LEFT);
+    if (!gamepad) {
+      return target.set(0, 0);
+    }
     if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
       return target.set(0, 0);
     }
