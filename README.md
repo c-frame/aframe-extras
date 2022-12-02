@@ -16,7 +16,6 @@ src
 │   ├── checkpoint-controls.js
 │   ├── gamepad-controls.js
 │   ├── keyboard-controls.js
-│   ├── mouse-controls.js
 │   ├── touch-controls.js
 │   └── trackpad-controls.js
 ├── <b>loaders/</b> (<a href="/src/loaders">Documentation</a>)
