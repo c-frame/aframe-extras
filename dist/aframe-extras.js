@@ -47072,17 +47072,16 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
    * not guaranteed to have parsed when this component is initialized.
    */
   play: function play() {
-    var el = this.el,
-        data = this.data;
+    var el = this.el;
+    var data = this.data;
     var material = el.components.material;
 
     var geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
-    geometry.mergeVertices();
     this.waves = [];
-    for (var v, i = 0, l = geometry.vertices.length; i < l; i++) {
-      v = geometry.vertices[i];
+    var posAttribute = geometry.getAttribute('position');
+    for (var i = 0; i < posAttribute.count; i++) {
       this.waves.push({
-        z: v.z,
+        z: posAttribute.getZ(i),
         ang: Math.random() * Math.PI * 2,
         amp: data.amplitude + Math.random() * data.amplitudeVariance,
         speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
@@ -47095,7 +47094,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
         color: data.color,
         transparent: data.opacity < 1,
         opacity: data.opacity,
-        shading: THREE.FlatShading
+        flatShading: true
       });
     }
 
@@ -47110,13 +47109,14 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   tick: function tick(t, dt) {
     if (!dt) return;
 
-    var verts = this.mesh.geometry.vertices;
-    for (var v, vprops, i = 0; v = verts[i]; i++) {
-      vprops = this.waves[i];
-      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+    var posAttribute = this.mesh.geometry.getAttribute('position');
+    for (var i = 0; i < posAttribute.count; i++) {
+      var vprops = this.waves[i];
+      var value = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+      posAttribute.setZ(i, value);
       vprops.ang += vprops.speed * dt;
     }
-    this.mesh.geometry.verticesNeedUpdate = true;
+    posAttribute.needsUpdate = true;
   }
 });
 
