@@ -9,6 +9,9 @@ Extensible movement/rotation/hotkey controls, with support for a variety of inpu
   + **trackpad-controls**: Trackpad-based movement.
 - **checkpoint-controls**: Move to checkpoints created with the `checkpoint` component. *Not included by default with `movement-controls`, but may be added as shown in examples.*
 
+For the Cardboard button, this was recently tested and working on both Chrome Android and Safari iPhone with aframe master commit bfd1561 Dec 2, 2022 (before aframe 1.4.0 was released).
+On iPhone you need `≤a-scene vr-mode-ui="cardboardModeEnabled:true">` for the VR button to show up.
+
 ## Usage
 
 The `movement-controls` component requires the use of a camera "rig" wrapping the camera element. The rig may be assigned any position within your scene, and should be placed at ground level. The camera should only have height offset (used for devices without positional tracking) such as `0 1.6 0`.
