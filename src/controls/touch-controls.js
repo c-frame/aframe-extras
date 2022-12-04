@@ -37,6 +37,7 @@ module.exports = AFRAME.registerComponent('touch-controls', {
 
     canvasEl.addEventListener('touchstart', this.onTouchStart);
     canvasEl.addEventListener('touchend', this.onTouchEnd);
+    sceneEl.addEventListener('enter-vr', this.onEnterVR)
   },
 
   removeEventListeners: function () {
@@ -45,6 +46,7 @@ module.exports = AFRAME.registerComponent('touch-controls', {
 
     canvasEl.removeEventListener('touchstart', this.onTouchStart);
     canvasEl.removeEventListener('touchend', this.onTouchEnd);
+    this.el.sceneEl.removeEventListener('enter-vr', this.onEnterVR)
   },
 
   isVelocityActive: function () {
@@ -59,11 +61,12 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   bindMethods: function () {
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onEnterVR = this.onEnterVR.bind(this);
   },
 
   onTouchStart: function (e) {
     this.direction = -1;
-    if (this.data.reverseEnabled && e.touches.length === 2) {
+    if (this.data.reverseEnabled && e.touches && e.touches.length === 2) {
       this.direction = 1;
     }
     e.preventDefault();
@@ -72,5 +75,13 @@ module.exports = AFRAME.registerComponent('touch-controls', {
   onTouchEnd: function (e) {
     this.direction = 0;
     e.preventDefault();
+  },
+
+  onEnterVR: function () {
+    // This is to make the Cardboard button on Chrome Android working
+    const xrSession = this.el.sceneEl.xrSession;
+    if (!xrSession) { return; }
+    xrSession.addEventListener('selectstart', this.onTouchStart);
+    xrSession.addEventListener('selectend', this.onTouchEnd);
   }
 });
