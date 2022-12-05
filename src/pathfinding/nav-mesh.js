@@ -4,7 +4,7 @@
  * Waits for a mesh to be loaded on the current entity, then sets it as the
  * nav mesh in the pathfinding system.
  */
- module.exports = AFRAME.registerComponent('nav-mesh', {
+module.exports = AFRAME.registerComponent('nav-mesh', {
   schema: {
     nodeName: {type: 'string'}
   },
@@ -35,8 +35,10 @@
 
     if (!navMesh) return;
 
+    const navMeshGeometry = navMesh.geometry.clone();
     scene.updateMatrixWorld();
-    this.system.setNavMeshGeometry(navMesh.geometry);
+    navMeshGeometry.applyMatrix4(navMesh.matrixWorld);
+    this.system.setNavMeshGeometry(navMeshGeometry);
     this.hasLoadedNavMesh = true;
   }
 });

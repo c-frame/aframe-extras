@@ -69,7 +69,7 @@ AFRAME.registerComponent('not-mobile',  {
       <a-entity id="rig"
                 movement-controls="constrainToNavMesh: true;
                                    controls: checkpoint, gamepad, trackpad, keyboard, touch;"
-                position="-7 0 1">
+                position="-7 0 21">
         <a-entity camera
                   position="0 1.6 0"
                   look-controls="pointerLockEnabled: true">
@@ -101,10 +101,11 @@ AFRAME.registerComponent('not-mobile',  {
       <a-entity nav-mesh
                 normal-material
                 visible="false"
+                position="0 0 20"
                 gltf-model="#navmesh"></a-entity>
 
       <!-- Scene. -->
-      <a-entity position="0 0 0"
+      <a-entity position="0 0 20"
                 scale="3 3 3"
                 gltf-model="#castle">
       </a-entity>
