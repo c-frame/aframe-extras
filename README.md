@@ -2,7 +2,6 @@
 
 [![Latest NPM release](https://img.shields.io/npm/v/aframe-extras.svg)](https://www.npmjs.com/package/aframe-extras)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/donmccurdy/aframe-extras/master/LICENSE)
-[![Build Status](https://travis-ci.org/donmccurdy/aframe-extras.svg?branch=master)](https://travis-ci.org/donmccurdy/aframe-extras)
 
 Add-ons and helpers for A-Frame VR.
 
@@ -69,7 +68,7 @@ For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full 
 | v0.3.X   | */v2.6.1             |
 | v0.2.X   | */v1.17.0            |
 
-> **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/donmccurdy/aframe-physics-system).
+> **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/c-frame/aframe-physics-system).
 
 ## Usage (NPM)
 
