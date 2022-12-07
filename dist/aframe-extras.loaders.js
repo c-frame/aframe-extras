@@ -7281,7 +7281,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
     loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
     repetitions: { default: Infinity, min: 0 },
     timeScale: { default: 1 },
-    startFrame: { default: 0 }
+    startAt: { default: 0 }
   },
 
   init: function init() {
@@ -7379,7 +7379,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
         action.clampWhenFinished = data.clampWhenFinished;
         if (data.duration) action.setDuration(data.duration);
         if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
-        this.mixer.setTime(data.startFrame / 1000);
+        this.mixer.setTime(data.startAt / 1000);
         action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
         this.activeActions.push(action);
       }
