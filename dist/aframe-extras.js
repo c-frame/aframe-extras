@@ -45277,7 +45277,10 @@ module.exports = AFRAME.registerComponent('touch-controls', {
 
     canvasEl.addEventListener('touchstart', this.onTouchStart);
     canvasEl.addEventListener('touchend', this.onTouchEnd);
-    sceneEl.addEventListener('enter-vr', this.onEnterVR);
+    var vrModeUI = sceneEl.getAttribute('vr-mode-ui');
+    if (vrModeUI && vrModeUI.cardboardModeEnabled) {
+      sceneEl.addEventListener('enter-vr', this.onEnterVR);
+    }
   },
 
   removeEventListeners: function removeEventListeners() {
