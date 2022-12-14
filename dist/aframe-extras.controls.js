@@ -924,9 +924,6 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Enable/disable gamepad-controls
     enabled: { default: true },
 
-    // Heading element for rotation
-    camera: { default: '[camera]', type: 'selector' },
-
     // Rotation sensitivity
     rotationSensitivity: { default: 2.0 }
   },
@@ -1046,14 +1043,11 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     var data = this.data;
     var yaw = this.yaw;
     var pitch = this.pitch;
-    var lookControls = data.camera.components['look-controls'];
-    var hasLookControls = lookControls && lookControls.pitchObject && lookControls.yawObject;
 
-    // Sync with look-controls pitch/yaw if available.
-    if (hasLookControls) {
-      pitch.rotation.copy(lookControls.pitchObject.rotation);
-      yaw.rotation.copy(lookControls.yawObject.rotation);
-    }
+    // First copy camera rig pitch/yaw, it may have been changed from
+    // another component.
+    yaw.rotation.y = this.el.object3D.rotation.y;
+    pitch.rotation.x = this.el.object3D.rotation.x;
 
     var lookVector = this._lookVector;
 
@@ -1067,12 +1061,6 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     pitch.rotation.x -= lookVector.y;
     pitch.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
     this.el.object3D.rotation.set(pitch.rotation.x, yaw.rotation.y, 0);
-
-    // Sync with look-controls pitch/yaw if available.
-    if (hasLookControls) {
-      lookControls.pitchObject.rotation.copy(pitch.rotation);
-      lookControls.yawObject.rotation.copy(yaw.rotation);
-    }
   },
 
   /*******************************************************************
