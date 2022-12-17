@@ -126,7 +126,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
       }
       // use max of scale factors to maintain bounding sphere collision
       function scaleFactor (scaleVec) {
-        return Math.max.apply(null, scaleVec.toArray());
+        return Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
       }
     };
   })(),
