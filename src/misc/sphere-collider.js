@@ -28,10 +28,6 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     this.handleHitEnd = this.handleHitEnd.bind(this);
   },
 
-  remove: function () {
-    this.pause();
-  },
-
   play: function () {
     const sceneEl = this.el.sceneEl;
 
