@@ -24,6 +24,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     /** @type {Array<Element>} Elements currently in collision state. */
     this.collisions = [];
 
+    this.eventDetail = {};
     this.handleHit = this.handleHit.bind(this);
     this.handleHitEnd = this.handleHitEnd.bind(this);
   },
@@ -68,16 +69,17 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         colliderScale = new THREE.Vector3(),
         size = new THREE.Vector3(),
         box = new THREE.Box3(),
+        collisions = [],
         distanceMap = new Map();
     return function () {
       const el = this.el,
           data = this.data,
-          mesh = el.getObject3D('mesh'),
-          collisions = [];
+          mesh = el.getObject3D('mesh');
       let colliderRadius;
 
       if (!mesh) { return; }
 
+      collisions.length = 0;
       distanceMap.clear();
       el.object3D.getWorldPosition(position);
       el.object3D.getWorldScale(colliderScale);
@@ -91,7 +93,10 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         .forEach(this.handleHit);
 
       // Remove collision state from current element.
-      if (collisions.length === 0) { el.emit('hit', {el: null}); }
+      if (collisions.length === 0) {
+        this.eventDetail.el = null;
+        el.emit('hit', this.eventDetail);
+      }
 
       // Remove collision state from other elements.
       this.collisions
@@ -99,7 +104,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         .forEach(this.handleHitEnd);
 
       // Store new collisions
-      this.collisions = collisions;
+      copyArray(this.collisions, collisions);
 
       // Bounding sphere collision detection
       function intersect (el) {
@@ -134,11 +139,18 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   handleHit: function (targetEl) {
     targetEl.emit('hit');
     targetEl.addState(this.data.state);
-    this.el.emit('hit', {el: targetEl});
+    this.eventDetail.el = targetEl;
+    this.el.emit('hit', this.eventDetail);
   },
   handleHitEnd: function (targetEl) {
     targetEl.emit('hitend');
     targetEl.removeState(this.data.state);
-    this.el.emit('hitend', {el: targetEl});
+    this.eventDetail.el = targetEl;
+    this.el.emit('hitend', this.eventDetail);
   }
 });
+
+function copyArray (dest, source) {
+  dest.length = 0;
+  for (let i = 0; i < source.length; i++) { dest[i] = source[i]; }
+}
