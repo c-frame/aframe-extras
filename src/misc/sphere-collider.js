@@ -100,12 +100,6 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         .sort((a, b) => distanceMap.get(a) > distanceMap.get(b) ? 1 : -1)
         .forEach(this.handleHit);
 
-      // Remove collision state from current element.
-      if (collisions.length === 0) {
-        this.eventDetail.el = null;
-        el.emit('hit', this.eventDetail);
-      }
-
       // Remove collision state from other elements.
       this.collisions
         .filter((el) => !distanceMap.has(el))
