@@ -10,6 +10,7 @@
  */
 module.exports = AFRAME.registerComponent('sphere-collider', {
   schema: {
+    interval: {default: 80},
     objects: {default: ''},
     state: {default: 'collided'},
     radius: {default: 0.05},
@@ -23,6 +24,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     this.els = [];
     /** @type {Array<Element>} Elements currently in collision state. */
     this.collisions = [];
+    this.prevCheckTime = undefined;
 
     this.eventDetail = {};
     this.handleHit = this.handleHit.bind(this);
@@ -71,7 +73,13 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         box = new THREE.Box3(),
         collisions = [],
         distanceMap = new Map();
-    return function () {
+    return function (time) {
+      // Only check for intersection if interval time has passed.
+      const prevCheckTime = this.prevCheckTime;
+      if (prevCheckTime && (time - prevCheckTime < this.data.interval)) { return; }
+      // Update check time.
+      this.prevCheckTime = time;
+
       const el = this.el,
           data = this.data,
           mesh = el.getObject3D('mesh');
