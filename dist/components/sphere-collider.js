@@ -19,6 +19,8 @@ require('./src/misc/sphere-collider');
 
 module.exports = AFRAME.registerComponent('sphere-collider', {
   schema: {
+    enabled: { default: true },
+    interval: { default: 80 },
     objects: { default: '' },
     state: { default: 'collided' },
     radius: { default: 0.05 },
@@ -32,13 +34,11 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     this.els = [];
     /** @type {Array<Element>} Elements currently in collision state. */
     this.collisions = [];
+    this.prevCheckTime = undefined;
 
+    this.eventDetail = {};
     this.handleHit = this.handleHit.bind(this);
     this.handleHitEnd = this.handleHitEnd.bind(this);
-  },
-
-  remove: function remove() {
-    this.pause();
   },
 
   play: function play() {
@@ -81,18 +81,31 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         colliderScale = new THREE.Vector3(),
         size = new THREE.Vector3(),
         box = new THREE.Box3(),
+        collisions = [],
         distanceMap = new Map();
-    return function () {
+    return function (time) {
+      if (!this.data.enabled) {
+        return;
+      }
+
+      // Only check for intersection if interval time has passed.
+      var prevCheckTime = this.prevCheckTime;
+      if (prevCheckTime && time - prevCheckTime < this.data.interval) {
+        return;
+      }
+      // Update check time.
+      this.prevCheckTime = time;
+
       var el = this.el,
           data = this.data,
-          mesh = el.getObject3D('mesh'),
-          collisions = [];
+          mesh = el.getObject3D('mesh');
       var colliderRadius = void 0;
 
       if (!mesh) {
         return;
       }
 
+      collisions.length = 0;
       distanceMap.clear();
       el.object3D.getWorldPosition(position);
       el.object3D.getWorldScale(colliderScale);
@@ -105,18 +118,13 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
       }).forEach(this.handleHit);
 
-      // Remove collision state from current element.
-      if (collisions.length === 0) {
-        el.emit('hit', { el: null });
-      }
-
       // Remove collision state from other elements.
       this.collisions.filter(function (el) {
         return !distanceMap.has(el);
       }).forEach(this.handleHitEnd);
 
       // Store new collisions
-      this.collisions = collisions;
+      copyArray(this.collisions, collisions);
 
       // Bounding sphere collision detection
       function intersect(el) {
@@ -152,7 +160,7 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
       }
       // use max of scale factors to maintain bounding sphere collision
       function scaleFactor(scaleVec) {
-        return Math.max.apply(null, scaleVec.toArray());
+        return Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
       }
     };
   }(),
@@ -160,13 +168,22 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   handleHit: function handleHit(targetEl) {
     targetEl.emit('hit');
     targetEl.addState(this.data.state);
-    this.el.emit('hit', { el: targetEl });
+    this.eventDetail.el = targetEl;
+    this.el.emit('hit', this.eventDetail);
   },
   handleHitEnd: function handleHitEnd(targetEl) {
     targetEl.emit('hitend');
     targetEl.removeState(this.data.state);
-    this.el.emit('hitend', { el: targetEl });
+    this.eventDetail.el = targetEl;
+    this.el.emit('hitend', this.eventDetail);
   }
 });
+
+function copyArray(dest, source) {
+  dest.length = 0;
+  for (var i = 0; i < source.length; i++) {
+    dest[i] = source[i];
+  }
+}
 
 },{}]},{},[1]);
