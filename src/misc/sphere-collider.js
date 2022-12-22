@@ -10,6 +10,7 @@
  */
 module.exports = AFRAME.registerComponent('sphere-collider', {
   schema: {
+    enabled: {default: true},
     interval: {default: 80},
     objects: {default: ''},
     state: {default: 'collided'},
@@ -74,6 +75,8 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         collisions = [],
         distanceMap = new Map();
     return function (time) {
+      if (!this.data.enabled) { return; }
+
       // Only check for intersection if interval time has passed.
       const prevCheckTime = this.prevCheckTime;
       if (prevCheckTime && (time - prevCheckTime < this.data.interval)) { return; }
