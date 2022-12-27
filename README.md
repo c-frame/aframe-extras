@@ -1,7 +1,7 @@
 # A-Frame Extras
 
 [![Latest NPM release](https://img.shields.io/npm/v/aframe-extras.svg)](https://www.npmjs.com/package/aframe-extras)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/donmccurdy/aframe-extras/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/n5ro/aframe-extras/master/LICENSE)
 
 Add-ons and helpers for A-Frame VR.
 
@@ -44,29 +44,29 @@ src
 
 ## Usage (Scripts)
 
-In the [dist/](https://github.com/donmccurdy/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
+In the [dist/](https://github.com/n5ro/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@tagOrCommit/dist/aframe-extras.min.js"></script>
 ```
 
-CDN builds for aframe-extras/v6.0.0:
+replace `tagOrCommit` by a tag (for example `v6.1.1`) or a commit hash (for example `fb96ab2`):
 
-- [aframe-extras.js](https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js) *(production)*
+CDN builds of the latest version:
+
+- [aframe-extras.js](https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@fb96ab2/dist/aframe-extras.js) *(development)*
+- [aframe-extras.min.js](https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@fb96ab2/dist/aframe-extras.min.js) *(production)*
 
 For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full list of packages above.
 
 **A-Frame Version Compatibility**
 
-| A-Frame  | Extras               |
-|----------|----------------------|
-| v0.9.X   | aframe-extras/v6.0.0 |
-| v0.8.X   | */v5.1.0             |
-| v0.5.X   | */v3.13.1            |
-| v0.4.X   | */v3.3.0             |
-| v0.3.X   | */v2.6.1             |
-| v0.2.X   | */v1.17.0            |
+| A-Frame  | Extras                        |
+|----------|-------------------------------|
+| v1.4.0   | v6.2.0 (unreleased) / fb96ab2 |
+| v1.3.0   | v6.2.0 (unreleased) / fb96ab2 |
+| v1.2.0   | v6.2.0 (unreleased) / fb96ab2 |
+| v1.1.0   | v6.1.1                        |
 
 > **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/c-frame/aframe-physics-system).
 
@@ -81,11 +81,4 @@ npm install --save aframe-extras
 require('aframe-extras');
 ```
 
-Once installed, you'll need to compile your JavaScript using something like [Browserify](http://browserify.org/) or [Webpack](http://webpack.github.io/). Example:
-
-```bash
-npm install -g browserify
-browserify index.js -o bundle.js
-```
-
-`bundle.js` may then be included in your page. See [here](http://browserify.org/#middle-section) for a better introduction to Browserify.
+Once installed, you'll need to compile your JavaScript using something like [webpack](https://webpack.js.org).
