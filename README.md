@@ -1,7 +1,7 @@
 # A-Frame Extras
 
 [![Latest NPM release](https://img.shields.io/npm/v/aframe-extras.svg)](https://www.npmjs.com/package/aframe-extras)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/n5ro/aframe-extras/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/c-frame/aframe-extras/master/LICENSE)
 
 Add-ons and helpers for A-Frame VR.
 
@@ -44,18 +44,18 @@ src
 
 ## Usage (Scripts)
 
-In the [dist/](https://github.com/n5ro/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
+In the [dist/](https://github.com/c-frame/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@tagOrCommit/dist/aframe-extras.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@tagOrCommit/dist/aframe-extras.min.js"></script>
 ```
 
 replace `tagOrCommit` by a tag (for example `v6.1.1`) or a commit hash (for example `fb96ab2`):
 
 CDN builds of the latest version:
 
-- [aframe-extras.js](https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@fb96ab2/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@fb96ab2/dist/aframe-extras.min.js) *(production)*
+- [aframe-extras.js](https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@fb96ab2/dist/aframe-extras.js) *(development)*
+- [aframe-extras.min.js](https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@fb96ab2/dist/aframe-extras.min.js) *(production)*
 
 For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full list of packages above.
 
