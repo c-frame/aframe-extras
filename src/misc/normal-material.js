@@ -8,6 +8,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
     this.material = new THREE.MeshNormalMaterial({flatShading: true});
     this.applyMaterial = this.applyMaterial.bind(this);
     this.el.addEventListener('object3dset', this.applyMaterial);
+    this.applyMaterial();
   },
 
   remove: function () {
