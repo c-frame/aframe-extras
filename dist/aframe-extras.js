@@ -12,7 +12,7 @@ require('./src/misc');
 require('./src/pathfinding');
 require('./src/primitives');
 
-},{"./src/controls":15,"./src/loaders":24,"./src/misc":29,"./src/pathfinding":33,"./src/primitives":41}],3:[function(require,module,exports){
+},{"./src/controls":15,"./src/loaders":24,"./src/misc":28,"./src/pathfinding":32,"./src/primitives":40}],3:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45943,143 +45943,6 @@ module.exports = AFRAME.registerComponent('checkpoint', {
 },{}],27:[function(require,module,exports){
 'use strict';
 
-/**
- * @param  {Array<THREE.Material>|THREE.Material} material
- * @return {Array<THREE.Material>}
- */
-
-function ensureMaterialArray(material) {
-  if (!material) {
-    return [];
-  } else if (Array.isArray(material)) {
-    return material;
-  } else if (material.materials) {
-    return material.materials;
-  } else {
-    return [material];
-  }
-}
-
-/**
- * @param  {THREE.Object3D} mesh
- * @param  {Array<string>} materialNames
- * @param  {THREE.Texture} envMap
- * @param  {number} reflectivity  [description]
- */
-function applyEnvMap(mesh, materialNames, envMap, reflectivity) {
-  if (!mesh) return;
-
-  materialNames = materialNames || [];
-
-  mesh.traverse(function (node) {
-
-    if (!node.isMesh) return;
-
-    var meshMaterials = ensureMaterialArray(node.material);
-
-    meshMaterials.forEach(function (material) {
-
-      if (material && !('envMap' in material)) return;
-      if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
-
-      material.envMap = envMap;
-      material.reflectivity = reflectivity;
-      material.needsUpdate = true;
-    });
-  });
-}
-
-/**
- * Specifies an envMap on an entity, without replacing any existing material
- * properties.
- */
-module.exports = AFRAME.registerComponent('cube-env-map', {
-  multiple: true,
-
-  schema: {
-    path: { default: '' },
-    extension: { default: 'jpg', oneOf: ['jpg', 'png'] },
-    format: { default: 'RGBFormat', oneOf: ['RGBFormat', 'RGBAFormat'] },
-    enableBackground: { default: false },
-    reflectivity: { default: 1, min: 0, max: 1 },
-    materials: { default: [] }
-  },
-
-  init: function init() {
-    var _this = this;
-
-    var data = this.data;
-
-    this.texture = new THREE.CubeTextureLoader().load([data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension, data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension, data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension]);
-    this.texture.format = THREE[data.format];
-
-    this.object3dsetHandler = function () {
-      var mesh = _this.el.getObject3D('mesh');
-      var data = _this.data;
-      applyEnvMap(mesh, data.materials, _this.texture, data.reflectivity);
-    };
-    this.el.addEventListener('object3dset', this.object3dsetHandler);
-  },
-
-  update: function update(oldData) {
-    var data = this.data;
-    var mesh = this.el.getObject3D('mesh');
-
-    var addedMaterialNames = [];
-    var removedMaterialNames = [];
-
-    if (data.materials.length) {
-      if (oldData.materials) {
-        addedMaterialNames = data.materials.filter(function (name) {
-          return !oldData.materials.includes(name);
-        });
-        removedMaterialNames = oldData.materials.filter(function (name) {
-          return !data.materials.includes(name);
-        });
-      } else {
-        addedMaterialNames = data.materials;
-      }
-    }
-    if (addedMaterialNames.length) {
-      applyEnvMap(mesh, addedMaterialNames, this.texture, data.reflectivity);
-    }
-    if (removedMaterialNames.length) {
-      applyEnvMap(mesh, removedMaterialNames, null, 1);
-    }
-
-    if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
-      var maintainedMaterialNames = data.materials.filter(function (name) {
-        return oldData.materials.includes(name);
-      });
-      if (maintainedMaterialNames.length) {
-        applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
-      }
-    }
-
-    if (this.data.enableBackground && !oldData.enableBackground) {
-      this.setBackground(this.texture);
-    } else if (!this.data.enableBackground && oldData.enableBackground) {
-      this.setBackground(null);
-    }
-  },
-
-  remove: function remove() {
-    this.el.removeEventListener('object3dset', this.object3dsetHandler);
-    var mesh = this.el.getObject3D('mesh');
-    var data = this.data;
-
-    applyEnvMap(mesh, data.materials, null, 1);
-    if (data.enableBackground) this.setBackground(null);
-  },
-
-  setBackground: function setBackground(texture) {
-    this.el.sceneEl.object3D.background = texture;
-  }
-});
-
-},{}],28:[function(require,module,exports){
-'use strict';
-
 /* global CANNON */
 
 /**
@@ -46160,17 +46023,16 @@ module.exports = AFRAME.registerComponent('grab', {
   }
 });
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 require('./checkpoint');
-require('./cube-env-map');
 require('./grab');
 require('./mesh-smooth');
 require('./normal-material');
 require('./sphere-collider');
 
-},{"./checkpoint":26,"./cube-env-map":27,"./grab":28,"./mesh-smooth":30,"./normal-material":31,"./sphere-collider":32}],30:[function(require,module,exports){
+},{"./checkpoint":26,"./grab":27,"./mesh-smooth":29,"./normal-material":30,"./sphere-collider":31}],29:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46188,7 +46050,7 @@ module.exports = AFRAME.registerComponent('mesh-smooth', {
   }
 });
 
-},{}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46217,7 +46079,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
   }
 });
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46400,14 +46262,14 @@ function copyArray(dest, source) {
   }
 }
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 require('./nav-mesh');
 require('./nav-agent');
 require('./system');
 
-},{"./nav-agent":34,"./nav-mesh":35,"./system":36}],34:[function(require,module,exports){
+},{"./nav-agent":33,"./nav-mesh":34,"./system":35}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = AFRAME.registerComponent('nav-agent', {
@@ -46513,7 +46375,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
   }()
 });
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46561,7 +46423,7 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
   }
 });
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 var _require = require('three-pathfinding'),
@@ -46660,7 +46522,7 @@ module.exports = AFRAME.registerSystem('nav', {
   }
 });
 
-},{"three-pathfinding":11}],37:[function(require,module,exports){
+},{"three-pathfinding":11}],36:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46689,7 +46551,7 @@ module.exports = AFRAME.registerPrimitive('a-grid', {
   }
 });
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 var vg = require('../../lib/hex-grid.min.js');
@@ -46749,7 +46611,7 @@ module.exports.Component = AFRAME.registerComponent('hexgrid', {
   }
 });
 
-},{"../../lib/default-hex-grid":7,"../../lib/hex-grid.min.js":9}],39:[function(require,module,exports){
+},{"../../lib/default-hex-grid":7,"../../lib/hex-grid.min.js":9}],38:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46852,7 +46714,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   }
 });
 
-},{}],40:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46924,7 +46786,7 @@ module.exports.Component = AFRAME.registerComponent('tube', {
   }
 });
 
-},{}],41:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 require('./a-grid');
@@ -46932,4 +46794,4 @@ require('./a-hexgrid');
 require('./a-ocean');
 require('./a-tube');
 
-},{"./a-grid":37,"./a-hexgrid":38,"./a-ocean":39,"./a-tube":40}]},{},[1]);
+},{"./a-grid":36,"./a-hexgrid":37,"./a-ocean":38,"./a-tube":39}]},{},[1]);
