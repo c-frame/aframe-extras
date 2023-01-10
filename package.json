@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "budo --live --port=8080 index.js:examples/bundle.js -- -t [ babelify --presets [ env ] ]",
     "build": "browserify index.js -o examples/bundle.js -t [ babelify --presets [ env ] ]",
-    "dist": "./scripts/dist.js",
+    "dist": "node ./scripts/dist.js",
     "test": "karma start ./tests/karma.conf.js",
     "test:once": "karma start ./tests/karma.conf.js --single-run",
     "test:firefox": "karma start ./tests/karma.conf.js --browsers Firefox",
