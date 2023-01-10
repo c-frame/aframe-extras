@@ -3,7 +3,7 @@
 
 require('./src/primitives');
 
-},{"./src/primitives":6}],2:[function(require,module,exports){
+},{"./src/primitives":5}],2:[function(require,module,exports){
 'use strict';
 
 /**
@@ -33,9 +33,6 @@ module.exports = AFRAME.registerPrimitive('a-grid', {
 });
 
 },{}],3:[function(require,module,exports){
-"use strict";
-
-},{}],4:[function(require,module,exports){
 'use strict';
 
 /**
@@ -138,7 +135,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   }
 });
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 /**
@@ -210,12 +207,11 @@ module.exports.Component = AFRAME.registerComponent('tube', {
   }
 });
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 require('./a-grid');
-require('./a-hexgrid');
 require('./a-ocean');
 require('./a-tube');
 
-},{"./a-grid":2,"./a-hexgrid":3,"./a-ocean":4,"./a-tube":5}]},{},[1]);
+},{"./a-grid":2,"./a-ocean":3,"./a-tube":4}]},{},[1]);
