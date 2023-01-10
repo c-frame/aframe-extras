@@ -27,8 +27,6 @@ src
 │   ├── checkpoint.js
 │   ├── cube-env-map.js
 │   ├── grab.js
-│   ├── jump-ability.js
-│   ├── kinematic-body.js       <sub><img alt="Deprecated" src="https://img.shields.io/badge/status-deprecated-orange.svg"></sub>
 │   ├── mesh-smooth.js
 │   ├── normal-material.js
 │   └── sphere-collider.js
@@ -82,3 +80,16 @@ require('aframe-extras');
 ```
 
 Once installed, you'll need to compile your JavaScript using something like [webpack](https://webpack.js.org).
+
+
+
+## Deprecated Components
+
+The following components existed in previous versions of A-Frame Extras, but have been removed as of 6.2.0
+
+| Component        | Removed in | Reasons                                                      |
+| ---------------- | ---------- | ------------------------------------------------------------ |
+| `kinematic-body` | 6.2.0      | Using physics for movement is unstable and performs poorly. When preventing players from passing through obstacles, use a navigation mesh instead whenever possible.<br /><br />The `kinematic-body` component constrainted player movement using physics, and depended on [aframe-physics-system](http://github.com/donmccurdy/aframe-physics-system/). Using physics for locomotion is not VR-friendly, and often glitchy even for traditional 3D experiences. [Use a navigation mesh](https://github.com/donmccurdy/aframe-extras/tree/master/src/controls#usage) instead, whenever possible. |
+| `jump-ability`   | 6.2.0      | Dependent on `kinematic-body`                                |
+| `a-hexgrid`      | 6.2.0      | Was based on [this repo](https://github.com/vonWolfehaus/von-grid), which is no longer maintained, and does not work with recent versions of THREE.js. |
+
