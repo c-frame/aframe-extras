@@ -59,9 +59,9 @@ For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full 
 
 | A-Frame  | Extras                        |
 |----------|-------------------------------|
-| v1.4.0   | v6.2.0 (unreleased) / fb96ab2 |
-| v1.3.0   | v6.2.0 (unreleased) / fb96ab2 |
-| v1.2.0   | v6.2.0 (unreleased) / fb96ab2 |
+| v1.4.0   | v7.0.0 (unreleased) / fb96ab2 |
+| v1.3.0   | v7.0.0 (unreleased) / fb96ab2 |
+| v1.2.0   | v7.0.0 (unreleased) / fb96ab2 |
 | v1.1.0   | v6.1.1                        |
 
 > **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/c-frame/aframe-physics-system).
@@ -83,12 +83,12 @@ Once installed, you'll need to compile your JavaScript using something like [web
 
 ## Deprecated Components
 
-The following components existed in previous versions of A-Frame Extras, but have been removed as of 6.2.0
+The following components existed in previous versions of A-Frame Extras, but have been removed as of the latest release
 
 | Component        | Removed in | Reasons                                                      |
 | ---------------- | ---------- | ------------------------------------------------------------ |
-| `kinematic-body` | 6.2.0      | Using physics for movement is unstable and performs poorly. When preventing players from passing through obstacles, use a navigation mesh instead whenever possible.<br /><br />The `kinematic-body` component constrainted player movement using physics, and depended on [aframe-physics-system](http://github.com/donmccurdy/aframe-physics-system/). Using physics for locomotion is not VR-friendly, and often glitchy even for traditional 3D experiences. [Use a navigation mesh](https://github.com/donmccurdy/aframe-extras/tree/master/src/controls#usage) instead, whenever possible. |
-| `jump-ability`   | 6.2.0      | Dependent on `kinematic-body`                                |
-| `a-hexgrid`      | 6.2.0      | Was based on [this repo](https://github.com/vonWolfehaus/von-grid), which is no longer maintained, and does not work with recent versions of THREE.js. |
-| `cube-env-map`   | 6.2.0      | Use the native A-Frame [`a-cubemap`](https://github.com/aframevr/aframe/issues/5209) primitive instead. |
+| `kinematic-body` | 7.0.0      | Using physics for movement is unstable and performs poorly. When preventing players from passing through obstacles, use a navigation mesh instead whenever possible.<br /><br />The `kinematic-body` component constrainted player movement using physics, and depended on [aframe-physics-system](http://github.com/donmccurdy/aframe-physics-system/). Using physics for locomotion is not VR-friendly, and often glitchy even for traditional 3D experiences. [Use a navigation mesh](https://github.com/donmccurdy/aframe-extras/tree/master/src/controls#usage) instead, whenever possible. |
+| `jump-ability`   | 7.0.0      | Dependent on `kinematic-body`                                |
+| `a-hexgrid`      | 7.0.0      | Was based on [this repo](https://github.com/vonWolfehaus/von-grid), which is no longer maintained, and does not work with recent versions of THREE.js. |
+| `cube-env-map`   | 7.0.0      | Use the native A-Frame [`a-cubemap`](https://github.com/aframevr/aframe/issues/5209) primitive instead. |
 
