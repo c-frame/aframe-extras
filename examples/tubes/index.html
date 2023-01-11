@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Tubes</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="../bundle.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Player -->
+      <a-entity id="rig" movement-controls position="0 0 5">
+        <a-entity id="camera"
+                  camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
+
+      <!-- Ground -->
+      <a-grid static-body></a-grid>
+
+      <!-- Tubes -->
+      <a-tube path="5 1 5, 5 1 -5, -5 1 -5" radius="0.5" material="color: red; side: double"></a-tube>
+
+      <a-tube path="5 3 -5, 2 3 2, 2 0 2" radius="0.3" material="color: blue; side: double"></a-tube>
+
+      <a-tube path="0 0 -2, 0 2 -2, -4 2 -2, -4 0 -2" radius="0.6" normal-material></a-tube>
+
+      <!-- Sky -->
+      <a-sky id="sky" color="#AADDF0"></a-sky>
+
+    </a-scene>
+  </body>
+</html>
