@@ -133,29 +133,10 @@ module.exports = AFRAME.registerComponent('grab', {
 
 require('./checkpoint');
 require('./grab');
-require('./mesh-smooth');
 require('./normal-material');
 require('./sphere-collider');
 
-},{"./checkpoint":2,"./grab":3,"./mesh-smooth":5,"./normal-material":6,"./sphere-collider":7}],5:[function(require,module,exports){
-'use strict';
-
-/**
- * Apply this component to models that looks "blocky", to have Three.js compute
- * vertex normals on the fly for a "smoother" look.
- */
-
-module.exports = AFRAME.registerComponent('mesh-smooth', {
-  init: function init() {
-    this.el.addEventListener('model-loaded', function (e) {
-      e.detail.model.traverse(function (node) {
-        if (node.isMesh) node.geometry.computeVertexNormals();
-      });
-    });
-  }
-});
-
-},{}],6:[function(require,module,exports){
+},{"./checkpoint":2,"./grab":3,"./normal-material":5,"./sphere-collider":6}],5:[function(require,module,exports){
 'use strict';
 
 /**
@@ -185,7 +166,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
   }
 });
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 /**

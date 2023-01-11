@@ -12,7 +12,7 @@ require('./src/misc');
 require('./src/pathfinding');
 require('./src/primitives');
 
-},{"./src/controls":13,"./src/loaders":22,"./src/misc":26,"./src/pathfinding":30,"./src/primitives":37}],3:[function(require,module,exports){
+},{"./src/controls":13,"./src/loaders":22,"./src/misc":26,"./src/pathfinding":29,"./src/primitives":36}],3:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45354,29 +45354,10 @@ module.exports = AFRAME.registerComponent('grab', {
 
 require('./checkpoint');
 require('./grab');
-require('./mesh-smooth');
 require('./normal-material');
 require('./sphere-collider');
 
-},{"./checkpoint":24,"./grab":25,"./mesh-smooth":27,"./normal-material":28,"./sphere-collider":29}],27:[function(require,module,exports){
-'use strict';
-
-/**
- * Apply this component to models that looks "blocky", to have Three.js compute
- * vertex normals on the fly for a "smoother" look.
- */
-
-module.exports = AFRAME.registerComponent('mesh-smooth', {
-  init: function init() {
-    this.el.addEventListener('model-loaded', function (e) {
-      e.detail.model.traverse(function (node) {
-        if (node.isMesh) node.geometry.computeVertexNormals();
-      });
-    });
-  }
-});
-
-},{}],28:[function(require,module,exports){
+},{"./checkpoint":24,"./grab":25,"./normal-material":27,"./sphere-collider":28}],27:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45406,7 +45387,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
   }
 });
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45589,14 +45570,14 @@ function copyArray(dest, source) {
   }
 }
 
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 require('./nav-mesh');
 require('./nav-agent');
 require('./system');
 
-},{"./nav-agent":31,"./nav-mesh":32,"./system":33}],31:[function(require,module,exports){
+},{"./nav-agent":30,"./nav-mesh":31,"./system":32}],30:[function(require,module,exports){
 'use strict';
 
 module.exports = AFRAME.registerComponent('nav-agent', {
@@ -45702,7 +45683,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
   }()
 });
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45750,7 +45731,7 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
   }
 });
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 var _require = require('three-pathfinding'),
@@ -45849,7 +45830,7 @@ module.exports = AFRAME.registerSystem('nav', {
   }
 });
 
-},{"three-pathfinding":9}],34:[function(require,module,exports){
+},{"three-pathfinding":9}],33:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45878,7 +45859,7 @@ module.exports = AFRAME.registerPrimitive('a-grid', {
   }
 });
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45981,7 +45962,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   }
 });
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46053,11 +46034,11 @@ module.exports.Component = AFRAME.registerComponent('tube', {
   }
 });
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 require('./a-grid');
 require('./a-ocean');
 require('./a-tube');
 
-},{"./a-grid":34,"./a-ocean":35,"./a-tube":36}]},{},[1]);
+},{"./a-grid":33,"./a-ocean":34,"./a-tube":35}]},{},[1]);
