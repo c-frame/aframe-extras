@@ -12,7 +12,7 @@ require('./src/misc');
 require('./src/pathfinding');
 require('./src/primitives');
 
-},{"./src/controls":13,"./src/loaders":22,"./src/misc":27,"./src/pathfinding":33,"./src/primitives":40}],3:[function(require,module,exports){
+},{"./src/controls":13,"./src/loaders":22,"./src/misc":26,"./src/pathfinding":30,"./src/primitives":37}],3:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45269,143 +45269,6 @@ module.exports = AFRAME.registerComponent('checkpoint', {
 },{}],25:[function(require,module,exports){
 'use strict';
 
-/**
- * @param  {Array<THREE.Material>|THREE.Material} material
- * @return {Array<THREE.Material>}
- */
-
-function ensureMaterialArray(material) {
-  if (!material) {
-    return [];
-  } else if (Array.isArray(material)) {
-    return material;
-  } else if (material.materials) {
-    return material.materials;
-  } else {
-    return [material];
-  }
-}
-
-/**
- * @param  {THREE.Object3D} mesh
- * @param  {Array<string>} materialNames
- * @param  {THREE.Texture} envMap
- * @param  {number} reflectivity  [description]
- */
-function applyEnvMap(mesh, materialNames, envMap, reflectivity) {
-  if (!mesh) return;
-
-  materialNames = materialNames || [];
-
-  mesh.traverse(function (node) {
-
-    if (!node.isMesh) return;
-
-    var meshMaterials = ensureMaterialArray(node.material);
-
-    meshMaterials.forEach(function (material) {
-
-      if (material && !('envMap' in material)) return;
-      if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
-
-      material.envMap = envMap;
-      material.reflectivity = reflectivity;
-      material.needsUpdate = true;
-    });
-  });
-}
-
-/**
- * Specifies an envMap on an entity, without replacing any existing material
- * properties.
- */
-module.exports = AFRAME.registerComponent('cube-env-map', {
-  multiple: true,
-
-  schema: {
-    path: { default: '' },
-    extension: { default: 'jpg', oneOf: ['jpg', 'png'] },
-    format: { default: 'RGBFormat', oneOf: ['RGBFormat', 'RGBAFormat'] },
-    enableBackground: { default: false },
-    reflectivity: { default: 1, min: 0, max: 1 },
-    materials: { default: [] }
-  },
-
-  init: function init() {
-    var _this = this;
-
-    var data = this.data;
-
-    this.texture = new THREE.CubeTextureLoader().load([data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension, data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension, data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension]);
-    this.texture.format = THREE[data.format];
-
-    this.object3dsetHandler = function () {
-      var mesh = _this.el.getObject3D('mesh');
-      var data = _this.data;
-      applyEnvMap(mesh, data.materials, _this.texture, data.reflectivity);
-    };
-    this.el.addEventListener('object3dset', this.object3dsetHandler);
-  },
-
-  update: function update(oldData) {
-    var data = this.data;
-    var mesh = this.el.getObject3D('mesh');
-
-    var addedMaterialNames = [];
-    var removedMaterialNames = [];
-
-    if (data.materials.length) {
-      if (oldData.materials) {
-        addedMaterialNames = data.materials.filter(function (name) {
-          return !oldData.materials.includes(name);
-        });
-        removedMaterialNames = oldData.materials.filter(function (name) {
-          return !data.materials.includes(name);
-        });
-      } else {
-        addedMaterialNames = data.materials;
-      }
-    }
-    if (addedMaterialNames.length) {
-      applyEnvMap(mesh, addedMaterialNames, this.texture, data.reflectivity);
-    }
-    if (removedMaterialNames.length) {
-      applyEnvMap(mesh, removedMaterialNames, null, 1);
-    }
-
-    if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
-      var maintainedMaterialNames = data.materials.filter(function (name) {
-        return oldData.materials.includes(name);
-      });
-      if (maintainedMaterialNames.length) {
-        applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
-      }
-    }
-
-    if (this.data.enableBackground && !oldData.enableBackground) {
-      this.setBackground(this.texture);
-    } else if (!this.data.enableBackground && oldData.enableBackground) {
-      this.setBackground(null);
-    }
-  },
-
-  remove: function remove() {
-    this.el.removeEventListener('object3dset', this.object3dsetHandler);
-    var mesh = this.el.getObject3D('mesh');
-    var data = this.data;
-
-    applyEnvMap(mesh, data.materials, null, 1);
-    if (data.enableBackground) this.setBackground(null);
-  },
-
-  setBackground: function setBackground(texture) {
-    this.el.sceneEl.object3D.background = texture;
-  }
-});
-
-},{}],26:[function(require,module,exports){
-'use strict';
-
 /* global CANNON */
 
 /**
@@ -45486,295 +45349,16 @@ module.exports = AFRAME.registerComponent('grab', {
   }
 });
 
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 require('./checkpoint');
-require('./cube-env-map');
 require('./grab');
-require('./jump-ability');
-require('./kinematic-body');
 require('./mesh-smooth');
 require('./normal-material');
 require('./sphere-collider');
 
-},{"./checkpoint":24,"./cube-env-map":25,"./grab":26,"./jump-ability":28,"./kinematic-body":29,"./mesh-smooth":30,"./normal-material":31,"./sphere-collider":32}],28:[function(require,module,exports){
-'use strict';
-
-var ACCEL_G = -9.8,
-
-// m/s^2
-EASING = -15; // m/s^2
-
-/**
- * Jump ability.
- */
-module.exports = AFRAME.registerComponent('jump-ability', {
-  dependencies: ['velocity'],
-
-  /* Schema
-  ——————————————————————————————————————————————*/
-
-  schema: {
-    on: { default: 'keydown:Space gamepadbuttondown:0' },
-    playerHeight: { default: 1.764 },
-    maxJumps: { default: 1 },
-    distance: { default: 5 },
-    debug: { default: false }
-  },
-
-  init: function init() {
-    this.velocity = 0;
-    this.numJumps = 0;
-
-    var beginJump = this.beginJump.bind(this),
-        events = this.data.on.split(' ');
-    this.bindings = {};
-    for (var i = 0; i < events.length; i++) {
-      this.bindings[events[i]] = beginJump;
-      this.el.addEventListener(events[i], beginJump);
-    }
-    this.bindings.collide = this.onCollide.bind(this);
-    this.el.addEventListener('collide', this.bindings.collide);
-  },
-
-  remove: function remove() {
-    for (var event in this.bindings) {
-      if (this.bindings.hasOwnProperty(event)) {
-        this.el.removeEventListener(event, this.bindings[event]);
-        delete this.bindings[event];
-      }
-    }
-    this.el.removeEventListener('collide', this.bindings.collide);
-    delete this.bindings.collide;
-  },
-
-  beginJump: function beginJump() {
-    if (this.numJumps < this.data.maxJumps) {
-      var data = this.data,
-          initialVelocity = Math.sqrt(-2 * data.distance * (ACCEL_G + EASING)),
-          v = this.el.getAttribute('velocity');
-      this.el.setAttribute('velocity', { x: v.x, y: initialVelocity, z: v.z });
-      this.numJumps++;
-      this.el.emit('jumpstart');
-    }
-  },
-
-  onCollide: function onCollide() {
-    if (this.numJumps > 0) this.el.emit('jumpend');
-    this.numJumps = 0;
-  }
-});
-
-},{}],29:[function(require,module,exports){
-'use strict';
-
-/* global CANNON */
-
-/**
- * Kinematic body.
- *
- * Managed dynamic body, which moves but is not affected (directly) by the
- * physics engine. This is not a true kinematic body, in the sense that we are
- * letting the physics engine _compute_ collisions against it and selectively
- * applying those collisions to the object. The physics engine does not decide
- * the position/velocity/rotation of the element.
- *
- * Used for the camera object, because full physics simulation would create
- * movement that feels unnatural to the player. Bipedal movement does not
- * translate nicely to rigid body physics.
- *
- * See: http://www.learn-cocos2d.com/2013/08/physics-engine-platformer-terrible-idea/
- * And: http://oxleygamedev.blogspot.com/2011/04/player-physics-part-2.html
- */
-
-var EPS = 0.000001;
-
-module.exports = AFRAME.registerComponent('kinematic-body', {
-  dependencies: ['velocity'],
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    mass: { default: 5 },
-    radius: { default: 1.3 },
-    linearDamping: { default: 0.05 },
-    enableSlopes: { default: true },
-    enableJumps: { default: false }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function init() {
-    this.system = this.el.sceneEl.systems.physics;
-    this.system.addComponent(this);
-
-    var el = this.el,
-        data = this.data,
-        position = new CANNON.Vec3().copy(el.object3D.getWorldPosition(new THREE.Vector3()));
-
-    this.body = new CANNON.Body({
-      material: this.system.getMaterial('staticMaterial'),
-      position: position,
-      mass: data.mass,
-      linearDamping: data.linearDamping,
-      fixedRotation: true
-    });
-    this.body.addShape(new CANNON.Sphere(data.radius), new CANNON.Vec3(0, data.radius, 0));
-
-    this.body.el = this.el;
-    this.el.body = this.body;
-    this.system.addBody(this.body);
-
-    if (el.hasAttribute('wasd-controls')) {
-      console.warn('[kinematic-body] Not compatible with wasd-controls, use movement-controls.');
-    }
-  },
-
-  remove: function remove() {
-    this.system.removeBody(this.body);
-    this.system.removeComponent(this);
-    delete this.el.body;
-  },
-
-  /*******************************************************************
-   * Update
-   */
-
-  /**
-   * Checks CANNON.World for collisions and attempts to apply them to the
-   * element automatically, in a player-friendly way.
-   *
-   * There's extra logic for horizontal surfaces here. The basic requirements:
-   * (1) Only apply gravity when not in contact with _any_ horizontal surface.
-   * (2) When moving, project the velocity against exactly one ground surface.
-   *     If in contact with two ground surfaces (e.g. ground + ramp), choose
-   *     the one that collides with current velocity, if any.
-   */
-  beforeStep: function beforeStep(t, dt) {
-    if (!dt) return;
-
-    var el = this.el;
-    var data = this.data;
-    var body = this.body;
-
-    if (!data.enableJumps) body.velocity.set(0, 0, 0);
-    body.position.copy(el.getAttribute('position'));
-  },
-
-  step: function () {
-    var velocity = new THREE.Vector3(),
-        normalizedVelocity = new THREE.Vector3(),
-        currentSurfaceNormal = new THREE.Vector3(),
-        groundNormal = new THREE.Vector3();
-
-    return function (t, dt) {
-      if (!dt) return;
-
-      var body = this.body,
-          data = this.data,
-          didCollide = false,
-          height = void 0,
-          groundHeight = -Infinity,
-          groundBody = void 0,
-          contacts = this.system.getContacts();
-
-      dt = Math.min(dt, this.system.data.maxInterval * 1000);
-
-      groundNormal.set(0, 0, 0);
-      velocity.copy(this.el.getAttribute('velocity'));
-      body.velocity.copy(velocity);
-
-      for (var i = 0, contact; contact = contacts[i]; i++) {
-        // 1. Find any collisions involving this element. Get the contact
-        // normal, and make sure it's oriented _out_ of the other object and
-        // enabled (body.collisionReponse is true for both bodies)
-        if (!contact.enabled) {
-          continue;
-        }
-        if (body.id === contact.bi.id) {
-          contact.ni.negate(currentSurfaceNormal);
-        } else if (body.id === contact.bj.id) {
-          currentSurfaceNormal.copy(contact.ni);
-        } else {
-          continue;
-        }
-
-        didCollide = body.velocity.dot(currentSurfaceNormal) < -EPS;
-        if (didCollide && currentSurfaceNormal.y <= 0.5) {
-          // 2. If current trajectory attempts to move _through_ another
-          // object, project the velocity against the collision plane to
-          // prevent passing through.
-          velocity.projectOnPlane(currentSurfaceNormal);
-        } else if (currentSurfaceNormal.y > 0.5) {
-          // 3. If in contact with something roughly horizontal (+/- 45º) then
-          // consider that the current ground. Only the highest qualifying
-          // ground is retained.
-          height = body.id === contact.bi.id ? Math.abs(contact.rj.y + contact.bj.position.y) : Math.abs(contact.ri.y + contact.bi.position.y);
-          if (height > groundHeight) {
-            groundHeight = height;
-            groundNormal.copy(currentSurfaceNormal);
-            groundBody = body.id === contact.bi.id ? contact.bj : contact.bi;
-          }
-        }
-      }
-
-      normalizedVelocity.copy(velocity).normalize();
-      if (groundBody && (!data.enableJumps || normalizedVelocity.y < 0.5)) {
-        if (!data.enableSlopes) {
-          groundNormal.set(0, 1, 0);
-        } else if (groundNormal.y < 1 - EPS) {
-          groundNormal.copy(this.raycastToGround(groundBody, groundNormal));
-        }
-
-        // 4. Project trajectory onto the top-most ground object, unless
-        // trajectory is > 45º.
-        velocity.projectOnPlane(groundNormal);
-      } else if (this.system.driver.world) {
-        // 5. If not in contact with anything horizontal, apply world gravity.
-        // TODO - Why is the 4x scalar necessary.
-        // NOTE: Does not work if physics runs on a worker.
-        velocity.add(this.system.driver.world.gravity.scale(dt * 4.0 / 1000));
-      }
-
-      body.velocity.copy(velocity);
-      this.el.setAttribute('velocity', body.velocity);
-      this.el.setAttribute('position', body.position);
-    };
-  }(),
-
-  /**
-   * When walking on complex surfaces (trimeshes, borders between two shapes),
-   * the collision normals returned for the player sphere can be very
-   * inconsistent. To address this, raycast straight down, find the collision
-   * normal, and return whichever normal is more vertical.
-   * @param  {CANNON.Body} groundBody
-   * @param  {CANNON.Vec3} groundNormal
-   * @return {CANNON.Vec3}
-   */
-  raycastToGround: function raycastToGround(groundBody, groundNormal) {
-    var ray = void 0,
-        hitNormal = void 0,
-        vFrom = this.body.position,
-        vTo = this.body.position.clone();
-
-    ray = new CANNON.Ray(vFrom, vTo);
-    ray._updateDirection(); // TODO - Report bug.
-    ray.intersectBody(groundBody);
-
-    if (!ray.hasHit) return groundNormal;
-
-    // Compare ABS, in case we're projecting against the inside of the face.
-    hitNormal = ray.result.hitNormalWorld;
-    return Math.abs(hitNormal.y) > Math.abs(groundNormal.y) ? hitNormal : groundNormal;
-  }
-});
-
-},{}],30:[function(require,module,exports){
+},{"./checkpoint":24,"./grab":25,"./mesh-smooth":27,"./normal-material":28,"./sphere-collider":29}],27:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45792,7 +45376,7 @@ module.exports = AFRAME.registerComponent('mesh-smooth', {
   }
 });
 
-},{}],31:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 /**
@@ -45806,6 +45390,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
     this.material = new THREE.MeshNormalMaterial({ flatShading: true });
     this.applyMaterial = this.applyMaterial.bind(this);
     this.el.addEventListener('object3dset', this.applyMaterial);
+    this.applyMaterial();
   },
 
   remove: function remove() {
@@ -45821,7 +45406,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
   }
 });
 
-},{}],32:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46004,14 +45589,14 @@ function copyArray(dest, source) {
   }
 }
 
-},{}],33:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 require('./nav-mesh');
 require('./nav-agent');
 require('./system');
 
-},{"./nav-agent":34,"./nav-mesh":35,"./system":36}],34:[function(require,module,exports){
+},{"./nav-agent":31,"./nav-mesh":32,"./system":33}],31:[function(require,module,exports){
 'use strict';
 
 module.exports = AFRAME.registerComponent('nav-agent', {
@@ -46117,7 +45702,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
   }()
 });
 
-},{}],35:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46165,7 +45750,7 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
   }
 });
 
-},{}],36:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 var _require = require('three-pathfinding'),
@@ -46264,7 +45849,7 @@ module.exports = AFRAME.registerSystem('nav', {
   }
 });
 
-},{"three-pathfinding":9}],37:[function(require,module,exports){
+},{"three-pathfinding":9}],34:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46293,7 +45878,7 @@ module.exports = AFRAME.registerPrimitive('a-grid', {
   }
 });
 
-},{}],38:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46396,7 +45981,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
   }
 });
 
-},{}],39:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 /**
@@ -46468,11 +46053,11 @@ module.exports.Component = AFRAME.registerComponent('tube', {
   }
 });
 
-},{}],40:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 require('./a-grid');
 require('./a-ocean');
 require('./a-tube');
 
-},{"./a-grid":37,"./a-ocean":38,"./a-tube":39}]},{},[1]);
+},{"./a-grid":34,"./a-ocean":35,"./a-tube":36}]},{},[1]);
