@@ -34,7 +34,6 @@ src
 │   └── nav-agent.js
 └── <b>primitives/</b> (<a href="/src/primitives">Documentation</a>)
     ├── a-grid.js
-    ├── a-hex-grid.js
     ├── a-ocean.js
     └── a-tube.js
 </pre>
