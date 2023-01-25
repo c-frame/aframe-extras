@@ -1471,17 +1471,21 @@ module.exports = AFRAME.registerComponent('movement-controls', {
     if (nav && data.constrainToNavMesh !== prevData.constrainToNavMesh) {
       data.constrainToNavMesh ? nav.addAgent(this) : nav.removeAgent(this);
     }
+    if (data.enabled !== prevData.enabled) {
+      // Propagate the enabled change to all controls
+      for (var i = 0; i < data.controls.length; i++) {
+        var name = data.controls[i] + COMPONENT_SUFFIX;
+        this.el.setAttribute(name, { enabled: this.data.enabled });
+      }
+    }
   },
 
   injectControls: function injectControls() {
     var data = this.data;
-    var name;
 
     for (var i = 0; i < data.controls.length; i++) {
-      name = data.controls[i] + COMPONENT_SUFFIX;
-      if (!this.el.components[name]) {
-        this.el.setAttribute(name, '');
-      }
+      var name = data.controls[i] + COMPONENT_SUFFIX;
+      this.el.setAttribute(name, { enabled: this.data.enabled });
     }
   },
 
