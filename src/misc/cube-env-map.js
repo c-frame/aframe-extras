@@ -76,7 +76,13 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
       const data = this.data;
       applyEnvMap(mesh, data.materials, this.texture, data.reflectivity);
     };
-    this.el.addEventListener('object3dset', this.object3dsetHandler);
+    if (this.el.hasLoaded) {
+      this.object3dsetHandler();
+    }
+    else {
+      this.el.addEventListener('object3dset', this.object3dsetHandler);
+    }
+    
   },
 
   update: function (oldData) {

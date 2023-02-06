@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Environment Map</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="../bundle.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-sphere position="0 1 -3" 
+                material="color:white; metalness:1; roughness:0"
+                cube-env-map="path: milkyway/;
+                              extension: jpg;
+                              reflectivity: 1.0;">>
+
+      </a-sphere>
+    </a-scene>
+  </body>
+</html>

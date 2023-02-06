@@ -3,7 +3,7 @@
 
 require('./src/misc');
 
-},{"./src/misc":4}],2:[function(require,module,exports){
+},{"./src/misc":5}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = AFRAME.registerComponent('checkpoint', {
@@ -46,6 +46,143 @@ module.exports = AFRAME.registerComponent('checkpoint', {
 });
 
 },{}],3:[function(require,module,exports){
+'use strict';
+
+/**
+ * @param  {Array<THREE.Material>|THREE.Material} material
+ * @return {Array<THREE.Material>}
+ */
+
+function ensureMaterialArray(material) {
+  if (!material) {
+    return [];
+  } else if (Array.isArray(material)) {
+    return material;
+  } else if (material.materials) {
+    return material.materials;
+  } else {
+    return [material];
+  }
+}
+
+/**
+ * @param  {THREE.Object3D} mesh
+ * @param  {Array<string>} materialNames
+ * @param  {THREE.Texture} envMap
+ * @param  {number} reflectivity  [description]
+ */
+function applyEnvMap(mesh, materialNames, envMap, reflectivity) {
+  if (!mesh) return;
+
+  materialNames = materialNames || [];
+
+  mesh.traverse(function (node) {
+
+    if (!node.isMesh) return;
+
+    var meshMaterials = ensureMaterialArray(node.material);
+
+    meshMaterials.forEach(function (material) {
+
+      if (material && !('envMap' in material)) return;
+      if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
+
+      material.envMap = envMap;
+      material.reflectivity = reflectivity;
+      material.needsUpdate = true;
+    });
+  });
+}
+
+/**
+ * Specifies an envMap on an entity, without replacing any existing material
+ * properties.
+ */
+module.exports = AFRAME.registerComponent('cube-env-map', {
+  multiple: true,
+
+  schema: {
+    path: { default: '' },
+    extension: { default: 'jpg', oneOf: ['jpg', 'png'] },
+    format: { default: 'RGBFormat', oneOf: ['RGBFormat', 'RGBAFormat'] },
+    enableBackground: { default: false },
+    reflectivity: { default: 1, min: 0, max: 1 },
+    materials: { default: [] }
+  },
+
+  init: function init() {
+    var _this = this;
+
+    var data = this.data;
+
+    this.texture = new THREE.CubeTextureLoader().load([data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension, data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension, data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension]);
+    this.texture.format = THREE[data.format];
+
+    this.object3dsetHandler = function () {
+      var mesh = _this.el.getObject3D('mesh');
+      var data = _this.data;
+      applyEnvMap(mesh, data.materials, _this.texture, data.reflectivity);
+    };
+    this.el.addEventListener('object3dset', this.object3dsetHandler);
+  },
+
+  update: function update(oldData) {
+    var data = this.data;
+    var mesh = this.el.getObject3D('mesh');
+
+    var addedMaterialNames = [];
+    var removedMaterialNames = [];
+
+    if (data.materials.length) {
+      if (oldData.materials) {
+        addedMaterialNames = data.materials.filter(function (name) {
+          return !oldData.materials.includes(name);
+        });
+        removedMaterialNames = oldData.materials.filter(function (name) {
+          return !data.materials.includes(name);
+        });
+      } else {
+        addedMaterialNames = data.materials;
+      }
+    }
+    if (addedMaterialNames.length) {
+      applyEnvMap(mesh, addedMaterialNames, this.texture, data.reflectivity);
+    }
+    if (removedMaterialNames.length) {
+      applyEnvMap(mesh, removedMaterialNames, null, 1);
+    }
+
+    if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
+      var maintainedMaterialNames = data.materials.filter(function (name) {
+        return oldData.materials.includes(name);
+      });
+      if (maintainedMaterialNames.length) {
+        applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
+      }
+    }
+
+    if (this.data.enableBackground && !oldData.enableBackground) {
+      this.setBackground(this.texture);
+    } else if (!this.data.enableBackground && oldData.enableBackground) {
+      this.setBackground(null);
+    }
+  },
+
+  remove: function remove() {
+    this.el.removeEventListener('object3dset', this.object3dsetHandler);
+    var mesh = this.el.getObject3D('mesh');
+    var data = this.data;
+
+    applyEnvMap(mesh, data.materials, null, 1);
+    if (data.enableBackground) this.setBackground(null);
+  },
+
+  setBackground: function setBackground(texture) {
+    this.el.sceneEl.object3D.background = texture;
+  }
+});
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 /* global CANNON */
@@ -128,15 +265,16 @@ module.exports = AFRAME.registerComponent('grab', {
   }
 });
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 require('./checkpoint');
+require('./cube-env-map');
 require('./grab');
 require('./normal-material');
 require('./sphere-collider');
 
-},{"./checkpoint":2,"./grab":3,"./normal-material":5,"./sphere-collider":6}],5:[function(require,module,exports){
+},{"./checkpoint":2,"./cube-env-map":3,"./grab":4,"./normal-material":6,"./sphere-collider":7}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -166,7 +304,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
   }
 });
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 /**
