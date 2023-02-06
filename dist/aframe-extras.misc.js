@@ -104,7 +104,6 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
   schema: {
     path: { default: '' },
     extension: { default: 'jpg', oneOf: ['jpg', 'png'] },
-    format: { default: 'RGBFormat', oneOf: ['RGBFormat', 'RGBAFormat'] },
     enableBackground: { default: false },
     reflectivity: { default: 1, min: 0, max: 1 },
     materials: { default: [] }
@@ -116,13 +115,15 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
     var data = this.data;
 
     this.texture = new THREE.CubeTextureLoader().load([data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension, data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension, data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension]);
-    this.texture.format = THREE[data.format];
+    this.texture.format = THREE.RGBAFormat;
 
     this.object3dsetHandler = function () {
       var mesh = _this.el.getObject3D('mesh');
       var data = _this.data;
       applyEnvMap(mesh, data.materials, _this.texture, data.reflectivity);
     };
+
+    this.object3dsetHandler();
     this.el.addEventListener('object3dset', this.object3dsetHandler);
   },
 
