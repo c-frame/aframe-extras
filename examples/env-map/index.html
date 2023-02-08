@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Environment Map</title>
+    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="../bundle.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-asset-item id="helmet" src="https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf"></a-asset-item>
+
+      <a-sphere id="sphere"
+                position="-2 1 -3" 
+                material="color:white; metalness:1; roughness:0"
+                cube-env-map="path: ../assets/environment/Park2/;
+                              extension: jpg;
+                              reflectivity: 1.0;">
+
+      </a-sphere>
+      <a-entity id="helmet"
+                position="2 1 -3"
+                gltf-model="#helmet"
+                animation="property: rotation; from: 0 0 0; to: 0 360 0; easing: linear; dur: 10000; loop:true"
+                cube-env-map="path: ../assets/environment/Park2/;
+                              extension: jpg;
+                              reflectivity: 1.0;">
+      </a-entity>
+    </a-scene>
+  </body>
+</html>

@@ -25,6 +25,7 @@ src
 │   └── object-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
+│   ├── cube-env-map.js
 │   ├── grab.js
 │   ├── mesh-smooth.js
 │   ├── normal-material.js
@@ -90,6 +91,5 @@ The following components existed in previous versions of A-Frame Extras, but hav
 | `kinematic-body` | 7.0.0      | Using physics for movement is unstable and performs poorly. When preventing players from passing through obstacles, use a navigation mesh instead whenever possible.<br /><br />The `kinematic-body` component constrainted player movement using physics, and depended on [aframe-physics-system](http://github.com/donmccurdy/aframe-physics-system/). Using physics for locomotion is not VR-friendly, and often glitchy even for traditional 3D experiences. [Use a navigation mesh](https://github.com/donmccurdy/aframe-extras/tree/master/src/controls#usage) instead, whenever possible. |
 | `jump-ability`   | 7.0.0      | Dependent on `kinematic-body`                                |
 | `a-hexgrid`      | 7.0.0      | Was based on [this repo](https://github.com/vonWolfehaus/von-grid), which is no longer maintained, and does not work with recent versions of THREE.js. |
-| `cube-env-map`   | 7.0.0      | Use the native A-Frame [`a-cubemap`](https://github.com/aframevr/aframe/issues/5209) primitive instead. |
 | `mesh-smooth`    | 7.0.0      | Intended for JSON models, but the JSON Loader is [no longer part of this repo](https://github.com/c-frame/aframe-extras/commit/d079064e6ac55a4cd6bbf64bd46a576e26dd214e).  More background [here](https://github.com/c-frame/aframe-extras/issues/411). |
 
