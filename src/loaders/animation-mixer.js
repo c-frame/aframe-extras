@@ -135,10 +135,11 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
 
 /**
  * Creates a RegExp from the given string, converting asterisks to .* expressions,
- * and escaping all other characters.
+ * escaping all other characters, and concatenating multiple *-terminated expressions
+ * using |, so that each of them can be matched.
  */
 function wildcardToRegExp(s) {
-  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
+  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*|') + '$');
 }
 
 /**
