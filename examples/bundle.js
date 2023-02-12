@@ -44968,7 +44968,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
         action.clampWhenFinished = data.clampWhenFinished;
         if (data.duration) action.setDuration(data.duration);
         if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
-        action.startAt(data.startAt / 1000);
+        action.startAt(this.mixer.time + data.startAt / 1000);
         action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
         this.activeActions.push(action);
       }
