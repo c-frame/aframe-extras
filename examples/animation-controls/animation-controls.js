@@ -12,14 +12,18 @@ animationNames = {
 
 updateAnimationMixer = () => {
 
-  const data = {}
+  const data = {useRegExp: true}
   data.clip = "none"
   Object.entries(animationNames).forEach((name) => {
 
+    const regExpEscape = (s) => {
+      return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+    }
+
     el = document.getElementById(name[0])
     if (el.checked) {
-      if (data.clip) data.clip += "*"
-      data.clip += name[1]
+      if (data.clip) data.clip += "|"
+      data.clip += regExpEscape(name[1])
     }
   })
 
