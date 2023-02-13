@@ -14,18 +14,20 @@
     <div class="topRight">
       <div>Controls</div>
       <div style="display: grid; grid-template-columns: 50% 50%">
+          <label for="none">None</label>
+          <input type="radio" id="none" name="animations" checked="true">
           <label for="attack">Attack</label>
-          <input type="checkbox" id="attack" name="attack">
+          <input type="radio" id="attack" name="animations">
           <label for="death">Death</label>
-          <input type="checkbox" id="death" name="death">
+          <input type="radio" id="death" name="animations">
           <label for="idle">Idle</label>
-          <input type="checkbox" id="idle" name="idle">
+          <input type="radio" id="idle" name="animations">
           <label for="jump">Jump</label>
-          <input type="checkbox" id="jump" name="jump">
+          <input type="radio" id="jump" name="animations">
           <label for="run">Run</label>
-          <input type="checkbox" id="run" name="run">        
+          <input type="radio" id="run" name="animations">        
           <label for="walk">Walk</label>
-          <input type="checkbox" id="walk" name="walk">        
+          <input type="radio" id="walk" name="animations">        
           <label for="duration">Duration (s)</label>
           <input type="text" id="duration" name="duration" value="0">
           <label for="clampWhenFinished">Clamp When Finished</label>

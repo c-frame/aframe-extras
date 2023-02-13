@@ -18,8 +18,7 @@ updateAnimationMixer = () => {
 
     el = document.getElementById(name[0])
     if (el.checked) {
-      if (data.clip) data.clip += "*"
-      data.clip += name[1]
+      data.clip = name[1]
     }
   })
 
