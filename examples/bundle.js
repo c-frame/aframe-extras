@@ -44968,7 +44968,11 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
         action.clampWhenFinished = data.clampWhenFinished;
         if (data.duration) action.setDuration(data.duration);
         if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
-        action.startAt(this.mixer.time + data.startAt / 1000);
+        // animation-mixer.startAt and AnimationAction.startAt have very different meanings.
+        // animation-mixer.startAt indicates which frame in the animation to start at, in msecs.
+        // AnimationAction.startAt indicates when to start the animation (from the 1st frame),
+        // measured in global mixer time, in seconds.
+        action.startAt(this.mixer.time - data.startAt / 1000);
         action.setLoop(LoopMode[data.loop], data.repetitions).fadeIn(data.crossFadeDuration).play();
         this.activeActions.push(action);
       }
@@ -44982,11 +44986,10 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
 
 /**
  * Creates a RegExp from the given string, converting asterisks to .* expressions,
- * escaping all other characters, and concatenating multiple *-terminated expressions
- * using |, so that each of them can be matched.
+ * and escaping all other characters.
  */
 function wildcardToRegExp(s) {
-  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*|') + '$');
+  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
 }
 
 /**
