@@ -80,6 +80,12 @@ require('aframe-extras');
 
 Once installed, you'll need to compile your JavaScript using something like [webpack](https://webpack.js.org).
 
+## Examples
+
+A live set of usage examples can be found here:
+
+https://c-frame.github.io/aframe-extras/
+
 
 
 ## Deprecated Components
