@@ -33,16 +33,17 @@ an animation and its duration:
 | Property          | Default  | Description                                               |
 |-------------------|----------|-----------------------------------------------------------|
 | clip              | *        | Name of the animation clip(s) to play. Accepts wildcards. |
-| duration          | AUTO     | Duration of the animation, in seconds.                    |
+| duration          | 0     | Duration of the animation, in seconds.  0 indicates automatic calculation based on loop & repetitions settings. |
 | crossFadeDuration | 0        | Duration of cross-fades between clips, in seconds.        |
 | loop              | repeat   | `once`, `repeat`, or `pingpong`. In `repeat` and `pingpong` modes, the clip plays once plus the specified number of repetitions. For `pingpong`, every second clip plays in reverse. |
 | repetitions       | Infinity | Number of times to play the clip, in addition to the first play. Repetitions are ignored for `loop: once`. |
 | timeScale         | 1        | Scaling factor for playback speed. A value of 0 causes the animation to pause. Negative values cause the animation to play backwards. |
 | clampWhenFinished | false        | If true, halts the animation at the last frame. |
-| startAt           | 0        | Sets the start of an animation to a specific time (in milliseconds). This is useful when you need to jump to an exact time in an animation. The input parameter will be scaled by the mixer's timeScale. |
-
+| startAt           | 0        | Configures the animation clip to begin at a specific start time (in milliseconds). This is useful when you need to jump to an exact time in an animation. The input parameter will be scaled by the mixer's timeScale.  Negative values will result in a pause before the animation begins. |
 
 A list of available animations can usually be found by inspecting the model file or its documentation. All animations will play by default. To play only a specific set of animations, use wildcards: `animation-mixer="clip: run_*"`.
+
+There is no provided syntax to specify multiple animations, except via the * wildcard.  For example: `animation-mixer="clip: run,walk"` will match neither `run` nor `walk`, and would only match a clip named `run,walk`.
 
 ### Animation Events
 
