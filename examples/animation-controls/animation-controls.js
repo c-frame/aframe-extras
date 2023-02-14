@@ -1,5 +1,5 @@
 
-animationNames = {
+const animationNames = {
   attack: 'Armature|TRex_Attack',
   death: 'Armature|TRex_Death',
   idle: 'Armature|TRex_Idle',
@@ -7,8 +7,6 @@ animationNames = {
   run: 'Armature|TRex_Run',
   walk: 'Armature|TRex_Walk',
 };
-
-
 
 updateAnimationMixer = () => {
 
@@ -20,49 +18,40 @@ updateAnimationMixer = () => {
       return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
     }
 
-    el = document.getElementById(name[0])
+    const el = document.getElementById(name[0])
     if (el.checked) {
       if (data.clip) data.clip += "|"
       data.clip += regExpEscape(name[1])
     }
   })
 
-  const getValue = (key) => {
+  const keys = ["duration",
+                "clampWhenFinished",
+                "crossFadeDuration",
+                "loop",
+                "repetitions",
+                "timeScale",
+                "startAt"]
+  keys.forEach((key) => {
     const value = document.getElementById(key).value
 
     if (AFRAME.components['animation-mixer'].schema[key].type === 'number' && isNaN(value)) {
       return;
     }
     data[key] = value
-  }
-  getValue("duration")
-  getValue("clampWhenFinished")
-  getValue("crossFadeDuration")
-  getValue("loop")
-  getValue("repetitions")
-  getValue("timeScale")
-  getValue("startAt")
+  })
 
   const target = document.getElementById("trex1")
   target.setAttribute("animation-mixer", data)
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
 
-  const inputs = document.querySelectorAll("input")
+  const inputs = document.querySelectorAll("input, select")
 
   inputs.forEach((input) => {
     input.addEventListener("change", updateAnimationMixer)
   })
 
-  const selectors = document.querySelectorAll("select")
-
-  selectors.forEach((selector) => {
-    selector.addEventListener("change", updateAnimationMixer)
-  })
-
   updateAnimationMixer()
 })
-
-
