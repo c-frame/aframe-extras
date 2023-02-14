@@ -14,7 +14,7 @@ updateAnimationMixer = () => {
   data.clip = "none"
   Object.entries(animationNames).forEach((name) => {
 
-    el = document.getElementById(name[0])
+    const el = document.getElementById(name[0])
     
     if (el.checked) {
       data.clip = name[1]
@@ -29,11 +29,19 @@ updateAnimationMixer = () => {
                 "timeScale",
                 "startAt"]
   keys.forEach((key) => {
-    const value = document.getElementById(key).value
+    const el = document.getElementById(key)
+    var value = el.value
 
-    if (AFRAME.components['animation-mixer'].schema[key].type === 'number' && isNaN(value)) {
+    const type = AFRAME.components['animation-mixer'].schema[key].type
+
+    if (type === 'number' && isNaN(value)) {
       return;
     }
+
+    if (type === 'boolean') {
+      value = el.checked    
+    }
+    
     data[key] = value
   })
 
@@ -47,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   inputs.forEach((input) => {
     input.addEventListener("change", updateAnimationMixer)
+    input.addEventListener("click", updateAnimationMixer)
   })
 
   updateAnimationMixer()
