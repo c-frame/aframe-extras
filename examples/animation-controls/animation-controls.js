@@ -11,7 +11,7 @@ const animationNames = {
 updateAnimationMixer = () => {
 
   const data = {}
-  data.clip = "none"
+  data.clip = 'none'
   Object.entries(animationNames).forEach((name) => {
 
     const el = document.getElementById(name[0])
@@ -21,16 +21,16 @@ updateAnimationMixer = () => {
     }
   })
 
-  const keys = ["duration",
-                "clampWhenFinished",
-                "crossFadeDuration",
-                "loop",
-                "repetitions",
-                "timeScale",
-                "startAt"]
+  const keys = ['duration',
+                'clampWhenFinished',
+                'crossFadeDuration',
+                'loop',
+                'repetitions',
+                'timeScale',
+                'startAt']
   keys.forEach((key) => {
     const el = document.getElementById(key)
-    var value = el.value
+    let value = el.value
 
     const type = AFRAME.components['animation-mixer'].schema[key].type
 
@@ -45,17 +45,17 @@ updateAnimationMixer = () => {
     data[key] = value
   })
 
-  const target = document.getElementById("trex1")
-  target.setAttribute("animation-mixer", data)
+  const target = document.getElementById('trex1')
+  target.setAttribute('animation-mixer', data)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  const inputs = document.querySelectorAll("input, select")
+  const inputs = document.querySelectorAll('input, select')
 
   inputs.forEach((input) => {
-    input.addEventListener("change", updateAnimationMixer)
-    input.addEventListener("click", updateAnimationMixer)
+    input.addEventListener('change', updateAnimationMixer)
+    input.addEventListener('click', updateAnimationMixer)
   })
 
   updateAnimationMixer()
