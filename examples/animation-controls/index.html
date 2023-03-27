@@ -1,0 +1,71 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Animation  Controls</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="../bundle.js"></script>
+    <script src="./animation-controls.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
+  </head>
+  <body>
+    <div class="topRight">
+      <div>Controls</div>
+      <div style="display: grid; grid-template-columns: 50% 50%">
+          <label for="none">None</label>
+          <input type="radio" id="none" name="animations" checked="true">
+          <label for="attack">Attack</label>
+          <input type="radio" id="attack" name="animations">
+          <label for="death">Death</label>
+          <input type="radio" id="death" name="animations">
+          <label for="idle">Idle</label>
+          <input type="radio" id="idle" name="animations">
+          <label for="jump">Jump</label>
+          <input type="radio" id="jump" name="animations">
+          <label for="run">Run</label>
+          <input type="radio" id="run" name="animations">        
+          <label for="walk">Walk</label>
+          <input type="radio" id="walk" name="animations">        
+          <label for="duration">Duration (s)</label>
+          <input type="text" id="duration" name="duration" value="0">
+          <label for="clampWhenFinished">Clamp When Finished</label>
+          <input type="checkbox" id="clampWhenFinished" name="clampWhenFinished">
+          <label for="crossFadeDuration">Cross Fade Duration (s)</label>
+          <input type="text" id="crossFadeDuration" name="crossFadeDuration" value="0">
+          <label for="loop">Loop</label>
+          <select id="loop" name="loop">
+            <option value="once">Once</option>
+            <option value="repeat" selected="selected">Repeat</option>
+            <option value="pingpong">Ping Pong</option>
+          </select>
+          <label for="repetitions">Repetitions</label>
+          <input type="text" id="repetitions" name="repetitions" value="Infinity">
+          <label for="timeScale">Time Scale</label>
+          <input type="text" id="timeScale" name="timeScale" value="1">
+          <label for="startAt ">Start At (ms)</label>
+          <input type="text" id="startAt" name="startAt" value="0">
+      </div>
+    </div>
+    <a-scene environment="preset: forest">
+      <a-assets>
+        <a-asset-item id="trex" src="../assets/trex/TRex.glb"></a-asset-item>
+      </a-assets>
+      <!-- Player -->
+      <a-entity id="rig" movement-controls position="0 0 10">
+        <a-entity id="camera"
+                  camera
+                  position="0 1.6 0"
+                  look-controls></a-entity>
+      </a-entity>
+      <a-entity id="trex1"
+                position="0 0 0"
+                rotation="0 45 0"
+                animation-mixer="clip: *;"
+                gltf-model="#trex"
+                scale="0.3 0.3 0.3">
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
