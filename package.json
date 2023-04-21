@@ -7,7 +7,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/donmccurdy/aframe-extras.git"
+    "url": "git+https://github.com/c-frame/aframe-extras.git"
   },
   "scripts": {
     "dev": "budo --live --port=8080 index.js:examples/bundle.js -- -t [ babelify --presets [ env ] ]",
