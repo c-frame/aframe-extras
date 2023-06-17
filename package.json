@@ -27,6 +27,7 @@
     "aframe": "*"
   },
   "dependencies": {
+    "nipplejs": "^0.10.1",
     "three-pathfinding": "^1.1.0"
   },
   "devDependencies": {
