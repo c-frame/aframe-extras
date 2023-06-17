@@ -8,6 +8,7 @@ Extensible movement/rotation/hotkey controls, with support for a variety of inpu
   + **gamepad-controls**: Gamepad-based rotation and movement.
   + **trackpad-controls**: Trackpad-based movement.
 - **checkpoint-controls**: Move to checkpoints created with the `checkpoint` component. *Not included by default with `movement-controls`, but may be added as shown in examples.*
+- **nipple-controls**: Virtual joysticks for rotation and movement on touch devices. This is using the [nipplejs](https://github.com/yoannmoinet/nipplejs) library.
 
 For the Cardboard button, this was tested and working on both Chrome Android and Safari iPhone with aframe 1.4.2.
 On iPhone you need `≤a-scene vr-mode-ui="cardboardModeEnabled:true">` for the VR button to show up.
@@ -41,6 +42,27 @@ With checkpoints, and other input methods disabled:
             look-controls="pointerLockEnabled: true">
   </a-entity>
 </a-entity>
+```
+
+With gamepad, keyboard and nipple controls with virtual joysticks:
+
+```html
+<a-entity id="rig"
+          movement-controls="controls: gamepad,keyboard,nipple"
+          nipple-controls="mode: static">
+  <a-entity camera
+            position="0 1.6 0"
+            look-controls="pointerLockEnabled: true">
+  </a-entity>
+</a-entity>
+```
+
+The default for `nipple-controls` is two joysticks and `dynamic` mode (joysticks hidden, not on fixed position).
+The `static` (joysticks visible, fixed position) and `semi` modes are also supported.
+If you only want the joystick for movement on the right, you can use:
+
+```html
+nipple-controls="mode: static; lookJoystickEnabled: false; moveJoystickPosition: right"
 ```
 
 With navigation mesh:
