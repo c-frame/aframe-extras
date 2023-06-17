@@ -9,7 +9,7 @@ Extensible movement/rotation/hotkey controls, with support for a variety of inpu
   + **trackpad-controls**: Trackpad-based movement.
 - **checkpoint-controls**: Move to checkpoints created with the `checkpoint` component. *Not included by default with `movement-controls`, but may be added as shown in examples.*
 
-For the Cardboard button, this was recently tested and working on both Chrome Android and Safari iPhone with aframe master commit bfd1561 Dec 2, 2022 (before aframe 1.4.0 was released).
+For the Cardboard button, this was tested and working on both Chrome Android and Safari iPhone with aframe 1.4.2.
 On iPhone you need `≤a-scene vr-mode-ui="cardboardModeEnabled:true">` for the VR button to show up.
 On Chrome Android you also need the `cardboardModeEnabled:true` option but this is to register the selectstart/selectend event listener to properly use the Cardboard button.
 Be aware that the selectstart/selectend event listener has the side effect to move forward when you press the trigger button with VR controllers.
