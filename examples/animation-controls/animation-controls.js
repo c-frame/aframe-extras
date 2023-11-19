@@ -11,7 +11,7 @@ const animationNames = {
 updateAnimationMixer = () => {
 
   const data = {useRegExp: true}
-  data.clip = "none"
+  data.clip = 'none'
   Object.entries(animationNames).forEach((name) => {
 
     const regExpEscape = (s) => {
