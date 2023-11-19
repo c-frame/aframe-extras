@@ -44,26 +44,22 @@ src
 In the [dist/](https://github.com/c-frame/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@tagOrCommit/dist/aframe-extras.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.1.0/dist/aframe-extras.min.js"></script>
 ```
 
-replace `tagOrCommit` by a tag (for example `v6.1.1`) or a commit hash (for example `fb96ab2`):
-
-CDN builds of the latest version:
-
-- [aframe-extras.js](https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@fb96ab2/dist/aframe-extras.js) *(development)*
-- [aframe-extras.min.js](https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@fb96ab2/dist/aframe-extras.min.js) *(production)*
+replace `7.1.0` by another tag or a commit hash (for example `3e0ab50`) if you want to use a build from master branch.
+You can [look at the commits](https://github.com/c-frame/aframe-extras/commits/master) and use the latest commit hash.
 
 For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full list of packages above.
 
 **A-Frame Version Compatibility**
 
-| A-Frame  | Extras                        |
-|----------|-------------------------------|
-| v1.4.0   | v7.0.0 (unreleased) / fb96ab2 |
-| v1.3.0   | v7.0.0 (unreleased) / fb96ab2 |
-| v1.2.0   | v7.0.0 (unreleased) / fb96ab2 |
-| v1.1.0   | v6.1.1                        |
+| A-Frame  | Extras |
+|----------|--------|
+| v1.4.0   | v7.0.0 |
+| v1.3.0   | v7.0.0 |
+| v1.2.0   | v7.0.0 |
+| v1.1.0   | v6.1.1 |
 
 > **NOTE:** Several components and examples also rely on [aframe-physics-system](https://github.com/c-frame/aframe-physics-system).
 
@@ -80,7 +76,11 @@ require('aframe-extras');
 
 Once installed, you'll need to compile your JavaScript using something like [webpack](https://webpack.js.org).
 
+## Examples
 
+A live set of usage examples can be found here:
+
+https://c-frame.github.io/aframe-extras/examples/
 
 ## Deprecated Components
 

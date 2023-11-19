@@ -1,13 +1,13 @@
 {
   "name": "aframe-extras",
-  "version": "6.1.1",
+  "version": "7.1.0",
   "description": "Add-ons and examples for A-Frame VR.",
   "author": "Don McCurdy <dm@donmccurdy.com>",
   "license": "MIT",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/donmccurdy/aframe-extras.git"
+    "url": "git+https://github.com/c-frame/aframe-extras.git"
   },
   "scripts": {
     "dev": "budo --live --port=8080 index.js:examples/bundle.js -- -t [ babelify --presets [ env ] ]",
@@ -21,13 +21,13 @@
     "preversion": "npm run test:once",
     "preversion:readme": "replace 'aframe-extras@v\\d+\\.\\d+\\.\\d+' \"aframe-extras@v$npm_package_version\" ./README.md",
     "version": "npm run preversion:readme && npm run dist && git add -A dist README.md",
-    "postversion": "git push && git push --tags && npm publish",
-    "postpublish": "./scripts/publish.js"
+    "postversion": "git push && git push --tags && npm publish"
   },
   "peerDependencies": {
     "aframe": "*"
   },
   "dependencies": {
+    "nipplejs": "^0.10.1",
     "three-pathfinding": "^1.1.0"
   },
   "devDependencies": {
