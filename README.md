@@ -44,10 +44,10 @@ src
 In the [dist/](https://github.com/c-frame/aframe-extras/tree/master/dist) folder, download any package(s) you need. Include the scripts on your page, and all components are automatically registered for you:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.1.0/dist/aframe-extras.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 ```
 
-replace `7.1.0` by another tag or a commit hash (for example `3e0ab50`) if you want to use a build from master branch.
+replace `7.2.0` by another tag or a commit hash (for example `3e0ab50`) if you want to use a build from master branch.
 You can [look at the commits](https://github.com/c-frame/aframe-extras/commits/master) and use the latest commit hash.
 
 For partial builds, use a subpackage like `aframe-extras.controls.min.js`. Full list of packages above.
