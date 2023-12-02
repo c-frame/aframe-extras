@@ -4259,7 +4259,7 @@ THREE.FBXLoader = three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__
 /**
  * fbx-model
  *
- * Loader for FBX format. Supports ASCII, but *not* binary, models.
+ * Loader for FBX format.
  */
 AFRAME.registerComponent('fbx-model', {
   schema: {

@@ -5464,9 +5464,10 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
  * @author Don McCurdy <dm@donmccurdy.com>
  */
 
-const COMPONENT_SUFFIX = '-controls',
-    MAX_DELTA = 0.2, // ms
-    EPS = 10e-6;
+const COMPONENT_SUFFIX = '-controls';
+const MAX_DELTA = 0.2; // ms
+const EPS = 10e-6;
+const MOVED = 'moved';
 
 module.exports = AFRAME.registerComponent('movement-controls', {
 
@@ -5492,12 +5493,13 @@ module.exports = AFRAME.registerComponent('movement-controls', {
   init: function () {
     const el = this.el;
     if (!this.data.camera) {
-      this.data.camera = el.querySelector('[camera]')
+      this.data.camera = el.querySelector('[camera]');
     }
     this.velocityCtrl = null;
 
     this.velocity = new THREE.Vector3();
     this.heading = new THREE.Quaternion();
+    this.eventDetail = {};
 
     // Navigation
     this.navGroup = null;
@@ -5667,6 +5669,10 @@ module.exports = AFRAME.registerComponent('movement-controls', {
           velocity.x = vector2.x;
           velocity.y = 0;
           velocity.z = vector2.y;
+        }
+        if (velocity.x !== 0 || velocity.y !== 0 || velocity.z !== 0) {
+          this.eventDetail.velocity = velocity;
+          this.el.emit(MOVED, this.eventDetail);
         }
       }
     };
@@ -6446,7 +6452,7 @@ THREE.FBXLoader = three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__
 /**
  * fbx-model
  *
- * Loader for FBX format. Supports ASCII, but *not* binary, models.
+ * Loader for FBX format.
  */
 AFRAME.registerComponent('fbx-model', {
   schema: {

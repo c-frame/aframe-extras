@@ -99,6 +99,11 @@ With physics-based movement.
 | constrainToNavMesh | false    | Whether to use navigation system to clamp movement. |
 | camera             | [camera] | Camera element used for heading of the camera rig.  |
 
+
+## Events
+
+- The `movement-controls` component emits a `moved` event on the entity with evt.detail.velocity (vec3).
+
 ## Customizing movement-controls
 
 To implement your custom controls, define a component and override one or more methods:
