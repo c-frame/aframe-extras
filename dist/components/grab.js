@@ -1,10 +1,21 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else {
+		var a = factory();
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(self, () => {
+return /******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-require('./src/misc/grab');
-
-},{"./src/misc/grab":2}],2:[function(require,module,exports){
-'use strict';
+/***/ "./src/misc/grab.js":
+/*!**************************!*\
+  !*** ./src/misc/grab.js ***!
+  \**************************/
+/***/ ((module) => {
 
 /* global CANNON */
 
@@ -15,17 +26,16 @@ require('./src/misc/grab');
  * Determines if the entity is grabbed or released.
  * Updates its position to move along the controller.
  */
-
 module.exports = AFRAME.registerComponent('grab', {
-  init: function init() {
+  init: function () {
     this.system = this.el.sceneEl.systems.physics;
 
     this.GRABBED_STATE = 'grabbed';
 
     this.grabbing = false;
-    this.hitEl = /** @type {AFRAME.Element}    */null;
-    this.physics = /** @type {AFRAME.System}     */this.el.sceneEl.systems.physics;
-    this.constraint = /** @type {CANNON.Constraint} */null;
+    this.hitEl =      /** @type {AFRAME.Element}    */ null;
+    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */ null;
 
     // Bind event handlers
     this.onHit = this.onHit.bind(this);
@@ -33,8 +43,8 @@ module.exports = AFRAME.registerComponent('grab', {
     this.onGripClose = this.onGripClose.bind(this);
   },
 
-  play: function play() {
-    var el = this.el;
+  play: function () {
+    const el = this.el;
     el.addEventListener('hit', this.onHit);
     el.addEventListener('gripdown', this.onGripClose);
     el.addEventListener('gripup', this.onGripOpen);
@@ -44,8 +54,8 @@ module.exports = AFRAME.registerComponent('grab', {
     el.addEventListener('triggerup', this.onGripOpen);
   },
 
-  pause: function pause() {
-    var el = this.el;
+  pause: function () {
+    const el = this.el;
     el.removeEventListener('hit', this.onHit);
     el.removeEventListener('gripdown', this.onGripClose);
     el.removeEventListener('gripup', this.onGripOpen);
@@ -55,30 +65,26 @@ module.exports = AFRAME.registerComponent('grab', {
     el.removeEventListener('triggerup', this.onGripOpen);
   },
 
-  onGripClose: function onGripClose() {
+  onGripClose: function () {
     this.grabbing = true;
   },
 
-  onGripOpen: function onGripOpen() {
-    var hitEl = this.hitEl;
+  onGripOpen: function () {
+    const hitEl = this.hitEl;
     this.grabbing = false;
-    if (!hitEl) {
-      return;
-    }
+    if (!hitEl) { return; }
     hitEl.removeState(this.GRABBED_STATE);
     this.hitEl = undefined;
     this.system.removeConstraint(this.constraint);
     this.constraint = null;
   },
 
-  onHit: function onHit(evt) {
-    var hitEl = evt.detail.el;
+  onHit: function (evt) {
+    const hitEl = evt.detail.el;
     // If the element is already grabbed (it could be grabbed by another controller).
     // If the hand is not grabbing the element does not stick.
     // If we're already grabbing something you can't grab again.
-    if (hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) {
-      return;
-    }
+    if (hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
     hitEl.addState(this.GRABBED_STATE);
     this.hitEl = hitEl;
     this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
@@ -86,4 +92,44 @@ module.exports = AFRAME.registerComponent('grab', {
   }
 });
 
-},{}]},{},[1]);
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/misc/grab.js");
+/******/ 	
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});
+//# sourceMappingURL=grab.js.map

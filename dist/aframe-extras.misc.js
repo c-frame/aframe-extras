@@ -1,59 +1,69 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else {
+		var a = factory();
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(self, () => {
+return /******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-require('./src/misc');
-
-},{"./src/misc":5}],2:[function(require,module,exports){
-'use strict';
+/***/ "./src/misc/checkpoint.js":
+/*!********************************!*\
+  !*** ./src/misc/checkpoint.js ***!
+  \********************************/
+/***/ ((module) => {
 
 module.exports = AFRAME.registerComponent('checkpoint', {
   schema: {
-    offset: { default: { x: 0, y: 0, z: 0 }, type: 'vec3' }
+    offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
   },
 
-  init: function init() {
+  init: function () {
     this.active = false;
     this.targetEl = null;
     this.fire = this.fire.bind(this);
     this.offset = new THREE.Vector3();
   },
 
-  update: function update() {
+  update: function () {
     this.offset.copy(this.data.offset);
   },
 
-  play: function play() {
-    this.el.addEventListener('click', this.fire);
-  },
-  pause: function pause() {
-    this.el.removeEventListener('click', this.fire);
-  },
-  remove: function remove() {
-    this.pause();
-  },
+  play: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.removeEventListener('click', this.fire); },
+  remove: function () { this.pause(); },
 
-  fire: function fire() {
-    var targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+  fire: function () {
+    const targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
     if (!targetEl) {
       throw new Error('No `checkpoint-controls` component found.');
     }
     targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
   },
 
-  getOffset: function getOffset() {
+  getOffset: function () {
     return this.offset.copy(this.data.offset);
   }
 });
 
-},{}],3:[function(require,module,exports){
-'use strict';
+
+/***/ }),
+
+/***/ "./src/misc/cube-env-map.js":
+/*!**********************************!*\
+  !*** ./src/misc/cube-env-map.js ***!
+  \**********************************/
+/***/ ((module) => {
 
 /**
  * @param  {Array<THREE.Material>|THREE.Material} material
  * @return {Array<THREE.Material>}
  */
-
-function ensureMaterialArray(material) {
+function ensureMaterialArray (material) {
   if (!material) {
     return [];
   } else if (Array.isArray(material)) {
@@ -71,18 +81,18 @@ function ensureMaterialArray(material) {
  * @param  {THREE.Texture} envMap
  * @param  {number} reflectivity  [description]
  */
-function applyEnvMap(mesh, materialNames, envMap, reflectivity) {
+function applyEnvMap (mesh, materialNames, envMap, reflectivity) {
   if (!mesh) return;
 
   materialNames = materialNames || [];
 
-  mesh.traverse(function (node) {
+  mesh.traverse((node) => {
 
     if (!node.isMesh) return;
 
-    var meshMaterials = ensureMaterialArray(node.material);
+    const meshMaterials = ensureMaterialArray(node.material);
 
-    meshMaterials.forEach(function (material) {
+    meshMaterials.forEach((material) => {
 
       if (material && !('envMap' in material)) return;
       if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
@@ -90,7 +100,9 @@ function applyEnvMap(mesh, materialNames, envMap, reflectivity) {
       material.envMap = envMap;
       material.reflectivity = reflectivity;
       material.needsUpdate = true;
+
     });
+
   });
 }
 
@@ -102,46 +114,45 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
   multiple: true,
 
   schema: {
-    path: { default: '' },
-    extension: { default: 'jpg', oneOf: ['jpg', 'png'] },
-    enableBackground: { default: false },
-    reflectivity: { default: 1, min: 0, max: 1 },
-    materials: { default: [] }
+    path: {default: ''},
+    extension: {default: 'jpg', oneOf: ['jpg', 'png']},
+    enableBackground: {default: false},
+    reflectivity: {default: 1, min: 0, max: 1},
+    materials: {default: []}
   },
 
-  init: function init() {
-    var _this = this;
+  init: function () {
+    const data = this.data;
 
-    var data = this.data;
-
-    this.texture = new THREE.CubeTextureLoader().load([data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension, data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension, data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension]);
+    this.texture = new THREE.CubeTextureLoader().load([
+      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
+      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
+      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
+    ]);
     this.texture.format = THREE.RGBAFormat;
 
-    this.object3dsetHandler = function () {
-      var mesh = _this.el.getObject3D('mesh');
-      var data = _this.data;
-      applyEnvMap(mesh, data.materials, _this.texture, data.reflectivity);
+    this.object3dsetHandler = () => {
+      const mesh = this.el.getObject3D('mesh');
+      const data = this.data;
+      applyEnvMap(mesh, data.materials, this.texture, data.reflectivity);
     };
 
     this.object3dsetHandler();
     this.el.addEventListener('object3dset', this.object3dsetHandler);
+    
   },
 
-  update: function update(oldData) {
-    var data = this.data;
-    var mesh = this.el.getObject3D('mesh');
+  update: function (oldData) {
+    const data = this.data;
+    const mesh = this.el.getObject3D('mesh');
 
-    var addedMaterialNames = [];
-    var removedMaterialNames = [];
+    let addedMaterialNames = [];
+    let removedMaterialNames = [];
 
     if (data.materials.length) {
       if (oldData.materials) {
-        addedMaterialNames = data.materials.filter(function (name) {
-          return !oldData.materials.includes(name);
-        });
-        removedMaterialNames = oldData.materials.filter(function (name) {
-          return !data.materials.includes(name);
-        });
+        addedMaterialNames = data.materials.filter((name) => !oldData.materials.includes(name));
+        removedMaterialNames = oldData.materials.filter((name) => !data.materials.includes(name));
       } else {
         addedMaterialNames = data.materials;
       }
@@ -154,9 +165,8 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
     }
 
     if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
-      var maintainedMaterialNames = data.materials.filter(function (name) {
-        return oldData.materials.includes(name);
-      });
+      const maintainedMaterialNames = data.materials
+        .filter((name) => oldData.materials.includes(name));
       if (maintainedMaterialNames.length) {
         applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
       }
@@ -169,22 +179,27 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
     }
   },
 
-  remove: function remove() {
+  remove: function () {
     this.el.removeEventListener('object3dset', this.object3dsetHandler);
-    var mesh = this.el.getObject3D('mesh');
-    var data = this.data;
+    const mesh = this.el.getObject3D('mesh');
+    const data = this.data;
 
     applyEnvMap(mesh, data.materials, null, 1);
     if (data.enableBackground) this.setBackground(null);
   },
 
-  setBackground: function setBackground(texture) {
+  setBackground: function (texture) {
     this.el.sceneEl.object3D.background = texture;
   }
 });
 
-},{}],4:[function(require,module,exports){
-'use strict';
+/***/ }),
+
+/***/ "./src/misc/grab.js":
+/*!**************************!*\
+  !*** ./src/misc/grab.js ***!
+  \**************************/
+/***/ ((module) => {
 
 /* global CANNON */
 
@@ -195,17 +210,16 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
  * Determines if the entity is grabbed or released.
  * Updates its position to move along the controller.
  */
-
 module.exports = AFRAME.registerComponent('grab', {
-  init: function init() {
+  init: function () {
     this.system = this.el.sceneEl.systems.physics;
 
     this.GRABBED_STATE = 'grabbed';
 
     this.grabbing = false;
-    this.hitEl = /** @type {AFRAME.Element}    */null;
-    this.physics = /** @type {AFRAME.System}     */this.el.sceneEl.systems.physics;
-    this.constraint = /** @type {CANNON.Constraint} */null;
+    this.hitEl =      /** @type {AFRAME.Element}    */ null;
+    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */ null;
 
     // Bind event handlers
     this.onHit = this.onHit.bind(this);
@@ -213,8 +227,8 @@ module.exports = AFRAME.registerComponent('grab', {
     this.onGripClose = this.onGripClose.bind(this);
   },
 
-  play: function play() {
-    var el = this.el;
+  play: function () {
+    const el = this.el;
     el.addEventListener('hit', this.onHit);
     el.addEventListener('gripdown', this.onGripClose);
     el.addEventListener('gripup', this.onGripOpen);
@@ -224,8 +238,8 @@ module.exports = AFRAME.registerComponent('grab', {
     el.addEventListener('triggerup', this.onGripOpen);
   },
 
-  pause: function pause() {
-    var el = this.el;
+  pause: function () {
+    const el = this.el;
     el.removeEventListener('hit', this.onHit);
     el.removeEventListener('gripdown', this.onGripClose);
     el.removeEventListener('gripup', this.onGripOpen);
@@ -235,30 +249,26 @@ module.exports = AFRAME.registerComponent('grab', {
     el.removeEventListener('triggerup', this.onGripOpen);
   },
 
-  onGripClose: function onGripClose() {
+  onGripClose: function () {
     this.grabbing = true;
   },
 
-  onGripOpen: function onGripOpen() {
-    var hitEl = this.hitEl;
+  onGripOpen: function () {
+    const hitEl = this.hitEl;
     this.grabbing = false;
-    if (!hitEl) {
-      return;
-    }
+    if (!hitEl) { return; }
     hitEl.removeState(this.GRABBED_STATE);
     this.hitEl = undefined;
     this.system.removeConstraint(this.constraint);
     this.constraint = null;
   },
 
-  onHit: function onHit(evt) {
-    var hitEl = evt.detail.el;
+  onHit: function (evt) {
+    const hitEl = evt.detail.el;
     // If the element is already grabbed (it could be grabbed by another controller).
     // If the hand is not grabbing the element does not stick.
     // If we're already grabbing something you can't grab again.
-    if (hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) {
-      return;
-    }
+    if (hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
     hitEl.addState(this.GRABBED_STATE);
     this.hitEl = hitEl;
     this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
@@ -266,47 +276,47 @@ module.exports = AFRAME.registerComponent('grab', {
   }
 });
 
-},{}],5:[function(require,module,exports){
-'use strict';
 
-require('./checkpoint');
-require('./cube-env-map');
-require('./grab');
-require('./normal-material');
-require('./sphere-collider');
+/***/ }),
 
-},{"./checkpoint":2,"./cube-env-map":3,"./grab":4,"./normal-material":6,"./sphere-collider":7}],6:[function(require,module,exports){
-'use strict';
+/***/ "./src/misc/normal-material.js":
+/*!*************************************!*\
+  !*** ./src/misc/normal-material.js ***!
+  \*************************************/
+/***/ ((module) => {
 
 /**
  * Recursively applies a MeshNormalMaterial to the entity, such that
  * face colors are determined by their orientation. Helpful for
  * debugging geometry
  */
-
 module.exports = AFRAME.registerComponent('normal-material', {
-  init: function init() {
-    this.material = new THREE.MeshNormalMaterial({ flatShading: true });
+  init: function () {
+    this.material = new THREE.MeshNormalMaterial({flatShading: true});
     this.applyMaterial = this.applyMaterial.bind(this);
     this.el.addEventListener('object3dset', this.applyMaterial);
     this.applyMaterial();
   },
 
-  remove: function remove() {
+  remove: function () {
     this.el.removeEventListener('object3dset', this.applyMaterial);
   },
 
-  applyMaterial: function applyMaterial() {
-    var _this = this;
-
-    this.el.object3D.traverse(function (node) {
-      if (node.isMesh) node.material = _this.material;
+  applyMaterial: function () {
+    this.el.object3D.traverse((node) => {
+      if (node.isMesh) node.material = this.material;
     });
   }
 });
 
-},{}],7:[function(require,module,exports){
-'use strict';
+
+/***/ }),
+
+/***/ "./src/misc/sphere-collider.js":
+/*!*************************************!*\
+  !*** ./src/misc/sphere-collider.js ***!
+  \*************************************/
+/***/ ((module) => {
 
 /**
  * Based on aframe/examples/showcase/tracked-controls.
@@ -318,18 +328,17 @@ module.exports = AFRAME.registerComponent('normal-material', {
  * @property {string} state - State to set on collided entities.
  *
  */
-
 module.exports = AFRAME.registerComponent('sphere-collider', {
   schema: {
-    enabled: { default: true },
-    interval: { default: 80 },
-    objects: { default: '' },
-    state: { default: 'collided' },
-    radius: { default: 0.05 },
-    watch: { default: true }
+    enabled: {default: true},
+    interval: {default: 80},
+    objects: {default: ''},
+    state: {default: 'collided'},
+    radius: {default: 0.05},
+    watch: {default: true}
   },
 
-  init: function init() {
+  init: function () {
     /** @type {MutationObserver} */
     this.observer = null;
     /** @type {Array<Element>} Elements to watch for collisions. */
@@ -343,16 +352,16 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     this.handleHitEnd = this.handleHitEnd.bind(this);
   },
 
-  play: function play() {
-    var sceneEl = this.el.sceneEl;
+  play: function () {
+    const sceneEl = this.el.sceneEl;
 
     if (this.data.watch) {
       this.observer = new MutationObserver(this.update.bind(this, null));
-      this.observer.observe(sceneEl, { childList: true, subtree: true });
+      this.observer.observe(sceneEl, {childList: true, subtree: true});
     }
   },
 
-  pause: function pause() {
+  pause: function () {
     if (this.observer) {
       this.observer.disconnect();
       this.observer = null;
@@ -362,9 +371,9 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   /**
    * Update list of entities to test for collision.
    */
-  update: function update() {
-    var data = this.data;
-    var objectEls = void 0;
+  update: function () {
+    const data = this.data;
+    let objectEls;
 
     // Push entities into list of els to intersect.
     if (data.objects) {
@@ -377,8 +386,8 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     this.els = Array.prototype.slice.call(objectEls);
   },
 
-  tick: function () {
-    var position = new THREE.Vector3(),
+  tick: (function () {
+    const position = new THREE.Vector3(),
         meshPosition = new THREE.Vector3(),
         colliderScale = new THREE.Vector3(),
         size = new THREE.Vector3(),
@@ -386,26 +395,20 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         collisions = [],
         distanceMap = new Map();
     return function (time) {
-      if (!this.data.enabled) {
-        return;
-      }
+      if (!this.data.enabled) { return; }
 
       // Only check for intersection if interval time has passed.
-      var prevCheckTime = this.prevCheckTime;
-      if (prevCheckTime && time - prevCheckTime < this.data.interval) {
-        return;
-      }
+      const prevCheckTime = this.prevCheckTime;
+      if (prevCheckTime && (time - prevCheckTime < this.data.interval)) { return; }
       // Update check time.
       this.prevCheckTime = time;
 
-      var el = this.el,
+      const el = this.el,
           data = this.data,
           mesh = el.getObject3D('mesh');
-      var colliderRadius = void 0;
+      let colliderRadius;
 
-      if (!mesh) {
-        return;
-      }
+      if (!mesh) { return; }
 
       collisions.length = 0;
       distanceMap.clear();
@@ -416,43 +419,34 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
       this.els.forEach(intersect);
 
       // Emit events and add collision states, in order of distance.
-      collisions.sort(function (a, b) {
-        return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
-      }).forEach(this.handleHit);
+      collisions
+        .sort((a, b) => distanceMap.get(a) > distanceMap.get(b) ? 1 : -1)
+        .forEach(this.handleHit);
 
       // Remove collision state from other elements.
-      this.collisions.filter(function (el) {
-        return !distanceMap.has(el);
-      }).forEach(this.handleHitEnd);
+      this.collisions
+        .filter((el) => !distanceMap.has(el))
+        .forEach(this.handleHitEnd);
 
       // Store new collisions
       copyArray(this.collisions, collisions);
 
       // Bounding sphere collision detection
-      function intersect(el) {
-        var radius = void 0,
-            mesh = void 0,
-            distance = void 0,
-            extent = void 0;
+      function intersect (el) {
+        let radius, mesh, distance, extent;
 
-        if (!el.isEntity) {
-          return;
-        }
+        if (!el.isEntity) { return; }
 
         mesh = el.getObject3D('mesh');
 
-        if (!mesh) {
-          return;
-        }
+        if (!mesh) { return; }
 
         box.setFromObject(mesh).getSize(size);
         extent = Math.max(size.x, size.y, size.z) / 2;
         radius = Math.sqrt(2 * extent * extent);
         box.getCenter(meshPosition);
 
-        if (!radius) {
-          return;
-        }
+        if (!radius) { return; }
 
         distance = position.distanceTo(meshPosition);
         if (distance < radius + colliderRadius) {
@@ -461,19 +455,19 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         }
       }
       // use max of scale factors to maintain bounding sphere collision
-      function scaleFactor(scaleVec) {
+      function scaleFactor (scaleVec) {
         return Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
       }
     };
-  }(),
+  })(),
 
-  handleHit: function handleHit(targetEl) {
+  handleHit: function (targetEl) {
     targetEl.emit('hit');
     targetEl.addState(this.data.state);
     this.eventDetail.el = targetEl;
     this.el.emit('hit', this.eventDetail);
   },
-  handleHitEnd: function handleHitEnd(targetEl) {
+  handleHitEnd: function (targetEl) {
     targetEl.emit('hitend');
     targetEl.removeState(this.data.state);
     this.eventDetail.el = targetEl;
@@ -481,11 +475,57 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   }
 });
 
-function copyArray(dest, source) {
+function copyArray (dest, source) {
   dest.length = 0;
-  for (var i = 0; i < source.length; i++) {
-    dest[i] = source[i];
-  }
+  for (let i = 0; i < source.length; i++) { dest[i] = source[i]; }
 }
 
-},{}]},{},[1]);
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+/*!***************************!*\
+  !*** ./src/misc/index.js ***!
+  \***************************/
+__webpack_require__(/*! ./checkpoint */ "./src/misc/checkpoint.js");
+__webpack_require__(/*! ./cube-env-map */ "./src/misc/cube-env-map.js");
+__webpack_require__(/*! ./grab */ "./src/misc/grab.js");
+__webpack_require__(/*! ./normal-material */ "./src/misc/normal-material.js");
+__webpack_require__(/*! ./sphere-collider */ "./src/misc/sphere-collider.js");
+
+})();
+
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});
+//# sourceMappingURL=aframe-extras.misc.js.map
