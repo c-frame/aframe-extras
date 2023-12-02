@@ -14,6 +14,7 @@ const LoopMode = {
 module.exports = AFRAME.registerComponent('animation-mixer', {
   schema: {
     clip: { default: '*' },
+    useRegExp: {default: false},
     duration: { default: 0 },
     clampWhenFinished: { default: false, type: 'boolean' },
     crossFadeDuration: { default: 0 },
@@ -108,7 +109,7 @@ module.exports = AFRAME.registerComponent('animation-mixer', {
 
     if (!clips.length) return;
 
-    const re = wildcardToRegExp(data.clip);
+    const re = data.useRegExp ? data.clip : wildcardToRegExp(data.clip);
 
     for (let clip, i = 0; (clip = clips[i]); i++) {
       if (clip.name.match(re)) {

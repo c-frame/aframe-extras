@@ -33,6 +33,8 @@ an animation and its duration:
 | Property          | Default  | Description                                               |
 |-------------------|----------|-----------------------------------------------------------|
 | clip              | *        | Name of the animation clip(s) to play. Accepts wildcards. |
+| useRegExp         | false    | If true, interpret the `clip` string as a regular expression.  If false, it is treated as a literal string, except for the * character, which is treated as a variable-length wildcard. |
+
 | duration          | 0     | Duration of one cycle of the animation clip, in seconds.  This provides the same functionality as timeScale (apart from pausing), with duration = clipLength/timeScale.  This property only has an effect if timeScale is set to 1, otherwise the value of timeScale is used to determine animation playback speed.  |
 | crossFadeDuration | 0        | Duration of cross-fades between clips, in seconds.        |
 | loop              | repeat   | `once`, `repeat`, or `pingpong`. In `repeat` and `pingpong` modes, the clip plays once plus the specified number of repetitions. For `pingpong`, every second clip plays in reverse. |
@@ -41,9 +43,7 @@ an animation and its duration:
 | clampWhenFinished | false        | If true, halts the animation at the last frame. |
 | startAt           | 0        | Configures the animation clip to begin at a specific start time (in milliseconds). This is useful when you need to jump to an exact time in an animation. The input parameter will be scaled by the mixer's timeScale.  Negative values will result in a pause before the animation begins. |
 
-A list of available animations can usually be found by inspecting the model file or its documentation. All animations will play by default. To play only a specific set of animations, use wildcards: `animation-mixer="clip: run_*"`.
-
-There is no provided syntax to specify multiple animations, except via the * wildcard.  For example: `animation-mixer="clip: run,walk"` will match neither `run` nor `walk`, and would only match a clip named `run,walk`.
+A list of available animations can usually be found by inspecting the model file or its documentation. All animations will play by default. To play only a specific set of animations, use wildcards: `animation-mixer="clip: run_*"`, or use the useRegExp flag to enable full regular expression matching, e.g. `animation-mixer="useRegExp: true; clip: run|walk"`.
 
 ### Animation Events
 
