@@ -1,11 +1,12 @@
-THREE.FBXLoader = require('../../lib/FBXLoader');
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+THREE.FBXLoader = FBXLoader;
 
 /**
  * fbx-model
  *
- * Loader for FBX format. Supports ASCII, but *not* binary, models.
+ * Loader for FBX format.
  */
-module.exports = AFRAME.registerComponent('fbx-model', {
+AFRAME.registerComponent('fbx-model', {
   schema: {
     src:         { type: 'asset' },
     crossorigin: { default: '' }
