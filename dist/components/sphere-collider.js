@@ -1,10 +1,21 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else {
+		var a = factory();
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(self, () => {
+return /******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-require('./src/misc/sphere-collider');
-
-},{"./src/misc/sphere-collider":2}],2:[function(require,module,exports){
-'use strict';
+/***/ "./src/misc/sphere-collider.js":
+/*!*************************************!*\
+  !*** ./src/misc/sphere-collider.js ***!
+  \*************************************/
+/***/ ((module) => {
 
 /**
  * Based on aframe/examples/showcase/tracked-controls.
@@ -16,18 +27,17 @@ require('./src/misc/sphere-collider');
  * @property {string} state - State to set on collided entities.
  *
  */
-
 module.exports = AFRAME.registerComponent('sphere-collider', {
   schema: {
-    enabled: { default: true },
-    interval: { default: 80 },
-    objects: { default: '' },
-    state: { default: 'collided' },
-    radius: { default: 0.05 },
-    watch: { default: true }
+    enabled: {default: true},
+    interval: {default: 80},
+    objects: {default: ''},
+    state: {default: 'collided'},
+    radius: {default: 0.05},
+    watch: {default: true}
   },
 
-  init: function init() {
+  init: function () {
     /** @type {MutationObserver} */
     this.observer = null;
     /** @type {Array<Element>} Elements to watch for collisions. */
@@ -41,16 +51,16 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     this.handleHitEnd = this.handleHitEnd.bind(this);
   },
 
-  play: function play() {
-    var sceneEl = this.el.sceneEl;
+  play: function () {
+    const sceneEl = this.el.sceneEl;
 
     if (this.data.watch) {
       this.observer = new MutationObserver(this.update.bind(this, null));
-      this.observer.observe(sceneEl, { childList: true, subtree: true });
+      this.observer.observe(sceneEl, {childList: true, subtree: true});
     }
   },
 
-  pause: function pause() {
+  pause: function () {
     if (this.observer) {
       this.observer.disconnect();
       this.observer = null;
@@ -60,9 +70,9 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   /**
    * Update list of entities to test for collision.
    */
-  update: function update() {
-    var data = this.data;
-    var objectEls = void 0;
+  update: function () {
+    const data = this.data;
+    let objectEls;
 
     // Push entities into list of els to intersect.
     if (data.objects) {
@@ -75,8 +85,8 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
     this.els = Array.prototype.slice.call(objectEls);
   },
 
-  tick: function () {
-    var position = new THREE.Vector3(),
+  tick: (function () {
+    const position = new THREE.Vector3(),
         meshPosition = new THREE.Vector3(),
         colliderScale = new THREE.Vector3(),
         size = new THREE.Vector3(),
@@ -84,26 +94,20 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         collisions = [],
         distanceMap = new Map();
     return function (time) {
-      if (!this.data.enabled) {
-        return;
-      }
+      if (!this.data.enabled) { return; }
 
       // Only check for intersection if interval time has passed.
-      var prevCheckTime = this.prevCheckTime;
-      if (prevCheckTime && time - prevCheckTime < this.data.interval) {
-        return;
-      }
+      const prevCheckTime = this.prevCheckTime;
+      if (prevCheckTime && (time - prevCheckTime < this.data.interval)) { return; }
       // Update check time.
       this.prevCheckTime = time;
 
-      var el = this.el,
+      const el = this.el,
           data = this.data,
           mesh = el.getObject3D('mesh');
-      var colliderRadius = void 0;
+      let colliderRadius;
 
-      if (!mesh) {
-        return;
-      }
+      if (!mesh) { return; }
 
       collisions.length = 0;
       distanceMap.clear();
@@ -114,43 +118,34 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
       this.els.forEach(intersect);
 
       // Emit events and add collision states, in order of distance.
-      collisions.sort(function (a, b) {
-        return distanceMap.get(a) > distanceMap.get(b) ? 1 : -1;
-      }).forEach(this.handleHit);
+      collisions
+        .sort((a, b) => distanceMap.get(a) > distanceMap.get(b) ? 1 : -1)
+        .forEach(this.handleHit);
 
       // Remove collision state from other elements.
-      this.collisions.filter(function (el) {
-        return !distanceMap.has(el);
-      }).forEach(this.handleHitEnd);
+      this.collisions
+        .filter((el) => !distanceMap.has(el))
+        .forEach(this.handleHitEnd);
 
       // Store new collisions
       copyArray(this.collisions, collisions);
 
       // Bounding sphere collision detection
-      function intersect(el) {
-        var radius = void 0,
-            mesh = void 0,
-            distance = void 0,
-            extent = void 0;
+      function intersect (el) {
+        let radius, mesh, distance, extent;
 
-        if (!el.isEntity) {
-          return;
-        }
+        if (!el.isEntity) { return; }
 
         mesh = el.getObject3D('mesh');
 
-        if (!mesh) {
-          return;
-        }
+        if (!mesh) { return; }
 
         box.setFromObject(mesh).getSize(size);
         extent = Math.max(size.x, size.y, size.z) / 2;
         radius = Math.sqrt(2 * extent * extent);
         box.getCenter(meshPosition);
 
-        if (!radius) {
-          return;
-        }
+        if (!radius) { return; }
 
         distance = position.distanceTo(meshPosition);
         if (distance < radius + colliderRadius) {
@@ -159,19 +154,19 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
         }
       }
       // use max of scale factors to maintain bounding sphere collision
-      function scaleFactor(scaleVec) {
+      function scaleFactor (scaleVec) {
         return Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
       }
     };
-  }(),
+  })(),
 
-  handleHit: function handleHit(targetEl) {
+  handleHit: function (targetEl) {
     targetEl.emit('hit');
     targetEl.addState(this.data.state);
     this.eventDetail.el = targetEl;
     this.el.emit('hit', this.eventDetail);
   },
-  handleHitEnd: function handleHitEnd(targetEl) {
+  handleHitEnd: function (targetEl) {
     targetEl.emit('hitend');
     targetEl.removeState(this.data.state);
     this.eventDetail.el = targetEl;
@@ -179,11 +174,49 @@ module.exports = AFRAME.registerComponent('sphere-collider', {
   }
 });
 
-function copyArray(dest, source) {
+function copyArray (dest, source) {
   dest.length = 0;
-  for (var i = 0; i < source.length; i++) {
-    dest[i] = source[i];
-  }
+  for (let i = 0; i < source.length; i++) { dest[i] = source[i]; }
 }
 
-},{}]},{},[1]);
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/misc/sphere-collider.js");
+/******/ 	
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});
+//# sourceMappingURL=sphere-collider.js.map
