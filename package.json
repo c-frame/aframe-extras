@@ -10,54 +10,20 @@
     "url": "git+https://github.com/c-frame/aframe-extras.git"
   },
   "scripts": {
-    "dev": "budo --live --port=8080 index.js:examples/bundle.js -- -t [ babelify --presets [ env ] ]",
-    "build": "browserify index.js -o examples/bundle.js -t [ babelify --presets [ env ] ]",
-    "dist": "node ./scripts/dist.js",
-    "test": "karma start ./tests/karma.conf.js",
-    "test:once": "karma start ./tests/karma.conf.js --single-run",
-    "test:firefox": "karma start ./tests/karma.conf.js --browsers Firefox",
-    "test:chrome": "karma start ./tests/karma.conf.js --browsers Chrome",
-    "test:ci": "TEST_ENV=ci karma start ./tests/karma.conf.js --single-run --browsers Firefox",
-    "preversion": "npm run test:once",
-    "preversion:readme": "replace 'aframe-extras@v\\d+\\.\\d+\\.\\d+' \"aframe-extras@v$npm_package_version\" ./README.md",
-    "version": "npm run preversion:readme && npm run dist && git add -A dist README.md",
-    "postversion": "git push && git push --tags && npm publish"
-  },
-  "peerDependencies": {
-    "aframe": "*"
+    "dev": "webpack serve",
+    "dist": "npm run dist:min && npm run dist:max",
+    "dist:max": "webpack",
+    "dist:min": "cross-env NODE_ENV=production webpack"
   },
   "dependencies": {
     "nipplejs": "^0.10.1",
     "three-pathfinding": "^1.1.0"
   },
   "devDependencies": {
-    "aframe": "^0.8.2",
-    "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babelify": "^8.0.0",
-    "browserify": "^13.0.0",
-    "budo": "^9.0.0",
-    "chai": "^3.5.0",
-    "chai-shallow-deep-equal": "^1.3.0",
-    "chalk": "^1.1.1",
-    "envify": "^4.0.0",
-    "fs-extra": "^0.30.0",
-    "karma": "^1.2.0",
-    "karma-browserify": "^5.1.0",
-    "karma-chai-shallow-deep-equal": "0.0.4",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-env-preprocessor": "^0.1.1",
-    "karma-firefox-launcher": "^1.0.0",
-    "karma-mocha": "^1.1.1",
-    "karma-mocha-reporter": "^2.1.0",
-    "karma-sinon-chai": "^1.1.0",
-    "live-server": "^1.2.0",
-    "mocha": "^3.0.2",
-    "replace": "^0.3.0",
-    "sinon": "^1.17.3",
-    "sinon-chai": "^2.8.0",
-    "uglify-es": "^3.1.0",
-    "watch-exec": "^1.2.2"
+    "cross-env": "^7.0.3",
+    "webpack": "^5.79.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2"
   },
   "keywords": [
     "aframe",
@@ -65,17 +31,5 @@
     "vr",
     "webgl",
     "webvr"
-  ],
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "env"
-          ]
-        }
-      ]
-    ]
-  }
+  ]
 }
