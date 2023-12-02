@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "nipplejs": "^0.10.1",
+    "three": "0.159.0",
     "three-pathfinding": "^1.1.0"
   },
   "devDependencies": {
