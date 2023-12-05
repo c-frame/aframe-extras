@@ -34,7 +34,6 @@ an animation and its duration:
 |-------------------|----------|-----------------------------------------------------------|
 | clip              | *        | Name of the animation clip(s) to play. Accepts wildcards. |
 | useRegExp         | false    | If true, interpret the `clip` string as a regular expression.  If false, it is treated as a literal string, except for the * character, which is treated as a variable-length wildcard. |
-
 | duration          | 0     | Duration of one cycle of the animation clip, in seconds.  This provides the same functionality as timeScale (apart from pausing), with duration = clipLength/timeScale.  This property only has an effect if timeScale is set to 1, otherwise the value of timeScale is used to determine animation playback speed.  |
 | crossFadeDuration | 0        | Duration of cross-fades between clips, in seconds.        |
 | loop              | repeat   | `once`, `repeat`, or `pingpong`. In `repeat` and `pingpong` modes, the clip plays once plus the specified number of repetitions. For `pingpong`, every second clip plays in reverse. |
