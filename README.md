@@ -71,10 +71,13 @@ npm install --save aframe-extras
 
 ```javascript
 // index.js
-require('aframe-extras');
+import 'aframe-extras';
+// or specific packages
+import "aframe-extras/controls/index.js";
+import "aframe-extras/pathfinding/index.js";
 ```
 
-Once installed, you'll need to compile your JavaScript using something like [webpack](https://webpack.js.org).
+Once installed, you'll need to compile your JavaScript using something like [webpack](https://webpack.js.org) with three defined as external, see webpack.config.js in this repo for an example.
 
 ## Examples
 
