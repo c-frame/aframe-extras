@@ -5,6 +5,14 @@
   "author": "Don McCurdy <dm@donmccurdy.com>",
   "license": "MIT",
   "main": "index.js",
+  "exports": {
+    ".": "index.js",
+    "./controls/*": "./src/controls/*",
+    "./loaders/*": "./src/loaders/*",
+    "./misc/*": "./src/misc/*",
+    "./pathfinding/*": "./src/pathfinding/*",
+    "./primitives/*": "./src/primitives/*"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/c-frame/aframe-extras.git"
