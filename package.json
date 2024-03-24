@@ -30,9 +30,9 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "webpack": "^5.79.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.13.2"
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
   },
   "keywords": [
     "aframe",
