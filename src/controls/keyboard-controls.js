@@ -61,6 +61,9 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
       if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
       if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
       if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
+
+      // Move faster when the shift key is down.
+      if (keys.ShiftLeft) { this.dVelocity = this.dVelocity.multiplyScalar(2); }
     }
 
     return this.dVelocity.clone();
