@@ -4795,7 +4795,7 @@ module.exports = fetchScript;
   \************************************************/
 /***/ ((module) => {
 
-!function(t,i){ true?module.exports=i():0}(window,(function(){return function(t){var i={};function e(o){if(i[o])return i[o].exports;var n=i[o]={i:o,l:!1,exports:{}};return t[o].call(n.exports,n,n.exports,e),n.l=!0,n.exports}return e.m=t,e.c=i,e.d=function(t,i,o){e.o(t,i)||Object.defineProperty(t,i,{enumerable:!0,get:o})},e.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},e.t=function(t,i){if(1&i&&(t=e(t)),8&i)return t;if(4&i&&"object"==typeof t&&t&&t.__esModule)return t;var o=Object.create(null);if(e.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:t}),2&i&&"string"!=typeof t)for(var n in t)e.d(o,n,function(i){return t[i]}.bind(null,n));return o},e.n=function(t){var i=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(i,"a",i),i},e.o=function(t,i){return Object.prototype.hasOwnProperty.call(t,i)},e.p="",e(e.s=0)}([function(t,i,e){"use strict";e.r(i);var o,n=function(t,i){var e=i.x-t.x,o=i.y-t.y;return Math.sqrt(e*e+o*o)},s=function(t){return t*(Math.PI/180)},r=function(t){return t*(180/Math.PI)},d=new Map,a=function(t){d.has(t)&&clearTimeout(d.get(t)),d.set(t,setTimeout(t,100))},p=function(t,i,e){for(var o,n=i.split(/[ ,]+/g),s=0;s<n.length;s+=1)o=n[s],t.addEventListener?t.addEventListener(o,e,!1):t.attachEvent&&t.attachEvent(o,e)},c=function(t,i,e){for(var o,n=i.split(/[ ,]+/g),s=0;s<n.length;s+=1)o=n[s],t.removeEventListener?t.removeEventListener(o,e):t.detachEvent&&t.detachEvent(o,e)},l=function(t){return t.preventDefault(),t.type.match(/^touch/)?t.changedTouches:t},h=function(){return{x:void 0!==window.pageXOffset?window.pageXOffset:(document.documentElement||document.body.parentNode||document.body).scrollLeft,y:void 0!==window.pageYOffset?window.pageYOffset:(document.documentElement||document.body.parentNode||document.body).scrollTop}},u=function(t,i){i.top||i.right||i.bottom||i.left?(t.style.top=i.top,t.style.right=i.right,t.style.bottom=i.bottom,t.style.left=i.left):(t.style.left=i.x+"px",t.style.top=i.y+"px")},f=function(t,i,e){var o=y(t);for(var n in o)if(o.hasOwnProperty(n))if("string"==typeof i)o[n]=i+" "+e;else{for(var s="",r=0,d=i.length;r<d;r+=1)s+=i[r]+" "+e+", ";o[n]=s.slice(0,-2)}return o},y=function(t){var i={};i[t]="";return["webkit","Moz","o"].forEach((function(e){i[e+t.charAt(0).toUpperCase()+t.slice(1)]=""})),i},m=function(t,i){for(var e in i)i.hasOwnProperty(e)&&(t[e]=i[e]);return t},v=function(t,i){if(t.length)for(var e=0,o=t.length;e<o;e+=1)i(t[e]);else i(t)},g=!!("ontouchstart"in window),b=!!window.PointerEvent,x=!!window.MSPointerEvent,O={start:"mousedown",move:"mousemove",end:"mouseup"},w={};function _(){}b?o={start:"pointerdown",move:"pointermove",end:"pointerup, pointercancel"}:x?o={start:"MSPointerDown",move:"MSPointerMove",end:"MSPointerUp"}:g?(o={start:"touchstart",move:"touchmove",end:"touchend, touchcancel"},w=O):o=O,_.prototype.on=function(t,i){var e,o=t.split(/[ ,]+/g);this._handlers_=this._handlers_||{};for(var n=0;n<o.length;n+=1)e=o[n],this._handlers_[e]=this._handlers_[e]||[],this._handlers_[e].push(i);return this},_.prototype.off=function(t,i){return this._handlers_=this._handlers_||{},void 0===t?this._handlers_={}:void 0===i?this._handlers_[t]=null:this._handlers_[t]&&this._handlers_[t].indexOf(i)>=0&&this._handlers_[t].splice(this._handlers_[t].indexOf(i),1),this},_.prototype.trigger=function(t,i){var e,o=this,n=t.split(/[ ,]+/g);o._handlers_=o._handlers_||{};for(var s=0;s<n.length;s+=1)e=n[s],o._handlers_[e]&&o._handlers_[e].length&&o._handlers_[e].forEach((function(t){t.call(o,{type:e,target:o},i)}))},_.prototype.config=function(t){this.options=this.defaults||{},t&&(this.options=function(t,i){var e={};for(var o in t)t.hasOwnProperty(o)&&i.hasOwnProperty(o)?e[o]=i[o]:t.hasOwnProperty(o)&&(e[o]=t[o]);return e}(this.options,t))},_.prototype.bindEvt=function(t,i){var e=this;return e._domHandlers_=e._domHandlers_||{},e._domHandlers_[i]=function(){"function"==typeof e["on"+i]?e["on"+i].apply(e,arguments):console.warn('[WARNING] : Missing "on'+i+'" handler.')},p(t,o[i],e._domHandlers_[i]),w[i]&&p(t,w[i],e._domHandlers_[i]),e},_.prototype.unbindEvt=function(t,i){return this._domHandlers_=this._domHandlers_||{},c(t,o[i],this._domHandlers_[i]),w[i]&&c(t,w[i],this._domHandlers_[i]),delete this._domHandlers_[i],this};var T=_;function k(t,i){return this.identifier=i.identifier,this.position=i.position,this.frontPosition=i.frontPosition,this.collection=t,this.defaults={size:100,threshold:.1,color:"white",fadeTime:250,dataOnly:!1,restJoystick:!0,restOpacity:.5,mode:"dynamic",zone:document.body,lockX:!1,lockY:!1,shape:"circle"},this.config(i),"dynamic"===this.options.mode&&(this.options.restOpacity=0),this.id=k.id,k.id+=1,this.buildEl().stylize(),this.instance={el:this.ui.el,on:this.on.bind(this),off:this.off.bind(this),show:this.show.bind(this),hide:this.hide.bind(this),add:this.addToDom.bind(this),remove:this.removeFromDom.bind(this),destroy:this.destroy.bind(this),setPosition:this.setPosition.bind(this),resetDirection:this.resetDirection.bind(this),computeDirection:this.computeDirection.bind(this),trigger:this.trigger.bind(this),position:this.position,frontPosition:this.frontPosition,ui:this.ui,identifier:this.identifier,id:this.id,options:this.options},this.instance}k.prototype=new T,k.constructor=k,k.id=0,k.prototype.buildEl=function(t){return this.ui={},this.options.dataOnly||(this.ui.el=document.createElement("div"),this.ui.back=document.createElement("div"),this.ui.front=document.createElement("div"),this.ui.el.className="nipple collection_"+this.collection.id,this.ui.back.className="back",this.ui.front.className="front",this.ui.el.setAttribute("id","nipple_"+this.collection.id+"_"+this.id),this.ui.el.appendChild(this.ui.back),this.ui.el.appendChild(this.ui.front)),this},k.prototype.stylize=function(){if(this.options.dataOnly)return this;var t=this.options.fadeTime+"ms",i=function(t,i){var e=y(t);for(var o in e)e.hasOwnProperty(o)&&(e[o]=i);return e}("borderRadius","50%"),e=f("transition","opacity",t),o={};return o.el={position:"absolute",opacity:this.options.restOpacity,display:"block",zIndex:999},o.back={position:"absolute",display:"block",width:this.options.size+"px",height:this.options.size+"px",marginLeft:-this.options.size/2+"px",marginTop:-this.options.size/2+"px",background:this.options.color,opacity:".5"},o.front={width:this.options.size/2+"px",height:this.options.size/2+"px",position:"absolute",display:"block",marginLeft:-this.options.size/4+"px",marginTop:-this.options.size/4+"px",background:this.options.color,opacity:".5",transform:"translate(0px, 0px)"},m(o.el,e),"circle"===this.options.shape&&m(o.back,i),m(o.front,i),this.applyStyles(o),this},k.prototype.applyStyles=function(t){for(var i in this.ui)if(this.ui.hasOwnProperty(i))for(var e in t[i])this.ui[i].style[e]=t[i][e];return this},k.prototype.addToDom=function(){return this.options.dataOnly||document.body.contains(this.ui.el)||this.options.zone.appendChild(this.ui.el),this},k.prototype.removeFromDom=function(){return this.options.dataOnly||!document.body.contains(this.ui.el)||this.options.zone.removeChild(this.ui.el),this},k.prototype.destroy=function(){clearTimeout(this.removeTimeout),clearTimeout(this.showTimeout),clearTimeout(this.restTimeout),this.trigger("destroyed",this.instance),this.removeFromDom(),this.off()},k.prototype.show=function(t){var i=this;return i.options.dataOnly||(clearTimeout(i.removeTimeout),clearTimeout(i.showTimeout),clearTimeout(i.restTimeout),i.addToDom(),i.restCallback(),setTimeout((function(){i.ui.el.style.opacity=1}),0),i.showTimeout=setTimeout((function(){i.trigger("shown",i.instance),"function"==typeof t&&t.call(this)}),i.options.fadeTime)),i},k.prototype.hide=function(t){var i=this;if(i.options.dataOnly)return i;if(i.ui.el.style.opacity=i.options.restOpacity,clearTimeout(i.removeTimeout),clearTimeout(i.showTimeout),clearTimeout(i.restTimeout),i.removeTimeout=setTimeout((function(){var e="dynamic"===i.options.mode?"none":"block";i.ui.el.style.display=e,"function"==typeof t&&t.call(i),i.trigger("hidden",i.instance)}),i.options.fadeTime),i.options.restJoystick){var e=i.options.restJoystick,o={};o.x=!0===e||!1!==e.x?0:i.instance.frontPosition.x,o.y=!0===e||!1!==e.y?0:i.instance.frontPosition.y,i.setPosition(t,o)}return i},k.prototype.setPosition=function(t,i){var e=this;e.frontPosition={x:i.x,y:i.y};var o=e.options.fadeTime+"ms",n={};n.front=f("transition",["transform"],o);var s={front:{}};s.front={transform:"translate("+e.frontPosition.x+"px,"+e.frontPosition.y+"px)"},e.applyStyles(n),e.applyStyles(s),e.restTimeout=setTimeout((function(){"function"==typeof t&&t.call(e),e.restCallback()}),e.options.fadeTime)},k.prototype.restCallback=function(){var t={};t.front=f("transition","none",""),this.applyStyles(t),this.trigger("rested",this.instance)},k.prototype.resetDirection=function(){this.direction={x:!1,y:!1,angle:!1}},k.prototype.computeDirection=function(t){var i,e,o,n=t.angle.radian,s=Math.PI/4,r=Math.PI/2;if(n>s&&n<3*s&&!t.lockX?i="up":n>-s&&n<=s&&!t.lockY?i="left":n>3*-s&&n<=-s&&!t.lockX?i="down":t.lockY||(i="right"),t.lockY||(e=n>-r&&n<r?"left":"right"),t.lockX||(o=n>0?"up":"down"),t.force>this.options.threshold){var d,a={};for(d in this.direction)this.direction.hasOwnProperty(d)&&(a[d]=this.direction[d]);var p={};for(d in this.direction={x:e,y:o,angle:i},t.direction=this.direction,a)a[d]===this.direction[d]&&(p[d]=!0);if(p.x&&p.y&&p.angle)return t;p.x&&p.y||this.trigger("plain",t),p.x||this.trigger("plain:"+e,t),p.y||this.trigger("plain:"+o,t),p.angle||this.trigger("dir dir:"+i,t)}else this.resetDirection();return t};var P=k;function E(t,i){this.nipples=[],this.idles=[],this.actives=[],this.ids=[],this.pressureIntervals={},this.manager=t,this.id=E.id,E.id+=1,this.defaults={zone:document.body,multitouch:!1,maxNumberOfNipples:10,mode:"dynamic",position:{top:0,left:0},catchDistance:200,size:100,threshold:.1,color:"white",fadeTime:250,dataOnly:!1,restJoystick:!0,restOpacity:.5,lockX:!1,lockY:!1,shape:"circle",dynamicPage:!1,follow:!1},this.config(i),"static"!==this.options.mode&&"semi"!==this.options.mode||(this.options.multitouch=!1),this.options.multitouch||(this.options.maxNumberOfNipples=1);var e=getComputedStyle(this.options.zone.parentElement);return e&&"flex"===e.display&&(this.parentIsFlex=!0),this.updateBox(),this.prepareNipples(),this.bindings(),this.begin(),this.nipples}E.prototype=new T,E.constructor=E,E.id=0,E.prototype.prepareNipples=function(){var t=this.nipples;t.on=this.on.bind(this),t.off=this.off.bind(this),t.options=this.options,t.destroy=this.destroy.bind(this),t.ids=this.ids,t.id=this.id,t.processOnMove=this.processOnMove.bind(this),t.processOnEnd=this.processOnEnd.bind(this),t.get=function(i){if(void 0===i)return t[0];for(var e=0,o=t.length;e<o;e+=1)if(t[e].identifier===i)return t[e];return!1}},E.prototype.bindings=function(){this.bindEvt(this.options.zone,"start"),this.options.zone.style.touchAction="none",this.options.zone.style.msTouchAction="none"},E.prototype.begin=function(){var t=this.options;if("static"===t.mode){var i=this.createNipple(t.position,this.manager.getIdentifier());i.add(),this.idles.push(i)}},E.prototype.createNipple=function(t,i){var e=this.manager.scroll,o={},n=this.options,s=this.parentIsFlex?e.x:e.x+this.box.left,r=this.parentIsFlex?e.y:e.y+this.box.top;if(t.x&&t.y)o={x:t.x-s,y:t.y-r};else if(t.top||t.right||t.bottom||t.left){var d=document.createElement("DIV");d.style.display="hidden",d.style.top=t.top,d.style.right=t.right,d.style.bottom=t.bottom,d.style.left=t.left,d.style.position="absolute",n.zone.appendChild(d);var a=d.getBoundingClientRect();n.zone.removeChild(d),o=t,t={x:a.left+e.x,y:a.top+e.y}}var p=new P(this,{color:n.color,size:n.size,threshold:n.threshold,fadeTime:n.fadeTime,dataOnly:n.dataOnly,restJoystick:n.restJoystick,restOpacity:n.restOpacity,mode:n.mode,identifier:i,position:t,zone:n.zone,frontPosition:{x:0,y:0},shape:n.shape});return n.dataOnly||(u(p.ui.el,o),u(p.ui.front,p.frontPosition)),this.nipples.push(p),this.trigger("added "+p.identifier+":added",p),this.manager.trigger("added "+p.identifier+":added",p),this.bindNipple(p),p},E.prototype.updateBox=function(){this.box=this.options.zone.getBoundingClientRect()},E.prototype.bindNipple=function(t){var i,e=this,o=function(t,o){i=t.type+" "+o.id+":"+t.type,e.trigger(i,o)};t.on("destroyed",e.onDestroyed.bind(e)),t.on("shown hidden rested dir plain",o),t.on("dir:up dir:right dir:down dir:left",o),t.on("plain:up plain:right plain:down plain:left",o)},E.prototype.pressureFn=function(t,i,e){var o=this,n=0;clearInterval(o.pressureIntervals[e]),o.pressureIntervals[e]=setInterval(function(){var e=t.force||t.pressure||t.webkitForce||0;e!==n&&(i.trigger("pressure",e),o.trigger("pressure "+i.identifier+":pressure",e),n=e)}.bind(o),100)},E.prototype.onstart=function(t){var i=this,e=i.options,o=t;t=l(t),i.updateBox();return v(t,(function(n){i.actives.length<e.maxNumberOfNipples?i.processOnStart(n):o.type.match(/^touch/)&&(Object.keys(i.manager.ids).forEach((function(e){if(Object.values(o.touches).findIndex((function(t){return t.identifier===e}))<0){var n=[t[0]];n.identifier=e,i.processOnEnd(n)}})),i.actives.length<e.maxNumberOfNipples&&i.processOnStart(n))})),i.manager.bindDocument(),!1},E.prototype.processOnStart=function(t){var i,e=this,o=e.options,s=e.manager.getIdentifier(t),r=t.force||t.pressure||t.webkitForce||0,d={x:t.pageX,y:t.pageY},a=e.getOrCreate(s,d);a.identifier!==s&&e.manager.removeIdentifier(a.identifier),a.identifier=s;var p=function(i){i.trigger("start",i),e.trigger("start "+i.id+":start",i),i.show(),r>0&&e.pressureFn(t,i,i.identifier),e.processOnMove(t)};if((i=e.idles.indexOf(a))>=0&&e.idles.splice(i,1),e.actives.push(a),e.ids.push(a.identifier),"semi"!==o.mode)p(a);else{if(!(n(d,a.position)<=o.catchDistance))return a.destroy(),void e.processOnStart(t);p(a)}return a},E.prototype.getOrCreate=function(t,i){var e,o=this.options;return/(semi|static)/.test(o.mode)?(e=this.idles[0])?(this.idles.splice(0,1),e):"semi"===o.mode?this.createNipple(i,t):(console.warn("Coudln't find the needed nipple."),!1):e=this.createNipple(i,t)},E.prototype.processOnMove=function(t){var i=this.options,e=this.manager.getIdentifier(t),o=this.nipples.get(e),d=this.manager.scroll;if(function(t){return isNaN(t.buttons)?0!==t.pressure:0!==t.buttons}(t)){if(!o)return console.error("Found zombie joystick with ID "+e),void this.manager.removeIdentifier(e);if(i.dynamicPage){var a=o.el.getBoundingClientRect();o.position={x:d.x+a.left,y:d.y+a.top}}o.identifier=e;var p=o.options.size/2,c={x:t.pageX,y:t.pageY};i.lockX&&(c.y=o.position.y),i.lockY&&(c.x=o.position.x);var l,h,u,f,y,m,v,g,b,x,O=n(c,o.position),w=(l=c,h=o.position,u=h.x-l.x,f=h.y-l.y,r(Math.atan2(f,u))),_=s(w),T=O/p,k={distance:O,position:c};if("circle"===o.options.shape?(y=Math.min(O,p),v=o.position,g=y,x={x:0,y:0},b=s(b=w),x.x=v.x-g*Math.cos(b),x.y=v.y-g*Math.sin(b),m=x):(m=function(t,i,e){return{x:Math.min(Math.max(t.x,i.x-e),i.x+e),y:Math.min(Math.max(t.y,i.y-e),i.y+e)}}(c,o.position,p),y=n(m,o.position)),i.follow){if(O>p){var P=c.x-m.x,E=c.y-m.y;o.position.x+=P,o.position.y+=E,o.el.style.top=o.position.y-(this.box.top+d.y)+"px",o.el.style.left=o.position.x-(this.box.left+d.x)+"px",O=n(c,o.position)}}else c=m,O=y;var I=c.x-o.position.x,z=c.y-o.position.y;o.frontPosition={x:I,y:z},i.dataOnly||(o.ui.front.style.transform="translate("+I+"px,"+z+"px)");var D={identifier:o.identifier,position:c,force:T,pressure:t.force||t.pressure||t.webkitForce||0,distance:O,angle:{radian:_,degree:w},vector:{x:I/p,y:-z/p},raw:k,instance:o,lockX:i.lockX,lockY:i.lockY};(D=o.computeDirection(D)).angle={radian:s(180-w),degree:180-w},o.trigger("move",D),this.trigger("move "+o.id+":move",D)}else this.processOnEnd(t)},E.prototype.processOnEnd=function(t){var i=this,e=i.options,o=i.manager.getIdentifier(t),n=i.nipples.get(o),s=i.manager.removeIdentifier(n.identifier);n&&(e.dataOnly||n.hide((function(){"dynamic"===e.mode&&(n.trigger("removed",n),i.trigger("removed "+n.id+":removed",n),i.manager.trigger("removed "+n.id+":removed",n),n.destroy())})),clearInterval(i.pressureIntervals[n.identifier]),n.resetDirection(),n.trigger("end",n),i.trigger("end "+n.id+":end",n),i.ids.indexOf(n.identifier)>=0&&i.ids.splice(i.ids.indexOf(n.identifier),1),i.actives.indexOf(n)>=0&&i.actives.splice(i.actives.indexOf(n),1),/(semi|static)/.test(e.mode)?i.idles.push(n):i.nipples.indexOf(n)>=0&&i.nipples.splice(i.nipples.indexOf(n),1),i.manager.unbindDocument(),/(semi|static)/.test(e.mode)&&(i.manager.ids[s.id]=s.identifier))},E.prototype.onDestroyed=function(t,i){this.nipples.indexOf(i)>=0&&this.nipples.splice(this.nipples.indexOf(i),1),this.actives.indexOf(i)>=0&&this.actives.splice(this.actives.indexOf(i),1),this.idles.indexOf(i)>=0&&this.idles.splice(this.idles.indexOf(i),1),this.ids.indexOf(i.identifier)>=0&&this.ids.splice(this.ids.indexOf(i.identifier),1),this.manager.removeIdentifier(i.identifier),this.manager.unbindDocument()},E.prototype.destroy=function(){for(var t in this.unbindEvt(this.options.zone,"start"),this.nipples.forEach((function(t){t.destroy()})),this.pressureIntervals)this.pressureIntervals.hasOwnProperty(t)&&clearInterval(this.pressureIntervals[t]);this.trigger("destroyed",this.nipples),this.manager.unbindDocument(),this.off()};var I=E;function z(t){var i=this;i.ids={},i.index=0,i.collections=[],i.scroll=h(),i.config(t),i.prepareCollections();var e=function(){var t;i.collections.forEach((function(e){e.forEach((function(e){t=e.el.getBoundingClientRect(),e.position={x:i.scroll.x+t.left,y:i.scroll.y+t.top}}))}))};p(window,"resize",(function(){a(e)}));var o=function(){i.scroll=h()};return p(window,"scroll",(function(){a(o)})),i.collections}z.prototype=new T,z.constructor=z,z.prototype.prepareCollections=function(){var t=this;t.collections.create=t.create.bind(t),t.collections.on=t.on.bind(t),t.collections.off=t.off.bind(t),t.collections.destroy=t.destroy.bind(t),t.collections.get=function(i){var e;return t.collections.every((function(t){return!(e=t.get(i))})),e}},z.prototype.create=function(t){return this.createCollection(t)},z.prototype.createCollection=function(t){var i=new I(this,t);return this.bindCollection(i),this.collections.push(i),i},z.prototype.bindCollection=function(t){var i,e=this,o=function(t,o){i=t.type+" "+o.id+":"+t.type,e.trigger(i,o)};t.on("destroyed",e.onDestroyed.bind(e)),t.on("shown hidden rested dir plain",o),t.on("dir:up dir:right dir:down dir:left",o),t.on("plain:up plain:right plain:down plain:left",o)},z.prototype.bindDocument=function(){this.binded||(this.bindEvt(document,"move").bindEvt(document,"end"),this.binded=!0)},z.prototype.unbindDocument=function(t){Object.keys(this.ids).length&&!0!==t||(this.unbindEvt(document,"move").unbindEvt(document,"end"),this.binded=!1)},z.prototype.getIdentifier=function(t){var i;return t?void 0===(i=void 0===t.identifier?t.pointerId:t.identifier)&&(i=this.latest||0):i=this.index,void 0===this.ids[i]&&(this.ids[i]=this.index,this.index+=1),this.latest=i,this.ids[i]},z.prototype.removeIdentifier=function(t){var i={};for(var e in this.ids)if(this.ids[e]===t){i.id=e,i.identifier=this.ids[e],delete this.ids[e];break}return i},z.prototype.onmove=function(t){return this.onAny("move",t),!1},z.prototype.onend=function(t){return this.onAny("end",t),!1},z.prototype.oncancel=function(t){return this.onAny("end",t),!1},z.prototype.onAny=function(t,i){var e,o=this,n="processOn"+t.charAt(0).toUpperCase()+t.slice(1);i=l(i);var s=function(t,i,e){e.ids.indexOf(i)>=0&&(e[n](t),t._found_=!0)};return v(i,(function(t){e=o.getIdentifier(t),v(o.collections,s.bind(null,t,e)),t._found_||o.removeIdentifier(e)})),!1},z.prototype.destroy=function(){this.unbindDocument(!0),this.ids={},this.index=0,this.collections.forEach((function(t){t.destroy()})),this.off()},z.prototype.onDestroyed=function(t,i){if(this.collections.indexOf(i)<0)return!1;this.collections.splice(this.collections.indexOf(i),1)};var D=new z;i.default={create:function(t){return D.create(t)},factory:D}}]).default}));
+!function(t,i){ true?module.exports=i():0}(window,function(){return function(t){var i={};function e(o){if(i[o])return i[o].exports;var n=i[o]={i:o,l:!1,exports:{}};return t[o].call(n.exports,n,n.exports,e),n.l=!0,n.exports}return e.m=t,e.c=i,e.d=function(t,i,o){e.o(t,i)||Object.defineProperty(t,i,{enumerable:!0,get:o})},e.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},e.t=function(t,i){if(1&i&&(t=e(t)),8&i)return t;if(4&i&&"object"==typeof t&&t&&t.__esModule)return t;var o=Object.create(null);if(e.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:t}),2&i&&"string"!=typeof t)for(var n in t)e.d(o,n,function(i){return t[i]}.bind(null,n));return o},e.n=function(t){var i=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(i,"a",i),i},e.o=function(t,i){return Object.prototype.hasOwnProperty.call(t,i)},e.p="",e(e.s=0)}([function(t,i,e){"use strict";e.r(i);var o,n=function(t,i){var e=i.x-t.x,o=i.y-t.y;return Math.sqrt(e*e+o*o)},s=function(t){return t*(Math.PI/180)},r=function(t){return t*(180/Math.PI)},d=new Map,a=function(t){d.has(t)&&clearTimeout(d.get(t)),d.set(t,setTimeout(t,100))},p=function(t,i,e){for(var o,n=i.split(/[ ,]+/g),s=0;s<n.length;s+=1)o=n[s],t.addEventListener?t.addEventListener(o,e,!1):t.attachEvent&&t.attachEvent(o,e)},c=function(t,i,e){for(var o,n=i.split(/[ ,]+/g),s=0;s<n.length;s+=1)o=n[s],t.removeEventListener?t.removeEventListener(o,e):t.detachEvent&&t.detachEvent(o,e)},l=function(t){return t.preventDefault(),t.type.match(/^touch/)?t.changedTouches:t},h=function(){return{x:void 0!==window.pageXOffset?window.pageXOffset:(document.documentElement||document.body.parentNode||document.body).scrollLeft,y:void 0!==window.pageYOffset?window.pageYOffset:(document.documentElement||document.body.parentNode||document.body).scrollTop}},u=function(t,i){i.top||i.right||i.bottom||i.left?(t.style.top=i.top,t.style.right=i.right,t.style.bottom=i.bottom,t.style.left=i.left):(t.style.left=i.x+"px",t.style.top=i.y+"px")},f=function(t,i,e){var o=y(t);for(var n in o)if(o.hasOwnProperty(n))if("string"==typeof i)o[n]=i+" "+e;else{for(var s="",r=0,d=i.length;r<d;r+=1)s+=i[r]+" "+e+", ";o[n]=s.slice(0,-2)}return o},y=function(t){var i={};i[t]="";return["webkit","Moz","o"].forEach(function(e){i[e+t.charAt(0).toUpperCase()+t.slice(1)]=""}),i},m=function(t,i){for(var e in i)i.hasOwnProperty(e)&&(t[e]=i[e]);return t},v=function(t,i){if(t.length)for(var e=0,o=t.length;e<o;e+=1)i(t[e]);else i(t)},g=!!("ontouchstart"in window),b=!!window.PointerEvent,x=!!window.MSPointerEvent,O={start:"mousedown",move:"mousemove",end:"mouseup"},w={};function _(){}b?o={start:"pointerdown",move:"pointermove",end:"pointerup, pointercancel"}:x?o={start:"MSPointerDown",move:"MSPointerMove",end:"MSPointerUp"}:g?(o={start:"touchstart",move:"touchmove",end:"touchend, touchcancel"},w=O):o=O,_.prototype.on=function(t,i){var e,o=t.split(/[ ,]+/g);this._handlers_=this._handlers_||{};for(var n=0;n<o.length;n+=1)e=o[n],this._handlers_[e]=this._handlers_[e]||[],this._handlers_[e].push(i);return this},_.prototype.off=function(t,i){return this._handlers_=this._handlers_||{},void 0===t?this._handlers_={}:void 0===i?this._handlers_[t]=null:this._handlers_[t]&&this._handlers_[t].indexOf(i)>=0&&this._handlers_[t].splice(this._handlers_[t].indexOf(i),1),this},_.prototype.trigger=function(t,i){var e,o=this,n=t.split(/[ ,]+/g);o._handlers_=o._handlers_||{};for(var s=0;s<n.length;s+=1)e=n[s],o._handlers_[e]&&o._handlers_[e].length&&o._handlers_[e].forEach(function(t){t.call(o,{type:e,target:o},i)})},_.prototype.config=function(t){this.options=this.defaults||{},t&&(this.options=function(t,i){var e={};for(var o in t)t.hasOwnProperty(o)&&i.hasOwnProperty(o)?e[o]=i[o]:t.hasOwnProperty(o)&&(e[o]=t[o]);return e}(this.options,t))},_.prototype.bindEvt=function(t,i){var e=this;return e._domHandlers_=e._domHandlers_||{},e._domHandlers_[i]=function(){"function"==typeof e["on"+i]?e["on"+i].apply(e,arguments):console.warn('[WARNING] : Missing "on'+i+'" handler.')},p(t,o[i],e._domHandlers_[i]),w[i]&&p(t,w[i],e._domHandlers_[i]),e},_.prototype.unbindEvt=function(t,i){return this._domHandlers_=this._domHandlers_||{},c(t,o[i],this._domHandlers_[i]),w[i]&&c(t,w[i],this._domHandlers_[i]),delete this._domHandlers_[i],this};var T=_;function k(t,i){return this.identifier=i.identifier,this.position=i.position,this.frontPosition=i.frontPosition,this.collection=t,this.defaults={size:100,threshold:.1,color:"white",fadeTime:250,dataOnly:!1,restJoystick:!0,restOpacity:.5,mode:"dynamic",zone:document.body,lockX:!1,lockY:!1,shape:"circle"},this.config(i),"dynamic"===this.options.mode&&(this.options.restOpacity=0),this.id=k.id,k.id+=1,this.buildEl().stylize(),this.instance={el:this.ui.el,on:this.on.bind(this),off:this.off.bind(this),show:this.show.bind(this),hide:this.hide.bind(this),add:this.addToDom.bind(this),remove:this.removeFromDom.bind(this),destroy:this.destroy.bind(this),setPosition:this.setPosition.bind(this),resetDirection:this.resetDirection.bind(this),computeDirection:this.computeDirection.bind(this),trigger:this.trigger.bind(this),position:this.position,frontPosition:this.frontPosition,ui:this.ui,identifier:this.identifier,id:this.id,options:this.options},this.instance}k.prototype=new T,k.constructor=k,k.id=0,k.prototype.buildEl=function(t){return this.ui={},this.options.dataOnly?this:(this.ui.el=document.createElement("div"),this.ui.back=document.createElement("div"),this.ui.front=document.createElement("div"),this.ui.el.className="nipple collection_"+this.collection.id,this.ui.back.className="back",this.ui.front.className="front",this.ui.el.setAttribute("id","nipple_"+this.collection.id+"_"+this.id),this.ui.el.appendChild(this.ui.back),this.ui.el.appendChild(this.ui.front),this)},k.prototype.stylize=function(){if(this.options.dataOnly)return this;var t=this.options.fadeTime+"ms",i=function(t,i){var e=y(t);for(var o in e)e.hasOwnProperty(o)&&(e[o]=i);return e}("borderRadius","50%"),e=f("transition","opacity",t),o={};return o.el={position:"absolute",opacity:this.options.restOpacity,display:"block",zIndex:999},o.back={position:"absolute",display:"block",width:this.options.size+"px",height:this.options.size+"px",left:0,marginLeft:-this.options.size/2+"px",marginTop:-this.options.size/2+"px",background:this.options.color,opacity:".5"},o.front={width:this.options.size/2+"px",height:this.options.size/2+"px",position:"absolute",display:"block",left:0,marginLeft:-this.options.size/4+"px",marginTop:-this.options.size/4+"px",background:this.options.color,opacity:".5",transform:"translate(0px, 0px)"},m(o.el,e),"circle"===this.options.shape&&m(o.back,i),m(o.front,i),this.applyStyles(o),this},k.prototype.applyStyles=function(t){for(var i in this.ui)if(this.ui.hasOwnProperty(i))for(var e in t[i])this.ui[i].style[e]=t[i][e];return this},k.prototype.addToDom=function(){return this.options.dataOnly||document.body.contains(this.ui.el)?this:(this.options.zone.appendChild(this.ui.el),this)},k.prototype.removeFromDom=function(){return this.options.dataOnly||!document.body.contains(this.ui.el)?this:(this.options.zone.removeChild(this.ui.el),this)},k.prototype.destroy=function(){clearTimeout(this.removeTimeout),clearTimeout(this.showTimeout),clearTimeout(this.restTimeout),this.trigger("destroyed",this.instance),this.removeFromDom(),this.off()},k.prototype.show=function(t){var i=this;return i.options.dataOnly?i:(clearTimeout(i.removeTimeout),clearTimeout(i.showTimeout),clearTimeout(i.restTimeout),i.addToDom(),i.restCallback(),setTimeout(function(){i.ui.el.style.opacity=1},0),i.showTimeout=setTimeout(function(){i.trigger("shown",i.instance),"function"==typeof t&&t.call(this)},i.options.fadeTime),i)},k.prototype.hide=function(t){var i=this;if(i.options.dataOnly)return i;if(i.ui.el.style.opacity=i.options.restOpacity,clearTimeout(i.removeTimeout),clearTimeout(i.showTimeout),clearTimeout(i.restTimeout),i.removeTimeout=setTimeout(function(){var e="dynamic"===i.options.mode?"none":"block";i.ui.el.style.display=e,"function"==typeof t&&t.call(i),i.trigger("hidden",i.instance)},i.options.fadeTime),i.options.restJoystick){var e=i.options.restJoystick,o={};o.x=!0===e||!1!==e.x?0:i.instance.frontPosition.x,o.y=!0===e||!1!==e.y?0:i.instance.frontPosition.y,i.setPosition(t,o)}return i},k.prototype.setPosition=function(t,i){var e=this;e.frontPosition={x:i.x,y:i.y};var o=e.options.fadeTime+"ms",n={};n.front=f("transition",["transform"],o);var s={front:{}};s.front={transform:"translate("+e.frontPosition.x+"px,"+e.frontPosition.y+"px)"},e.applyStyles(n),e.applyStyles(s),e.restTimeout=setTimeout(function(){"function"==typeof t&&t.call(e),e.restCallback()},e.options.fadeTime)},k.prototype.restCallback=function(){var t={};t.front=f("transition","none",""),this.applyStyles(t),this.trigger("rested",this.instance)},k.prototype.resetDirection=function(){this.direction={x:!1,y:!1,angle:!1}},k.prototype.computeDirection=function(t){var i,e,o,n=t.angle.radian,s=Math.PI/4,r=Math.PI/2;if(n>s&&n<3*s&&!t.lockX?i="up":n>-s&&n<=s&&!t.lockY?i="left":n>3*-s&&n<=-s&&!t.lockX?i="down":t.lockY||(i="right"),t.lockY||(e=n>-r&&n<r?"left":"right"),t.lockX||(o=n>0?"up":"down"),t.force>this.options.threshold){var d,a={};for(d in this.direction)this.direction.hasOwnProperty(d)&&(a[d]=this.direction[d]);var p={};for(d in this.direction={x:e,y:o,angle:i},t.direction=this.direction,a)a[d]===this.direction[d]&&(p[d]=!0);if(p.x&&p.y&&p.angle)return t;p.x&&p.y||this.trigger("plain",t),p.x||this.trigger("plain:"+e,t),p.y||this.trigger("plain:"+o,t),p.angle||this.trigger("dir dir:"+i,t)}else this.resetDirection();return t};var P=k;function E(t,i){this.nipples=[],this.idles=[],this.actives=[],this.ids=[],this.pressureIntervals={},this.manager=t,this.id=E.id,E.id+=1,this.defaults={zone:document.body,multitouch:!1,maxNumberOfNipples:10,mode:"dynamic",position:{top:0,left:0},catchDistance:200,size:100,threshold:.1,color:"white",fadeTime:250,dataOnly:!1,restJoystick:!0,restOpacity:.5,lockX:!1,lockY:!1,shape:"circle",dynamicPage:!1,follow:!1},this.config(i),"static"!==this.options.mode&&"semi"!==this.options.mode||(this.options.multitouch=!1),this.options.multitouch||(this.options.maxNumberOfNipples=1);var e=getComputedStyle(this.options.zone.parentElement);return e&&"flex"===e.display&&(this.parentIsFlex=!0),this.updateBox(),this.prepareNipples(),this.bindings(),this.begin(),this.nipples}E.prototype=new T,E.constructor=E,E.id=0,E.prototype.prepareNipples=function(){var t=this.nipples;t.on=this.on.bind(this),t.off=this.off.bind(this),t.options=this.options,t.destroy=this.destroy.bind(this),t.ids=this.ids,t.id=this.id,t.processOnMove=this.processOnMove.bind(this),t.processOnEnd=this.processOnEnd.bind(this),t.get=function(i){if(void 0===i)return t[0];for(var e=0,o=t.length;e<o;e+=1)if(t[e].identifier===i)return t[e];return!1}},E.prototype.bindings=function(){this.bindEvt(this.options.zone,"start"),this.options.zone.style.touchAction="none",this.options.zone.style.msTouchAction="none"},E.prototype.begin=function(){var t=this.options;if("static"===t.mode){var i=this.createNipple(t.position,this.manager.getIdentifier());i.add(),this.idles.push(i)}},E.prototype.createNipple=function(t,i){var e=this.manager.scroll,o={},n=this.options,s=this.parentIsFlex?e.x:e.x+this.box.left,r=this.parentIsFlex?e.y:e.y+this.box.top;if(t.x&&t.y)o={x:t.x-s,y:t.y-r};else if(t.top||t.right||t.bottom||t.left){var d=document.createElement("DIV");d.style.display="hidden",d.style.top=t.top,d.style.right=t.right,d.style.bottom=t.bottom,d.style.left=t.left,d.style.position="absolute",n.zone.appendChild(d);var a=d.getBoundingClientRect();n.zone.removeChild(d),o=t,t={x:a.left+e.x,y:a.top+e.y}}var p=new P(this,{color:n.color,size:n.size,threshold:n.threshold,fadeTime:n.fadeTime,dataOnly:n.dataOnly,restJoystick:n.restJoystick,restOpacity:n.restOpacity,mode:n.mode,identifier:i,position:t,zone:n.zone,frontPosition:{x:0,y:0},shape:n.shape});return n.dataOnly||(u(p.ui.el,o),u(p.ui.front,p.frontPosition)),this.nipples.push(p),this.trigger("added "+p.identifier+":added",p),this.manager.trigger("added "+p.identifier+":added",p),this.bindNipple(p),p},E.prototype.updateBox=function(){this.box=this.options.zone.getBoundingClientRect()},E.prototype.bindNipple=function(t){var i,e=this,o=function(t,o){i=t.type+" "+o.id+":"+t.type,e.trigger(i,o)};t.on("destroyed",e.onDestroyed.bind(e)),t.on("shown hidden rested dir plain",o),t.on("dir:up dir:right dir:down dir:left",o),t.on("plain:up plain:right plain:down plain:left",o)},E.prototype.pressureFn=function(t,i,e){var o=this,n=0;clearInterval(o.pressureIntervals[e]),o.pressureIntervals[e]=setInterval(function(){var e=t.force||t.pressure||t.webkitForce||0;e!==n&&(i.trigger("pressure",e),o.trigger("pressure "+i.identifier+":pressure",e),n=e)}.bind(o),100)},E.prototype.onstart=function(t){var i=this,e=i.options,o=t;t=l(t),i.updateBox();return v(t,function(n){i.actives.length<e.maxNumberOfNipples?i.processOnStart(n):o.type.match(/^touch/)&&(Object.keys(i.manager.ids).forEach(function(e){if(Object.values(o.touches).findIndex(function(t){return t.identifier===e})<0){var n=[t[0]];n.identifier=e,i.processOnEnd(n)}}),i.actives.length<e.maxNumberOfNipples&&i.processOnStart(n))}),i.manager.bindDocument(),!1},E.prototype.processOnStart=function(t){var i,e=this,o=e.options,s=e.manager.getIdentifier(t),r=t.force||t.pressure||t.webkitForce||0,d={x:t.pageX,y:t.pageY},a=e.getOrCreate(s,d);a.identifier!==s&&e.manager.removeIdentifier(a.identifier),a.identifier=s;var p=function(i){i.trigger("start",i),e.trigger("start "+i.id+":start",i),i.show(),r>0&&e.pressureFn(t,i,i.identifier),e.processOnMove(t)};if((i=e.idles.indexOf(a))>=0&&e.idles.splice(i,1),e.actives.push(a),e.ids.push(a.identifier),"semi"!==o.mode)p(a);else{if(!(n(d,a.position)<=o.catchDistance))return a.destroy(),void e.processOnStart(t);p(a)}return a},E.prototype.getOrCreate=function(t,i){var e,o=this.options;return/(semi|static)/.test(o.mode)?(e=this.idles[0])?(this.idles.splice(0,1),e):"semi"===o.mode?this.createNipple(i,t):(console.warn("Coudln't find the needed nipple."),!1):e=this.createNipple(i,t)},E.prototype.processOnMove=function(t){var i=this.options,e=this.manager.getIdentifier(t),o=this.nipples.get(e),d=this.manager.scroll;if(function(t){return isNaN(t.buttons)?0!==t.pressure:0!==t.buttons}(t)){if(!o)return console.error("Found zombie joystick with ID "+e),void this.manager.removeIdentifier(e);if(i.dynamicPage){var a=o.el.getBoundingClientRect();o.position={x:d.x+a.left,y:d.y+a.top}}o.identifier=e;var p=o.options.size/2,c={x:t.pageX,y:t.pageY};i.lockX&&(c.y=o.position.y),i.lockY&&(c.x=o.position.x);var l,h,u,f,y,m,v,g,b,x,O=n(c,o.position),w=(l=c,h=o.position,u=h.x-l.x,f=h.y-l.y,r(Math.atan2(f,u))),_=s(w),T=O/p,k={distance:O,position:c};if("circle"===o.options.shape?(y=Math.min(O,p),v=o.position,g=y,x={x:0,y:0},b=s(b=w),x.x=v.x-g*Math.cos(b),x.y=v.y-g*Math.sin(b),m=x):(m=function(t,i,e){return{x:Math.min(Math.max(t.x,i.x-e),i.x+e),y:Math.min(Math.max(t.y,i.y-e),i.y+e)}}(c,o.position,p),y=n(m,o.position)),i.follow){if(O>p){var P=c.x-m.x,E=c.y-m.y;o.position.x+=P,o.position.y+=E,o.el.style.top=o.position.y-(this.box.top+d.y)+"px",o.el.style.left=o.position.x-(this.box.left+d.x)+"px",O=n(c,o.position)}}else c=m,O=y;var I=c.x-o.position.x,z=c.y-o.position.y;o.frontPosition={x:I,y:z},i.dataOnly||(o.ui.front.style.transform="translate("+I+"px,"+z+"px)");var D={identifier:o.identifier,position:c,force:T,pressure:t.force||t.pressure||t.webkitForce||0,distance:O,angle:{radian:_,degree:w},vector:{x:I/p,y:-z/p},raw:k,instance:o,lockX:i.lockX,lockY:i.lockY};(D=o.computeDirection(D)).angle={radian:s(180-w),degree:180-w},o.trigger("move",D),this.trigger("move "+o.id+":move",D)}else this.processOnEnd(t)},E.prototype.processOnEnd=function(t){var i=this,e=i.options,o=i.manager.getIdentifier(t),n=i.nipples.get(o),s=i.manager.removeIdentifier(n.identifier);n&&(e.dataOnly||n.hide(function(){"dynamic"===e.mode&&(n.trigger("removed",n),i.trigger("removed "+n.id+":removed",n),i.manager.trigger("removed "+n.id+":removed",n),n.destroy())}),clearInterval(i.pressureIntervals[n.identifier]),n.resetDirection(),n.trigger("end",n),i.trigger("end "+n.id+":end",n),i.ids.indexOf(n.identifier)>=0&&i.ids.splice(i.ids.indexOf(n.identifier),1),i.actives.indexOf(n)>=0&&i.actives.splice(i.actives.indexOf(n),1),/(semi|static)/.test(e.mode)?i.idles.push(n):i.nipples.indexOf(n)>=0&&i.nipples.splice(i.nipples.indexOf(n),1),i.manager.unbindDocument(),/(semi|static)/.test(e.mode)&&(i.manager.ids[s.id]=s.identifier))},E.prototype.onDestroyed=function(t,i){this.nipples.indexOf(i)>=0&&this.nipples.splice(this.nipples.indexOf(i),1),this.actives.indexOf(i)>=0&&this.actives.splice(this.actives.indexOf(i),1),this.idles.indexOf(i)>=0&&this.idles.splice(this.idles.indexOf(i),1),this.ids.indexOf(i.identifier)>=0&&this.ids.splice(this.ids.indexOf(i.identifier),1),this.manager.removeIdentifier(i.identifier),this.manager.unbindDocument()},E.prototype.destroy=function(){for(var t in this.unbindEvt(this.options.zone,"start"),this.nipples.forEach(function(t){t.destroy()}),this.pressureIntervals)this.pressureIntervals.hasOwnProperty(t)&&clearInterval(this.pressureIntervals[t]);this.trigger("destroyed",this.nipples),this.manager.unbindDocument(),this.off()};var I=E;function z(t){var i=this;i.ids={},i.index=0,i.collections=[],i.scroll=h(),i.config(t),i.prepareCollections();var e=function(){var t;i.collections.forEach(function(e){e.forEach(function(e){t=e.el.getBoundingClientRect(),e.position={x:i.scroll.x+t.left,y:i.scroll.y+t.top}})})};p(window,"resize",function(){a(e)});var o=function(){i.scroll=h()};return p(window,"scroll",function(){a(o)}),i.collections}z.prototype=new T,z.constructor=z,z.prototype.prepareCollections=function(){var t=this;t.collections.create=t.create.bind(t),t.collections.on=t.on.bind(t),t.collections.off=t.off.bind(t),t.collections.destroy=t.destroy.bind(t),t.collections.get=function(i){var e;return t.collections.every(function(t){return!(e=t.get(i))}),e}},z.prototype.create=function(t){return this.createCollection(t)},z.prototype.createCollection=function(t){var i=new I(this,t);return this.bindCollection(i),this.collections.push(i),i},z.prototype.bindCollection=function(t){var i,e=this,o=function(t,o){i=t.type+" "+o.id+":"+t.type,e.trigger(i,o)};t.on("destroyed",e.onDestroyed.bind(e)),t.on("shown hidden rested dir plain",o),t.on("dir:up dir:right dir:down dir:left",o),t.on("plain:up plain:right plain:down plain:left",o)},z.prototype.bindDocument=function(){this.binded||(this.bindEvt(document,"move").bindEvt(document,"end"),this.binded=!0)},z.prototype.unbindDocument=function(t){Object.keys(this.ids).length&&!0!==t||(this.unbindEvt(document,"move").unbindEvt(document,"end"),this.binded=!1)},z.prototype.getIdentifier=function(t){var i;return t?void 0===(i=void 0===t.identifier?t.pointerId:t.identifier)&&(i=this.latest||0):i=this.index,void 0===this.ids[i]&&(this.ids[i]=this.index,this.index+=1),this.latest=i,this.ids[i]},z.prototype.removeIdentifier=function(t){var i={};for(var e in this.ids)if(this.ids[e]===t){i.id=e,i.identifier=this.ids[e],delete this.ids[e];break}return i},z.prototype.onmove=function(t){return this.onAny("move",t),!1},z.prototype.onend=function(t){return this.onAny("end",t),!1},z.prototype.oncancel=function(t){return this.onAny("end",t),!1},z.prototype.onAny=function(t,i){var e,o=this,n="processOn"+t.charAt(0).toUpperCase()+t.slice(1);i=l(i);return v(i,function(t){e=o.getIdentifier(t),v(o.collections,function(t,i,e){e.ids.indexOf(i)>=0&&(e[n](t),t._found_=!0)}.bind(null,t,e)),t._found_||o.removeIdentifier(e)}),!1},z.prototype.destroy=function(){this.unbindDocument(!0),this.ids={},this.index=0,this.collections.forEach(function(t){t.destroy()}),this.off()},z.prototype.onDestroyed=function(t,i){if(this.collections.indexOf(i)<0)return!1;this.collections.splice(this.collections.indexOf(i),1)};var D=new z;i.default={create:function(t){return D.create(t)},factory:D}}]).default});
 
 /***/ }),
 
@@ -4808,12 +4808,12 @@ module.exports = fetchScript;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Pathfinding: () => (/* binding */ v),
-/* harmony export */   PathfindingHelper: () => (/* binding */ w)
+/* harmony export */   Pathfinding: () => (/* binding */ f),
+/* harmony export */   PathfindingHelper: () => (/* binding */ v)
 /* harmony export */ });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "three");
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(three__WEBPACK_IMPORTED_MODULE_0__);
-class p{static roundNumber(t,e){const r=Math.pow(10,e);return Math.round(t*r)/r}static sample(t){return t[Math.floor(Math.random()*t.length)]}static distanceToSquared(t,e){var r=t.x-e.x,s=t.y-e.y,n=t.z-e.z;return r*r+s*s+n*n}static isPointInPoly(t,e){for(var r=!1,s=-1,n=t.length,o=n-1;++s<n;o=s)(t[s].z<=e.z&&e.z<t[o].z||t[o].z<=e.z&&e.z<t[s].z)&&e.x<(t[o].x-t[s].x)*(e.z-t[s].z)/(t[o].z-t[s].z)+t[s].x&&(r=!r);return r}static isVectorInPolygon(t,e,r){var s=1e5,n=-1e5,o=[];return e.vertexIds.forEach(t=>{s=Math.min(r[t].y,s),n=Math.max(r[t].y,n),o.push(r[t])}),!!(t.y<n+.5&&t.y>s-.5&&this.isPointInPoly(o,t))}static triarea2(t,e,r){return(r.x-t.x)*(e.z-t.z)-(e.x-t.x)*(r.z-t.z)}static vequal(t,e){return this.distanceToSquared(t,e)<1e-5}static mergeVertices(r,s=1e-4){s=Math.max(s,Number.EPSILON);for(var n={},o=r.getIndex(),i=r.getAttribute("position"),h=o?o.count:i.count,c=0,a=[],u=[],l=Math.log10(1/s),d=Math.pow(10,l),p=0;p<h;p++){var g=o?o.getX(p):p,f="";f+=~~(i.getX(g)*d)+",",f+=~~(i.getY(g)*d)+",",(f+=~~(i.getZ(g)*d)+",")in n?a.push(n[f]):(u.push(i.getX(g)),u.push(i.getY(g)),u.push(i.getZ(g)),n[f]=c,a.push(c),c++)}const v=new three__WEBPACK_IMPORTED_MODULE_0__.BufferAttribute(new Float32Array(u),i.itemSize,i.normalized),b=new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry;return b.setAttribute("position",v),b.setIndex(a),b}}class g{constructor(t){this.content=[],this.scoreFunction=t}push(t){this.content.push(t),this.sinkDown(this.content.length-1)}pop(){const t=this.content[0],e=this.content.pop();return this.content.length>0&&(this.content[0]=e,this.bubbleUp(0)),t}remove(t){const e=this.content.indexOf(t),r=this.content.pop();e!==this.content.length-1&&(this.content[e]=r,this.scoreFunction(r)<this.scoreFunction(t)?this.sinkDown(e):this.bubbleUp(e))}size(){return this.content.length}rescoreElement(t){this.sinkDown(this.content.indexOf(t))}sinkDown(t){const e=this.content[t];for(;t>0;){const r=(t+1>>1)-1,s=this.content[r];if(!(this.scoreFunction(e)<this.scoreFunction(s)))break;this.content[r]=e,this.content[t]=s,t=r}}bubbleUp(t){const e=this.content.length,r=this.content[t],s=this.scoreFunction(r);for(;;){const n=t+1<<1,o=n-1;let i,h=null;if(o<e&&(i=this.scoreFunction(this.content[o]),i<s&&(h=o)),n<e&&this.scoreFunction(this.content[n])<(null===h?s:i)&&(h=n),null===h)break;this.content[t]=this.content[h],this.content[h]=r,t=h}}}class f{constructor(){this.portals=[]}push(t,e){void 0===e&&(e=t),this.portals.push({left:t,right:e})}stringPull(){const t=this.portals,e=[];let r,s,n,o=0,i=0,h=0;r=t[0].left,s=t[0].left,n=t[0].right,e.push(r);for(let c=1;c<t.length;c++){const a=t[c].left,u=t[c].right;if(p.triarea2(r,n,u)<=0){if(!(p.vequal(r,n)||p.triarea2(r,s,u)>0)){e.push(s),r=s,o=i,s=r,n=r,i=o,h=o,c=o;continue}n=u,h=c}if(p.triarea2(r,s,a)>=0){if(!(p.vequal(r,s)||p.triarea2(r,n,a)<0)){e.push(n),r=n,o=h,s=r,n=r,i=o,h=o,c=o;continue}s=a,i=c}}return 0!==e.length&&p.vequal(e[e.length-1],t[t.length-1].left)||e.push(t[t.length-1].left),this.path=e,e}}class v{constructor(){this.zones={}}static createZone(t,e=1e-4){return class{static buildZone(t,e){const s=this._buildNavigationMesh(t,e),n={};s.vertices.forEach(t=>{t.x=p.roundNumber(t.x,2),t.y=p.roundNumber(t.y,2),t.z=p.roundNumber(t.z,2)}),n.vertices=s.vertices;const o=this._buildPolygonGroups(s);return n.groups=new Array(o.length),o.forEach((t,e)=>{const s=new Map;t.forEach((t,e)=>{s.set(t,e)});const o=new Array(t.length);t.forEach((t,e)=>{const i=[];t.neighbours.forEach(t=>i.push(s.get(t)));const h=[];t.neighbours.forEach(e=>h.push(this._getSharedVerticesInOrder(t,e)));const c=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3(0,0,0);c.add(n.vertices[t.vertexIds[0]]),c.add(n.vertices[t.vertexIds[1]]),c.add(n.vertices[t.vertexIds[2]]),c.divideScalar(3),c.x=p.roundNumber(c.x,2),c.y=p.roundNumber(c.y,2),c.z=p.roundNumber(c.z,2),o[e]={id:e,neighbours:i,vertexIds:t.vertexIds,centroid:c,portals:h}}),n.groups[e]=o}),n}static _buildNavigationMesh(t,e){return t=p.mergeVertices(t,e),this._buildPolygonsFromGeometry(t)}static _spreadGroupId(t){let e=new Set([t]);for(;e.size>0;){const r=e;e=new Set,r.forEach(r=>{r.group=t.group,r.neighbours.forEach(t=>{void 0===t.group&&e.add(t)})})}}static _buildPolygonGroups(t){const e=[];return t.polygons.forEach(t=>{void 0!==t.group?e[t.group].push(t):(t.group=e.length,this._spreadGroupId(t),e.push([t]))}),e}static _buildPolygonNeighbours(t,e){const r=new Set,s=e[t.vertexIds[1]],n=e[t.vertexIds[2]];return e[t.vertexIds[0]].forEach(e=>{e!==t&&(s.includes(e)||n.includes(e))&&r.add(e)}),s.forEach(e=>{e!==t&&n.includes(e)&&r.add(e)}),r}static _buildPolygonsFromGeometry(t){const e=[],s=[],n=t.attributes.position,o=t.index,i=[];for(let t=0;t<n.count;t++)s.push((new three__WEBPACK_IMPORTED_MODULE_0__.Vector3).fromBufferAttribute(n,t)),i[t]=[];for(let r=0;r<t.index.count;r+=3){const t=o.getX(r),s=o.getX(r+1),n=o.getX(r+2),h={vertexIds:[t,s,n],neighbours:null};e.push(h),i[t].push(h),i[s].push(h),i[n].push(h)}return e.forEach(t=>{t.neighbours=this._buildPolygonNeighbours(t,i)}),{polygons:e,vertices:s}}static _getSharedVerticesInOrder(t,e){const r=t.vertexIds,s=r[0],n=r[1],o=r[2],i=e.vertexIds,h=i.includes(s),c=i.includes(n),a=i.includes(o);return h&&c&&a?Array.from(r):h&&c?[s,n]:c&&a?[n,o]:h&&a?[o,s]:(console.warn("Error processing navigation mesh neighbors; neighbors with <2 shared vertices found."),[])}}.buildZone(t,e)}setZoneData(t,e){this.zones[t]=e}getRandomNode(t,e,s,n){if(!this.zones[t])return new three__WEBPACK_IMPORTED_MODULE_0__.Vector3;s=s||null,n=n||0;const o=[];return this.zones[t].groups[e].forEach(t=>{s&&n?p.distanceToSquared(s,t.centroid)<n*n&&o.push(t.centroid):o.push(t.centroid)}),p.sample(o)||new three__WEBPACK_IMPORTED_MODULE_0__.Vector3}getClosestNode(t,e,r,s=!1){const n=this.zones[e].vertices;let o=null,i=Infinity;return this.zones[e].groups[r].forEach(e=>{const r=p.distanceToSquared(e.centroid,t);r<i&&(!s||p.isVectorInPolygon(t,e,n))&&(o=e,i=r)}),o}findPath(t,e,s,n){const o=this.zones[s].groups[n],i=this.zones[s].vertices,h=this.getClosestNode(t,s,n,!0),c=this.getClosestNode(e,s,n,!0);if(!h||!c)return null;const a=class{static init(t){for(let e=0;e<t.length;e++){const r=t[e];r.f=0,r.g=0,r.h=0,r.cost=1,r.visited=!1,r.closed=!1,r.parent=null}}static cleanUp(t){for(let e=0;e<t.length;e++){const r=t[e];delete r.f,delete r.g,delete r.h,delete r.cost,delete r.visited,delete r.closed,delete r.parent}}static heap(){return new g(function(t){return t.f})}static search(t,e,r){this.init(t);const s=this.heap();for(s.push(e);s.size()>0;){const e=s.pop();if(e===r){let t=e;const r=[];for(;t.parent;)r.push(t),t=t.parent;return this.cleanUp(r),r.reverse()}e.closed=!0;const n=this.neighbours(t,e);for(let t=0,o=n.length;t<o;t++){const o=n[t];if(o.closed)continue;const i=e.g+o.cost,h=o.visited;if(!h||i<o.g){if(o.visited=!0,o.parent=e,!o.centroid||!r.centroid)throw new Error("Unexpected state");o.h=o.h||this.heuristic(o.centroid,r.centroid),o.g=i,o.f=o.g+o.h,h?s.rescoreElement(o):s.push(o)}}}return[]}static heuristic(t,e){return p.distanceToSquared(t,e)}static neighbours(t,e){const r=[];for(let s=0;s<e.neighbours.length;s++)r.push(t[e.neighbours[s]]);return r}}.search(o,h,c),u=function(t,e){for(var r=0;r<t.neighbours.length;r++)if(t.neighbours[r]===e.id)return t.portals[r]},l=new f;l.push(t);for(let t=0;t<a.length;t++){const e=a[t],r=a[t+1];if(r){const t=u(e,r);l.push(i[t[0]],i[t[1]])}}l.push(e),l.stringPull();const d=l.path.map(t=>new three__WEBPACK_IMPORTED_MODULE_0__.Vector3(t.x,t.y,t.z));return d.shift(),d}}v.prototype.getGroup=function(){const t=new three__WEBPACK_IMPORTED_MODULE_0__.Plane;return function(e,r,s=!1){if(!this.zones[e])return null;let n=null,o=Math.pow(50,2);const i=this.zones[e];for(let e=0;e<i.groups.length;e++){const h=i.groups[e];for(const c of h){if(s&&(t.setFromCoplanarPoints(i.vertices[c.vertexIds[0]],i.vertices[c.vertexIds[1]],i.vertices[c.vertexIds[2]]),Math.abs(t.distanceToPoint(r))<.01)&&p.isPointInPoly([i.vertices[c.vertexIds[0]],i.vertices[c.vertexIds[1]],i.vertices[c.vertexIds[2]]],r))return e;const h=p.distanceToSquared(c.centroid,r);h<o&&(n=e,o=h)}}return n}}(),v.prototype.clampStep=function(){const t=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3,e=new three__WEBPACK_IMPORTED_MODULE_0__.Plane,o=new three__WEBPACK_IMPORTED_MODULE_0__.Triangle,i=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3;let h,c,a=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3;return function(r,s,n,u,l,d){const p=this.zones[u].vertices,g=this.zones[u].groups[l],f=[n],v={};v[n.id]=0,h=void 0,a.set(0,0,0),c=Infinity,e.setFromCoplanarPoints(p[n.vertexIds[0]],p[n.vertexIds[1]],p[n.vertexIds[2]]),e.projectPoint(s,t),i.copy(t);for(let e=f.pop();e;e=f.pop()){o.set(p[e.vertexIds[0]],p[e.vertexIds[1]],p[e.vertexIds[2]]),o.closestPointToPoint(i,t),t.distanceToSquared(i)<c&&(h=e,a.copy(t),c=t.distanceToSquared(i));const r=v[e.id];if(!(r>2))for(let t=0;t<e.neighbours.length;t++){const s=g[e.neighbours[t]];s.id in v||(f.push(s),v[s.id]=r+1)}}return d.copy(a),h}}();const b={PLAYER:new three__WEBPACK_IMPORTED_MODULE_0__.Color(15631215).convertSRGBToLinear().getHex(),TARGET:new three__WEBPACK_IMPORTED_MODULE_0__.Color(14469912).convertSRGBToLinear().getHex(),PATH:new three__WEBPACK_IMPORTED_MODULE_0__.Color(41903).convertSRGBToLinear().getHex(),WAYPOINT:new three__WEBPACK_IMPORTED_MODULE_0__.Color(41903).convertSRGBToLinear().getHex(),CLAMPED_STEP:new three__WEBPACK_IMPORTED_MODULE_0__.Color(14472114).convertSRGBToLinear().getHex(),CLOSEST_NODE:new three__WEBPACK_IMPORTED_MODULE_0__.Color(4417387).convertSRGBToLinear().getHex()};class w extends three__WEBPACK_IMPORTED_MODULE_0__.Object3D{constructor(){super(),this._playerMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.SphereGeometry(.25,32,32),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:b.PLAYER})),this._targetMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.BoxGeometry(.3,.3,.3),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:b.TARGET})),this._nodeMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.BoxGeometry(.1,.8,.1),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:b.CLOSEST_NODE})),this._stepMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.BoxGeometry(.1,1,.1),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:b.CLAMPED_STEP})),this._pathMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Object3D,this._pathLineMaterial=new three__WEBPACK_IMPORTED_MODULE_0__.LineBasicMaterial({color:b.PATH,linewidth:2}),this._pathPointMaterial=new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:b.WAYPOINT}),this._pathPointGeometry=new three__WEBPACK_IMPORTED_MODULE_0__.SphereGeometry(.08),this._markers=[this._playerMarker,this._targetMarker,this._nodeMarker,this._stepMarker,this._pathMarker],this._markers.forEach(t=>{t.visible=!1,this.add(t)})}setPath(r){for(;this._pathMarker.children.length;)this._pathMarker.children[0].visible=!1,this._pathMarker.remove(this._pathMarker.children[0]);r=[this._playerMarker.position].concat(r);const s=new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry;s.setAttribute("position",new three__WEBPACK_IMPORTED_MODULE_0__.BufferAttribute(new Float32Array(3*r.length),3));for(let t=0;t<r.length;t++)s.attributes.position.setXYZ(t,r[t].x,r[t].y+.2,r[t].z);this._pathMarker.add(new three__WEBPACK_IMPORTED_MODULE_0__.Line(s,this._pathLineMaterial));for(let t=0;t<r.length-1;t++){const e=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(this._pathPointGeometry,this._pathPointMaterial);e.position.copy(r[t]),e.position.y+=.2,this._pathMarker.add(e)}return this._pathMarker.visible=!0,this}setPlayerPosition(t){return this._playerMarker.position.copy(t),this._playerMarker.visible=!0,this}setTargetPosition(t){return this._targetMarker.position.copy(t),this._targetMarker.visible=!0,this}setNodePosition(t){return this._nodeMarker.position.copy(t),this._nodeMarker.visible=!0,this}setStepPosition(t){return this._stepMarker.position.copy(t),this._stepMarker.visible=!0,this}reset(){for(;this._pathMarker.children.length;)this._pathMarker.children[0].visible=!1,this._pathMarker.remove(this._pathMarker.children[0]);return this._markers.forEach(t=>{t.visible=!1}),this}}
+class d{static roundNumber(t,e){const s=Math.pow(10,e);return Math.round(t*s)/s}static sample(t){return t[Math.floor(Math.random()*t.length)]}static distanceToSquared(t,e){var s=t.x-e.x,r=t.y-e.y,n=t.z-e.z;return s*s+r*r+n*n}static isPointInPoly(t,e){for(var s=!1,r=-1,n=t.length,o=n-1;++r<n;o=r)(t[r].z<=e.z&&e.z<t[o].z||t[o].z<=e.z&&e.z<t[r].z)&&e.x<(t[o].x-t[r].x)*(e.z-t[r].z)/(t[o].z-t[r].z)+t[r].x&&(s=!s);return s}static isVectorInPolygon(t,e,s){var r=1e5,n=-1e5,o=[];return e.vertexIds.forEach(t=>{r=Math.min(s[t].y,r),n=Math.max(s[t].y,n),o.push(s[t])}),!!(t.y<n+.5&&t.y>r-.5&&this.isPointInPoly(o,t))}static triarea2(t,e,s){return(s.x-t.x)*(e.z-t.z)-(e.x-t.x)*(s.z-t.z)}static vequal(t,e){return this.distanceToSquared(t,e)<1e-5}static mergeVertices(s,r=1e-4){r=Math.max(r,Number.EPSILON);for(var n={},o=s.getIndex(),i=s.getAttribute("position"),h=o?o.count:i.count,c=0,a=[],u=[],l=Math.log10(1/r),d=Math.pow(10,l),p=0;p<h;p++){var g=o?o.getX(p):p,f="";f+=~~(i.getX(g)*d)+",",f+=~~(i.getY(g)*d)+",",(f+=~~(i.getZ(g)*d)+",")in n?a.push(n[f]):(u.push(i.getX(g)),u.push(i.getY(g)),u.push(i.getZ(g)),n[f]=c,a.push(c),c++)}const v=new three__WEBPACK_IMPORTED_MODULE_0__.BufferAttribute(new Float32Array(u),i.itemSize,i.normalized),b=new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry;return b.setAttribute("position",v),b.setIndex(a),b}}class p{constructor(t){this.content=[],this.scoreFunction=t}push(t){this.content.push(t),this.sinkDown(this.content.length-1)}pop(){const t=this.content[0],e=this.content.pop();return this.content.length>0&&(this.content[0]=e,this.bubbleUp(0)),t}remove(t){const e=this.content.indexOf(t),s=this.content.pop();e!==this.content.length-1&&(this.content[e]=s,this.scoreFunction(s)<this.scoreFunction(t)?this.sinkDown(e):this.bubbleUp(e))}size(){return this.content.length}rescoreElement(t){this.sinkDown(this.content.indexOf(t))}sinkDown(t){const e=this.content[t];for(;t>0;){const s=(t+1>>1)-1,r=this.content[s];if(!(this.scoreFunction(e)<this.scoreFunction(r)))break;this.content[s]=e,this.content[t]=r,t=s}}bubbleUp(t){const e=this.content.length,s=this.content[t],r=this.scoreFunction(s);for(;;){const n=t+1<<1,o=n-1;let i,h=null;if(o<e&&(i=this.scoreFunction(this.content[o]),i<r&&(h=o)),n<e&&this.scoreFunction(this.content[n])<(null===h?r:i)&&(h=n),null===h)break;this.content[t]=this.content[h],this.content[h]=s,t=h}}}class g{constructor(){this.portals=[]}push(t,e){void 0===e&&(e=t),this.portals.push({left:t,right:e})}stringPull(){const t=this.portals,e=[];let s,r,n,o=0,i=0,h=0;s=t[0].left,r=t[0].left,n=t[0].right,e.push(s);for(let c=1;c<t.length;c++){const a=t[c].left,u=t[c].right;if(d.triarea2(s,n,u)<=0){if(!(d.vequal(s,n)||d.triarea2(s,r,u)>0)){e.push(r),s=r,o=i,r=s,n=s,i=o,h=o,c=o;continue}n=u,h=c}if(d.triarea2(s,r,a)>=0){if(!(d.vequal(s,r)||d.triarea2(s,n,a)<0)){e.push(n),s=n,o=h,r=s,n=s,i=o,h=o,c=o;continue}r=a,i=c}}return 0!==e.length&&d.vequal(e[e.length-1],t[t.length-1].left)||e.push(t[t.length-1].left),this.path=e,e}}class f{constructor(){this.zones={}}static createZone(t,e=1e-4){return class{static buildZone(t,e){const r=this._buildNavigationMesh(t,e),n={};r.vertices.forEach(t=>{t.x=d.roundNumber(t.x,2),t.y=d.roundNumber(t.y,2),t.z=d.roundNumber(t.z,2)}),n.vertices=r.vertices;const o=this._buildPolygonGroups(r);return n.groups=new Array(o.length),o.forEach((t,e)=>{const r=new Map;t.forEach((t,e)=>{r.set(t,e)});const o=new Array(t.length);t.forEach((t,e)=>{const i=[];t.neighbours.forEach(t=>i.push(r.get(t)));const h=[];t.neighbours.forEach(e=>h.push(this._getSharedVerticesInOrder(t,e)));const c=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3(0,0,0);c.add(n.vertices[t.vertexIds[0]]),c.add(n.vertices[t.vertexIds[1]]),c.add(n.vertices[t.vertexIds[2]]),c.divideScalar(3),c.x=d.roundNumber(c.x,2),c.y=d.roundNumber(c.y,2),c.z=d.roundNumber(c.z,2),o[e]={id:e,neighbours:i,vertexIds:t.vertexIds,centroid:c,portals:h}}),n.groups[e]=o}),n}static _buildNavigationMesh(t,e){return t=d.mergeVertices(t,e),this._buildPolygonsFromGeometry(t)}static _spreadGroupId(t){let e=new Set([t]);for(;e.size>0;){const s=e;e=new Set,s.forEach(s=>{s.group=t.group,s.neighbours.forEach(t=>{void 0===t.group&&e.add(t)})})}}static _buildPolygonGroups(t){const e=[];return t.polygons.forEach(t=>{void 0!==t.group?e[t.group].push(t):(t.group=e.length,this._spreadGroupId(t),e.push([t]))}),e}static _buildPolygonNeighbours(t,e){const s=new Set,r=e[t.vertexIds[1]],n=e[t.vertexIds[2]];return e[t.vertexIds[0]].forEach(e=>{e!==t&&(r.includes(e)||n.includes(e))&&s.add(e)}),r.forEach(e=>{e!==t&&n.includes(e)&&s.add(e)}),s}static _buildPolygonsFromGeometry(t){const e=[],r=[],n=t.attributes.position,o=t.index,i=[];for(let t=0;t<n.count;t++)r.push((new three__WEBPACK_IMPORTED_MODULE_0__.Vector3).fromBufferAttribute(n,t)),i[t]=[];for(let s=0;s<t.index.count;s+=3){const t=o.getX(s),r=o.getX(s+1),n=o.getX(s+2),h={vertexIds:[t,r,n],neighbours:null};e.push(h),i[t].push(h),i[r].push(h),i[n].push(h)}return e.forEach(t=>{t.neighbours=this._buildPolygonNeighbours(t,i)}),{polygons:e,vertices:r}}static _getSharedVerticesInOrder(t,e){const s=t.vertexIds,r=s[0],n=s[1],o=s[2],i=e.vertexIds,h=i.includes(r),c=i.includes(n),a=i.includes(o);return h&&c&&a?Array.from(s):h&&c?[r,n]:c&&a?[n,o]:h&&a?[o,r]:(console.warn("Error processing navigation mesh neighbors; neighbors with <2 shared vertices found."),[])}}.buildZone(t,e)}setZoneData(t,e){this.zones[t]=e}getRandomNode(t,e,r,n){if(!this.zones[t])return new three__WEBPACK_IMPORTED_MODULE_0__.Vector3;r=r||null,n=n||0;const o=[];return this.zones[t].groups[e].forEach(t=>{r&&n?d.distanceToSquared(r,t.centroid)<n*n&&o.push(t.centroid):o.push(t.centroid)}),d.sample(o)||new three__WEBPACK_IMPORTED_MODULE_0__.Vector3}getClosestNode(t,e,s,r=!1){const n=this.zones[e].vertices;let o=null,i=Infinity;return this.zones[e].groups[s].forEach(e=>{const s=d.distanceToSquared(e.centroid,t);s<i&&(!r||d.isVectorInPolygon(t,e,n))&&(o=e,i=s)}),o}findPath(t,e,r,n){const o=this.zones[r].groups[n],i=this.zones[r].vertices,h=this.getClosestNode(t,r,n,!0),c=this.getClosestNode(e,r,n,!0);if(!h||!c)return null;const a=class{static init(t){for(let e=0;e<t.length;e++){const s=t[e];s.f=0,s.g=0,s.h=0,s.cost=1,s.visited=!1,s.closed=!1,s.parent=null}}static cleanUp(t){for(let e=0;e<t.length;e++){const s=t[e];delete s.f,delete s.g,delete s.h,delete s.cost,delete s.visited,delete s.closed,delete s.parent}}static heap(){return new p(function(t){return t.f})}static search(t,e,s){this.init(t);const r=this.heap();for(r.push(e);r.size()>0;){const e=r.pop();if(e===s){let t=e;const s=[];for(;t.parent;)s.push(t),t=t.parent;return this.cleanUp(s),s.reverse()}e.closed=!0;const n=this.neighbours(t,e);for(let t=0,o=n.length;t<o;t++){const o=n[t];if(o.closed)continue;const i=e.g+o.cost,h=o.visited;if(!h||i<o.g){if(o.visited=!0,o.parent=e,!o.centroid||!s.centroid)throw new Error("Unexpected state");o.h=o.h||this.heuristic(o.centroid,s.centroid),o.g=i,o.f=o.g+o.h,h?r.rescoreElement(o):r.push(o)}}}return[]}static heuristic(t,e){return d.distanceToSquared(t,e)}static neighbours(t,e){const s=[];for(let r=0;r<e.neighbours.length;r++)s.push(t[e.neighbours[r]]);return s}}.search(o,h,c),u=function(t,e){for(var s=0;s<t.neighbours.length;s++)if(t.neighbours[s]===e.id)return t.portals[s]},l=new g;l.push(t);for(let t=0;t<a.length;t++){const e=a[t],s=a[t+1];if(s){const t=u(e,s);l.push(i[t[0]],i[t[1]])}}l.push(e),l.stringPull();const f=l.path.map(t=>new three__WEBPACK_IMPORTED_MODULE_0__.Vector3(t.x,t.y,t.z));return f.shift(),f}}f.prototype.getGroup=function(){const t=new three__WEBPACK_IMPORTED_MODULE_0__.Plane;return function(e,s,r=!1){if(!this.zones[e])return null;let n=null,o=Math.pow(50,2);const i=this.zones[e];for(let e=0;e<i.groups.length;e++){const h=i.groups[e];for(const c of h){if(r&&(t.setFromCoplanarPoints(i.vertices[c.vertexIds[0]],i.vertices[c.vertexIds[1]],i.vertices[c.vertexIds[2]]),Math.abs(t.distanceToPoint(s))<.01)&&d.isPointInPoly([i.vertices[c.vertexIds[0]],i.vertices[c.vertexIds[1]],i.vertices[c.vertexIds[2]]],s))return e;const h=d.distanceToSquared(c.centroid,s);h<o&&(n=e,o=h)}}return n}}(),f.prototype.clampStep=function(){const t=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3,e=new three__WEBPACK_IMPORTED_MODULE_0__.Plane,o=new three__WEBPACK_IMPORTED_MODULE_0__.Triangle,i=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3;let h,c,a=new three__WEBPACK_IMPORTED_MODULE_0__.Vector3;return function(s,r,n,u,l,d){const p=this.zones[u].vertices,g=this.zones[u].groups[l],f=[n],v={};v[n.id]=0,h=void 0,a.set(0,0,0),c=Infinity,e.setFromCoplanarPoints(p[n.vertexIds[0]],p[n.vertexIds[1]],p[n.vertexIds[2]]),e.projectPoint(r,t),i.copy(t);for(let e=f.pop();e;e=f.pop()){o.set(p[e.vertexIds[0]],p[e.vertexIds[1]],p[e.vertexIds[2]]),o.closestPointToPoint(i,t),t.distanceToSquared(i)<c&&(h=e,a.copy(t),c=t.distanceToSquared(i));const s=v[e.id];if(!(s>2))for(let t=0;t<e.neighbours.length;t++){const r=g[e.neighbours[t]];r.id in v||(f.push(r),v[r.id]=s+1)}}return d.copy(a),h}}();class v extends three__WEBPACK_IMPORTED_MODULE_0__.Object3D{constructor(){super(),this._playerMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.SphereGeometry(.25,32,32),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:15631215})),this._targetMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.BoxGeometry(.3,.3,.3),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:14469912})),this._nodeMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.BoxGeometry(.1,.8,.1),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:4417387})),this._stepMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.BoxGeometry(.1,1,.1),new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:14472114})),this._pathMarker=new three__WEBPACK_IMPORTED_MODULE_0__.Object3D,this._pathLineMaterial=new three__WEBPACK_IMPORTED_MODULE_0__.LineBasicMaterial({color:41903,linewidth:2}),this._pathPointMaterial=new three__WEBPACK_IMPORTED_MODULE_0__.MeshBasicMaterial({color:41903}),this._pathPointGeometry=new three__WEBPACK_IMPORTED_MODULE_0__.SphereGeometry(.08),this._markers=[this._playerMarker,this._targetMarker,this._nodeMarker,this._stepMarker,this._pathMarker],this._markers.forEach(t=>{t.visible=!1,this.add(t)})}setPath(s){for(;this._pathMarker.children.length;)this._pathMarker.children[0].visible=!1,this._pathMarker.remove(this._pathMarker.children[0]);s=[this._playerMarker.position].concat(s);const r=new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry;r.setAttribute("position",new three__WEBPACK_IMPORTED_MODULE_0__.BufferAttribute(new Float32Array(3*s.length),3));for(let t=0;t<s.length;t++)r.attributes.position.setXYZ(t,s[t].x,s[t].y+.2,s[t].z);this._pathMarker.add(new three__WEBPACK_IMPORTED_MODULE_0__.Line(r,this._pathLineMaterial));for(let t=0;t<s.length-1;t++){const e=new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(this._pathPointGeometry,this._pathPointMaterial);e.position.copy(s[t]),e.position.y+=.2,this._pathMarker.add(e)}return this._pathMarker.visible=!0,this}setPlayerPosition(t){return this._playerMarker.position.copy(t),this._playerMarker.visible=!0,this}setTargetPosition(t){return this._targetMarker.position.copy(t),this._targetMarker.visible=!0,this}setNodePosition(t){return this._nodeMarker.position.copy(t),this._nodeMarker.visible=!0,this}setStepPosition(t){return this._stepMarker.position.copy(t),this._stepMarker.visible=!0,this}reset(){for(;this._pathMarker.children.length;)this._pathMarker.children[0].visible=!1,this._pathMarker.remove(this._pathMarker.children[0]);return this._markers.forEach(t=>{t.visible=!1}),this}}
 //# sourceMappingURL=three-pathfinding.module.js.map
 
 
@@ -7761,6 +7761,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   calcNURBSDerivatives: () => (/* binding */ calcNURBSDerivatives),
 /* harmony export */   calcRationalCurveDerivatives: () => (/* binding */ calcRationalCurveDerivatives),
 /* harmony export */   calcSurfacePoint: () => (/* binding */ calcSurfacePoint),
+/* harmony export */   calcVolumePoint: () => (/* binding */ calcVolumePoint),
 /* harmony export */   findSpan: () => (/* binding */ findSpan)
 /* harmony export */ });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "three");
@@ -8192,10 +8193,10 @@ function calcNURBSDerivatives( p, U, P, u, nd ) {
 /*
 Calculate rational B-Spline surface point. See The NURBS Book, page 134, algorithm A4.3.
 
-p1, p2 : degrees of B-Spline surface
-U1, U2 : knot vectors
-P      : control points (x, y, z, w)
-u, v   : parametric values
+p, q : degrees of B-Spline surface
+U, V : knot vectors
+P    : control points (x, y, z, w)
+u, v : parametric values
 
 returns point for given (u, v)
 */
@@ -8235,6 +8236,60 @@ function calcSurfacePoint( p, q, U, V, P, u, v, target ) {
 
 }
 
+/*
+Calculate rational B-Spline volume point. See The NURBS Book, page 134, algorithm A4.3.
+
+p, q, r   : degrees of B-Splinevolume
+U, V, W   : knot vectors
+P         : control points (x, y, z, w)
+u, v, w   : parametric values
+
+returns point for given (u, v, w)
+*/
+function calcVolumePoint( p, q, r, U, V, W, P, u, v, w, target ) {
+
+	const uspan = findSpan( p, u, U );
+	const vspan = findSpan( q, v, V );
+	const wspan = findSpan( r, w, W );
+	const Nu = calcBasisFunctions( uspan, u, p, U );
+	const Nv = calcBasisFunctions( vspan, v, q, V );
+	const Nw = calcBasisFunctions( wspan, w, r, W );
+	const temp = [];
+
+	for ( let m = 0; m <= r; ++ m ) {
+
+		temp[ m ] = [];
+
+		for ( let l = 0; l <= q; ++ l ) {
+
+			temp[ m ][ l ] = new three__WEBPACK_IMPORTED_MODULE_0__.Vector4( 0, 0, 0, 0 );
+			for ( let k = 0; k <= p; ++ k ) {
+
+				const point = P[ uspan - p + k ][ vspan - q + l ][ wspan - r + m ].clone();
+				const w = point.w;
+				point.x *= w;
+				point.y *= w;
+				point.z *= w;
+				temp[ m ][ l ].add( point.multiplyScalar( Nu[ k ] ) );
+
+			}
+
+		}
+
+	}
+	const Sw = new three__WEBPACK_IMPORTED_MODULE_0__.Vector4( 0, 0, 0, 0 );
+	for ( let m = 0; m <= r; ++ m ) {
+		for ( let l = 0; l <= q; ++ l ) {
+
+			Sw.add( temp[ m ][ l ].multiplyScalar( Nw[ m ] ).multiplyScalar( Nv[ l ] ) );
+
+		}
+	}
+
+	Sw.divideScalar( Sw.w );
+	target.set( Sw.x, Sw.y, Sw.z );
+
+}
 
 
 
@@ -8266,6 +8321,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Decompress: () => (/* binding */ Decompress),
 /* harmony export */   Deflate: () => (/* binding */ Deflate),
 /* harmony export */   EncodeUTF8: () => (/* binding */ EncodeUTF8),
+/* harmony export */   FlateErrorCode: () => (/* binding */ FlateErrorCode),
 /* harmony export */   Gunzip: () => (/* binding */ Gunzip),
 /* harmony export */   Gzip: () => (/* binding */ Gzip),
 /* harmony export */   Inflate: () => (/* binding */ Inflate),
@@ -8304,7 +8360,7 @@ __webpack_require__.r(__webpack_exports__);
 fflate - fast JavaScript compression/decompression
 <https://101arrowz.github.io/fflate>
 Licensed under MIT. https://github.com/101arrowz/fflate/blob/master/LICENSE
-version 0.6.9
+version 0.8.2
 */
 
 // DEFLATE is a complex format; to read this code, you should probably check the RFC first:
@@ -8317,31 +8373,30 @@ version 0.6.9
 // Sometimes 0 will appear where -1 would be more appropriate. This is because using a uint
 // is better for memory in most engines (I *think*).
 var ch2 = {};
-var durl = function (c) { return URL.createObjectURL(new Blob([c], { type: 'text/javascript' })); };
-var cwk = function (u) { return new Worker(u); };
-try {
-    URL.revokeObjectURL(durl(''));
-}
-catch (e) {
-    // We're in Deno or a very old browser
-    durl = function (c) { return 'data:application/javascript;charset=UTF-8,' + encodeURI(c); };
-    // If Deno, this is necessary; if not, this changes nothing
-    cwk = function (u) { return new Worker(u, { type: 'module' }); };
-}
 var wk = (function (c, id, msg, transfer, cb) {
-    var w = cwk(ch2[id] || (ch2[id] = durl(c)));
-    w.onerror = function (e) { return cb(e.error, null); };
-    w.onmessage = function (e) { return cb(null, e.data); };
+    var w = new Worker(ch2[id] || (ch2[id] = URL.createObjectURL(new Blob([
+        c + ';addEventListener("error",function(e){e=e.error;postMessage({$e$:[e.message,e.code,e.stack]})})'
+    ], { type: 'text/javascript' }))));
+    w.onmessage = function (e) {
+        var d = e.data, ed = d.$e$;
+        if (ed) {
+            var err = new Error(ed[0]);
+            err['code'] = ed[1];
+            err.stack = ed[2];
+            cb(err, null);
+        }
+        else
+            cb(null, d);
+    };
     w.postMessage(msg, transfer);
     return w;
 });
 
 // aliases for shorter compressed code (most minifers don't do this)
-var u8 = Uint8Array, u16 = Uint16Array, u32 = Uint32Array;
+var u8 = Uint8Array, u16 = Uint16Array, i32 = Int32Array;
 // fixed length extra bits
 var fleb = new u8([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, /* unused */ 0, 0, /* impossible */ 0]);
 // fixed distance extra bits
-// see fleb note
 var fdeb = new u8([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, /* unused */ 0, 0]);
 // code length index map
 var clim = new u8([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]);
@@ -8352,26 +8407,26 @@ var freb = function (eb, start) {
         b[i] = start += 1 << eb[i - 1];
     }
     // numbers here are at max 18 bits
-    var r = new u32(b[30]);
+    var r = new i32(b[30]);
     for (var i = 1; i < 30; ++i) {
         for (var j = b[i]; j < b[i + 1]; ++j) {
             r[j] = ((j - b[i]) << 5) | i;
         }
     }
-    return [b, r];
+    return { b: b, r: r };
 };
-var _a = freb(fleb, 2), fl = _a[0], revfl = _a[1];
+var _a = freb(fleb, 2), fl = _a.b, revfl = _a.r;
 // we can ignore the fact that the other numbers are wrong; they never happen anyway
 fl[28] = 258, revfl[258] = 28;
-var _b = freb(fdeb, 0), fd = _b[0], revfd = _b[1];
+var _b = freb(fdeb, 0), fd = _b.b, revfd = _b.r;
 // map of value to reverse (assuming 16 bits)
 var rev = new u16(32768);
 for (var i = 0; i < 32768; ++i) {
     // reverse table algorithm from SO
-    var x = ((i & 0xAAAA) >>> 1) | ((i & 0x5555) << 1);
-    x = ((x & 0xCCCC) >>> 2) | ((x & 0x3333) << 2);
-    x = ((x & 0xF0F0) >>> 4) | ((x & 0x0F0F) << 4);
-    rev[i] = (((x & 0xFF00) >>> 8) | ((x & 0x00FF) << 8)) >>> 1;
+    var x = ((i & 0xAAAA) >> 1) | ((i & 0x5555) << 1);
+    x = ((x & 0xCCCC) >> 2) | ((x & 0x3333) << 2);
+    x = ((x & 0xF0F0) >> 4) | ((x & 0x0F0F) << 4);
+    rev[i] = (((x & 0xFF00) >> 8) | ((x & 0x00FF) << 8)) >> 1;
 }
 // create huffman tree from u8 "map": index -> code length for code index
 // mb (max bits) must be at most 15
@@ -8383,11 +8438,13 @@ var hMap = (function (cd, mb, r) {
     // u16 "map": index -> # of codes with bit length = index
     var l = new u16(mb);
     // length of cd must be 288 (total # of codes)
-    for (; i < s; ++i)
-        ++l[cd[i] - 1];
+    for (; i < s; ++i) {
+        if (cd[i])
+            ++l[cd[i] - 1];
+    }
     // u16 "map": index -> minimum code for bit length = index
     var le = new u16(mb);
-    for (i = 0; i < mb; ++i) {
+    for (i = 1; i < mb; ++i) {
         le[i] = (le[i - 1] + l[i - 1]) << 1;
     }
     var co;
@@ -8408,7 +8465,7 @@ var hMap = (function (cd, mb, r) {
                 // m is end value
                 for (var m = v | ((1 << r_1) - 1); v <= m; ++v) {
                     // every 16 bit value starting with the code yields the same result
-                    co[rev[v] >>> rvb] = sv;
+                    co[rev[v] >> rvb] = sv;
                 }
             }
         }
@@ -8417,7 +8474,7 @@ var hMap = (function (cd, mb, r) {
         co = new u16(s);
         for (i = 0; i < s; ++i) {
             if (cd[i]) {
-                co[i] = rev[le[cd[i] - 1]++] >>> (15 - cd[i]);
+                co[i] = rev[le[cd[i] - 1]++] >> (15 - cd[i]);
             }
         }
     }
@@ -8461,7 +8518,7 @@ var bits16 = function (d, p) {
     return ((d[o] | (d[o + 1] << 8) | (d[o + 2] << 16)) >> (p & 7));
 };
 // get end of byte
-var shft = function (p) { return ((p / 8) | 0) + (p & 7 && 1); };
+var shft = function (p) { return ((p + 7) / 8) | 0; };
 // typed array slice - allows garbage collector to free original reference,
 // while being more compatible than .slice
 var slc = function (v, s, e) {
@@ -8470,24 +8527,69 @@ var slc = function (v, s, e) {
     if (e == null || e > v.length)
         e = v.length;
     // can't use .constructor in case user-supplied
-    var n = new (v instanceof u16 ? u16 : v instanceof u32 ? u32 : u8)(e - s);
-    n.set(v.subarray(s, e));
-    return n;
+    return new u8(v.subarray(s, e));
+};
+/**
+ * Codes for errors generated within this library
+ */
+var FlateErrorCode = {
+    UnexpectedEOF: 0,
+    InvalidBlockType: 1,
+    InvalidLengthLiteral: 2,
+    InvalidDistance: 3,
+    StreamFinished: 4,
+    NoStreamHandler: 5,
+    InvalidHeader: 6,
+    NoCallback: 7,
+    InvalidUTF8: 8,
+    ExtraFieldTooLong: 9,
+    InvalidDate: 10,
+    FilenameTooLong: 11,
+    StreamFinishing: 12,
+    InvalidZipData: 13,
+    UnknownCompressionMethod: 14
+};
+// error codes
+var ec = [
+    'unexpected EOF',
+    'invalid block type',
+    'invalid length/literal',
+    'invalid distance',
+    'stream finished',
+    'no stream handler',
+    ,
+    'no callback',
+    'invalid UTF-8 data',
+    'extra field too long',
+    'date not in range 1980-2099',
+    'filename too long',
+    'stream finishing',
+    'invalid zip data'
+    // determined by unknown compression method
+];
+;
+var err = function (ind, msg, nt) {
+    var e = new Error(msg || ec[ind]);
+    e.code = ind;
+    if (Error.captureStackTrace)
+        Error.captureStackTrace(e, err);
+    if (!nt)
+        throw e;
+    return e;
 };
 // expands raw DEFLATE data
-var inflt = function (dat, buf, st) {
-    // source length
-    var sl = dat.length;
-    if (!sl || (st && !st.l && sl < 5))
+var inflt = function (dat, st, buf, dict) {
+    // source length       dict length
+    var sl = dat.length, dl = dict ? dict.length : 0;
+    if (!sl || st.f && !st.l)
         return buf || new u8(0);
+    var noBuf = !buf;
     // have to estimate size
-    var noBuf = !buf || st;
+    var resize = noBuf || st.i != 2;
     // no state
-    var noSt = !st || st.i;
-    if (!st)
-        st = {};
+    var noSt = st.i;
     // Assumes roughly 33% compression ratio average
-    if (!buf)
+    if (noBuf)
         buf = new u8(sl * 3);
     // ensure buffer can fit at least l elements
     var cbuf = function (l) {
@@ -8507,7 +8609,7 @@ var inflt = function (dat, buf, st) {
     do {
         if (!lm) {
             // BFINAL - this is only 1 when last chunk is next
-            st.f = final = bits(dat, pos, 1);
+            final = bits(dat, pos, 1);
             // type: 0 = no compression, 1 = fixed huffman, 2 = dynamic huffman
             var type = bits(dat, pos + 1, 3);
             pos += 3;
@@ -8516,16 +8618,16 @@ var inflt = function (dat, buf, st) {
                 var s = shft(pos) + 4, l = dat[s - 4] | (dat[s - 3] << 8), t = s + l;
                 if (t > sl) {
                     if (noSt)
-                        throw 'unexpected EOF';
+                        err(0);
                     break;
                 }
                 // ensure size
-                if (noBuf)
+                if (resize)
                     cbuf(bt + l);
                 // Copy over uncompressed data
                 buf.set(dat.subarray(s, t), bt);
                 // Get new bitpos, update byte count
-                st.b = bt += l, st.p = pos = t * 8;
+                st.b = bt += l, st.p = pos = t * 8, st.f = final;
                 continue;
             }
             else if (type == 1)
@@ -8553,7 +8655,7 @@ var inflt = function (dat, buf, st) {
                     // bits read
                     pos += r & 15;
                     // symbol
-                    var s = r >>> 4;
+                    var s = r >> 4;
                     // code length to copy
                     if (s < 16) {
                         ldt[i++] = s;
@@ -8581,30 +8683,30 @@ var inflt = function (dat, buf, st) {
                 dm = hMap(dt, dbt, 1);
             }
             else
-                throw 'invalid block type';
+                err(1);
             if (pos > tbts) {
                 if (noSt)
-                    throw 'unexpected EOF';
+                    err(0);
                 break;
             }
         }
         // Make sure the buffer can hold this + the largest possible addition
-        // Maximum chunk size (practically, theoretically infinite) is 2^17;
-        if (noBuf)
+        // Maximum chunk size (practically, theoretically infinite) is 2^17
+        if (resize)
             cbuf(bt + 131072);
         var lms = (1 << lbt) - 1, dms = (1 << dbt) - 1;
         var lpos = pos;
         for (;; lpos = pos) {
             // bits read, code
-            var c = lm[bits16(dat, pos) & lms], sym = c >>> 4;
+            var c = lm[bits16(dat, pos) & lms], sym = c >> 4;
             pos += c & 15;
             if (pos > tbts) {
                 if (noSt)
-                    throw 'unexpected EOF';
+                    err(0);
                 break;
             }
             if (!c)
-                throw 'invalid length/literal';
+                err(2);
             if (sym < 256)
                 buf[bt++] = sym;
             else if (sym == 256) {
@@ -8621,52 +8723,55 @@ var inflt = function (dat, buf, st) {
                     pos += b;
                 }
                 // dist
-                var d = dm[bits16(dat, pos) & dms], dsym = d >>> 4;
+                var d = dm[bits16(dat, pos) & dms], dsym = d >> 4;
                 if (!d)
-                    throw 'invalid distance';
+                    err(3);
                 pos += d & 15;
                 var dt = fd[dsym];
                 if (dsym > 3) {
                     var b = fdeb[dsym];
-                    dt += bits16(dat, pos) & ((1 << b) - 1), pos += b;
+                    dt += bits16(dat, pos) & (1 << b) - 1, pos += b;
                 }
                 if (pos > tbts) {
                     if (noSt)
-                        throw 'unexpected EOF';
+                        err(0);
                     break;
                 }
-                if (noBuf)
+                if (resize)
                     cbuf(bt + 131072);
                 var end = bt + add;
-                for (; bt < end; bt += 4) {
-                    buf[bt] = buf[bt - dt];
-                    buf[bt + 1] = buf[bt + 1 - dt];
-                    buf[bt + 2] = buf[bt + 2 - dt];
-                    buf[bt + 3] = buf[bt + 3 - dt];
+                if (bt < dt) {
+                    var shift = dl - dt, dend = Math.min(dt, end);
+                    if (shift + bt < 0)
+                        err(3);
+                    for (; bt < dend; ++bt)
+                        buf[bt] = dict[shift + bt];
                 }
-                bt = end;
+                for (; bt < end; ++bt)
+                    buf[bt] = buf[bt - dt];
             }
         }
-        st.l = lm, st.p = lpos, st.b = bt;
+        st.l = lm, st.p = lpos, st.b = bt, st.f = final;
         if (lm)
             final = 1, st.m = lbt, st.d = dm, st.n = dbt;
     } while (!final);
-    return bt == buf.length ? buf : slc(buf, 0, bt);
+    // don't reallocate for streams or user buffers
+    return bt != buf.length && noBuf ? slc(buf, 0, bt) : buf.subarray(0, bt);
 };
 // starting at p, write the minimum number of bits that can hold v to d
 var wbits = function (d, p, v) {
     v <<= p & 7;
     var o = (p / 8) | 0;
     d[o] |= v;
-    d[o + 1] |= v >>> 8;
+    d[o + 1] |= v >> 8;
 };
 // starting at p, write the minimum number of bits (>8) that can hold v to d
 var wbits16 = function (d, p, v) {
     v <<= p & 7;
     var o = (p / 8) | 0;
     d[o] |= v;
-    d[o + 1] |= v >>> 8;
-    d[o + 2] |= v >>> 16;
+    d[o + 1] |= v >> 8;
+    d[o + 2] |= v >> 16;
 };
 // creates code lengths from a frequency table
 var hTree = function (d, mb) {
@@ -8679,11 +8784,11 @@ var hTree = function (d, mb) {
     var s = t.length;
     var t2 = t.slice();
     if (!s)
-        return [et, 0];
+        return { t: et, l: 0 };
     if (s == 1) {
         var v = new u8(t[0].s + 1);
         v[t[0].s] = 1;
-        return [v, 1];
+        return { t: v, l: 1 };
     }
     t.sort(function (a, b) { return a.f - b.f; });
     // after i2 reaches last ind, will be stopped
@@ -8727,7 +8832,7 @@ var hTree = function (d, mb) {
             else
                 break;
         }
-        dt >>>= lft;
+        dt >>= lft;
         while (dt > 0) {
             var i2_2 = t2[i].s;
             if (tr[i2_2] < mb)
@@ -8744,7 +8849,7 @@ var hTree = function (d, mb) {
         }
         mbt = mb;
     }
-    return [new u8(tr), mbt];
+    return { t: new u8(tr), l: mbt };
 };
 // get the max length and assign length codes
 var ln = function (n, l, d) {
@@ -8787,7 +8892,7 @@ var lc = function (c) {
             cln = c[i];
         }
     }
-    return [cl.subarray(0, cli), s];
+    return { c: cl.subarray(0, cli), n: s };
 };
 // calculate the length of output from tree, code lengths
 var clen = function (cf, cl) {
@@ -8803,7 +8908,7 @@ var wfblk = function (out, pos, dat) {
     var s = dat.length;
     var o = shft(pos + 2);
     out[o] = s & 255;
-    out[o + 1] = s >>> 8;
+    out[o + 1] = s >> 8;
     out[o + 2] = out[o] ^ 255;
     out[o + 3] = out[o + 1] ^ 255;
     for (var i = 0; i < s; ++i)
@@ -8814,23 +8919,23 @@ var wfblk = function (out, pos, dat) {
 var wblk = function (dat, out, final, syms, lf, df, eb, li, bs, bl, p) {
     wbits(out, p++, final);
     ++lf[256];
-    var _a = hTree(lf, 15), dlt = _a[0], mlb = _a[1];
-    var _b = hTree(df, 15), ddt = _b[0], mdb = _b[1];
-    var _c = lc(dlt), lclt = _c[0], nlc = _c[1];
-    var _d = lc(ddt), lcdt = _d[0], ndc = _d[1];
+    var _a = hTree(lf, 15), dlt = _a.t, mlb = _a.l;
+    var _b = hTree(df, 15), ddt = _b.t, mdb = _b.l;
+    var _c = lc(dlt), lclt = _c.c, nlc = _c.n;
+    var _d = lc(ddt), lcdt = _d.c, ndc = _d.n;
     var lcfreq = new u16(19);
     for (var i = 0; i < lclt.length; ++i)
-        lcfreq[lclt[i] & 31]++;
+        ++lcfreq[lclt[i] & 31];
     for (var i = 0; i < lcdt.length; ++i)
-        lcfreq[lcdt[i] & 31]++;
-    var _e = hTree(lcfreq, 7), lct = _e[0], mlcb = _e[1];
+        ++lcfreq[lcdt[i] & 31];
+    var _e = hTree(lcfreq, 7), lct = _e.t, mlcb = _e.l;
     var nlcc = 19;
     for (; nlcc > 4 && !lct[clim[nlcc - 1]]; --nlcc)
         ;
     var flen = (bl + 5) << 3;
     var ftlen = clen(lf, flt) + clen(df, fdt) + eb;
-    var dtlen = clen(lf, dlt) + clen(df, ddt) + eb + 14 + 3 * nlcc + clen(lcfreq, lct) + (2 * lcfreq[16] + 3 * lcfreq[17] + 7 * lcfreq[18]);
-    if (flen <= ftlen && flen <= dtlen)
+    var dtlen = clen(lf, dlt) + clen(df, ddt) + eb + 14 + 3 * nlcc + clen(lcfreq, lct) + 2 * lcfreq[16] + 3 * lcfreq[17] + 7 * lcfreq[18];
+    if (bs >= 0 && flen <= ftlen && flen <= dtlen)
         return wfblk(out, p, dat.subarray(bs, bs + bl));
     var lm, ll, dm, dl;
     wbits(out, p, 1 + (dtlen < ftlen)), p += 2;
@@ -8851,7 +8956,7 @@ var wblk = function (dat, out, final, syms, lf, df, eb, li, bs, bl, p) {
                 var len = clct[i] & 31;
                 wbits(out, p, llm[len]), p += lct[len];
                 if (len > 15)
-                    wbits(out, p, (clct[i] >>> 5) & 127), p += clct[i] >>> 12;
+                    wbits(out, p, (clct[i] >> 5) & 127), p += clct[i] >> 12;
             }
         }
     }
@@ -8859,67 +8964,55 @@ var wblk = function (dat, out, final, syms, lf, df, eb, li, bs, bl, p) {
         lm = flm, ll = flt, dm = fdm, dl = fdt;
     }
     for (var i = 0; i < li; ++i) {
-        if (syms[i] > 255) {
-            var len = (syms[i] >>> 18) & 31;
+        var sym = syms[i];
+        if (sym > 255) {
+            var len = (sym >> 18) & 31;
             wbits16(out, p, lm[len + 257]), p += ll[len + 257];
             if (len > 7)
-                wbits(out, p, (syms[i] >>> 23) & 31), p += fleb[len];
-            var dst = syms[i] & 31;
+                wbits(out, p, (sym >> 23) & 31), p += fleb[len];
+            var dst = sym & 31;
             wbits16(out, p, dm[dst]), p += dl[dst];
             if (dst > 3)
-                wbits16(out, p, (syms[i] >>> 5) & 8191), p += fdeb[dst];
+                wbits16(out, p, (sym >> 5) & 8191), p += fdeb[dst];
         }
         else {
-            wbits16(out, p, lm[syms[i]]), p += ll[syms[i]];
+            wbits16(out, p, lm[sym]), p += ll[sym];
         }
     }
     wbits16(out, p, lm[256]);
     return p + ll[256];
 };
 // deflate options (nice << 13) | chain
-var deo = /*#__PURE__*/ new u32([65540, 131080, 131088, 131104, 262176, 1048704, 1048832, 2114560, 2117632]);
+var deo = /*#__PURE__*/ new i32([65540, 131080, 131088, 131104, 262176, 1048704, 1048832, 2114560, 2117632]);
 // empty
 var et = /*#__PURE__*/ new u8(0);
 // compresses data into a raw DEFLATE buffer
-var dflt = function (dat, lvl, plvl, pre, post, lst) {
-    var s = dat.length;
+var dflt = function (dat, lvl, plvl, pre, post, st) {
+    var s = st.z || dat.length;
     var o = new u8(pre + s + 5 * (1 + Math.ceil(s / 7000)) + post);
     // writing to this writes to the output buffer
     var w = o.subarray(pre, o.length - post);
-    var pos = 0;
-    if (!lvl || s < 8) {
-        for (var i = 0; i <= s; i += 65535) {
-            // end
-            var e = i + 65535;
-            if (e < s) {
-                // write full block
-                pos = wfblk(w, pos, dat.subarray(i, e));
-            }
-            else {
-                // write final block
-                w[i] = lst;
-                pos = wfblk(w, pos, dat.subarray(i, s));
-            }
-        }
-    }
-    else {
+    var lst = st.l;
+    var pos = (st.r || 0) & 7;
+    if (lvl) {
+        if (pos)
+            w[0] = st.r >> 3;
         var opt = deo[lvl - 1];
-        var n = opt >>> 13, c = opt & 8191;
+        var n = opt >> 13, c = opt & 8191;
         var msk_1 = (1 << plvl) - 1;
         //    prev 2-byte val map    curr 2-byte val map
-        var prev = new u16(32768), head = new u16(msk_1 + 1);
+        var prev = st.p || new u16(32768), head = st.h || new u16(msk_1 + 1);
         var bs1_1 = Math.ceil(plvl / 3), bs2_1 = 2 * bs1_1;
         var hsh = function (i) { return (dat[i] ^ (dat[i + 1] << bs1_1) ^ (dat[i + 2] << bs2_1)) & msk_1; };
         // 24576 is an arbitrary number of maximum symbols per block
         // 424 buffer for last block
-        var syms = new u32(25000);
+        var syms = new i32(25000);
         // length/literal freq   distance freq
         var lf = new u16(288), df = new u16(32);
-        //  l/lcnt  exbits  index  l/lind  waitdx  bitpos
-        var lc_1 = 0, eb = 0, i = 0, li = 0, wi = 0, bs = 0;
-        for (; i < s; ++i) {
+        //  l/lcnt  exbits  index          l/lind  waitdx          blkpos
+        var lc_1 = 0, eb = 0, i = st.i || 0, li = 0, wi = st.w || 0, bs = 0;
+        for (; i + 2 < s; ++i) {
             // hash value
-            // deopt when i > s - 3 - at end, deopt acceptable
             var hv = hsh(i);
             // index mod 32768    previous index mod
             var imod = i & 32767, pimod = head[hv];
@@ -8930,7 +9023,7 @@ var dflt = function (dat, lvl, plvl, pre, post, lst) {
             if (wi <= i) {
                 // bytes remaining
                 var rem = s - i;
-                if ((lc_1 > 7000 || li > 24576) && rem > 423) {
+                if ((lc_1 > 7000 || li > 24576) && (rem > 423 || !lst)) {
                     pos = wblk(dat, w, 0, syms, lf, df, eb, li, bs, i - bs, pos);
                     li = lc_1 = eb = 0, bs = i;
                     for (var j = 0; j < 286; ++j)
@@ -8939,7 +9032,7 @@ var dflt = function (dat, lvl, plvl, pre, post, lst) {
                         df[j] = 0;
                 }
                 //  len    dist   chain
-                var l = 2, d = 0, ch_1 = c, dif = (imod - pimod) & 32767;
+                var l = 2, d = 0, ch_1 = c, dif = imod - pimod & 32767;
                 if (rem > 2 && hv == hsh(i - dif)) {
                     var maxn = Math.min(n, rem) - 1;
                     var maxd = Math.min(32767, i);
@@ -8962,9 +9055,9 @@ var dflt = function (dat, lvl, plvl, pre, post, lst) {
                                 var mmd = Math.min(dif, nl - 2);
                                 var md = 0;
                                 for (var j = 0; j < mmd; ++j) {
-                                    var ti = (i - dif + j + 32768) & 32767;
+                                    var ti = i - dif + j & 32767;
                                     var pti = prev[ti];
-                                    var cd = (ti - pti + 32768) & 32767;
+                                    var cd = ti - pti & 32767;
                                     if (cd > md)
                                         md = cd, pimod = ti;
                                 }
@@ -8972,12 +9065,12 @@ var dflt = function (dat, lvl, plvl, pre, post, lst) {
                         }
                         // check the previous match
                         imod = pimod, pimod = prev[imod];
-                        dif += (imod - pimod + 32768) & 32767;
+                        dif += imod - pimod & 32767;
                     }
                 }
                 // d will be nonzero only when a match was found
                 if (d) {
-                    // store both dist and len data in one Uint32
+                    // store both dist and len data in one int32
                     // Make sure this is recognized as a len/dist with 28th bit (2^28)
                     syms[li++] = 268435456 | (revfl[l] << 18) | revfd[d];
                     var lin = revfl[l] & 31, din = revfd[d] & 31;
@@ -8993,20 +9086,40 @@ var dflt = function (dat, lvl, plvl, pre, post, lst) {
                 }
             }
         }
+        for (i = Math.max(i, wi); i < s; ++i) {
+            syms[li++] = dat[i];
+            ++lf[dat[i]];
+        }
         pos = wblk(dat, w, lst, syms, lf, df, eb, li, bs, i - bs, pos);
-        // this is the easiest way to avoid needing to maintain state
-        if (!lst && pos & 7)
-            pos = wfblk(w, pos + 1, et);
+        if (!lst) {
+            st.r = (pos & 7) | w[(pos / 8) | 0] << 3;
+            // shft(pos) now 1 less if pos & 7 != 0
+            pos -= 7;
+            st.h = head, st.p = prev, st.i = i, st.w = wi;
+        }
+    }
+    else {
+        for (var i = st.w || 0; i < s + lst; i += 65535) {
+            // end
+            var e = i + 65535;
+            if (e >= s) {
+                // write final block
+                w[(pos / 8) | 0] = lst;
+                e = s;
+            }
+            pos = wfblk(w, pos + 1, dat.subarray(i, e));
+        }
+        st.i = s;
     }
     return slc(o, 0, pre + shft(pos) + post);
 };
 // CRC32 table
 var crct = /*#__PURE__*/ (function () {
-    var t = new u32(256);
+    var t = new Int32Array(256);
     for (var i = 0; i < 256; ++i) {
         var c = i, k = 9;
         while (--k)
-            c = ((c & 1) && 0xEDB88320) ^ (c >>> 1);
+            c = ((c & 1) && -306674912) ^ (c >>> 1);
         t[i] = c;
     }
     return t;
@@ -9025,14 +9138,14 @@ var crc = function () {
         d: function () { return ~c; }
     };
 };
-// Alder32
+// Adler32
 var adler = function () {
     var a = 1, b = 0;
     return {
         p: function (d) {
             // closures have awful performance
             var n = a, m = b;
-            var l = d.length;
+            var l = d.length | 0;
             for (var i = 0; i != l;) {
                 var e = Math.min(i + 2655, l);
                 for (; i < e; ++i)
@@ -9043,14 +9156,25 @@ var adler = function () {
         },
         d: function () {
             a %= 65521, b %= 65521;
-            return (a & 255) << 24 | (a >>> 8) << 16 | (b & 255) << 8 | (b >>> 8);
+            return (a & 255) << 24 | (a & 0xFF00) << 8 | (b & 255) << 8 | (b >> 8);
         }
     };
 };
 ;
 // deflate with opts
 var dopt = function (dat, opt, pre, post, st) {
-    return dflt(dat, opt.level == null ? 6 : opt.level, opt.mem == null ? Math.ceil(Math.max(8, Math.min(13, Math.log(dat.length))) * 1.5) : (12 + opt.mem), pre, post, !st);
+    if (!st) {
+        st = { l: 1 };
+        if (opt.dictionary) {
+            var dict = opt.dictionary.subarray(-32768);
+            var newDat = new u8(dict.length + dat.length);
+            newDat.set(dict);
+            newDat.set(dat, dict.length);
+            dat = newDat;
+            st.w = dict.length;
+        }
+    }
+    return dflt(dat, opt.level == null ? 6 : opt.level, opt.mem == null ? (st.l ? Math.ceil(Math.max(8, Math.min(13, Math.log(dat.length))) * 1.5) : 20) : (12 + opt.mem), pre, post, st);
 };
 // Walmart object spread
 var mrg = function (a, b) {
@@ -9071,7 +9195,7 @@ var mrg = function (a, b) {
 var wcln = function (fn, fnStr, td) {
     var dt = fn();
     var st = fn.toString();
-    var ks = st.slice(st.indexOf('[') + 1, st.lastIndexOf(']')).replace(/ /g, '').split(',');
+    var ks = st.slice(st.indexOf('[') + 1, st.lastIndexOf(']')).replace(/\s+/g, '').split(',');
     for (var i = 0; i < dt.length; ++i) {
         var v = dt[i], k = ks[i];
         if (typeof v == 'function') {
@@ -9095,33 +9219,33 @@ var wcln = function (fn, fnStr, td) {
         else
             td[k] = v;
     }
-    return [fnStr, td];
+    return fnStr;
 };
 var ch = [];
 // clone bufs
 var cbfs = function (v) {
     var tl = [];
     for (var k in v) {
-        if (v[k] instanceof u8 || v[k] instanceof u16 || v[k] instanceof u32)
+        if (v[k].buffer) {
             tl.push((v[k] = new v[k].constructor(v[k])).buffer);
+        }
     }
     return tl;
 };
 // use a worker to execute code
 var wrkr = function (fns, init, id, cb) {
-    var _a;
     if (!ch[id]) {
         var fnStr = '', td_1 = {}, m = fns.length - 1;
         for (var i = 0; i < m; ++i)
-            _a = wcln(fns[i], fnStr, td_1), fnStr = _a[0], td_1 = _a[1];
-        ch[id] = wcln(fns[m], fnStr, td_1);
+            fnStr = wcln(fns[i], fnStr, td_1);
+        ch[id] = { c: wcln(fns[m], fnStr, td_1), e: td_1 };
     }
-    var td = mrg({}, ch[id][1]);
-    return wk(ch[id][0] + ';onmessage=function(e){for(var k in e.data)self[k]=e.data[k];onmessage=' + init.toString() + '}', id, td, cbfs(td), cb);
+    var td = mrg({}, ch[id].e);
+    return wk(ch[id].c + ';onmessage=function(e){for(var k in e.data)self[k]=e.data[k];onmessage=' + init.toString() + '}', id, td, cbfs(td), cb);
 };
 // base async inflate fn
-var bInflt = function () { return [u8, u16, u32, fleb, fdeb, clim, fl, fd, flrm, fdrm, rev, hMap, max, bits, bits16, shft, slc, inflt, inflateSync, pbf, gu8]; };
-var bDflt = function () { return [u8, u16, u32, fleb, fdeb, clim, revfl, revfd, flm, flt, fdm, fdt, rev, deo, et, hMap, wbits, wbits16, hTree, ln, lc, clen, wfblk, wblk, shft, slc, dflt, dopt, deflateSync, pbf]; };
+var bInflt = function () { return [u8, u16, i32, fleb, fdeb, clim, fl, fd, flrm, fdrm, rev, ec, hMap, max, bits, bits16, shft, slc, err, inflt, inflateSync, pbf, gopt]; };
+var bDflt = function () { return [u8, u16, i32, fleb, fdeb, clim, revfl, revfd, flm, flt, fdm, fdt, rev, deo, et, hMap, wbits, wbits16, hTree, ln, lc, clen, wfblk, wblk, shft, slc, dflt, dopt, deflateSync, pbf]; };
 // gzip extra
 var gze = function () { return [gzh, gzhl, wbytes, crc, crct]; };
 // gunzip extra
@@ -9129,11 +9253,14 @@ var guze = function () { return [gzs, gzl]; };
 // zlib extra
 var zle = function () { return [zlh, wbytes, adler]; };
 // unzlib extra
-var zule = function () { return [zlv]; };
+var zule = function () { return [zls]; };
 // post buf
 var pbf = function (msg) { return postMessage(msg, [msg.buffer]); };
-// get u8
-var gu8 = function (o) { return o && o.size && new u8(o.size); };
+// get opts
+var gopt = function (o) { return o && {
+    out: o.size && new u8(o.size),
+    dictionary: o.dictionary
+}; };
 // async helper
 var cbify = function (dat, opts, fns, init, id, cb) {
     var w = wrkr(fns, init, id, function (err, dat) {
@@ -9146,14 +9273,28 @@ var cbify = function (dat, opts, fns, init, id, cb) {
 // auto stream
 var astrm = function (strm) {
     strm.ondata = function (dat, final) { return postMessage([dat, final], [dat.buffer]); };
-    return function (ev) { return strm.push(ev.data[0], ev.data[1]); };
+    return function (ev) {
+        if (ev.data.length) {
+            strm.push(ev.data[0], ev.data[1]);
+            postMessage([ev.data[0].length]);
+        }
+        else
+            strm.flush();
+    };
 };
 // async stream attach
-var astrmify = function (fns, strm, opts, init, id) {
+var astrmify = function (fns, strm, opts, init, id, flush, ext) {
     var t;
     var w = wrkr(fns, init, id, function (err, dat) {
         if (err)
             w.terminate(), strm.ondata.call(strm, err);
+        else if (!Array.isArray(dat))
+            ext(dat);
+        else if (dat.length == 1) {
+            strm.queuedSize -= dat[0];
+            if (strm.ondrain)
+                strm.ondrain(dat[0]);
+        }
         else {
             if (dat[1])
                 w.terminate();
@@ -9161,14 +9302,19 @@ var astrmify = function (fns, strm, opts, init, id) {
         }
     });
     w.postMessage(opts);
+    strm.queuedSize = 0;
     strm.push = function (d, f) {
-        if (t)
-            throw 'stream finished';
         if (!strm.ondata)
-            throw 'no stream handler';
+            err(5);
+        if (t)
+            strm.ondata(err(4, 0, 1), null, !!f);
+        strm.queuedSize += d.length;
         w.postMessage([d, t = f], [d.buffer]);
     };
     strm.terminate = function () { w.terminate(); };
+    if (flush) {
+        strm.flush = function () { w.postMessage([]); };
+    }
 };
 // read 2 bytes
 var b2 = function (d, b) { return d[b] | (d[b + 1] << 8); };
@@ -9196,11 +9342,11 @@ var gzh = function (c, o) {
 // gzip start
 var gzs = function (d) {
     if (d[0] != 31 || d[1] != 139 || d[2] != 8)
-        throw 'invalid gzip data';
+        err(6, 'invalid gzip data');
     var flg = d[3];
     var st = 10;
     if (flg & 4)
-        st += d[10] | (d[11] << 8) + 2;
+        st += (d[10] | d[11] << 8) + 2;
     for (var zs = (flg >> 3 & 1) + (flg >> 4 & 1); zs > 0; zs -= !d[st++])
         ;
     return st + (flg & 2);
@@ -9208,41 +9354,56 @@ var gzs = function (d) {
 // gzip length
 var gzl = function (d) {
     var l = d.length;
-    return ((d[l - 4] | d[l - 3] << 8 | d[l - 2] << 16) | (d[l - 1] << 24)) >>> 0;
+    return (d[l - 4] | d[l - 3] << 8 | d[l - 2] << 16 | d[l - 1] << 24) >>> 0;
 };
 // gzip header length
-var gzhl = function (o) { return 10 + ((o.filename && (o.filename.length + 1)) || 0); };
+var gzhl = function (o) { return 10 + (o.filename ? o.filename.length + 1 : 0); };
 // zlib header
 var zlh = function (c, o) {
     var lv = o.level, fl = lv == 0 ? 0 : lv < 6 ? 1 : lv == 9 ? 3 : 2;
-    c[0] = 120, c[1] = (fl << 6) | (fl ? (32 - 2 * fl) : 1);
+    c[0] = 120, c[1] = (fl << 6) | (o.dictionary && 32);
+    c[1] |= 31 - ((c[0] << 8) | c[1]) % 31;
+    if (o.dictionary) {
+        var h = adler();
+        h.p(o.dictionary);
+        wbytes(c, 2, h.d());
+    }
 };
-// zlib valid
-var zlv = function (d) {
-    if ((d[0] & 15) != 8 || (d[0] >>> 4) > 7 || ((d[0] << 8 | d[1]) % 31))
-        throw 'invalid zlib data';
-    if (d[1] & 32)
-        throw 'invalid zlib data: preset dictionaries not supported';
+// zlib start
+var zls = function (d, dict) {
+    if ((d[0] & 15) != 8 || (d[0] >> 4) > 7 || ((d[0] << 8 | d[1]) % 31))
+        err(6, 'invalid zlib data');
+    if ((d[1] >> 5 & 1) == +!dict)
+        err(6, 'invalid zlib data: ' + (d[1] & 32 ? 'need' : 'unexpected') + ' dictionary');
+    return (d[1] >> 3 & 4) + 2;
 };
-function AsyncCmpStrm(opts, cb) {
-    if (!cb && typeof opts == 'function')
+function StrmOpt(opts, cb) {
+    if (typeof opts == 'function')
         cb = opts, opts = {};
     this.ondata = cb;
     return opts;
 }
-// zlib footer: -4 to -0 is Adler32
 /**
  * Streaming DEFLATE compression
  */
 var Deflate = /*#__PURE__*/ (function () {
     function Deflate(opts, cb) {
-        if (!cb && typeof opts == 'function')
+        if (typeof opts == 'function')
             cb = opts, opts = {};
         this.ondata = cb;
         this.o = opts || {};
+        this.s = { l: 0, i: 32768, w: 32768, z: 32768 };
+        // Buffer length must always be 0 mod 32768 for index calculations to be correct when modifying head and prev
+        // 98304 = 32768 (lookback) + 65536 (common chunk size)
+        this.b = new u8(98304);
+        if (this.o.dictionary) {
+            var dict = this.o.dictionary.subarray(-32768);
+            this.b.set(dict, 32768 - dict.length);
+            this.s.i = 32768 - dict.length;
+        }
     }
     Deflate.prototype.p = function (c, f) {
-        this.ondata(dopt(c, this.o, 0, 0, !f), f);
+        this.ondata(dopt(c, this.o, 0, 0, this.s), f);
     };
     /**
      * Pushes a chunk to be deflated
@@ -9250,12 +9411,47 @@ var Deflate = /*#__PURE__*/ (function () {
      * @param final Whether this is the last chunk
      */
     Deflate.prototype.push = function (chunk, final) {
-        if (this.d)
-            throw 'stream finished';
         if (!this.ondata)
-            throw 'no stream handler';
-        this.d = final;
-        this.p(chunk, final || false);
+            err(5);
+        if (this.s.l)
+            err(4);
+        var endLen = chunk.length + this.s.z;
+        if (endLen > this.b.length) {
+            if (endLen > 2 * this.b.length - 32768) {
+                var newBuf = new u8(endLen & -32768);
+                newBuf.set(this.b.subarray(0, this.s.z));
+                this.b = newBuf;
+            }
+            var split = this.b.length - this.s.z;
+            this.b.set(chunk.subarray(0, split), this.s.z);
+            this.s.z = this.b.length;
+            this.p(this.b, false);
+            this.b.set(this.b.subarray(-32768));
+            this.b.set(chunk.subarray(split), 32768);
+            this.s.z = chunk.length - split + 32768;
+            this.s.i = 32766, this.s.w = 32768;
+        }
+        else {
+            this.b.set(chunk, this.s.z);
+            this.s.z += chunk.length;
+        }
+        this.s.l = final & 1;
+        if (this.s.z > this.s.w + 8191 || final) {
+            this.p(this.b, final || false);
+            this.s.w = this.s.i, this.s.i -= 2;
+        }
+    };
+    /**
+     * Flushes buffered uncompressed data. Useful to immediately retrieve the
+     * deflated output for small inputs.
+     */
+    Deflate.prototype.flush = function () {
+        if (!this.ondata)
+            err(5);
+        if (this.s.l)
+            err(4);
+        this.p(this.b, false);
+        this.s.w = this.s.i, this.s.i -= 2;
     };
     return Deflate;
 }());
@@ -9268,10 +9464,10 @@ var AsyncDeflate = /*#__PURE__*/ (function () {
         astrmify([
             bDflt,
             function () { return [astrm, Deflate]; }
-        ], this, AsyncCmpStrm.call(this, opts, cb), function (ev) {
+        ], this, StrmOpt.call(this, opts, cb), function (ev) {
             var strm = new Deflate(ev.data);
             onmessage = astrm(strm);
-        }, 6);
+        }, 6, 1);
     }
     return AsyncDeflate;
 }());
@@ -9280,7 +9476,7 @@ function deflate(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     return cbify(data, opts, [
         bDflt,
     ], function (ev) { return pbf(deflateSync(ev.data[0], ev.data[1])); }, 0, cb);
@@ -9298,28 +9494,34 @@ function deflateSync(data, opts) {
  * Streaming DEFLATE decompression
  */
 var Inflate = /*#__PURE__*/ (function () {
-    /**
-     * Creates an inflation stream
-     * @param cb The callback to call whenever data is inflated
-     */
-    function Inflate(cb) {
-        this.s = {};
-        this.p = new u8(0);
+    function Inflate(opts, cb) {
+        // no StrmOpt here to avoid adding to workerizer
+        if (typeof opts == 'function')
+            cb = opts, opts = {};
         this.ondata = cb;
+        var dict = opts && opts.dictionary && opts.dictionary.subarray(-32768);
+        this.s = { i: 0, b: dict ? dict.length : 0 };
+        this.o = new u8(32768);
+        this.p = new u8(0);
+        if (dict)
+            this.o.set(dict);
     }
     Inflate.prototype.e = function (c) {
-        if (this.d)
-            throw 'stream finished';
         if (!this.ondata)
-            throw 'no stream handler';
-        var l = this.p.length;
-        var n = new u8(l + c.length);
-        n.set(this.p), n.set(c, l), this.p = n;
+            err(5);
+        if (this.d)
+            err(4);
+        if (!this.p.length)
+            this.p = c;
+        else if (c.length) {
+            var n = new u8(this.p.length + c.length);
+            n.set(this.p), n.set(c, this.p.length), this.p = n;
+        }
     };
     Inflate.prototype.c = function (final) {
-        this.d = this.s.i = final || false;
+        this.s.i = +(this.d = final || false);
         var bts = this.s.b;
-        var dt = inflt(this.p, this.o, this.s);
+        var dt = inflt(this.p, this.s, this.o);
         this.ondata(slc(dt, bts, this.s.b), this.d);
         this.o = slc(dt, this.s.b - 32768), this.s.b = this.o.length;
         this.p = slc(this.p, (this.s.p / 8) | 0), this.s.p &= 7;
@@ -9339,19 +9541,14 @@ var Inflate = /*#__PURE__*/ (function () {
  * Asynchronous streaming DEFLATE decompression
  */
 var AsyncInflate = /*#__PURE__*/ (function () {
-    /**
-     * Creates an asynchronous inflation stream
-     * @param cb The callback to call whenever data is deflated
-     */
-    function AsyncInflate(cb) {
-        this.ondata = cb;
+    function AsyncInflate(opts, cb) {
         astrmify([
             bInflt,
             function () { return [astrm, Inflate]; }
-        ], this, 0, function () {
-            var strm = new Inflate();
+        ], this, StrmOpt.call(this, opts, cb), function (ev) {
+            var strm = new Inflate(ev.data);
             onmessage = astrm(strm);
-        }, 7);
+        }, 7, 0);
     }
     return AsyncInflate;
 }());
@@ -9360,19 +9557,19 @@ function inflate(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     return cbify(data, opts, [
         bInflt
-    ], function (ev) { return pbf(inflateSync(ev.data[0], gu8(ev.data[1]))); }, 1, cb);
+    ], function (ev) { return pbf(inflateSync(ev.data[0], gopt(ev.data[1]))); }, 1, cb);
 }
 /**
  * Expands DEFLATE data with no wrapper
  * @param data The data to decompress
- * @param out Where to write the data. Saves memory if you know the decompressed size and provide an output buffer of that length.
+ * @param opts The decompression options
  * @returns The decompressed version of the data
  */
-function inflateSync(data, out) {
-    return inflt(data, out);
+function inflateSync(data, opts) {
+    return inflt(data, { i: 2 }, opts && opts.out, opts && opts.dictionary);
 }
 // before you yell at me for not just using extends, my reason is that TS inheritance is hard to workerize.
 /**
@@ -9391,17 +9588,24 @@ var Gzip = /*#__PURE__*/ (function () {
      * @param final Whether this is the last chunk
      */
     Gzip.prototype.push = function (chunk, final) {
+        this.c.p(chunk);
+        this.l += chunk.length;
         Deflate.prototype.push.call(this, chunk, final);
     };
     Gzip.prototype.p = function (c, f) {
-        this.c.p(c);
-        this.l += c.length;
-        var raw = dopt(c, this.o, this.v && gzhl(this.o), f && 8, !f);
+        var raw = dopt(c, this.o, this.v && gzhl(this.o), f && 8, this.s);
         if (this.v)
             gzh(raw, this.o), this.v = 0;
         if (f)
             wbytes(raw, raw.length - 8, this.c.d()), wbytes(raw, raw.length - 4, this.l);
         this.ondata(raw, f);
+    };
+    /**
+     * Flushes buffered uncompressed data. Useful to immediately retrieve the
+     * GZIPped output for small inputs.
+     */
+    Gzip.prototype.flush = function () {
+        Deflate.prototype.flush.call(this);
     };
     return Gzip;
 }());
@@ -9415,10 +9619,10 @@ var AsyncGzip = /*#__PURE__*/ (function () {
             bDflt,
             gze,
             function () { return [astrm, Deflate, Gzip]; }
-        ], this, AsyncCmpStrm.call(this, opts, cb), function (ev) {
+        ], this, StrmOpt.call(this, opts, cb), function (ev) {
             var strm = new Gzip(ev.data);
             onmessage = astrm(strm);
-        }, 8);
+        }, 8, 1);
     }
     return AsyncGzip;
 }());
@@ -9427,7 +9631,7 @@ function gzip(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     return cbify(data, opts, [
         bDflt,
         gze,
@@ -9449,16 +9653,13 @@ function gzipSync(data, opts) {
     return gzh(d, opts), wbytes(d, s - 8, c.d()), wbytes(d, s - 4, l), d;
 }
 /**
- * Streaming GZIP decompression
+ * Streaming single or multi-member GZIP decompression
  */
 var Gunzip = /*#__PURE__*/ (function () {
-    /**
-     * Creates a GUNZIP stream
-     * @param cb The callback to call whenever data is inflated
-     */
-    function Gunzip(cb) {
+    function Gunzip(opts, cb) {
         this.v = 1;
-        Inflate.call(this, cb);
+        this.r = 0;
+        Inflate.call(this, opts, cb);
     }
     /**
      * Pushes a chunk to be GUNZIPped
@@ -9467,42 +9668,48 @@ var Gunzip = /*#__PURE__*/ (function () {
      */
     Gunzip.prototype.push = function (chunk, final) {
         Inflate.prototype.e.call(this, chunk);
+        this.r += chunk.length;
         if (this.v) {
-            var s = this.p.length > 3 ? gzs(this.p) : 4;
-            if (s >= this.p.length && !final)
-                return;
-            this.p = this.p.subarray(s), this.v = 0;
-        }
-        if (final) {
-            if (this.p.length < 8)
-                throw 'invalid gzip stream';
-            this.p = this.p.subarray(0, -8);
+            var p = this.p.subarray(this.v - 1);
+            var s = p.length > 3 ? gzs(p) : 4;
+            if (s > p.length) {
+                if (!final)
+                    return;
+            }
+            else if (this.v > 1 && this.onmember) {
+                this.onmember(this.r - p.length);
+            }
+            this.p = p.subarray(s), this.v = 0;
         }
         // necessary to prevent TS from using the closure value
         // This allows for workerization to function correctly
         Inflate.prototype.c.call(this, final);
+        // process concatenated GZIP
+        if (this.s.f && !this.s.l && !final) {
+            this.v = shft(this.s.p) + 9;
+            this.s = { i: 0 };
+            this.o = new u8(0);
+            this.push(new u8(0), final);
+        }
     };
     return Gunzip;
 }());
 
 /**
- * Asynchronous streaming GZIP decompression
+ * Asynchronous streaming single or multi-member GZIP decompression
  */
 var AsyncGunzip = /*#__PURE__*/ (function () {
-    /**
-     * Creates an asynchronous GUNZIP stream
-     * @param cb The callback to call whenever data is deflated
-     */
-    function AsyncGunzip(cb) {
-        this.ondata = cb;
+    function AsyncGunzip(opts, cb) {
+        var _this = this;
         astrmify([
             bInflt,
             guze,
             function () { return [astrm, Inflate, Gunzip]; }
-        ], this, 0, function () {
-            var strm = new Gunzip();
+        ], this, StrmOpt.call(this, opts, cb), function (ev) {
+            var strm = new Gunzip(ev.data);
+            strm.onmember = function (offset) { return postMessage(offset); };
             onmessage = astrm(strm);
-        }, 9);
+        }, 9, 0, function (offset) { return _this.onmember && _this.onmember(offset); });
     }
     return AsyncGunzip;
 }());
@@ -9511,21 +9718,24 @@ function gunzip(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     return cbify(data, opts, [
         bInflt,
         guze,
         function () { return [gunzipSync]; }
-    ], function (ev) { return pbf(gunzipSync(ev.data[0])); }, 3, cb);
+    ], function (ev) { return pbf(gunzipSync(ev.data[0], ev.data[1])); }, 3, cb);
 }
 /**
  * Expands GZIP data
  * @param data The data to decompress
- * @param out Where to write the data. GZIP already encodes the output size, so providing this doesn't save memory.
+ * @param opts The decompression options
  * @returns The decompressed version of the data
  */
-function gunzipSync(data, out) {
-    return inflt(data.subarray(gzs(data), -8), out || new u8(gzl(data)));
+function gunzipSync(data, opts) {
+    var st = gzs(data);
+    if (st + 8 > data.length)
+        err(6, 'invalid gzip data');
+    return inflt(data.subarray(st, -8), { i: 2 }, opts && opts.out || new u8(gzl(data)), opts && opts.dictionary);
 }
 /**
  * Streaming Zlib compression
@@ -9542,16 +9752,23 @@ var Zlib = /*#__PURE__*/ (function () {
      * @param final Whether this is the last chunk
      */
     Zlib.prototype.push = function (chunk, final) {
+        this.c.p(chunk);
         Deflate.prototype.push.call(this, chunk, final);
     };
     Zlib.prototype.p = function (c, f) {
-        this.c.p(c);
-        var raw = dopt(c, this.o, this.v && 2, f && 4, !f);
+        var raw = dopt(c, this.o, this.v && (this.o.dictionary ? 6 : 2), f && 4, this.s);
         if (this.v)
             zlh(raw, this.o), this.v = 0;
         if (f)
             wbytes(raw, raw.length - 4, this.c.d());
         this.ondata(raw, f);
+    };
+    /**
+     * Flushes buffered uncompressed data. Useful to immediately retrieve the
+     * zlibbed output for small inputs.
+     */
+    Zlib.prototype.flush = function () {
+        Deflate.prototype.flush.call(this);
     };
     return Zlib;
 }());
@@ -9565,10 +9782,10 @@ var AsyncZlib = /*#__PURE__*/ (function () {
             bDflt,
             zle,
             function () { return [astrm, Deflate, Zlib]; }
-        ], this, AsyncCmpStrm.call(this, opts, cb), function (ev) {
+        ], this, StrmOpt.call(this, opts, cb), function (ev) {
             var strm = new Zlib(ev.data);
             onmessage = astrm(strm);
-        }, 10);
+        }, 10, 1);
     }
     return AsyncZlib;
 }());
@@ -9577,7 +9794,7 @@ function zlib(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     return cbify(data, opts, [
         bDflt,
         zle,
@@ -9595,20 +9812,16 @@ function zlibSync(data, opts) {
         opts = {};
     var a = adler();
     a.p(data);
-    var d = dopt(data, opts, 2, 4);
+    var d = dopt(data, opts, opts.dictionary ? 6 : 2, 4);
     return zlh(d, opts), wbytes(d, d.length - 4, a.d()), d;
 }
 /**
  * Streaming Zlib decompression
  */
 var Unzlib = /*#__PURE__*/ (function () {
-    /**
-     * Creates a Zlib decompression stream
-     * @param cb The callback to call whenever data is inflated
-     */
-    function Unzlib(cb) {
-        this.v = 1;
-        Inflate.call(this, cb);
+    function Unzlib(opts, cb) {
+        Inflate.call(this, opts, cb);
+        this.v = opts && opts.dictionary ? 2 : 1;
     }
     /**
      * Pushes a chunk to be unzlibbed
@@ -9618,13 +9831,13 @@ var Unzlib = /*#__PURE__*/ (function () {
     Unzlib.prototype.push = function (chunk, final) {
         Inflate.prototype.e.call(this, chunk);
         if (this.v) {
-            if (this.p.length < 2 && !final)
+            if (this.p.length < 6 && !final)
                 return;
-            this.p = this.p.subarray(2), this.v = 0;
+            this.p = this.p.subarray(zls(this.p, this.v - 1)), this.v = 0;
         }
         if (final) {
             if (this.p.length < 4)
-                throw 'invalid zlib stream';
+                err(6, 'invalid zlib data');
             this.p = this.p.subarray(0, -4);
         }
         // necessary to prevent TS from using the closure value
@@ -9638,20 +9851,15 @@ var Unzlib = /*#__PURE__*/ (function () {
  * Asynchronous streaming Zlib decompression
  */
 var AsyncUnzlib = /*#__PURE__*/ (function () {
-    /**
-     * Creates an asynchronous Zlib decompression stream
-     * @param cb The callback to call whenever data is deflated
-     */
-    function AsyncUnzlib(cb) {
-        this.ondata = cb;
+    function AsyncUnzlib(opts, cb) {
         astrmify([
             bInflt,
             zule,
             function () { return [astrm, Inflate, Unzlib]; }
-        ], this, 0, function () {
-            var strm = new Unzlib();
+        ], this, StrmOpt.call(this, opts, cb), function (ev) {
+            var strm = new Unzlib(ev.data);
             onmessage = astrm(strm);
-        }, 11);
+        }, 11, 0);
     }
     return AsyncUnzlib;
 }());
@@ -9660,40 +9868,43 @@ function unzlib(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     return cbify(data, opts, [
         bInflt,
         zule,
         function () { return [unzlibSync]; }
-    ], function (ev) { return pbf(unzlibSync(ev.data[0], gu8(ev.data[1]))); }, 5, cb);
+    ], function (ev) { return pbf(unzlibSync(ev.data[0], gopt(ev.data[1]))); }, 5, cb);
 }
 /**
  * Expands Zlib data
  * @param data The data to decompress
- * @param out Where to write the data. Saves memory if you know the decompressed size and provide an output buffer of that length.
+ * @param opts The decompression options
  * @returns The decompressed version of the data
  */
-function unzlibSync(data, out) {
-    return inflt((zlv(data), data.subarray(2, -4)), out);
+function unzlibSync(data, opts) {
+    return inflt(data.subarray(zls(data, opts && opts.dictionary), -4), { i: 2 }, opts && opts.out, opts && opts.dictionary);
 }
 // Default algorithm for compression (used because having a known output size allows faster decompression)
 
-// Default algorithm for compression (used because having a known output size allows faster decompression)
 
 /**
  * Streaming GZIP, Zlib, or raw DEFLATE decompression
  */
 var Decompress = /*#__PURE__*/ (function () {
-    /**
-     * Creates a decompression stream
-     * @param cb The callback to call whenever data is decompressed
-     */
-    function Decompress(cb) {
+    function Decompress(opts, cb) {
+        this.o = StrmOpt.call(this, opts, cb) || {};
         this.G = Gunzip;
         this.I = Inflate;
         this.Z = Unzlib;
-        this.ondata = cb;
     }
+    // init substream
+    // overriden by AsyncDecompress
+    Decompress.prototype.i = function () {
+        var _this = this;
+        this.s.ondata = function (dat, final) {
+            _this.ondata(dat, final);
+        };
+    };
     /**
      * Pushes a chunk to be decompressed
      * @param chunk The chunk to push
@@ -9701,7 +9912,7 @@ var Decompress = /*#__PURE__*/ (function () {
      */
     Decompress.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            throw 'no stream handler';
+            err(5);
         if (!this.s) {
             if (this.p && this.p.length) {
                 var n = new u8(this.p.length + chunk.length);
@@ -9710,13 +9921,12 @@ var Decompress = /*#__PURE__*/ (function () {
             else
                 this.p = chunk;
             if (this.p.length > 2) {
-                var _this_1 = this;
-                var cb = function () { _this_1.ondata.apply(_this_1, arguments); };
                 this.s = (this.p[0] == 31 && this.p[1] == 139 && this.p[2] == 8)
-                    ? new this.G(cb)
+                    ? new this.G(this.o)
                     : ((this.p[0] & 15) != 8 || (this.p[0] >> 4) > 7 || ((this.p[0] << 8 | this.p[1]) % 31))
-                        ? new this.I(cb)
-                        : new this.Z(cb);
+                        ? new this.I(this.o)
+                        : new this.Z(this.o);
+                this.i();
                 this.s.push(this.p, final);
                 this.p = null;
             }
@@ -9731,22 +9941,31 @@ var Decompress = /*#__PURE__*/ (function () {
  * Asynchronous streaming GZIP, Zlib, or raw DEFLATE decompression
  */
 var AsyncDecompress = /*#__PURE__*/ (function () {
-    /**
-   * Creates an asynchronous decompression stream
-   * @param cb The callback to call whenever data is decompressed
-   */
-    function AsyncDecompress(cb) {
+    function AsyncDecompress(opts, cb) {
+        Decompress.call(this, opts, cb);
+        this.queuedSize = 0;
         this.G = AsyncGunzip;
         this.I = AsyncInflate;
         this.Z = AsyncUnzlib;
-        this.ondata = cb;
     }
+    AsyncDecompress.prototype.i = function () {
+        var _this = this;
+        this.s.ondata = function (err, dat, final) {
+            _this.ondata(err, dat, final);
+        };
+        this.s.ondrain = function (size) {
+            _this.queuedSize -= size;
+            if (_this.ondrain)
+                _this.ondrain(size);
+        };
+    };
     /**
      * Pushes a chunk to be decompressed
      * @param chunk The chunk to push
      * @param final Whether this is the last chunk
      */
     AsyncDecompress.prototype.push = function (chunk, final) {
+        this.queuedSize += chunk.length;
         Decompress.prototype.push.call(this, chunk, final);
     };
     return AsyncDecompress;
@@ -9756,7 +9975,7 @@ function decompress(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     return (data[0] == 31 && data[1] == 139 && data[2] == 8)
         ? gunzip(data, opts, cb)
         : ((data[0] & 15) != 8 || (data[0] >> 4) > 7 || ((data[0] << 8 | data[1]) % 31))
@@ -9766,26 +9985,28 @@ function decompress(data, opts, cb) {
 /**
  * Expands compressed GZIP, Zlib, or raw DEFLATE data, automatically detecting the format
  * @param data The data to decompress
- * @param out Where to write the data. Saves memory if you know the decompressed size and provide an output buffer of that length.
+ * @param opts The decompression options
  * @returns The decompressed version of the data
  */
-function decompressSync(data, out) {
+function decompressSync(data, opts) {
     return (data[0] == 31 && data[1] == 139 && data[2] == 8)
-        ? gunzipSync(data, out)
+        ? gunzipSync(data, opts)
         : ((data[0] & 15) != 8 || (data[0] >> 4) > 7 || ((data[0] << 8 | data[1]) % 31))
-            ? inflateSync(data, out)
-            : unzlibSync(data, out);
+            ? inflateSync(data, opts)
+            : unzlibSync(data, opts);
 }
 // flatten a directory structure
 var fltn = function (d, p, t, o) {
     for (var k in d) {
-        var val = d[k], n = p + k;
+        var val = d[k], n = p + k, op = o;
+        if (Array.isArray(val))
+            op = mrg(o, val[1]), val = val[0];
         if (val instanceof u8)
-            t[n] = [val, o];
-        else if (Array.isArray(val))
-            t[n] = [val[0], mrg(o, val[1])];
-        else
-            fltn(val, n + '/', t, o);
+            t[n] = [val, op];
+        else {
+            t[n += '/'] = [new u8(0), op];
+            fltn(val, n, t, o);
+        }
     }
 };
 // text encoder
@@ -9805,7 +10026,7 @@ var dutf8 = function (d) {
         var c = d[i++];
         var eb = (c > 127) + (c > 223) + (c > 239);
         if (i + eb > d.length)
-            return [r, slc(d, i - 1)];
+            return { s: r, r: slc(d, i - 1) };
         if (!eb)
             r += String.fromCharCode(c);
         else if (eb == 3) {
@@ -9840,31 +10061,31 @@ var DecodeUTF8 = /*#__PURE__*/ (function () {
      */
     DecodeUTF8.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            throw 'no callback';
+            err(5);
         final = !!final;
         if (this.t) {
             this.ondata(this.t.decode(chunk, { stream: true }), final);
             if (final) {
                 if (this.t.decode().length)
-                    throw 'invalid utf-8 data';
+                    err(8);
                 this.t = null;
             }
             return;
         }
         if (!this.p)
-            throw 'stream finished';
+            err(4);
         var dat = new u8(this.p.length + chunk.length);
         dat.set(this.p);
         dat.set(chunk, this.p.length);
-        var _a = dutf8(dat), ch = _a[0], np = _a[1];
+        var _a = dutf8(dat), s = _a.s, r = _a.r;
         if (final) {
-            if (np.length)
-                throw 'invalid utf-8 data';
+            if (r.length)
+                err(8);
             this.p = null;
         }
         else
-            this.p = np;
-        this.ondata(ch, final);
+            this.p = r;
+        this.ondata(s, final);
     };
     return DecodeUTF8;
 }());
@@ -9887,9 +10108,9 @@ var EncodeUTF8 = /*#__PURE__*/ (function () {
      */
     EncodeUTF8.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            throw 'no callback';
+            err(5);
         if (this.d)
-            throw 'stream finished';
+            err(4);
         this.ondata(strToU8(chunk), this.d = final || false);
     };
     return EncodeUTF8;
@@ -9948,13 +10169,14 @@ function strFromU8(dat, latin1) {
             r += String.fromCharCode.apply(null, dat.subarray(i, i + 16384));
         return r;
     }
-    else if (td)
+    else if (td) {
         return td.decode(dat);
+    }
     else {
-        var _a = dutf8(dat), out = _a[0], ext = _a[1];
-        if (ext.length)
-            throw 'invalid utf-8 data';
-        return out;
+        var _a = dutf8(dat), s = _a.s, r = _a.r;
+        if (r.length)
+            err(8);
+        return s;
     }
 }
 ;
@@ -9981,7 +10203,7 @@ var exfl = function (ex) {
         for (var k in ex) {
             var l = ex[k].length;
             if (l > 65535)
-                throw 'extra field too long';
+                err(9);
             le += l + 4;
         }
     }
@@ -9995,15 +10217,15 @@ var wzh = function (d, b, f, fn, u, c, ce, co) {
     if (ce != null)
         d[b++] = 20, d[b++] = f.os;
     d[b] = 20, b += 2; // spec compliance? what's that?
-    d[b++] = (f.flag << 1) | (c == null && 8), d[b++] = u && 8;
+    d[b++] = (f.flag << 1) | (c < 0 && 8), d[b++] = u && 8;
     d[b++] = f.compression & 255, d[b++] = f.compression >> 8;
     var dt = new Date(f.mtime == null ? Date.now() : f.mtime), y = dt.getFullYear() - 1980;
     if (y < 0 || y > 119)
-        throw 'date not in range 1980-2099';
-    wbytes(d, b, (y << 25) | ((dt.getMonth() + 1) << 21) | (dt.getDate() << 16) | (dt.getHours() << 11) | (dt.getMinutes() << 5) | (dt.getSeconds() >>> 1)), b += 4;
-    if (c != null) {
+        err(10);
+    wbytes(d, b, (y << 25) | ((dt.getMonth() + 1) << 21) | (dt.getDate() << 16) | (dt.getHours() << 11) | (dt.getMinutes() << 5) | (dt.getSeconds() >> 1)), b += 4;
+    if (c != -1) {
         wbytes(d, b, f.crc);
-        wbytes(d, b + 4, c);
+        wbytes(d, b + 4, c < 0 ? -c - 2 : c);
         wbytes(d, b + 8, f.size);
     }
     wbytes(d, b + 12, fl);
@@ -10069,7 +10291,7 @@ var ZipPassThrough = /*#__PURE__*/ (function () {
      */
     ZipPassThrough.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            throw 'no callback - add to ZIP archive before pushing';
+            err(5);
         this.c.p(chunk);
         this.size += chunk.length;
         if (final)
@@ -10091,12 +10313,12 @@ var ZipDeflate = /*#__PURE__*/ (function () {
      * @param opts The compression options
      */
     function ZipDeflate(filename, opts) {
-        var _this_1 = this;
+        var _this = this;
         if (!opts)
             opts = {};
         ZipPassThrough.call(this, filename);
         this.d = new Deflate(opts, function (dat, final) {
-            _this_1.ondata(null, dat, final);
+            _this.ondata(null, dat, final);
         });
         this.compression = 8;
         this.flag = dbf(opts.level);
@@ -10125,17 +10347,17 @@ var ZipDeflate = /*#__PURE__*/ (function () {
  */
 var AsyncZipDeflate = /*#__PURE__*/ (function () {
     /**
-     * Creates a DEFLATE stream that can be added to ZIP archives
+     * Creates an asynchronous DEFLATE stream that can be added to ZIP archives
      * @param filename The filename to associate with this data stream
      * @param opts The compression options
      */
     function AsyncZipDeflate(filename, opts) {
-        var _this_1 = this;
+        var _this = this;
         if (!opts)
             opts = {};
         ZipPassThrough.call(this, filename);
         this.d = new AsyncDeflate(opts, function (err, dat, final) {
-            _this_1.ondata(err, dat, final);
+            _this.ondata(err, dat, final);
         });
         this.compression = 8;
         this.flag = dbf(opts.level);
@@ -10175,74 +10397,79 @@ var Zip = /*#__PURE__*/ (function () {
      * @param file The file stream to add
      */
     Zip.prototype.add = function (file) {
-        var _this_1 = this;
+        var _this = this;
+        if (!this.ondata)
+            err(5);
+        // finishing or finished
         if (this.d & 2)
-            throw 'stream finished';
-        var f = strToU8(file.filename), fl = f.length;
-        var com = file.comment, o = com && strToU8(com);
-        var u = fl != file.filename.length || (o && (com.length != o.length));
-        var hl = fl + exfl(file.extra) + 30;
-        if (fl > 65535)
-            throw 'filename too long';
-        var header = new u8(hl);
-        wzh(header, 0, file, f, u);
-        var chks = [header];
-        var pAll = function () {
-            for (var _i = 0, chks_1 = chks; _i < chks_1.length; _i++) {
-                var chk = chks_1[_i];
-                _this_1.ondata(null, chk, false);
-            }
-            chks = [];
-        };
-        var tr = this.d;
-        this.d = 0;
-        var ind = this.u.length;
-        var uf = mrg(file, {
-            f: f,
-            u: u,
-            o: o,
-            t: function () {
-                if (file.terminate)
-                    file.terminate();
-            },
-            r: function () {
-                pAll();
-                if (tr) {
-                    var nxt = _this_1.u[ind + 1];
-                    if (nxt)
-                        nxt.r();
-                    else
-                        _this_1.d = 1;
+            this.ondata(err(4 + (this.d & 1) * 8, 0, 1), null, false);
+        else {
+            var f = strToU8(file.filename), fl_1 = f.length;
+            var com = file.comment, o = com && strToU8(com);
+            var u = fl_1 != file.filename.length || (o && (com.length != o.length));
+            var hl_1 = fl_1 + exfl(file.extra) + 30;
+            if (fl_1 > 65535)
+                this.ondata(err(11, 0, 1), null, false);
+            var header = new u8(hl_1);
+            wzh(header, 0, file, f, u, -1);
+            var chks_1 = [header];
+            var pAll_1 = function () {
+                for (var _i = 0, chks_2 = chks_1; _i < chks_2.length; _i++) {
+                    var chk = chks_2[_i];
+                    _this.ondata(null, chk, false);
                 }
-                tr = 1;
-            }
-        });
-        var cl = 0;
-        file.ondata = function (err, dat, final) {
-            if (err) {
-                _this_1.ondata(err, dat, final);
-                _this_1.terminate();
-            }
-            else {
-                cl += dat.length;
-                chks.push(dat);
-                if (final) {
-                    var dd = new u8(16);
-                    wbytes(dd, 0, 0x8074B50);
-                    wbytes(dd, 4, file.crc);
-                    wbytes(dd, 8, cl);
-                    wbytes(dd, 12, file.size);
-                    chks.push(dd);
-                    uf.c = cl, uf.b = hl + cl + 16, uf.crc = file.crc, uf.size = file.size;
-                    if (tr)
-                        uf.r();
-                    tr = 1;
+                chks_1 = [];
+            };
+            var tr_1 = this.d;
+            this.d = 0;
+            var ind_1 = this.u.length;
+            var uf_1 = mrg(file, {
+                f: f,
+                u: u,
+                o: o,
+                t: function () {
+                    if (file.terminate)
+                        file.terminate();
+                },
+                r: function () {
+                    pAll_1();
+                    if (tr_1) {
+                        var nxt = _this.u[ind_1 + 1];
+                        if (nxt)
+                            nxt.r();
+                        else
+                            _this.d = 1;
+                    }
+                    tr_1 = 1;
                 }
-                else if (tr)
-                    pAll();
-            }
-        };
-        this.u.push(uf);
+            });
+            var cl_1 = 0;
+            file.ondata = function (err, dat, final) {
+                if (err) {
+                    _this.ondata(err, dat, final);
+                    _this.terminate();
+                }
+                else {
+                    cl_1 += dat.length;
+                    chks_1.push(dat);
+                    if (final) {
+                        var dd = new u8(16);
+                        wbytes(dd, 0, 0x8074B50);
+                        wbytes(dd, 4, file.crc);
+                        wbytes(dd, 8, cl_1);
+                        wbytes(dd, 12, file.size);
+                        chks_1.push(dd);
+                        uf_1.c = cl_1, uf_1.b = hl_1 + cl_1 + 16, uf_1.crc = file.crc, uf_1.size = file.size;
+                        if (tr_1)
+                            uf_1.r();
+                        tr_1 = 1;
+                    }
+                    else if (tr_1)
+                        pAll_1();
+                }
+            };
+            this.u.push(uf_1);
+        }
     };
     /**
      * Ends the process of adding files and prepares to emit the final chunks.
@@ -10250,21 +10477,20 @@ var Zip = /*#__PURE__*/ (function () {
      * ZIP file to work properly.
      */
     Zip.prototype.end = function () {
-        var _this_1 = this;
+        var _this = this;
         if (this.d & 2) {
-            if (this.d & 1)
-                throw 'stream finishing';
-            throw 'stream finished';
+            this.ondata(err(4 + (this.d & 1) * 8, 0, 1), null, true);
+            return;
         }
         if (this.d)
             this.e();
         else
             this.u.push({
                 r: function () {
-                    if (!(_this_1.d & 1))
+                    if (!(_this.d & 1))
                         return;
-                    _this_1.u.splice(-1, 1);
-                    _this_1.e();
+                    _this.u.splice(-1, 1);
+                    _this.e();
                 },
                 t: function () { }
             });
@@ -10279,7 +10505,7 @@ var Zip = /*#__PURE__*/ (function () {
         var out = new u8(tl + 22);
         for (var _b = 0, _c = this.u; _b < _c.length; _b++) {
             var f = _c[_b];
-            wzh(out, bt, f, f.f, f.u, f.c, l, f.o);
+            wzh(out, bt, f, f.f, f.u, -f.c - 2, l, f.o);
             bt += 46 + f.f.length + exfl(f.extra) + (f.o ? f.o.length : 0), l += f.b;
         }
         wzf(out, bt, this.u.length, tl, l);
@@ -10304,7 +10530,7 @@ function zip(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     var r = {};
     fltn(data, '', r, opts);
     var k = Object.keys(r);
@@ -10315,6 +10541,10 @@ function zip(data, opts, cb) {
         for (var i = 0; i < term.length; ++i)
             term[i]();
     };
+    var cbd = function (a, b) {
+        mt(function () { cb(a, b); });
+    };
+    mt(function () { cbd = cb; });
     var cbf = function () {
         var out = new u8(tot + 22), oe = o, cdl = tot - o;
         tot = 0;
@@ -10329,11 +10559,11 @@ function zip(data, opts, cb) {
                 wzh(out, o, f, f.f, f.u, l, tot, f.m), o += 16 + badd + (f.m ? f.m.length : 0), tot = loc + l;
             }
             catch (e) {
-                return cb(e, null);
+                return cbd(e, null);
             }
         }
         wzf(out, o, files.length, cdl, oe);
-        cb(null, out);
+        cbd(null, out);
     };
     if (!lft)
         cbf();
@@ -10349,7 +10579,7 @@ function zip(data, opts, cb) {
         var cbl = function (e, d) {
             if (e) {
                 tAll();
-                cb(e, null);
+                cbd(e, null);
             }
             else {
                 var l = d.length;
@@ -10369,7 +10599,7 @@ function zip(data, opts, cb) {
             }
         };
         if (s > 65535)
-            cbl('filename too long', null);
+            cbl(err(11, 0, 1), null);
         if (!compression)
             cbl(null, file);
         else if (size < 160000) {
@@ -10411,7 +10641,7 @@ function zipSync(data, opts) {
         var com = p.comment, m = com && strToU8(com), ms = m && m.length;
         var exl = exfl(p.extra);
         if (s > 65535)
-            throw 'filename too long';
+            err(11);
         var d = compression ? deflateSync(file, p) : file, l = d.length;
         var c = crc();
         c.p(file);
@@ -10461,9 +10691,9 @@ var UnzipInflate = /*#__PURE__*/ (function () {
      * Creates a DEFLATE decompression that can be used in ZIP archives
      */
     function UnzipInflate() {
-        var _this_1 = this;
+        var _this = this;
         this.i = new Inflate(function (dat, final) {
-            _this_1.ondata(null, dat, final);
+            _this.ondata(null, dat, final);
         });
     }
     UnzipInflate.prototype.push = function (data, final) {
@@ -10471,7 +10701,7 @@ var UnzipInflate = /*#__PURE__*/ (function () {
             this.i.push(data, final);
         }
         catch (e) {
-            this.ondata(e, data, final);
+            this.ondata(e, null, final);
         }
     };
     UnzipInflate.compression = 8;
@@ -10486,15 +10716,15 @@ var AsyncUnzipInflate = /*#__PURE__*/ (function () {
      * Creates a DEFLATE decompression that can be used in ZIP archives
      */
     function AsyncUnzipInflate(_, sz) {
-        var _this_1 = this;
+        var _this = this;
         if (sz < 320000) {
             this.i = new Inflate(function (dat, final) {
-                _this_1.ondata(null, dat, final);
+                _this.ondata(null, dat, final);
             });
         }
         else {
             this.i = new AsyncInflate(function (err, dat, final) {
-                _this_1.ondata(err, dat, final);
+                _this.ondata(err, dat, final);
             });
             this.terminate = this.i.terminate;
         }
@@ -10530,11 +10760,11 @@ var Unzip = /*#__PURE__*/ (function () {
      * @param final Whether this is the last chunk
      */
     Unzip.prototype.push = function (chunk, final) {
-        var _this_1 = this;
+        var _this = this;
         if (!this.onfile)
-            throw 'no callback';
+            err(5);
         if (!this.p)
-            throw 'stream finished';
+            err(4);
         if (this.c > 0) {
             var len = Math.min(this.c, chunk.length);
             var toAdd = chunk.subarray(0, len);
@@ -10567,8 +10797,8 @@ var Unzip = /*#__PURE__*/ (function () {
                     this_1.c = 0;
                     var bf = b2(buf, i + 6), cmp_1 = b2(buf, i + 8), u = bf & 2048, dd = bf & 8, fnl = b2(buf, i + 26), es = b2(buf, i + 28);
                     if (l > i + 30 + fnl + es) {
-                        var chks_2 = [];
-                        this_1.k.unshift(chks_2);
+                        var chks_3 = [];
+                        this_1.k.unshift(chks_3);
                         f = 2;
                         var sc_1 = b4(buf, i + 18), su_1 = b4(buf, i + 22);
                         var fn_1 = strFromU8(buf.subarray(i + 30, i += 30 + fnl), !u);
@@ -10585,21 +10815,21 @@ var Unzip = /*#__PURE__*/ (function () {
                             compression: cmp_1,
                             start: function () {
                                 if (!file_1.ondata)
-                                    throw 'no callback';
+                                    err(5);
                                 if (!sc_1)
                                     file_1.ondata(null, et, true);
                                 else {
-                                    var ctr = _this_1.o[cmp_1];
+                                    var ctr = _this.o[cmp_1];
                                     if (!ctr)
-                                        throw 'unknown compression type ' + cmp_1;
+                                        file_1.ondata(err(14, 'unknown compression type ' + cmp_1, 1), null, false);
                                     d_1 = sc_1 < 0 ? new ctr(fn_1) : new ctr(fn_1, sc_1, su_1);
                                     d_1.ondata = function (err, dat, final) { file_1.ondata(err, dat, final); };
-                                    for (var _i = 0, chks_3 = chks_2; _i < chks_3.length; _i++) {
-                                        var dat = chks_3[_i];
+                                    for (var _i = 0, chks_4 = chks_3; _i < chks_4.length; _i++) {
+                                        var dat = chks_4[_i];
                                         d_1.push(dat, false);
                                     }
-                                    if (_this_1.k[0] == chks_2 && _this_1.c)
-                                        _this_1.d = d_1;
+                                    if (_this.k[0] == chks_3 && _this.c)
+                                        _this.d = d_1;
                                     else
                                         d_1.push(et, true);
                                 }
@@ -10646,7 +10876,7 @@ var Unzip = /*#__PURE__*/ (function () {
         }
         if (final) {
             if (this.c)
-                throw 'invalid zip file';
+                err(13);
             this.p = null;
         }
     };
@@ -10661,116 +10891,140 @@ var Unzip = /*#__PURE__*/ (function () {
     return Unzip;
 }());
 
-/**
- * Asynchronously decompresses a ZIP archive
- * @param data The raw compressed ZIP file
- * @param cb The callback to call with the decompressed files
- * @returns A function that can be used to immediately terminate the unzipping
- */
-function unzip(data, cb) {
+var mt = typeof queueMicrotask == 'function' ? queueMicrotask : typeof setTimeout == 'function' ? setTimeout : function (fn) { fn(); };
+function unzip(data, opts, cb) {
+    if (!cb)
+        cb = opts, opts = {};
     if (typeof cb != 'function')
-        throw 'no callback';
+        err(7);
     var term = [];
     var tAll = function () {
         for (var i = 0; i < term.length; ++i)
             term[i]();
     };
     var files = {};
+    var cbd = function (a, b) {
+        mt(function () { cb(a, b); });
+    };
+    mt(function () { cbd = cb; });
     var e = data.length - 22;
     for (; b4(data, e) != 0x6054B50; --e) {
         if (!e || data.length - e > 65558) {
-            cb('invalid zip file', null);
-            return;
+            cbd(err(13, 0, 1), null);
+            return tAll;
         }
     }
     ;
     var lft = b2(data, e + 8);
-    if (!lft)
-        cb(null, {});
-    var c = lft;
-    var o = b4(data, e + 16);
-    var z = o == 4294967295;
-    if (z) {
-        e = b4(data, e - 12);
-        if (b4(data, e) != 0x6064B50) {
-            cb('invalid zip file', null);
-            return;
+    if (lft) {
+        var c = lft;
+        var o = b4(data, e + 16);
+        var z = o == 4294967295 || c == 65535;
+        if (z) {
+            var ze = b4(data, e - 12);
+            z = b4(data, ze) == 0x6064B50;
+            if (z) {
+                c = lft = b4(data, ze + 32);
+                o = b4(data, ze + 48);
+            }
         }
-        c = lft = b4(data, e + 32);
-        o = b4(data, e + 48);
-    }
-    var _loop_3 = function (i) {
-        var _a = zh(data, o, z), c_1 = _a[0], sc = _a[1], su = _a[2], fn = _a[3], no = _a[4], off = _a[5], b = slzh(data, off);
-        o = no;
-        var cbl = function (e, d) {
-            if (e) {
-                tAll();
-                cb(e, null);
-            }
-            else {
-                files[fn] = d;
-                if (!--lft)
-                    cb(null, files);
-            }
-        };
-        if (!c_1)
-            cbl(null, slc(data, b, b + sc));
-        else if (c_1 == 8) {
-            var infl = data.subarray(b, b + sc);
-            if (sc < 320000) {
-                try {
-                    cbl(null, inflateSync(infl, new u8(su)));
+        var fltr = opts && opts.filter;
+        var _loop_3 = function (i) {
+            var _a = zh(data, o, z), c_1 = _a[0], sc = _a[1], su = _a[2], fn = _a[3], no = _a[4], off = _a[5], b = slzh(data, off);
+            o = no;
+            var cbl = function (e, d) {
+                if (e) {
+                    tAll();
+                    cbd(e, null);
                 }
-                catch (e) {
-                    cbl(e, null);
+                else {
+                    if (d)
+                        files[fn] = d;
+                    if (!--lft)
+                        cbd(null, files);
                 }
+            };
+            if (!fltr || fltr({
+                name: fn,
+                size: sc,
+                originalSize: su,
+                compression: c_1
+            })) {
+                if (!c_1)
+                    cbl(null, slc(data, b, b + sc));
+                else if (c_1 == 8) {
+                    var infl = data.subarray(b, b + sc);
+                    // Synchronously decompress under 512KB, or barely-compressed data
+                    if (su < 524288 || sc > 0.8 * su) {
+                        try {
+                            cbl(null, inflateSync(infl, { out: new u8(su) }));
+                        }
+                        catch (e) {
+                            cbl(e, null);
+                        }
+                    }
+                    else
+                        term.push(inflate(infl, { size: su }, cbl));
+                }
+                else
+                    cbl(err(14, 'unknown compression type ' + c_1, 1), null);
             }
             else
-                term.push(inflate(infl, { size: su }, cbl));
+                cbl(null, null);
+        };
+        for (var i = 0; i < c; ++i) {
+            _loop_3(i);
         }
-        else
-            cbl('unknown compression type ' + c_1, null);
-    };
-    for (var i = 0; i < c; ++i) {
-        _loop_3(i);
     }
+    else
+        cbd(null, {});
     return tAll;
 }
 /**
  * Synchronously decompresses a ZIP archive. Prefer using `unzip` for better
  * performance with more than one file.
  * @param data The raw compressed ZIP file
+ * @param opts The ZIP extraction options
  * @returns The decompressed files
  */
-function unzipSync(data) {
+function unzipSync(data, opts) {
     var files = {};
     var e = data.length - 22;
     for (; b4(data, e) != 0x6054B50; --e) {
         if (!e || data.length - e > 65558)
-            throw 'invalid zip file';
+            err(13);
     }
     ;
     var c = b2(data, e + 8);
     if (!c)
         return {};
     var o = b4(data, e + 16);
-    var z = o == 4294967295;
+    var z = o == 4294967295 || c == 65535;
     if (z) {
-        e = b4(data, e - 12);
-        if (b4(data, e) != 0x6064B50)
-            throw 'invalid zip file';
-        c = b4(data, e + 32);
-        o = b4(data, e + 48);
+        var ze = b4(data, e - 12);
+        z = b4(data, ze) == 0x6064B50;
+        if (z) {
+            c = b4(data, ze + 32);
+            o = b4(data, ze + 48);
+        }
     }
+    var fltr = opts && opts.filter;
     for (var i = 0; i < c; ++i) {
         var _a = zh(data, o, z), c_2 = _a[0], sc = _a[1], su = _a[2], fn = _a[3], no = _a[4], off = _a[5], b = slzh(data, off);
         o = no;
-        if (!c_2)
-            files[fn] = slc(data, b, b + sc);
-        else if (c_2 == 8)
-            files[fn] = inflateSync(data.subarray(b, b + sc), new u8(su));
-        else
-            throw 'unknown compression type ' + c_2;
+        if (!fltr || fltr({
+            name: fn,
+            size: sc,
+            originalSize: su,
+            compression: c_2
+        })) {
+            if (!c_2)
+                files[fn] = slc(data, b, b + sc);
+            else if (c_2 == 8)
+                files[fn] = inflateSync(data.subarray(b, b + sc), { out: new u8(su) });
+            else
+                err(14, 'unknown compression type ' + c_2);
+        }
     }
     return files;
 }
@@ -13595,7 +13849,7 @@ class AnimationParser {
 
 		const quaternionValues = [];
 
-		if ( ! values || ! times ) return new three__WEBPACK_IMPORTED_MODULE_0__.QuaternionKeyframeTrack( modelName + '.quaternion', [], [] );
+		if ( ! values || ! times ) return new three__WEBPACK_IMPORTED_MODULE_0__.QuaternionKeyframeTrack( modelName + '.quaternion', [ 0 ], [ 0 ] );
 
 		for ( let i = 0; i < values.length; i += 3 ) {
 
