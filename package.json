@@ -4,9 +4,9 @@
   "description": "Add-ons and examples for A-Frame VR.",
   "author": "Don McCurdy <dm@donmccurdy.com>",
   "license": "MIT",
-  "main": "index.js",
+  "main": "./index.js",
   "exports": {
-    ".": "index.js",
+    ".": "./index.js",
     "./controls/*": "./src/controls/*",
     "./loaders/*": "./src/loaders/*",
     "./misc/*": "./src/misc/*",
