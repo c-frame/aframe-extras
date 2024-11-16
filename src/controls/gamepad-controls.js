@@ -193,9 +193,9 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
         this.buttons[i] = gamepad.buttons[i].pressed;
       }
 
-    } else if (Object.keys(this.buttons)) {
+    } else {
       // Reset state if controls are disabled or controller is lost.
-      this.buttons = {};
+      for (const key in this.buttons) { this.buttons[key] = false; }
     }
   },
 
