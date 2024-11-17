@@ -1083,9 +1083,9 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
         this.buttons[i] = gamepad.buttons[i].pressed;
       }
 
-    } else if (Object.keys(this.buttons)) {
+    } else {
       // Reset state if controls are disabled or controller is lost.
-      this.buttons = {};
+      for (const key in this.buttons) { this.buttons[key] = false; }
     }
   },
 
@@ -1905,8 +1905,8 @@ module.exports = AFRAME.registerComponent('touch-controls', {
       return;
     }
 
-    canvasEl.addEventListener('touchstart', this.onTouchStart);
-    canvasEl.addEventListener('touchend', this.onTouchEnd);
+    canvasEl.addEventListener('touchstart', this.onTouchStart, {passive: true});
+    canvasEl.addEventListener('touchend', this.onTouchEnd, {passive: true});
     const vrModeUI = sceneEl.getAttribute('vr-mode-ui');
     if (vrModeUI && vrModeUI.cardboardModeEnabled) {
       sceneEl.addEventListener('enter-vr', this.onEnterVR);
@@ -2239,7 +2239,7 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
 /*!*******************************!*\
   !*** ./src/controls/index.js ***!
