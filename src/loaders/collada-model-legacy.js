@@ -1,11 +1,12 @@
-THREE.ColladaLoader = require('../../lib/ColladaLoader');
+import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
+THREE.ColladaLoader = ColladaLoader;
 
 /**
  * collada-model-legacy
  *
  * Loader for COLLADA (.dae) format.
  */
-module.exports.Component = AFRAME.registerComponent('collada-model-legacy', {
+AFRAME.registerComponent('collada-model-legacy', {
   schema: {type: 'asset'},
 
   init: function () {
