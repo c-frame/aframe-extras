@@ -15,9 +15,14 @@ return /******/ (() => { // webpackBootstrap
 /*!******************************!*\
   !*** ./lib/GamepadButton.js ***!
   \******************************/
-/***/ ((module) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-module.exports = Object.assign(function GamepadButton () {}, {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Object.assign(function GamepadButton () {}, {
 	FACE_1: 0,
 	FACE_2: 1,
 	FACE_3: 2,
@@ -37,7 +42,7 @@ module.exports = Object.assign(function GamepadButton () {}, {
 	DPAD_RIGHT: 15,
 
 	VENDOR: 16,
-});
+}));
 
 
 /***/ }),
@@ -46,8 +51,13 @@ module.exports = Object.assign(function GamepadButton () {}, {
 /*!***********************************!*\
   !*** ./lib/GamepadButtonEvent.js ***!
   \***********************************/
-/***/ ((module) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
 function GamepadButtonEvent (type, index, details) {
   this.type = type;
   this.index = index;
@@ -55,7 +65,7 @@ function GamepadButtonEvent (type, index, details) {
   this.value = details.value;
 }
 
-module.exports = GamepadButtonEvent;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (GamepadButtonEvent);
 
 
 /***/ }),
@@ -418,7 +428,8 @@ module.exports = GamepadButtonEvent;
           });
 
   // Windows via Bootcamp (!)
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
 
   mergeIf(keyCodeToInfoTable,
           'safari', {
@@ -690,7 +701,8 @@ module.exports = GamepadButtonEvent;
     }());
 
     // TODO: Track these down and move to general tables
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
 
     if (!keyInfo)
       return null;
@@ -790,11 +802,11 @@ module.exports = GamepadButtonEvent;
 /*!*********************************************!*\
   !*** ./src/controls/checkpoint-controls.js ***!
   \*********************************************/
-/***/ ((module) => {
+/***/ (() => {
 
 const EPS = 0.1;
 
-module.exports = AFRAME.registerComponent('checkpoint-controls', {
+AFRAME.registerComponent('checkpoint-controls', {
   schema: {
     enabled: {default: true},
     mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
@@ -886,8 +898,12 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
 /*!******************************************!*\
   !*** ./src/controls/gamepad-controls.js ***!
   \******************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../lib/GamepadButton.js */ "./lib/GamepadButton.js");
+/* harmony import */ var _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../lib/GamepadButtonEvent.js */ "./lib/GamepadButtonEvent.js");
 /**
  * Gamepad controls for A-Frame.
  *
@@ -897,8 +913,8 @@ module.exports = AFRAME.registerComponent('checkpoint-controls', {
  * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
  */
 
-const GamepadButton = __webpack_require__(/*! ../../lib/GamepadButton */ "./lib/GamepadButton.js"),
-    GamepadButtonEvent = __webpack_require__(/*! ../../lib/GamepadButtonEvent */ "./lib/GamepadButtonEvent.js");
+
+
 
 const JOYSTICK_EPS = 0.2;
 
@@ -912,13 +928,13 @@ const Joystick = {
   ROTATION: 2
 };
 
-module.exports = AFRAME.registerComponent('gamepad-controls', {
+AFRAME.registerComponent('gamepad-controls', {
 
   /*******************************************************************
    * Statics
    */
 
-  GamepadButton: GamepadButton,
+  GamepadButton: _lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"],
 
   /*******************************************************************
    * Schema
@@ -1078,9 +1094,9 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
       // Fire DOM events for button state changes.
       for (var i = 0; i < gamepad.buttons.length; i++) {
         if (gamepad.buttons[i].pressed && !this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttondown', i, gamepad.buttons[i]));
+          this.emit(new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"]('gamepadbuttondown', i, gamepad.buttons[i]));
         } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
-          this.emit(new GamepadButtonEvent('gamepadbuttonup', i, gamepad.buttons[i]));
+          this.emit(new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"]('gamepadbuttonup', i, gamepad.buttons[i]));
         }
         this.buttons[i] = gamepad.buttons[i].pressed;
       }
@@ -1098,7 +1114,7 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     // Emit convenience event, identifying button index.
     this.el.emit(
       event.type + ':' + event.index,
-      new GamepadButtonEvent(event.type, event.index, event)
+      new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"](event.type, event.index, event)
     );
   },
 
@@ -1202,14 +1218,14 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
     if (!gamepad) {
       return target.set(0, 0);
     }
-    if (!gamepad.buttons[GamepadButton.DPAD_RIGHT]) {
+    if (!gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_RIGHT]) {
       return target.set(0, 0);
     }
     return target.set(
-      (gamepad.buttons[GamepadButton.DPAD_RIGHT].pressed ? 1 : 0)
-      + (gamepad.buttons[GamepadButton.DPAD_LEFT].pressed ? -1 : 0),
-      (gamepad.buttons[GamepadButton.DPAD_UP].pressed ? -1 : 0)
-      + (gamepad.buttons[GamepadButton.DPAD_DOWN].pressed ? 1 : 0)
+      (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_RIGHT].pressed ? 1 : 0)
+      + (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_LEFT].pressed ? -1 : 0),
+      (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_UP].pressed ? -1 : 0)
+      + (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_DOWN].pressed ? 1 : 0)
     );
   },
 
@@ -1239,11 +1255,15 @@ module.exports = AFRAME.registerComponent('gamepad-controls', {
 /*!*******************************************!*\
   !*** ./src/controls/keyboard-controls.js ***!
   \*******************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../lib/keyboard.polyfill.js */ "./lib/keyboard.polyfill.js");
+/* harmony import */ var _lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0__);
 /* global AFRAME, THREE */
 /* eslint-disable no-prototype-builtins */
-__webpack_require__(/*! ../../lib/keyboard.polyfill */ "./lib/keyboard.polyfill.js");
+
 
 const PROXY_FLAG = '__keyboard-controls-proxy';
 
@@ -1269,7 +1289,7 @@ const KeyboardEvent = window.KeyboardEvent;
  * to the entity when pressing the keys.
  * @param {bool} [enabled=true] - To completely enable or disable the controls
  */
-module.exports = AFRAME.registerComponent('keyboard-controls', {
+AFRAME.registerComponent('keyboard-controls', {
   schema: {
     enabled:           { default: true },
     debug:             { default: false }
@@ -1411,7 +1431,7 @@ module.exports = AFRAME.registerComponent('keyboard-controls', {
 /*!*******************************************!*\
   !*** ./src/controls/movement-controls.js ***!
   \*******************************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * Movement Controls
@@ -1424,7 +1444,7 @@ const MAX_DELTA = 0.2; // ms
 const EPS = 10e-6;
 const MOVED = 'moved';
 
-module.exports = AFRAME.registerComponent('movement-controls', {
+AFRAME.registerComponent('movement-controls', {
 
   /*******************************************************************
    * Schema
@@ -1868,12 +1888,12 @@ AFRAME.registerComponent("nipple-controls", {
 /*!****************************************!*\
   !*** ./src/controls/touch-controls.js ***!
   \****************************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * Touch-to-move-forward controls for mobile.
  */
-module.exports = AFRAME.registerComponent('touch-controls', {
+AFRAME.registerComponent('touch-controls', {
   schema: {
     enabled: { default: true },
     reverseEnabled: { default: true }
@@ -1968,12 +1988,12 @@ module.exports = AFRAME.registerComponent('touch-controls', {
 /*!*******************************************!*\
   !*** ./src/controls/trackpad-controls.js ***!
   \*******************************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * 3dof (Gear VR, Daydream) controls for mobile.
  */
-module.exports = AFRAME.registerComponent('trackpad-controls', {
+AFRAME.registerComponent('trackpad-controls', {
   schema: {
     enabled: { default: true },
     enableNegX: { default: true },
@@ -2241,18 +2261,31 @@ module.exports = AFRAME.registerComponent('trackpad-controls', {
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
+"use strict";
 /*!*******************************!*\
   !*** ./src/controls/index.js ***!
   \*******************************/
-__webpack_require__(/*! ./checkpoint-controls */ "./src/controls/checkpoint-controls.js");
-__webpack_require__(/*! ./gamepad-controls */ "./src/controls/gamepad-controls.js");
-__webpack_require__(/*! ./keyboard-controls */ "./src/controls/keyboard-controls.js");
-__webpack_require__(/*! ./touch-controls */ "./src/controls/touch-controls.js");
-__webpack_require__(/*! ./movement-controls */ "./src/controls/movement-controls.js");
-__webpack_require__(/*! ./trackpad-controls */ "./src/controls/trackpad-controls.js");
-__webpack_require__(/*! ./nipple-controls */ "./src/controls/nipple-controls.js");
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkpoint-controls.js */ "./src/controls/checkpoint-controls.js");
+/* harmony import */ var _checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _gamepad_controls_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gamepad-controls.js */ "./src/controls/gamepad-controls.js");
+/* harmony import */ var _keyboard_controls_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./keyboard-controls.js */ "./src/controls/keyboard-controls.js");
+/* harmony import */ var _touch_controls_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./touch-controls.js */ "./src/controls/touch-controls.js");
+/* harmony import */ var _touch_controls_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_touch_controls_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _movement_controls_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./movement-controls.js */ "./src/controls/movement-controls.js");
+/* harmony import */ var _movement_controls_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_movement_controls_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./trackpad-controls.js */ "./src/controls/trackpad-controls.js");
+/* harmony import */ var _trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _nipple_controls_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./nipple-controls.js */ "./src/controls/nipple-controls.js");
+
+
+
+
+
+
+
 
 })();
 

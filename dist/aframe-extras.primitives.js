@@ -15,14 +15,14 @@ return /******/ (() => { // webpackBootstrap
 /*!**********************************!*\
   !*** ./src/primitives/a-grid.js ***!
   \**********************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * Flat grid.
  *
  * Defaults to 75x75.
  */
-module.exports = AFRAME.registerPrimitive('a-grid', {
+AFRAME.registerPrimitive('a-grid', {
   defaultComponents: {
     geometry: {
       primitive: 'plane',
@@ -49,7 +49,7 @@ module.exports = AFRAME.registerPrimitive('a-grid', {
 /*!***********************************!*\
   !*** ./src/primitives/a-ocean.js ***!
   \***********************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * Flat-shaded ocean primitive.
@@ -57,7 +57,7 @@ module.exports = AFRAME.registerPrimitive('a-grid', {
  * Based on a Codrops tutorial:
  * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
  */
-module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
+AFRAME.registerPrimitive('a-ocean', {
   defaultComponents: {
     ocean: {},
     rotation: {x: -90, y: 0, z: 0}
@@ -75,7 +75,7 @@ module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
   }
 });
 
-module.exports.Component = AFRAME.registerComponent('ocean', {
+AFRAME.registerComponent('ocean', {
   schema: {
     // Dimensions of the ocean area.
     width: {default: 10, min: 0},
@@ -157,7 +157,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
 /*!**********************************!*\
   !*** ./src/primitives/a-tube.js ***!
   \**********************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * Tube following a custom path.
@@ -168,7 +168,7 @@ module.exports.Component = AFRAME.registerComponent('ocean', {
  * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
  * ```
  */
-module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
+AFRAME.registerPrimitive('a-tube', {
   defaultComponents: {
     tube:           {},
   },
@@ -181,7 +181,7 @@ module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
   }
 });
 
-module.exports.Component = AFRAME.registerComponent('tube', {
+AFRAME.registerComponent('tube', {
   schema: {
     path:           {default: []},
     segments:       {default: 64},
@@ -259,15 +259,64 @@ module.exports.Component = AFRAME.registerComponent('tube', {
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
 var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
+"use strict";
 /*!*********************************!*\
   !*** ./src/primitives/index.js ***!
   \*********************************/
-__webpack_require__(/*! ./a-grid */ "./src/primitives/a-grid.js");
-__webpack_require__(/*! ./a-ocean */ "./src/primitives/a-ocean.js");
-__webpack_require__(/*! ./a-tube */ "./src/primitives/a-tube.js");
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _a_grid_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./a-grid.js */ "./src/primitives/a-grid.js");
+/* harmony import */ var _a_grid_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_a_grid_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _a_ocean_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./a-ocean.js */ "./src/primitives/a-ocean.js");
+/* harmony import */ var _a_ocean_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_a_ocean_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _a_tube_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./a-tube.js */ "./src/primitives/a-tube.js");
+/* harmony import */ var _a_tube_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_a_tube_js__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
 
 })();
 

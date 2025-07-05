@@ -9,14 +9,10 @@
 	}
 })(self, () => {
 return /******/ (() => { // webpackBootstrap
-/******/ 	var __webpack_modules__ = ({
-
-/***/ "./src/misc/sphere-collider.js":
+var __webpack_exports__ = {};
 /*!*************************************!*\
   !*** ./src/misc/sphere-collider.js ***!
   \*************************************/
-/***/ ((module) => {
-
 /**
  * Based on aframe/examples/showcase/tracked-controls.
  *
@@ -27,7 +23,7 @@ return /******/ (() => { // webpackBootstrap
  * @property {string} state - State to set on collided entities.
  *
  */
-module.exports = AFRAME.registerComponent('sphere-collider', {
+AFRAME.registerComponent('sphere-collider', {
   schema: {
     enabled: {default: true},
     interval: {default: 80},
@@ -179,42 +175,6 @@ function copyArray (dest, source) {
   for (let i = 0; i < source.length; i++) { dest[i] = source[i]; }
 }
 
-
-/***/ })
-
-/******/ 	});
-/************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/ 	
-/************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __webpack_require__("./src/misc/sphere-collider.js");
-/******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;

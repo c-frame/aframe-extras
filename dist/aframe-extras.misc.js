@@ -15,9 +15,9 @@ return /******/ (() => { // webpackBootstrap
 /*!********************************!*\
   !*** ./src/misc/checkpoint.js ***!
   \********************************/
-/***/ ((module) => {
+/***/ (() => {
 
-module.exports = AFRAME.registerComponent('checkpoint', {
+AFRAME.registerComponent('checkpoint', {
   schema: {
     offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
   },
@@ -57,7 +57,7 @@ module.exports = AFRAME.registerComponent('checkpoint', {
 /*!**********************************!*\
   !*** ./src/misc/cube-env-map.js ***!
   \**********************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * @param  {Array<THREE.Material>|THREE.Material} material
@@ -110,7 +110,7 @@ function applyEnvMap (mesh, materialNames, envMap, reflectivity) {
  * Specifies an envMap on an entity, without replacing any existing material
  * properties.
  */
-module.exports = AFRAME.registerComponent('cube-env-map', {
+AFRAME.registerComponent('cube-env-map', {
   multiple: true,
 
   schema: {
@@ -193,13 +193,14 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
   }
 });
 
+
 /***/ }),
 
 /***/ "./src/misc/grab.js":
 /*!**************************!*\
   !*** ./src/misc/grab.js ***!
   \**************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /* global CANNON */
 
@@ -210,7 +211,7 @@ module.exports = AFRAME.registerComponent('cube-env-map', {
  * Determines if the entity is grabbed or released.
  * Updates its position to move along the controller.
  */
-module.exports = AFRAME.registerComponent('grab', {
+AFRAME.registerComponent('grab', {
   init: function () {
     this.system = this.el.sceneEl.systems.physics;
 
@@ -283,14 +284,14 @@ module.exports = AFRAME.registerComponent('grab', {
 /*!*************************************!*\
   !*** ./src/misc/normal-material.js ***!
   \*************************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * Recursively applies a MeshNormalMaterial to the entity, such that
  * face colors are determined by their orientation. Helpful for
  * debugging geometry
  */
-module.exports = AFRAME.registerComponent('normal-material', {
+AFRAME.registerComponent('normal-material', {
   init: function () {
     this.material = new THREE.MeshNormalMaterial({flatShading: true});
     this.applyMaterial = this.applyMaterial.bind(this);
@@ -316,7 +317,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
 /*!*************************************!*\
   !*** ./src/misc/sphere-collider.js ***!
   \*************************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * Based on aframe/examples/showcase/tracked-controls.
@@ -328,7 +329,7 @@ module.exports = AFRAME.registerComponent('normal-material', {
  * @property {string} state - State to set on collided entities.
  *
  */
-module.exports = AFRAME.registerComponent('sphere-collider', {
+AFRAME.registerComponent('sphere-collider', {
   schema: {
     enabled: {default: true},
     interval: {default: 80},
@@ -510,17 +511,70 @@ function copyArray (dest, source) {
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
 var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
+"use strict";
 /*!***************************!*\
   !*** ./src/misc/index.js ***!
   \***************************/
-__webpack_require__(/*! ./checkpoint */ "./src/misc/checkpoint.js");
-__webpack_require__(/*! ./cube-env-map */ "./src/misc/cube-env-map.js");
-__webpack_require__(/*! ./grab */ "./src/misc/grab.js");
-__webpack_require__(/*! ./normal-material */ "./src/misc/normal-material.js");
-__webpack_require__(/*! ./sphere-collider */ "./src/misc/sphere-collider.js");
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _checkpoint_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkpoint.js */ "./src/misc/checkpoint.js");
+/* harmony import */ var _checkpoint_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_checkpoint_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _cube_env_map_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./cube-env-map.js */ "./src/misc/cube-env-map.js");
+/* harmony import */ var _cube_env_map_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_cube_env_map_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _grab_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./grab.js */ "./src/misc/grab.js");
+/* harmony import */ var _grab_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grab_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _normal_material_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./normal-material.js */ "./src/misc/normal-material.js");
+/* harmony import */ var _normal_material_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_normal_material_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _sphere_collider_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sphere-collider.js */ "./src/misc/sphere-collider.js");
+/* harmony import */ var _sphere_collider_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_sphere_collider_js__WEBPACK_IMPORTED_MODULE_4__);
+
+
+
+
+
 
 })();
 

@@ -35,9 +35,9 @@ class d{static roundNumber(t,e){const s=Math.pow(10,e);return Math.round(t*s)/s}
 /*!**************************************!*\
   !*** ./src/pathfinding/nav-agent.js ***!
   \**************************************/
-/***/ ((module) => {
+/***/ (() => {
 
-module.exports = AFRAME.registerComponent('nav-agent', {
+AFRAME.registerComponent('nav-agent', {
   schema: {
     destination: {type: 'vec3'},
     active: {default: false},
@@ -148,7 +148,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
 /*!*************************************!*\
   !*** ./src/pathfinding/nav-mesh.js ***!
   \*************************************/
-/***/ ((module) => {
+/***/ (() => {
 
 /**
  * nav-mesh
@@ -156,7 +156,7 @@ module.exports = AFRAME.registerComponent('nav-agent', {
  * Waits for a mesh to be loaded on the current entity, then sets it as the
  * nav mesh in the pathfinding system.
  */
-module.exports = AFRAME.registerComponent('nav-mesh', {
+AFRAME.registerComponent('nav-mesh', {
   schema: {
     nodeName: {type: 'string'}
   },
@@ -202,11 +202,14 @@ module.exports = AFRAME.registerComponent('nav-mesh', {
 /*!***********************************!*\
   !*** ./src/pathfinding/system.js ***!
   \***********************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-const { Pathfinding } = __webpack_require__(/*! three-pathfinding */ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var three_pathfinding__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three-pathfinding */ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js");
 
-const pathfinder = new Pathfinding();
+
+const pathfinder = new three_pathfinding__WEBPACK_IMPORTED_MODULE_0__.Pathfinding();
 const ZONE = 'level';
 
 /**
@@ -214,7 +217,7 @@ const ZONE = 'level';
  *
  * Pathfinding system, using PatrolJS.
  */
-module.exports = AFRAME.registerSystem('nav', {
+AFRAME.registerSystem('nav', {
   init: function () {
     this.navMesh = null;
     this.agents = new Set();
@@ -225,7 +228,7 @@ module.exports = AFRAME.registerSystem('nav', {
    */
   setNavMeshGeometry: function (geometry) {
     this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, Pathfinding.createZone(geometry));
+    pathfinder.setZoneData(ZONE, three_pathfinding__WEBPACK_IMPORTED_MODULE_0__.Pathfinding.createZone(geometry));
     Array.from(this.agents).forEach((agent) => agent.updateNavLocation());
   },
 
@@ -386,14 +389,21 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
+"use strict";
 /*!**********************************!*\
   !*** ./src/pathfinding/index.js ***!
   \**********************************/
-__webpack_require__(/*! ./nav-mesh */ "./src/pathfinding/nav-mesh.js");
-__webpack_require__(/*! ./nav-agent */ "./src/pathfinding/nav-agent.js");
-__webpack_require__(/*! ./system */ "./src/pathfinding/system.js");
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _nav_mesh_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./nav-mesh.js */ "./src/pathfinding/nav-mesh.js");
+/* harmony import */ var _nav_mesh_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_nav_mesh_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _nav_agent_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./nav-agent.js */ "./src/pathfinding/nav-agent.js");
+/* harmony import */ var _nav_agent_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_nav_agent_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _system_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./system.js */ "./src/pathfinding/system.js");
+
+
+
 
 })();
 
