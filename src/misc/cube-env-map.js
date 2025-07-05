@@ -49,7 +49,7 @@ function applyEnvMap (mesh, materialNames, envMap, reflectivity) {
  * Specifies an envMap on an entity, without replacing any existing material
  * properties.
  */
-module.exports = AFRAME.registerComponent('cube-env-map', {
+AFRAME.registerComponent('cube-env-map', {
   multiple: true,
 
   schema: {

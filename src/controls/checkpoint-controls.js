@@ -1,6 +1,6 @@
 const EPS = 0.1;
 
-module.exports = AFRAME.registerComponent('checkpoint-controls', {
+AFRAME.registerComponent('checkpoint-controls', {
   schema: {
     enabled: {default: true},
     mode: {default: 'teleport', oneOf: ['teleport', 'animate']},

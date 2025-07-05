@@ -9,7 +9,7 @@ const MAX_DELTA = 0.2; // ms
 const EPS = 10e-6;
 const MOVED = 'moved';
 
-module.exports = AFRAME.registerComponent('movement-controls', {
+AFRAME.registerComponent('movement-controls', {
 
   /*******************************************************************
    * Schema

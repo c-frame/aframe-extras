@@ -10,7 +10,7 @@
  *
  * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
  */
-module.exports = AFRAME.registerComponent('object-model', {
+AFRAME.registerComponent('object-model', {
   schema: {
     src:         { type: 'asset' },
     crossorigin: { default: '' }

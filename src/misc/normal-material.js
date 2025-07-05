@@ -3,7 +3,7 @@
  * face colors are determined by their orientation. Helpful for
  * debugging geometry
  */
-module.exports = AFRAME.registerComponent('normal-material', {
+AFRAME.registerComponent('normal-material', {
   init: function () {
     this.material = new THREE.MeshNormalMaterial({flatShading: true});
     this.applyMaterial = this.applyMaterial.bind(this);

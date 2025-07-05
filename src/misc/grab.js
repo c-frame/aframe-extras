@@ -7,7 +7,7 @@
  * Determines if the entity is grabbed or released.
  * Updates its position to move along the controller.
  */
-module.exports = AFRAME.registerComponent('grab', {
+AFRAME.registerComponent('grab', {
   init: function () {
     this.system = this.el.sceneEl.systems.physics;
 

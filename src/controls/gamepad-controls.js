@@ -7,8 +7,8 @@
  * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
  */
 
-const GamepadButton = require('../../lib/GamepadButton'),
-    GamepadButtonEvent = require('../../lib/GamepadButtonEvent');
+import GamepadButton from '../../lib/GamepadButton.js';
+import GamepadButtonEvent from '../../lib/GamepadButtonEvent.js';
 
 const JOYSTICK_EPS = 0.2;
 
@@ -22,7 +22,7 @@ const Joystick = {
   ROTATION: 2
 };
 
-module.exports = AFRAME.registerComponent('gamepad-controls', {
+AFRAME.registerComponent('gamepad-controls', {
 
   /*******************************************************************
    * Statics

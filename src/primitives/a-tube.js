@@ -7,7 +7,7 @@
  * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
  * ```
  */
-module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
+AFRAME.registerPrimitive('a-tube', {
   defaultComponents: {
     tube:           {},
   },
@@ -20,7 +20,7 @@ module.exports.Primitive = AFRAME.registerPrimitive('a-tube', {
   }
 });
 
-module.exports.Component = AFRAME.registerComponent('tube', {
+AFRAME.registerComponent('tube', {
   schema: {
     path:           {default: []},
     segments:       {default: 64},

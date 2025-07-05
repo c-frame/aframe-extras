@@ -1,4 +1,4 @@
-module.exports = AFRAME.registerComponent('nav-agent', {
+AFRAME.registerComponent('nav-agent', {
   schema: {
     destination: {type: 'vec3'},
     active: {default: false},

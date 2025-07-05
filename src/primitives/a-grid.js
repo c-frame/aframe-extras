@@ -3,7 +3,7 @@
  *
  * Defaults to 75x75.
  */
-module.exports = AFRAME.registerPrimitive('a-grid', {
+AFRAME.registerPrimitive('a-grid', {
   defaultComponents: {
     geometry: {
       primitive: 'plane',
