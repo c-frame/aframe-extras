@@ -3,7 +3,6 @@
 Loaders for various 3D model types. All are trivial wrappers around one of the [many THREE.js loader classes](https://github.com/mrdoob/three.js/tree/master/examples/js/loaders).
 
 - **collada-model-legacy**: Loader for COLLADA (`.dae`) format, removed from A-Frame core with v0.9.0 release. Where possible, use the `gltf-model` component that ships with A-Frame instead.
-- **gltf-model-legacy**: Loader for glTF 1.0 format, removed from A-Frame core with v0.7.0 release. For glTF 2.0, use the `gltf-model` component that ships with A-Frame instead.
 - **object-model**: Loader for THREE.js .JSON format, generally containing multiple meshes or an entire scene. Where possible, use the `gltf-model` component that ships with A-Frame instead.
 - **fbx-model**: Loader for FBX format.
 - **animation-mixer**: Controls animations embedded in a glTF model.

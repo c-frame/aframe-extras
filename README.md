@@ -21,7 +21,6 @@ src
 │   ├── animation-mixer.js
 │   ├── collada-model-legacy.js
 │   ├── fbx-model.js
-│   ├── gltf-model-legacy.js
 │   └── object-model.js
 ├── <b>misc/</b> (<a href="/src/misc">Documentation</a>)
 │   ├── checkpoint.js
