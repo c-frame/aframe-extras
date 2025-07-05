@@ -1,3 +1,3 @@
-require('./nav-mesh');
-require('./nav-agent');
-require('./system');
+import './nav-mesh.js';
+import './nav-agent.js';
+import './system.js';

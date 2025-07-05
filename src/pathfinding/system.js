@@ -1,4 +1,4 @@
-const { Pathfinding } = require('three-pathfinding');
+import { Pathfinding } from 'three-pathfinding';
 
 const pathfinder = new Pathfinding();
 const ZONE = 'level';
@@ -8,7 +8,7 @@ const ZONE = 'level';
  *
  * Pathfinding system, using PatrolJS.
  */
-module.exports = AFRAME.registerSystem('nav', {
+AFRAME.registerSystem('nav', {
   init: function () {
     this.navMesh = null;
     this.agents = new Set();

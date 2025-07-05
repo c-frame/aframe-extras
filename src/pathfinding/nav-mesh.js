@@ -4,7 +4,7 @@
  * Waits for a mesh to be loaded on the current entity, then sets it as the
  * nav mesh in the pathfinding system.
  */
-module.exports = AFRAME.registerComponent('nav-mesh', {
+AFRAME.registerComponent('nav-mesh', {
   schema: {
     nodeName: {type: 'string'}
   },

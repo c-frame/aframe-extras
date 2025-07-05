@@ -4,7 +4,7 @@
  * Based on a Codrops tutorial:
  * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
  */
-module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
+AFRAME.registerPrimitive('a-ocean', {
   defaultComponents: {
     ocean: {},
     rotation: {x: -90, y: 0, z: 0}
@@ -22,7 +22,7 @@ module.exports.Primitive = AFRAME.registerPrimitive('a-ocean', {
   }
 });
 
-module.exports.Component = AFRAME.registerComponent('ocean', {
+AFRAME.registerComponent('ocean', {
   schema: {
     // Dimensions of the ocean area.
     width: {default: 10, min: 0},

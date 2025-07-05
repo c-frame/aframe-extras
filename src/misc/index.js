@@ -1,5 +1,5 @@
-require('./checkpoint');
-require('./cube-env-map');
-require('./grab');
-require('./normal-material');
-require('./sphere-collider');
+import './checkpoint.js';
+import './cube-env-map.js';
+import './grab.js';
+import './normal-material.js';
+import './sphere-collider.js';

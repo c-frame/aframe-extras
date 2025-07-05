@@ -1,4 +1,4 @@
-require('./animation-mixer');
-require('./collada-model-legacy');
-require('./fbx-model');
-require('./object-model');
+import './animation-mixer.js';
+import './collada-model-legacy.js';
+import './fbx-model.js';
+import './object-model.js';

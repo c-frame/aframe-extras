@@ -1,6 +1,6 @@
 /* global AFRAME, THREE */
 /* eslint-disable no-prototype-builtins */
-require('../../lib/keyboard.polyfill');
+import '../../lib/keyboard.polyfill.js';
 
 const PROXY_FLAG = '__keyboard-controls-proxy';
 
@@ -26,7 +26,7 @@ const KeyboardEvent = window.KeyboardEvent;
  * to the entity when pressing the keys.
  * @param {bool} [enabled=true] - To completely enable or disable the controls
  */
-module.exports = AFRAME.registerComponent('keyboard-controls', {
+AFRAME.registerComponent('keyboard-controls', {
   schema: {
     enabled:           { default: true },
     debug:             { default: false }

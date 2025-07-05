@@ -1,7 +1,7 @@
 /**
  * 3dof (Gear VR, Daydream) controls for mobile.
  */
-module.exports = AFRAME.registerComponent('trackpad-controls', {
+AFRAME.registerComponent('trackpad-controls', {
   schema: {
     enabled: { default: true },
     enableNegX: { default: true },

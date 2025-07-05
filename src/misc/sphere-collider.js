@@ -8,7 +8,7 @@
  * @property {string} state - State to set on collided entities.
  *
  */
-module.exports = AFRAME.registerComponent('sphere-collider', {
+AFRAME.registerComponent('sphere-collider', {
   schema: {
     enabled: {default: true},
     interval: {default: 80},

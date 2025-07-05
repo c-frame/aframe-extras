@@ -1,4 +1,4 @@
-module.exports = AFRAME.registerComponent('checkpoint', {
+AFRAME.registerComponent('checkpoint', {
   schema: {
     offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
   },
