@@ -25,8 +25,6 @@ AFRAME.registerComponent("nipple-controls", {
     this.lookData = undefined;
     this.moving = false;
     this.rotating = false;
-
-    this.rootEl = this.data.sceneSelector ? document.getElementById(this.data.sceneSelector) : document.body;
   },
 
   update(oldData) {
