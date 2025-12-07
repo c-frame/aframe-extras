@@ -3,6 +3,7 @@ import nipplejs from "nipplejs";
 
 AFRAME.registerComponent("nipple-controls", {
   schema: {
+    sceneSelector: { default: "" },
     enabled: { default: true },
     mode: { default: "dynamic", oneOf: ["static", "semi", "dynamic"] },
     rotationSensitivity: { default: 1.0 },
@@ -25,6 +26,8 @@ AFRAME.registerComponent("nipple-controls", {
     this.lookData = undefined;
     this.moving = false;
     this.rotating = false;
+
+    this.rootEl = this.data.sceneSelector ? document.getElementById(this.data.sceneSelector) : document.body;
   },
 
   update(oldData) {
@@ -113,7 +116,7 @@ AFRAME.registerComponent("nipple-controls", {
       "style",
       `position:absolute;${this.data.moveJoystickPosition}:${this.data.sideMargin};bottom:${this.data.bottomMargin};z-index:1`
     );
-    document.body.appendChild(leftZone);
+    this.rootEl.appendChild(leftZone);
     this.leftZone = leftZone;
   },
 
@@ -124,7 +127,7 @@ AFRAME.registerComponent("nipple-controls", {
       "style",
       `position:absolute;${this.data.lookJoystickPosition}:${this.data.sideMargin};bottom:${this.data.bottomMargin};z-index:1`
     );
-    document.body.appendChild(rightZone);
+    this.rootEl.appendChild(rightZone);
     this.rightZone = rightZone;
   },
 
