@@ -95,6 +95,7 @@ AFRAME.registerComponent('movement-controls', {
     const start = new THREE.Vector3();
     const end = new THREE.Vector3();
     const clampedEnd = new THREE.Vector3();
+    const cameraOffset = new THREE.Vector3();
 
     return function (t, dt) {
       if (!dt) return;
@@ -123,6 +124,18 @@ AFRAME.registerComponent('movement-controls', {
         if (velocity.lengthSq() < EPS) return;
 
         start.copy(el.object3D.position);
+        const isInVR = this.el.sceneEl.is('vr-mode');
+        if (isInVR) {
+          const cameraEl = data.camera;
+          cameraEl.object3D.getWorldPosition(cameraOffset);
+          if (el.object3D.parent) {
+            el.object3D.parent.worldToLocal(cameraOffset);
+          }
+          cameraOffset.sub(el.object3D.position);
+          cameraOffset.y = 0;
+          start.add(cameraOffset);
+        }
+
         end
           .copy(velocity)
           .multiplyScalar(dt / 1000)
@@ -132,6 +145,9 @@ AFRAME.registerComponent('movement-controls', {
         this.navGroup = this.navGroup === null ? nav.getGroup(start) : this.navGroup;
         this.navNode = this.navNode || nav.getNode(start, this.navGroup);
         this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
+        if (isInVR) {
+          clampedEnd.sub(cameraOffset);
+        }
         el.object3D.position.copy(clampedEnd);
       } else if (el.hasAttribute('velocity')) {
         el.setAttribute('velocity', velocity);
