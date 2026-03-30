@@ -109,7 +109,8 @@ AFRAME.registerComponent('movement-controls', {
       const velocityCtrl = this.velocityCtrl;
       const velocity = this.velocity;
 
-      if (!velocityCtrl && !data.constrainToNavMesh) return;
+      const isInVR = this.el.sceneEl.is('vr-mode');
+      if (!velocityCtrl && !isInVR) return;
 
       // Update velocity. If FPS is too low, reset.
       if (dt / 1000 > MAX_DELTA) {
@@ -119,11 +120,12 @@ AFRAME.registerComponent('movement-controls', {
       }
 
       if (data.constrainToNavMesh
-          && (!velocityCtrl || velocityCtrl.isNavMeshConstrained !== false)) {
+          && ((!velocityCtrl && isInVR) || velocityCtrl.isNavMeshConstrained !== false)) {
 
         if (velocity.lengthSq() < EPS) return;
 
-        if (this.el.sceneEl.is('vr-mode')) {
+        start.copy(el.object3D.position);
+        if (isInVR) {
           const cameraEl = data.camera;
           cameraEl.object3D.getWorldPosition(cameraOffset);
           if (el.object3D.parent) {
@@ -131,9 +133,9 @@ AFRAME.registerComponent('movement-controls', {
           }
           cameraOffset.sub(el.object3D.position);
           cameraOffset.y = 0;
+          start.add(cameraOffset);
         }
 
-        start.copy(el.object3D.position).add(cameraOffset);
         if (velocityCtrl) {
           end
             .copy(velocity)
@@ -147,10 +149,13 @@ AFRAME.registerComponent('movement-controls', {
         this.navGroup = this.navGroup === null ? nav.getGroup(start) : this.navGroup;
         this.navNode = this.navNode || nav.getNode(start, this.navGroup);
         this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
-        el.object3D.position.copy(clampedEnd.sub(cameraOffset));
-      } else if (el.hasAttribute('velocity')) {
+        if (isInVR) {
+          clampedEnd.sub(cameraOffset);
+        }
+        el.object3D.position.copy(clampedEnd);
+      } else if (velocityCtrl && el.hasAttribute('velocity')) {
         el.setAttribute('velocity', velocity);
-      } else {
+      } else if (velocityCtrl) {
         el.object3D.position.x += velocity.x * dt / 1000;
         el.object3D.position.y += velocity.y * dt / 1000;
         el.object3D.position.z += velocity.z * dt / 1000;
