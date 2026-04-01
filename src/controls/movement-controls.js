@@ -95,6 +95,7 @@ AFRAME.registerComponent('movement-controls', {
     const start = new THREE.Vector3();
     const end = new THREE.Vector3();
     const clampedEnd = new THREE.Vector3();
+    const cameraOffset = new THREE.Vector3();
 
     return function (t, dt) {
       if (!dt) return;
@@ -108,7 +109,8 @@ AFRAME.registerComponent('movement-controls', {
       const velocityCtrl = this.velocityCtrl;
       const velocity = this.velocity;
 
-      if (!velocityCtrl) return;
+      const isInVR = this.el.sceneEl.is('vr-mode');
+      if (!velocityCtrl && !isInVR) return;
 
       // Update velocity. If FPS is too low, reset.
       if (dt / 1000 > MAX_DELTA) {
@@ -118,24 +120,42 @@ AFRAME.registerComponent('movement-controls', {
       }
 
       if (data.constrainToNavMesh
-          && velocityCtrl.isNavMeshConstrained !== false) {
+          && ((!velocityCtrl && isInVR) || velocityCtrl.isNavMeshConstrained !== false)) {
 
         if (velocity.lengthSq() < EPS) return;
 
         start.copy(el.object3D.position);
-        end
-          .copy(velocity)
-          .multiplyScalar(dt / 1000)
-          .add(start);
+        if (isInVR) {
+          const cameraEl = data.camera;
+          cameraEl.object3D.getWorldPosition(cameraOffset);
+          if (el.object3D.parent) {
+            el.object3D.parent.worldToLocal(cameraOffset);
+          }
+          cameraOffset.sub(el.object3D.position);
+          cameraOffset.y = 0;
+          start.add(cameraOffset);
+        }
+
+        if (velocityCtrl) {
+          end
+            .copy(velocity)
+            .multiplyScalar(dt / 1000)
+            .add(start);
+        } else {
+          end.copy(start)
+        }
 
         const nav = el.sceneEl.systems.nav;
         this.navGroup = this.navGroup === null ? nav.getGroup(start) : this.navGroup;
         this.navNode = this.navNode || nav.getNode(start, this.navGroup);
         this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
+        if (isInVR) {
+          clampedEnd.sub(cameraOffset);
+        }
         el.object3D.position.copy(clampedEnd);
-      } else if (el.hasAttribute('velocity')) {
+      } else if (velocityCtrl && el.hasAttribute('velocity')) {
         el.setAttribute('velocity', velocity);
-      } else {
+      } else if (velocityCtrl) {
         el.object3D.position.x += velocity.x * dt / 1000;
         el.object3D.position.y += velocity.y * dt / 1000;
         el.object3D.position.z += velocity.z * dt / 1000;
