@@ -11,11 +11,360 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/three/examples/jsm/curves/NURBSCurve.js":
+/***/ "./src/loaders/animation-mixer.js"
+/*!****************************************!*\
+  !*** ./src/loaders/animation-mixer.js ***!
+  \****************************************/
+() {
+
+const LoopMode = {
+  once: THREE.LoopOnce,
+  repeat: THREE.LoopRepeat,
+  pingpong: THREE.LoopPingPong
+};
+
+/**
+ * animation-mixer
+ *
+ * Player for animation clips. Intended to be compatible with any model format that supports
+ * skeletal or morph animations through THREE.AnimationMixer.
+ * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
+ */
+AFRAME.registerComponent('animation-mixer', {
+  schema: {
+    clip: { default: '*' },
+    useRegExp: {default: false},
+    duration: { default: 0 },
+    clampWhenFinished: { default: false, type: 'boolean' },
+    crossFadeDuration: { default: 0 },
+    loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
+    repetitions: { default: Infinity, min: 0 },
+    timeScale: { default: 1 },
+    startAt: { default: 0 }
+  },
+
+  init: function () {
+    /** @type {THREE.Mesh} */
+    this.model = null;
+    /** @type {THREE.AnimationMixer} */
+    this.mixer = null;
+    /** @type {Array<THREE.AnimationAction>} */
+    this.activeActions = [];
+
+    const model = this.el.getObject3D('mesh');
+
+    if (model) {
+      this.load(model);
+    } else {
+      this.el.addEventListener('model-loaded', (e) => {
+        this.load(e.detail.model);
+      });
+    }
+  },
+
+  load: function (model) {
+    const el = this.el;
+    this.model = model;
+    this.mixer = new THREE.AnimationMixer(model);
+    this.mixer.addEventListener('loop', (e) => {
+      el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
+    });
+    this.mixer.addEventListener('finished', (e) => {
+      el.emit('animation-finished', { action: e.action, direction: e.direction });
+    });
+    if (this.data.clip) this.update({});
+  },
+
+  remove: function () {
+    if (this.mixer) this.mixer.stopAllAction();
+  },
+
+  update: function (prevData) {
+    if (!prevData) return;
+
+    const data = this.data;
+    const changes = AFRAME.utils.diff(data, prevData);
+
+    // If selected clips have changed, restart animation.
+    if ('clip' in changes) {
+      this.stopAction();
+      if (data.clip) this.playAction();
+      return;
+    }
+
+    // Otherwise, modify running actions.
+    this.activeActions.forEach((action) => {
+      if ('duration' in changes && data.duration) {
+        action.setDuration(data.duration);
+      }
+      if ('clampWhenFinished' in changes) {
+        action.clampWhenFinished = data.clampWhenFinished;
+      }
+      if ('loop' in changes || 'repetitions' in changes) {
+        action.setLoop(LoopMode[data.loop], data.repetitions);
+      }
+      if ('timeScale' in changes) {
+        action.setEffectiveTimeScale(data.timeScale);
+      }
+    });
+  },
+
+  stopAction: function () {
+    const data = this.data;
+    for (let i = 0; i < this.activeActions.length; i++) {
+      data.crossFadeDuration
+        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
+        : this.activeActions[i].stop();
+    }
+    this.activeActions.length = 0;
+  },
+
+  playAction: function () {
+    if (!this.mixer) return;
+
+    const model = this.model,
+      data = this.data,
+      clips = model.animations || (model.geometry || {}).animations || [];
+
+    if (!clips.length) return;
+
+    const re = data.useRegExp ? data.clip : wildcardToRegExp(data.clip);
+
+    for (let clip, i = 0; (clip = clips[i]); i++) {
+      if (clip.name.match(re)) {
+        const action = this.mixer.clipAction(clip, model);
+
+        action.enabled = true;
+        action.clampWhenFinished = data.clampWhenFinished;
+        if (data.duration) action.setDuration(data.duration);
+        if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
+        // animation-mixer.startAt and AnimationAction.startAt have very different meanings.
+        // animation-mixer.startAt indicates which frame in the animation to start at, in msecs.
+        // AnimationAction.startAt indicates when to start the animation (from the 1st frame),
+        // measured in global mixer time, in seconds.
+        action.startAt(this.mixer.time - data.startAt / 1000);
+        action
+          .setLoop(LoopMode[data.loop], data.repetitions)
+          .fadeIn(data.crossFadeDuration)
+          .play();
+        this.activeActions.push(action);
+      }
+    }
+  },
+
+  tick: function (t, dt) {
+    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
+  }
+});
+
+/**
+ * Creates a RegExp from the given string, converting asterisks to .* expressions,
+ * and escaping all other characters.
+ */
+function wildcardToRegExp(s) {
+  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
+}
+
+/**
+ * RegExp-escapes all characters in the given string.
+ */
+function regExpEscape(s) {
+  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+}
+
+
+/***/ },
+
+/***/ "./src/loaders/collada-model-legacy.js"
+/*!*********************************************!*\
+  !*** ./src/loaders/collada-model-legacy.js ***!
+  \*********************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/ColladaLoader.js */ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js");
+
+THREE.ColladaLoader = three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__.ColladaLoader;
+
+/**
+ * collada-model-legacy
+ *
+ * Loader for COLLADA (.dae) format.
+ */
+AFRAME.registerComponent('collada-model-legacy', {
+  schema: {type: 'asset'},
+
+  init: function () {
+    this.model = null;
+    this.loader = new THREE.ColladaLoader();
+  },
+
+  update: function () {
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+    var rendererSystem = this.el.sceneEl.systems.renderer;
+
+    if (!src) { return; }
+
+    this.remove();
+
+    this.loader.load(src, function (colladaModel) {
+      self.model = colladaModel.scene;
+      self.model.traverse(function (object) {
+        if (object.isMesh) {
+          var material = object.material;
+          if (material.color) rendererSystem.applyColorCorrection(material.color);
+          if (material.map) rendererSystem.applyColorCorrection(material.map);
+          if (material.emissive) rendererSystem.applyColorCorrection(material.emissive);
+          if (material.emissiveMap) rendererSystem.applyColorCorrection(material.emissiveMap);
+        }
+      });
+      el.setObject3D('mesh', self.model);
+      el.emit('model-loaded', {format: 'collada', model: self.model});
+    });
+  },
+
+  remove: function () {
+    if (!this.model) { return; }
+    this.el.removeObject3D('mesh');
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/loaders/fbx-model.js"
+/*!**********************************!*\
+  !*** ./src/loaders/fbx-model.js ***!
+  \**********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/FBXLoader.js */ "./node_modules/three/examples/jsm/loaders/FBXLoader.js");
+
+THREE.FBXLoader = three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__.FBXLoader;
+
+/**
+ * fbx-model
+ *
+ * Loader for FBX format.
+ */
+AFRAME.registerComponent('fbx-model', {
+  schema: {
+    src:         { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    const data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    const loader = new THREE.FBXLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, this.load.bind(this));
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'fbx', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/loaders/object-model.js"
+/*!*************************************!*\
+  !*** ./src/loaders/object-model.js ***!
+  \*************************************/
+() {
+
+/**
+ * object-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
+ * includes multiple meshes or an entire scene.
+ *
+ * Check the console for errors, if in doubt. You may need to use `json-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+AFRAME.registerComponent('object-model', {
+  schema: {
+    src:         { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    let loader;
+    const data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.ObjectLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, (object) => {
+
+      // Enable skinning, if applicable.
+      object.traverse((o) => {
+        if (o instanceof THREE.SkinnedMesh && o.material) {
+          o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
+        }
+      });
+
+      this.load(object);
+    });
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'json', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+});
+
+
+/***/ },
+
+/***/ "three"
+/*!************************!*\
+  !*** external "THREE" ***!
+  \************************/
+(module) {
+
+"use strict";
+module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
+
+/***/ },
+
+/***/ "./node_modules/three/examples/jsm/curves/NURBSCurve.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/curves/NURBSCurve.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -102,13 +451,13 @@ class NURBSCurve extends three__WEBPACK_IMPORTED_MODULE_0__.Curve {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/curves/NURBSUtils.js":
+/***/ "./node_modules/three/examples/jsm/curves/NURBSUtils.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/curves/NURBSUtils.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -655,13 +1004,13 @@ function calcVolumePoint( p, q, r, U, V, W, P, u, v, w, target ) {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/libs/fflate.module.js":
+/***/ "./node_modules/three/examples/jsm/libs/fflate.module.js"
 /*!***************************************************************!*\
   !*** ./node_modules/three/examples/jsm/libs/fflate.module.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3390,13 +3739,13 @@ function unzipSync(data, opts) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js":
+/***/ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js"
 /*!******************************************************************!*\
   !*** ./node_modules/three/examples/jsm/loaders/ColladaLoader.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7484,13 +7833,13 @@ class ColladaLoader extends three__WEBPACK_IMPORTED_MODULE_0__.Loader {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/loaders/FBXLoader.js":
+/***/ "./node_modules/three/examples/jsm/loaders/FBXLoader.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/loaders/FBXLoader.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7498,8 +7847,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   FBXLoader: () => (/* binding */ FBXLoader)
 /* harmony export */ });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "three");
-/* harmony import */ var _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../libs/fflate.module.js */ "./node_modules/three/examples/jsm/libs/fflate.module.js");
-/* harmony import */ var _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../curves/NURBSCurve.js */ "./node_modules/three/examples/jsm/curves/NURBSCurve.js");
+/* harmony import */ var _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../libs/fflate.module.js */ "./node_modules/three/examples/jsm/libs/fflate.module.js");
+/* harmony import */ var _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../curves/NURBSCurve.js */ "./node_modules/three/examples/jsm/curves/NURBSCurve.js");
 
 
 
@@ -9025,12 +9374,12 @@ class GeometryParser {
 			case 'Mesh':
 				return this.parseMeshGeometry( relationships, geoNode, deformers );
 				// removed by dead control flow
-{}
+
 
 			case 'NurbsCurve':
 				return this.parseNurbsGeometry( geoNode );
 				// removed by dead control flow
-{}
+
 
 		}
 
@@ -9888,7 +10237,7 @@ class GeometryParser {
 
 		}
 
-		const curve = new _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_1__.NURBSCurve( degree, knots, controlPoints, startKnot, endKnot );
+		const curve = new _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_2__.NURBSCurve( degree, knots, controlPoints, startKnot, endKnot );
 		const points = curve.getPoints( controlPoints.length * 12 );
 
 		return new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry().setFromPoints( points );
@@ -11194,7 +11543,7 @@ class BinaryParser {
 
 				}
 
-				const data = _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_2__.unzlibSync( new Uint8Array( reader.getArrayBuffer( compressedLength ) ) );
+				const data = _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_1__.unzlibSync( new Uint8Array( reader.getArrayBuffer( compressedLength ) ) );
 				const reader2 = new BinaryReader( data.buffer );
 
 				switch ( type ) {
@@ -11774,13 +12123,13 @@ function slice( a, b, from, to ) {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/loaders/TGALoader.js":
+/***/ "./node_modules/three/examples/jsm/loaders/TGALoader.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/loaders/TGALoader.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12154,7 +12503,7 @@ class TGALoader extends three__WEBPACK_IMPORTED_MODULE_0__.DataTextureLoader {
 					default:
 						throw new Error( 'THREE.TGALoader: Format not supported.' );
 						// removed by dead control flow
-{}
+
 
 				}
 
@@ -12181,7 +12530,7 @@ class TGALoader extends three__WEBPACK_IMPORTED_MODULE_0__.DataTextureLoader {
 					default:
 						throw new Error( 'THREE.TGALoader: Format not supported.' );
 						// removed by dead control flow
-{}
+
 
 				}
 
@@ -12306,356 +12655,7 @@ class TGALoader extends three__WEBPACK_IMPORTED_MODULE_0__.DataTextureLoader {
 
 
 
-/***/ }),
-
-/***/ "./src/loaders/animation-mixer.js":
-/*!****************************************!*\
-  !*** ./src/loaders/animation-mixer.js ***!
-  \****************************************/
-/***/ (() => {
-
-const LoopMode = {
-  once: THREE.LoopOnce,
-  repeat: THREE.LoopRepeat,
-  pingpong: THREE.LoopPingPong
-};
-
-/**
- * animation-mixer
- *
- * Player for animation clips. Intended to be compatible with any model format that supports
- * skeletal or morph animations through THREE.AnimationMixer.
- * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
- */
-AFRAME.registerComponent('animation-mixer', {
-  schema: {
-    clip: { default: '*' },
-    useRegExp: {default: false},
-    duration: { default: 0 },
-    clampWhenFinished: { default: false, type: 'boolean' },
-    crossFadeDuration: { default: 0 },
-    loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
-    repetitions: { default: Infinity, min: 0 },
-    timeScale: { default: 1 },
-    startAt: { default: 0 }
-  },
-
-  init: function () {
-    /** @type {THREE.Mesh} */
-    this.model = null;
-    /** @type {THREE.AnimationMixer} */
-    this.mixer = null;
-    /** @type {Array<THREE.AnimationAction>} */
-    this.activeActions = [];
-
-    const model = this.el.getObject3D('mesh');
-
-    if (model) {
-      this.load(model);
-    } else {
-      this.el.addEventListener('model-loaded', (e) => {
-        this.load(e.detail.model);
-      });
-    }
-  },
-
-  load: function (model) {
-    const el = this.el;
-    this.model = model;
-    this.mixer = new THREE.AnimationMixer(model);
-    this.mixer.addEventListener('loop', (e) => {
-      el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
-    });
-    this.mixer.addEventListener('finished', (e) => {
-      el.emit('animation-finished', { action: e.action, direction: e.direction });
-    });
-    if (this.data.clip) this.update({});
-  },
-
-  remove: function () {
-    if (this.mixer) this.mixer.stopAllAction();
-  },
-
-  update: function (prevData) {
-    if (!prevData) return;
-
-    const data = this.data;
-    const changes = AFRAME.utils.diff(data, prevData);
-
-    // If selected clips have changed, restart animation.
-    if ('clip' in changes) {
-      this.stopAction();
-      if (data.clip) this.playAction();
-      return;
-    }
-
-    // Otherwise, modify running actions.
-    this.activeActions.forEach((action) => {
-      if ('duration' in changes && data.duration) {
-        action.setDuration(data.duration);
-      }
-      if ('clampWhenFinished' in changes) {
-        action.clampWhenFinished = data.clampWhenFinished;
-      }
-      if ('loop' in changes || 'repetitions' in changes) {
-        action.setLoop(LoopMode[data.loop], data.repetitions);
-      }
-      if ('timeScale' in changes) {
-        action.setEffectiveTimeScale(data.timeScale);
-      }
-    });
-  },
-
-  stopAction: function () {
-    const data = this.data;
-    for (let i = 0; i < this.activeActions.length; i++) {
-      data.crossFadeDuration
-        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
-        : this.activeActions[i].stop();
-    }
-    this.activeActions.length = 0;
-  },
-
-  playAction: function () {
-    if (!this.mixer) return;
-
-    const model = this.model,
-      data = this.data,
-      clips = model.animations || (model.geometry || {}).animations || [];
-
-    if (!clips.length) return;
-
-    const re = data.useRegExp ? data.clip : wildcardToRegExp(data.clip);
-
-    for (let clip, i = 0; (clip = clips[i]); i++) {
-      if (clip.name.match(re)) {
-        const action = this.mixer.clipAction(clip, model);
-
-        action.enabled = true;
-        action.clampWhenFinished = data.clampWhenFinished;
-        if (data.duration) action.setDuration(data.duration);
-        if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
-        // animation-mixer.startAt and AnimationAction.startAt have very different meanings.
-        // animation-mixer.startAt indicates which frame in the animation to start at, in msecs.
-        // AnimationAction.startAt indicates when to start the animation (from the 1st frame),
-        // measured in global mixer time, in seconds.
-        action.startAt(this.mixer.time - data.startAt / 1000);
-        action
-          .setLoop(LoopMode[data.loop], data.repetitions)
-          .fadeIn(data.crossFadeDuration)
-          .play();
-        this.activeActions.push(action);
-      }
-    }
-  },
-
-  tick: function (t, dt) {
-    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
-  }
-});
-
-/**
- * Creates a RegExp from the given string, converting asterisks to .* expressions,
- * and escaping all other characters.
- */
-function wildcardToRegExp(s) {
-  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
-}
-
-/**
- * RegExp-escapes all characters in the given string.
- */
-function regExpEscape(s) {
-  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
-}
-
-
-/***/ }),
-
-/***/ "./src/loaders/collada-model-legacy.js":
-/*!*********************************************!*\
-  !*** ./src/loaders/collada-model-legacy.js ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/ColladaLoader.js */ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js");
-
-THREE.ColladaLoader = three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__.ColladaLoader;
-
-/**
- * collada-model-legacy
- *
- * Loader for COLLADA (.dae) format.
- */
-AFRAME.registerComponent('collada-model-legacy', {
-  schema: {type: 'asset'},
-
-  init: function () {
-    this.model = null;
-    this.loader = new THREE.ColladaLoader();
-  },
-
-  update: function () {
-    var self = this;
-    var el = this.el;
-    var src = this.data;
-    var rendererSystem = this.el.sceneEl.systems.renderer;
-
-    if (!src) { return; }
-
-    this.remove();
-
-    this.loader.load(src, function (colladaModel) {
-      self.model = colladaModel.scene;
-      self.model.traverse(function (object) {
-        if (object.isMesh) {
-          var material = object.material;
-          if (material.color) rendererSystem.applyColorCorrection(material.color);
-          if (material.map) rendererSystem.applyColorCorrection(material.map);
-          if (material.emissive) rendererSystem.applyColorCorrection(material.emissive);
-          if (material.emissiveMap) rendererSystem.applyColorCorrection(material.emissiveMap);
-        }
-      });
-      el.setObject3D('mesh', self.model);
-      el.emit('model-loaded', {format: 'collada', model: self.model});
-    });
-  },
-
-  remove: function () {
-    if (!this.model) { return; }
-    this.el.removeObject3D('mesh');
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/loaders/fbx-model.js":
-/*!**********************************!*\
-  !*** ./src/loaders/fbx-model.js ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/FBXLoader.js */ "./node_modules/three/examples/jsm/loaders/FBXLoader.js");
-
-THREE.FBXLoader = three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__.FBXLoader;
-
-/**
- * fbx-model
- *
- * Loader for FBX format.
- */
-AFRAME.registerComponent('fbx-model', {
-  schema: {
-    src:         { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    const data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    const loader = new THREE.FBXLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, this.load.bind(this));
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'fbx', model: model});
-  },
-
-  remove: function () {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/loaders/object-model.js":
-/*!*************************************!*\
-  !*** ./src/loaders/object-model.js ***!
-  \*************************************/
-/***/ (() => {
-
-/**
- * object-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
- * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
- * includes multiple meshes or an entire scene.
- *
- * Check the console for errors, if in doubt. You may need to use `json-model` or
- * `blend-character-model` for some .js and .json files.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-AFRAME.registerComponent('object-model', {
-  schema: {
-    src:         { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    let loader;
-    const data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.ObjectLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, (object) => {
-
-      // Enable skinning, if applicable.
-      object.traverse((o) => {
-        if (o instanceof THREE.SkinnedMesh && o.material) {
-          o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
-        }
-      });
-
-      this.load(object);
-    });
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'json', model: model});
-  },
-
-  remove: function () {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-
-/***/ }),
-
-/***/ "three":
-/*!************************!*\
-  !*** external "THREE" ***!
-  \************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
-
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -12677,6 +12677,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module

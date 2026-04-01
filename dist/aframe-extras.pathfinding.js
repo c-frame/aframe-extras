@@ -11,11 +11,11 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js":
+/***/ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/three-pathfinding/dist/three-pathfinding.module.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -29,13 +29,13 @@ class d{static roundNumber(t,e){const s=Math.pow(10,e);return Math.round(t*s)/s}
 //# sourceMappingURL=three-pathfinding.module.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/pathfinding/nav-agent.js":
+/***/ "./src/pathfinding/nav-agent.js"
 /*!**************************************!*\
   !*** ./src/pathfinding/nav-agent.js ***!
   \**************************************/
-/***/ (() => {
+() {
 
 AFRAME.registerComponent('nav-agent', {
   schema: {
@@ -142,13 +142,13 @@ AFRAME.registerComponent('nav-agent', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/pathfinding/nav-mesh.js":
+/***/ "./src/pathfinding/nav-mesh.js"
 /*!*************************************!*\
   !*** ./src/pathfinding/nav-mesh.js ***!
   \*************************************/
-/***/ (() => {
+() {
 
 /**
  * nav-mesh
@@ -196,13 +196,13 @@ AFRAME.registerComponent('nav-mesh', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/pathfinding/system.js":
+/***/ "./src/pathfinding/system.js"
 /*!***********************************!*\
   !*** ./src/pathfinding/system.js ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -307,18 +307,18 @@ AFRAME.registerSystem('nav', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "three":
+/***/ "three"
 /*!************************!*\
   !*** external "THREE" ***!
   \************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -340,6 +340,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module

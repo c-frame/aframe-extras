@@ -11,11 +11,11 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/misc/checkpoint.js":
+/***/ "./src/misc/checkpoint.js"
 /*!********************************!*\
   !*** ./src/misc/checkpoint.js ***!
   \********************************/
-/***/ (() => {
+() {
 
 AFRAME.registerComponent('checkpoint', {
   schema: {
@@ -51,13 +51,13 @@ AFRAME.registerComponent('checkpoint', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/misc/cube-env-map.js":
+/***/ "./src/misc/cube-env-map.js"
 /*!**********************************!*\
   !*** ./src/misc/cube-env-map.js ***!
   \**********************************/
-/***/ (() => {
+() {
 
 /**
  * @param  {Array<THREE.Material>|THREE.Material} material
@@ -194,13 +194,13 @@ AFRAME.registerComponent('cube-env-map', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/misc/grab.js":
+/***/ "./src/misc/grab.js"
 /*!**************************!*\
   !*** ./src/misc/grab.js ***!
   \**************************/
-/***/ (() => {
+() {
 
 /* global CANNON */
 
@@ -278,13 +278,13 @@ AFRAME.registerComponent('grab', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/misc/normal-material.js":
+/***/ "./src/misc/normal-material.js"
 /*!*************************************!*\
   !*** ./src/misc/normal-material.js ***!
   \*************************************/
-/***/ (() => {
+() {
 
 /**
  * Recursively applies a MeshNormalMaterial to the entity, such that
@@ -311,13 +311,13 @@ AFRAME.registerComponent('normal-material', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/misc/sphere-collider.js":
+/***/ "./src/misc/sphere-collider.js"
 /*!*************************************!*\
   !*** ./src/misc/sphere-collider.js ***!
   \*************************************/
-/***/ (() => {
+() {
 
 /**
  * Based on aframe/examples/showcase/tracked-controls.
@@ -482,7 +482,7 @@ function copyArray (dest, source) {
 }
 
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -504,6 +504,12 @@ function copyArray (dest, source) {
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module

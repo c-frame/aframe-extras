@@ -11,11 +11,11 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/primitives/a-grid.js":
+/***/ "./src/primitives/a-grid.js"
 /*!**********************************!*\
   !*** ./src/primitives/a-grid.js ***!
   \**********************************/
-/***/ (() => {
+() {
 
 /**
  * Flat grid.
@@ -43,13 +43,13 @@ AFRAME.registerPrimitive('a-grid', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/primitives/a-ocean.js":
+/***/ "./src/primitives/a-ocean.js"
 /*!***********************************!*\
   !*** ./src/primitives/a-ocean.js ***!
   \***********************************/
-/***/ (() => {
+() {
 
 /**
  * Flat-shaded ocean primitive.
@@ -151,13 +151,13 @@ AFRAME.registerComponent('ocean', {
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/primitives/a-tube.js":
+/***/ "./src/primitives/a-tube.js"
 /*!**********************************!*\
   !*** ./src/primitives/a-tube.js ***!
   \**********************************/
-/***/ (() => {
+() {
 
 /**
  * Tube following a custom path.
@@ -230,7 +230,7 @@ AFRAME.registerComponent('tube', {
 });
 
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -252,6 +252,12 @@ AFRAME.registerComponent('tube', {
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module

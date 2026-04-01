@@ -11,11 +11,11 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./lib/GamepadButton.js":
+/***/ "./lib/GamepadButton.js"
 /*!******************************!*\
   !*** ./lib/GamepadButton.js ***!
   \******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -45,13 +45,13 @@ __webpack_require__.r(__webpack_exports__);
 }));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./lib/GamepadButtonEvent.js":
+/***/ "./lib/GamepadButtonEvent.js"
 /*!***********************************!*\
   !*** ./lib/GamepadButtonEvent.js ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -68,13 +68,13 @@ function GamepadButtonEvent (type, index, details) {
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (GamepadButtonEvent);
 
 
-/***/ }),
+/***/ },
 
-/***/ "./lib/keyboard.polyfill.js":
+/***/ "./lib/keyboard.polyfill.js"
 /*!**********************************!*\
   !*** ./lib/keyboard.polyfill.js ***!
   \**********************************/
-/***/ (() => {
+() {
 
 /**
  * Polyfill for the additional KeyboardEvent properties defined in the D3E and
@@ -786,23 +786,23 @@ function GamepadButtonEvent (type, index, details) {
 } (window));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/nipplejs/dist/nipplejs.js":
+/***/ "./node_modules/nipplejs/dist/nipplejs.js"
 /*!************************************************!*\
   !*** ./node_modules/nipplejs/dist/nipplejs.js ***!
   \************************************************/
-/***/ ((module) => {
+(module) {
 
 !function(t,i){ true?module.exports=i():0}(window,function(){return function(t){var i={};function e(o){if(i[o])return i[o].exports;var n=i[o]={i:o,l:!1,exports:{}};return t[o].call(n.exports,n,n.exports,e),n.l=!0,n.exports}return e.m=t,e.c=i,e.d=function(t,i,o){e.o(t,i)||Object.defineProperty(t,i,{enumerable:!0,get:o})},e.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},e.t=function(t,i){if(1&i&&(t=e(t)),8&i)return t;if(4&i&&"object"==typeof t&&t&&t.__esModule)return t;var o=Object.create(null);if(e.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:t}),2&i&&"string"!=typeof t)for(var n in t)e.d(o,n,function(i){return t[i]}.bind(null,n));return o},e.n=function(t){var i=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(i,"a",i),i},e.o=function(t,i){return Object.prototype.hasOwnProperty.call(t,i)},e.p="",e(e.s=0)}([function(t,i,e){"use strict";e.r(i);var o,n=function(t,i){var e=i.x-t.x,o=i.y-t.y;return Math.sqrt(e*e+o*o)},s=function(t){return t*(Math.PI/180)},r=function(t){return t*(180/Math.PI)},d=new Map,a=function(t){d.has(t)&&clearTimeout(d.get(t)),d.set(t,setTimeout(t,100))},p=function(t,i,e){for(var o,n=i.split(/[ ,]+/g),s=0;s<n.length;s+=1)o=n[s],t.addEventListener?t.addEventListener(o,e,!1):t.attachEvent&&t.attachEvent(o,e)},c=function(t,i,e){for(var o,n=i.split(/[ ,]+/g),s=0;s<n.length;s+=1)o=n[s],t.removeEventListener?t.removeEventListener(o,e):t.detachEvent&&t.detachEvent(o,e)},l=function(t){return t.preventDefault(),t.type.match(/^touch/)?t.changedTouches:t},h=function(){return{x:void 0!==window.pageXOffset?window.pageXOffset:(document.documentElement||document.body.parentNode||document.body).scrollLeft,y:void 0!==window.pageYOffset?window.pageYOffset:(document.documentElement||document.body.parentNode||document.body).scrollTop}},u=function(t,i){i.top||i.right||i.bottom||i.left?(t.style.top=i.top,t.style.right=i.right,t.style.bottom=i.bottom,t.style.left=i.left):(t.style.left=i.x+"px",t.style.top=i.y+"px")},f=function(t,i,e){var o=y(t);for(var n in o)if(o.hasOwnProperty(n))if("string"==typeof i)o[n]=i+" "+e;else{for(var s="",r=0,d=i.length;r<d;r+=1)s+=i[r]+" "+e+", ";o[n]=s.slice(0,-2)}return o},y=function(t){var i={};i[t]="";return["webkit","Moz","o"].forEach(function(e){i[e+t.charAt(0).toUpperCase()+t.slice(1)]=""}),i},m=function(t,i){for(var e in i)i.hasOwnProperty(e)&&(t[e]=i[e]);return t},v=function(t,i){if(t.length)for(var e=0,o=t.length;e<o;e+=1)i(t[e]);else i(t)},g=!!("ontouchstart"in window),b=!!window.PointerEvent,x=!!window.MSPointerEvent,O={start:"mousedown",move:"mousemove",end:"mouseup"},w={};function _(){}b?o={start:"pointerdown",move:"pointermove",end:"pointerup, pointercancel"}:x?o={start:"MSPointerDown",move:"MSPointerMove",end:"MSPointerUp"}:g?(o={start:"touchstart",move:"touchmove",end:"touchend, touchcancel"},w=O):o=O,_.prototype.on=function(t,i){var e,o=t.split(/[ ,]+/g);this._handlers_=this._handlers_||{};for(var n=0;n<o.length;n+=1)e=o[n],this._handlers_[e]=this._handlers_[e]||[],this._handlers_[e].push(i);return this},_.prototype.off=function(t,i){return this._handlers_=this._handlers_||{},void 0===t?this._handlers_={}:void 0===i?this._handlers_[t]=null:this._handlers_[t]&&this._handlers_[t].indexOf(i)>=0&&this._handlers_[t].splice(this._handlers_[t].indexOf(i),1),this},_.prototype.trigger=function(t,i){var e,o=this,n=t.split(/[ ,]+/g);o._handlers_=o._handlers_||{};for(var s=0;s<n.length;s+=1)e=n[s],o._handlers_[e]&&o._handlers_[e].length&&o._handlers_[e].forEach(function(t){t.call(o,{type:e,target:o},i)})},_.prototype.config=function(t){this.options=this.defaults||{},t&&(this.options=function(t,i){var e={};for(var o in t)t.hasOwnProperty(o)&&i.hasOwnProperty(o)?e[o]=i[o]:t.hasOwnProperty(o)&&(e[o]=t[o]);return e}(this.options,t))},_.prototype.bindEvt=function(t,i){var e=this;return e._domHandlers_=e._domHandlers_||{},e._domHandlers_[i]=function(){"function"==typeof e["on"+i]?e["on"+i].apply(e,arguments):console.warn('[WARNING] : Missing "on'+i+'" handler.')},p(t,o[i],e._domHandlers_[i]),w[i]&&p(t,w[i],e._domHandlers_[i]),e},_.prototype.unbindEvt=function(t,i){return this._domHandlers_=this._domHandlers_||{},c(t,o[i],this._domHandlers_[i]),w[i]&&c(t,w[i],this._domHandlers_[i]),delete this._domHandlers_[i],this};var T=_;function k(t,i){return this.identifier=i.identifier,this.position=i.position,this.frontPosition=i.frontPosition,this.collection=t,this.defaults={size:100,threshold:.1,color:"white",fadeTime:250,dataOnly:!1,restJoystick:!0,restOpacity:.5,mode:"dynamic",zone:document.body,lockX:!1,lockY:!1,shape:"circle"},this.config(i),"dynamic"===this.options.mode&&(this.options.restOpacity=0),this.id=k.id,k.id+=1,this.buildEl().stylize(),this.instance={el:this.ui.el,on:this.on.bind(this),off:this.off.bind(this),show:this.show.bind(this),hide:this.hide.bind(this),add:this.addToDom.bind(this),remove:this.removeFromDom.bind(this),destroy:this.destroy.bind(this),setPosition:this.setPosition.bind(this),resetDirection:this.resetDirection.bind(this),computeDirection:this.computeDirection.bind(this),trigger:this.trigger.bind(this),position:this.position,frontPosition:this.frontPosition,ui:this.ui,identifier:this.identifier,id:this.id,options:this.options},this.instance}k.prototype=new T,k.constructor=k,k.id=0,k.prototype.buildEl=function(t){return this.ui={},this.options.dataOnly?this:(this.ui.el=document.createElement("div"),this.ui.back=document.createElement("div"),this.ui.front=document.createElement("div"),this.ui.el.className="nipple collection_"+this.collection.id,this.ui.back.className="back",this.ui.front.className="front",this.ui.el.setAttribute("id","nipple_"+this.collection.id+"_"+this.id),this.ui.el.appendChild(this.ui.back),this.ui.el.appendChild(this.ui.front),this)},k.prototype.stylize=function(){if(this.options.dataOnly)return this;var t=this.options.fadeTime+"ms",i=function(t,i){var e=y(t);for(var o in e)e.hasOwnProperty(o)&&(e[o]=i);return e}("borderRadius","50%"),e=f("transition","opacity",t),o={};return o.el={position:"absolute",opacity:this.options.restOpacity,display:"block",zIndex:999},o.back={position:"absolute",display:"block",width:this.options.size+"px",height:this.options.size+"px",left:0,marginLeft:-this.options.size/2+"px",marginTop:-this.options.size/2+"px",background:this.options.color,opacity:".5"},o.front={width:this.options.size/2+"px",height:this.options.size/2+"px",position:"absolute",display:"block",left:0,marginLeft:-this.options.size/4+"px",marginTop:-this.options.size/4+"px",background:this.options.color,opacity:".5",transform:"translate(0px, 0px)"},m(o.el,e),"circle"===this.options.shape&&m(o.back,i),m(o.front,i),this.applyStyles(o),this},k.prototype.applyStyles=function(t){for(var i in this.ui)if(this.ui.hasOwnProperty(i))for(var e in t[i])this.ui[i].style[e]=t[i][e];return this},k.prototype.addToDom=function(){return this.options.dataOnly||document.body.contains(this.ui.el)?this:(this.options.zone.appendChild(this.ui.el),this)},k.prototype.removeFromDom=function(){return this.options.dataOnly||!document.body.contains(this.ui.el)?this:(this.options.zone.removeChild(this.ui.el),this)},k.prototype.destroy=function(){clearTimeout(this.removeTimeout),clearTimeout(this.showTimeout),clearTimeout(this.restTimeout),this.trigger("destroyed",this.instance),this.removeFromDom(),this.off()},k.prototype.show=function(t){var i=this;return i.options.dataOnly?i:(clearTimeout(i.removeTimeout),clearTimeout(i.showTimeout),clearTimeout(i.restTimeout),i.addToDom(),i.restCallback(),setTimeout(function(){i.ui.el.style.opacity=1},0),i.showTimeout=setTimeout(function(){i.trigger("shown",i.instance),"function"==typeof t&&t.call(this)},i.options.fadeTime),i)},k.prototype.hide=function(t){var i=this;if(i.options.dataOnly)return i;if(i.ui.el.style.opacity=i.options.restOpacity,clearTimeout(i.removeTimeout),clearTimeout(i.showTimeout),clearTimeout(i.restTimeout),i.removeTimeout=setTimeout(function(){var e="dynamic"===i.options.mode?"none":"block";i.ui.el.style.display=e,"function"==typeof t&&t.call(i),i.trigger("hidden",i.instance)},i.options.fadeTime),i.options.restJoystick){var e=i.options.restJoystick,o={};o.x=!0===e||!1!==e.x?0:i.instance.frontPosition.x,o.y=!0===e||!1!==e.y?0:i.instance.frontPosition.y,i.setPosition(t,o)}return i},k.prototype.setPosition=function(t,i){var e=this;e.frontPosition={x:i.x,y:i.y};var o=e.options.fadeTime+"ms",n={};n.front=f("transition",["transform"],o);var s={front:{}};s.front={transform:"translate("+e.frontPosition.x+"px,"+e.frontPosition.y+"px)"},e.applyStyles(n),e.applyStyles(s),e.restTimeout=setTimeout(function(){"function"==typeof t&&t.call(e),e.restCallback()},e.options.fadeTime)},k.prototype.restCallback=function(){var t={};t.front=f("transition","none",""),this.applyStyles(t),this.trigger("rested",this.instance)},k.prototype.resetDirection=function(){this.direction={x:!1,y:!1,angle:!1}},k.prototype.computeDirection=function(t){var i,e,o,n=t.angle.radian,s=Math.PI/4,r=Math.PI/2;if(n>s&&n<3*s&&!t.lockX?i="up":n>-s&&n<=s&&!t.lockY?i="left":n>3*-s&&n<=-s&&!t.lockX?i="down":t.lockY||(i="right"),t.lockY||(e=n>-r&&n<r?"left":"right"),t.lockX||(o=n>0?"up":"down"),t.force>this.options.threshold){var d,a={};for(d in this.direction)this.direction.hasOwnProperty(d)&&(a[d]=this.direction[d]);var p={};for(d in this.direction={x:e,y:o,angle:i},t.direction=this.direction,a)a[d]===this.direction[d]&&(p[d]=!0);if(p.x&&p.y&&p.angle)return t;p.x&&p.y||this.trigger("plain",t),p.x||this.trigger("plain:"+e,t),p.y||this.trigger("plain:"+o,t),p.angle||this.trigger("dir dir:"+i,t)}else this.resetDirection();return t};var P=k;function E(t,i){this.nipples=[],this.idles=[],this.actives=[],this.ids=[],this.pressureIntervals={},this.manager=t,this.id=E.id,E.id+=1,this.defaults={zone:document.body,multitouch:!1,maxNumberOfNipples:10,mode:"dynamic",position:{top:0,left:0},catchDistance:200,size:100,threshold:.1,color:"white",fadeTime:250,dataOnly:!1,restJoystick:!0,restOpacity:.5,lockX:!1,lockY:!1,shape:"circle",dynamicPage:!1,follow:!1},this.config(i),"static"!==this.options.mode&&"semi"!==this.options.mode||(this.options.multitouch=!1),this.options.multitouch||(this.options.maxNumberOfNipples=1);var e=getComputedStyle(this.options.zone.parentElement);return e&&"flex"===e.display&&(this.parentIsFlex=!0),this.updateBox(),this.prepareNipples(),this.bindings(),this.begin(),this.nipples}E.prototype=new T,E.constructor=E,E.id=0,E.prototype.prepareNipples=function(){var t=this.nipples;t.on=this.on.bind(this),t.off=this.off.bind(this),t.options=this.options,t.destroy=this.destroy.bind(this),t.ids=this.ids,t.id=this.id,t.processOnMove=this.processOnMove.bind(this),t.processOnEnd=this.processOnEnd.bind(this),t.get=function(i){if(void 0===i)return t[0];for(var e=0,o=t.length;e<o;e+=1)if(t[e].identifier===i)return t[e];return!1}},E.prototype.bindings=function(){this.bindEvt(this.options.zone,"start"),this.options.zone.style.touchAction="none",this.options.zone.style.msTouchAction="none"},E.prototype.begin=function(){var t=this.options;if("static"===t.mode){var i=this.createNipple(t.position,this.manager.getIdentifier());i.add(),this.idles.push(i)}},E.prototype.createNipple=function(t,i){var e=this.manager.scroll,o={},n=this.options,s=this.parentIsFlex?e.x:e.x+this.box.left,r=this.parentIsFlex?e.y:e.y+this.box.top;if(t.x&&t.y)o={x:t.x-s,y:t.y-r};else if(t.top||t.right||t.bottom||t.left){var d=document.createElement("DIV");d.style.display="hidden",d.style.top=t.top,d.style.right=t.right,d.style.bottom=t.bottom,d.style.left=t.left,d.style.position="absolute",n.zone.appendChild(d);var a=d.getBoundingClientRect();n.zone.removeChild(d),o=t,t={x:a.left+e.x,y:a.top+e.y}}var p=new P(this,{color:n.color,size:n.size,threshold:n.threshold,fadeTime:n.fadeTime,dataOnly:n.dataOnly,restJoystick:n.restJoystick,restOpacity:n.restOpacity,mode:n.mode,identifier:i,position:t,zone:n.zone,frontPosition:{x:0,y:0},shape:n.shape});return n.dataOnly||(u(p.ui.el,o),u(p.ui.front,p.frontPosition)),this.nipples.push(p),this.trigger("added "+p.identifier+":added",p),this.manager.trigger("added "+p.identifier+":added",p),this.bindNipple(p),p},E.prototype.updateBox=function(){this.box=this.options.zone.getBoundingClientRect()},E.prototype.bindNipple=function(t){var i,e=this,o=function(t,o){i=t.type+" "+o.id+":"+t.type,e.trigger(i,o)};t.on("destroyed",e.onDestroyed.bind(e)),t.on("shown hidden rested dir plain",o),t.on("dir:up dir:right dir:down dir:left",o),t.on("plain:up plain:right plain:down plain:left",o)},E.prototype.pressureFn=function(t,i,e){var o=this,n=0;clearInterval(o.pressureIntervals[e]),o.pressureIntervals[e]=setInterval(function(){var e=t.force||t.pressure||t.webkitForce||0;e!==n&&(i.trigger("pressure",e),o.trigger("pressure "+i.identifier+":pressure",e),n=e)}.bind(o),100)},E.prototype.onstart=function(t){var i=this,e=i.options,o=t;t=l(t),i.updateBox();return v(t,function(n){i.actives.length<e.maxNumberOfNipples?i.processOnStart(n):o.type.match(/^touch/)&&(Object.keys(i.manager.ids).forEach(function(e){if(Object.values(o.touches).findIndex(function(t){return t.identifier===e})<0){var n=[t[0]];n.identifier=e,i.processOnEnd(n)}}),i.actives.length<e.maxNumberOfNipples&&i.processOnStart(n))}),i.manager.bindDocument(),!1},E.prototype.processOnStart=function(t){var i,e=this,o=e.options,s=e.manager.getIdentifier(t),r=t.force||t.pressure||t.webkitForce||0,d={x:t.pageX,y:t.pageY},a=e.getOrCreate(s,d);a.identifier!==s&&e.manager.removeIdentifier(a.identifier),a.identifier=s;var p=function(i){i.trigger("start",i),e.trigger("start "+i.id+":start",i),i.show(),r>0&&e.pressureFn(t,i,i.identifier),e.processOnMove(t)};if((i=e.idles.indexOf(a))>=0&&e.idles.splice(i,1),e.actives.push(a),e.ids.push(a.identifier),"semi"!==o.mode)p(a);else{if(!(n(d,a.position)<=o.catchDistance))return a.destroy(),void e.processOnStart(t);p(a)}return a},E.prototype.getOrCreate=function(t,i){var e,o=this.options;return/(semi|static)/.test(o.mode)?(e=this.idles[0])?(this.idles.splice(0,1),e):"semi"===o.mode?this.createNipple(i,t):(console.warn("Coudln't find the needed nipple."),!1):e=this.createNipple(i,t)},E.prototype.processOnMove=function(t){var i=this.options,e=this.manager.getIdentifier(t),o=this.nipples.get(e),d=this.manager.scroll;if(function(t){return isNaN(t.buttons)?0!==t.pressure:0!==t.buttons}(t)){if(!o)return console.error("Found zombie joystick with ID "+e),void this.manager.removeIdentifier(e);if(i.dynamicPage){var a=o.el.getBoundingClientRect();o.position={x:d.x+a.left,y:d.y+a.top}}o.identifier=e;var p=o.options.size/2,c={x:t.pageX,y:t.pageY};i.lockX&&(c.y=o.position.y),i.lockY&&(c.x=o.position.x);var l,h,u,f,y,m,v,g,b,x,O=n(c,o.position),w=(l=c,h=o.position,u=h.x-l.x,f=h.y-l.y,r(Math.atan2(f,u))),_=s(w),T=O/p,k={distance:O,position:c};if("circle"===o.options.shape?(y=Math.min(O,p),v=o.position,g=y,x={x:0,y:0},b=s(b=w),x.x=v.x-g*Math.cos(b),x.y=v.y-g*Math.sin(b),m=x):(m=function(t,i,e){return{x:Math.min(Math.max(t.x,i.x-e),i.x+e),y:Math.min(Math.max(t.y,i.y-e),i.y+e)}}(c,o.position,p),y=n(m,o.position)),i.follow){if(O>p){var P=c.x-m.x,E=c.y-m.y;o.position.x+=P,o.position.y+=E,o.el.style.top=o.position.y-(this.box.top+d.y)+"px",o.el.style.left=o.position.x-(this.box.left+d.x)+"px",O=n(c,o.position)}}else c=m,O=y;var I=c.x-o.position.x,z=c.y-o.position.y;o.frontPosition={x:I,y:z},i.dataOnly||(o.ui.front.style.transform="translate("+I+"px,"+z+"px)");var D={identifier:o.identifier,position:c,force:T,pressure:t.force||t.pressure||t.webkitForce||0,distance:O,angle:{radian:_,degree:w},vector:{x:I/p,y:-z/p},raw:k,instance:o,lockX:i.lockX,lockY:i.lockY};(D=o.computeDirection(D)).angle={radian:s(180-w),degree:180-w},o.trigger("move",D),this.trigger("move "+o.id+":move",D)}else this.processOnEnd(t)},E.prototype.processOnEnd=function(t){var i=this,e=i.options,o=i.manager.getIdentifier(t),n=i.nipples.get(o),s=i.manager.removeIdentifier(n.identifier);n&&(e.dataOnly||n.hide(function(){"dynamic"===e.mode&&(n.trigger("removed",n),i.trigger("removed "+n.id+":removed",n),i.manager.trigger("removed "+n.id+":removed",n),n.destroy())}),clearInterval(i.pressureIntervals[n.identifier]),n.resetDirection(),n.trigger("end",n),i.trigger("end "+n.id+":end",n),i.ids.indexOf(n.identifier)>=0&&i.ids.splice(i.ids.indexOf(n.identifier),1),i.actives.indexOf(n)>=0&&i.actives.splice(i.actives.indexOf(n),1),/(semi|static)/.test(e.mode)?i.idles.push(n):i.nipples.indexOf(n)>=0&&i.nipples.splice(i.nipples.indexOf(n),1),i.manager.unbindDocument(),/(semi|static)/.test(e.mode)&&(i.manager.ids[s.id]=s.identifier))},E.prototype.onDestroyed=function(t,i){this.nipples.indexOf(i)>=0&&this.nipples.splice(this.nipples.indexOf(i),1),this.actives.indexOf(i)>=0&&this.actives.splice(this.actives.indexOf(i),1),this.idles.indexOf(i)>=0&&this.idles.splice(this.idles.indexOf(i),1),this.ids.indexOf(i.identifier)>=0&&this.ids.splice(this.ids.indexOf(i.identifier),1),this.manager.removeIdentifier(i.identifier),this.manager.unbindDocument()},E.prototype.destroy=function(){for(var t in this.unbindEvt(this.options.zone,"start"),this.nipples.forEach(function(t){t.destroy()}),this.pressureIntervals)this.pressureIntervals.hasOwnProperty(t)&&clearInterval(this.pressureIntervals[t]);this.trigger("destroyed",this.nipples),this.manager.unbindDocument(),this.off()};var I=E;function z(t){var i=this;i.ids={},i.index=0,i.collections=[],i.scroll=h(),i.config(t),i.prepareCollections();var e=function(){var t;i.collections.forEach(function(e){e.forEach(function(e){t=e.el.getBoundingClientRect(),e.position={x:i.scroll.x+t.left,y:i.scroll.y+t.top}})})};p(window,"resize",function(){a(e)});var o=function(){i.scroll=h()};return p(window,"scroll",function(){a(o)}),i.collections}z.prototype=new T,z.constructor=z,z.prototype.prepareCollections=function(){var t=this;t.collections.create=t.create.bind(t),t.collections.on=t.on.bind(t),t.collections.off=t.off.bind(t),t.collections.destroy=t.destroy.bind(t),t.collections.get=function(i){var e;return t.collections.every(function(t){return!(e=t.get(i))}),e}},z.prototype.create=function(t){return this.createCollection(t)},z.prototype.createCollection=function(t){var i=new I(this,t);return this.bindCollection(i),this.collections.push(i),i},z.prototype.bindCollection=function(t){var i,e=this,o=function(t,o){i=t.type+" "+o.id+":"+t.type,e.trigger(i,o)};t.on("destroyed",e.onDestroyed.bind(e)),t.on("shown hidden rested dir plain",o),t.on("dir:up dir:right dir:down dir:left",o),t.on("plain:up plain:right plain:down plain:left",o)},z.prototype.bindDocument=function(){this.binded||(this.bindEvt(document,"move").bindEvt(document,"end"),this.binded=!0)},z.prototype.unbindDocument=function(t){Object.keys(this.ids).length&&!0!==t||(this.unbindEvt(document,"move").unbindEvt(document,"end"),this.binded=!1)},z.prototype.getIdentifier=function(t){var i;return t?void 0===(i=void 0===t.identifier?t.pointerId:t.identifier)&&(i=this.latest||0):i=this.index,void 0===this.ids[i]&&(this.ids[i]=this.index,this.index+=1),this.latest=i,this.ids[i]},z.prototype.removeIdentifier=function(t){var i={};for(var e in this.ids)if(this.ids[e]===t){i.id=e,i.identifier=this.ids[e],delete this.ids[e];break}return i},z.prototype.onmove=function(t){return this.onAny("move",t),!1},z.prototype.onend=function(t){return this.onAny("end",t),!1},z.prototype.oncancel=function(t){return this.onAny("end",t),!1},z.prototype.onAny=function(t,i){var e,o=this,n="processOn"+t.charAt(0).toUpperCase()+t.slice(1);i=l(i);return v(i,function(t){e=o.getIdentifier(t),v(o.collections,function(t,i,e){e.ids.indexOf(i)>=0&&(e[n](t),t._found_=!0)}.bind(null,t,e)),t._found_||o.removeIdentifier(e)}),!1},z.prototype.destroy=function(){this.unbindDocument(!0),this.ids={},this.index=0,this.collections.forEach(function(t){t.destroy()}),this.off()},z.prototype.onDestroyed=function(t,i){if(this.collections.indexOf(i)<0)return!1;this.collections.splice(this.collections.indexOf(i),1)};var D=new z;i.default={create:function(t){return D.create(t)},factory:D}}]).default});
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js":
+/***/ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/three-pathfinding/dist/three-pathfinding.module.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -816,13 +816,2868 @@ class d{static roundNumber(t,e){const s=Math.pow(10,e);return Math.round(t*s)/s}
 //# sourceMappingURL=three-pathfinding.module.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/curves/NURBSCurve.js":
+/***/ "./src/controls/checkpoint-controls.js"
+/*!*********************************************!*\
+  !*** ./src/controls/checkpoint-controls.js ***!
+  \*********************************************/
+() {
+
+const EPS = 0.1;
+
+AFRAME.registerComponent('checkpoint-controls', {
+  schema: {
+    enabled: {default: true},
+    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
+    animateSpeed: {default: 3.0}
+  },
+
+  init: function () {
+    this.active = true;
+    this.checkpoint = null;
+
+    this.isNavMeshConstrained = false;
+
+    this.offset = new THREE.Vector3();
+    this.position = new THREE.Vector3();
+    this.targetPosition = new THREE.Vector3();
+  },
+
+  play: function () { this.active = true; },
+  pause: function () { this.active = false; },
+
+  setCheckpoint: function (checkpoint) {
+    const el = this.el;
+
+    if (!this.active) return;
+    if (this.checkpoint === checkpoint) return;
+
+    if (this.checkpoint) {
+      el.emit('navigation-end', {checkpoint: this.checkpoint});
+    }
+
+    this.checkpoint = checkpoint;
+    this.sync();
+
+    // Ignore new checkpoint if we're already there.
+    if (this.position.distanceTo(this.targetPosition) < EPS) {
+      this.checkpoint = null;
+      return;
+    }
+
+    el.emit('navigation-start', {checkpoint: checkpoint});
+
+    if (this.data.mode === 'teleport') {
+      this.el.setAttribute('position', this.targetPosition);
+      this.checkpoint = null;
+      el.emit('navigation-end', {checkpoint: checkpoint});
+      el.components['movement-controls'].updateNavLocation();
+    }
+  },
+
+  isVelocityActive: function () {
+    return !!(this.active && this.checkpoint);
+  },
+
+  getVelocity: function () {
+    if (!this.active) return;
+
+    const data = this.data;
+    const offset = this.offset;
+    const position = this.position;
+    const targetPosition = this.targetPosition;
+    const checkpoint = this.checkpoint;
+
+    this.sync();
+    if (position.distanceTo(targetPosition) < EPS) {
+      this.checkpoint = null;
+      this.el.emit('navigation-end', {checkpoint: checkpoint});
+      return offset.set(0, 0, 0);
+    }
+    offset.setLength(data.animateSpeed);
+    return offset;
+  },
+
+  sync: function () {
+    const offset = this.offset;
+    const position = this.position;
+    const targetPosition = this.targetPosition;
+
+    position.copy(this.el.getAttribute('position'));
+    this.checkpoint.object3D.getWorldPosition(targetPosition);
+    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
+    offset.copy(targetPosition).sub(position);
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/controls/gamepad-controls.js"
+/*!******************************************!*\
+  !*** ./src/controls/gamepad-controls.js ***!
+  \******************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../lib/GamepadButton.js */ "./lib/GamepadButton.js");
+/* harmony import */ var _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../lib/GamepadButtonEvent.js */ "./lib/GamepadButtonEvent.js");
+/**
+ * Gamepad controls for A-Frame.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
+ *
+ * For more information about the Gamepad API, see:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+ */
+
+
+
+
+const JOYSTICK_EPS = 0.2;
+
+const Hand = {
+  LEFT: 'left',
+  RIGHT: 'right'
+};
+
+const Joystick = {
+  MOVEMENT: 1,
+  ROTATION: 2
+};
+
+AFRAME.registerComponent('gamepad-controls', {
+
+  /*******************************************************************
+   * Statics
+   */
+
+  GamepadButton: _lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"],
+
+  /*******************************************************************
+   * Schema
+   */
+
+  schema: {
+    // Enable/disable gamepad-controls
+    enabled: { default: true },
+
+    // Rotation sensitivity
+    rotationSensitivity: { default: 2.0 },
+  },
+
+  /*******************************************************************
+   * Core
+   */
+
+  /**
+   * Called once when component is attached. Generally for initial setup.
+   */
+  init: function () {
+    const sceneEl = this.el.sceneEl;
+
+    // tracked-controls-webxr was renamed to tracked-controls in aframe 1.7.0
+    // tracked-controls-webxr is for aframe 1.6.0 and below
+    this.system = sceneEl.systems['tracked-controls'] || sceneEl.systems['tracked-controls-webxr'] || {controllers: []};
+
+    this.prevTime = window.performance.now();
+
+    // Button state
+    this.buttons = {};
+
+    // Rotation
+    const rotation = this.el.object3D.rotation;
+    this.pitch = new THREE.Object3D();
+    this.pitch.rotation.x = rotation.x;
+    this.yaw = new THREE.Object3D();
+    this.yaw.position.y = 10;
+    this.yaw.rotation.y = rotation.y;
+    this.yaw.add(this.pitch);
+
+    this._lookVector = new THREE.Vector2();
+    this._moveVector = new THREE.Vector2();
+    this._dpadVector = new THREE.Vector2();
+
+    sceneEl.addBehavior(this);
+  },
+
+  /**
+   * Called when component is attached and when component data changes.
+   * Generally modifies the entity based on the data.
+   */
+  update: function () { this.tick(); },
+
+  /**
+   * Called on each iteration of main render loop.
+   */
+  tick: function (t, dt) {
+    this.updateButtonState();
+    this.updateRotation(dt);
+  },
+
+  /**
+   * Called when a component is removed (e.g., via removeAttribute).
+   * Generally undoes all modifications to the entity.
+   */
+  remove: function () { },
+
+  /*******************************************************************
+   * Movement
+   */
+
+  isVelocityActive: function () {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    const dpad = this._dpadVector;
+    const joystick = this._moveVector;
+
+    this.getDpad(dpad);
+    this.getJoystick(Joystick.MOVEMENT, joystick);
+
+    const inputX = dpad.x || joystick.x;
+    const inputY = dpad.y || joystick.y;
+
+    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
+  },
+
+  getVelocityDelta: function () {
+    const dpad = this._dpadVector;
+    const joystick = this._moveVector;
+
+    this.getDpad(dpad);
+    this.getJoystick(Joystick.MOVEMENT, joystick);
+
+    const inputX = dpad.x || joystick.x;
+    const inputY = dpad.y || joystick.y;
+    const dVelocity = new THREE.Vector3();
+
+    if (Math.abs(inputX) > JOYSTICK_EPS) {
+      dVelocity.x += inputX;
+    }
+    if (Math.abs(inputY) > JOYSTICK_EPS) {
+      dVelocity.z += inputY;
+    }
+
+    return dVelocity;
+  },
+
+  /*******************************************************************
+   * Rotation
+   */
+
+  isRotationActive: function () {
+    if (!this.data.enabled || !this.isConnected()) return false;
+
+    const joystick = this._lookVector;
+
+    this.getJoystick(Joystick.ROTATION, joystick);
+
+    return Math.abs(joystick.x) > JOYSTICK_EPS || Math.abs(joystick.y) > JOYSTICK_EPS;
+  },
+
+  updateRotation: function (dt) {
+    if (!this.isRotationActive()) return;
+
+    const data = this.data;
+    const yaw = this.yaw;
+    const pitch = this.pitch;
+
+    // First copy camera rig pitch/yaw, it may have been changed from
+    // another component.
+    yaw.rotation.y = this.el.object3D.rotation.y;
+    pitch.rotation.x = this.el.object3D.rotation.x;
+
+    const lookVector = this._lookVector;
+
+    this.getJoystick(Joystick.ROTATION, lookVector);
+
+    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
+    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
+
+    lookVector.multiplyScalar(data.rotationSensitivity * dt / 1000);
+    yaw.rotation.y -= lookVector.x;
+    pitch.rotation.x -= lookVector.y;
+    pitch.rotation.x = Math.max(- Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
+    this.el.object3D.rotation.set(pitch.rotation.x, yaw.rotation.y, 0);
+  },
+
+  /*******************************************************************
+   * Button events
+   */
+
+  updateButtonState: function () {
+    const gamepad = this.getGamepad(Hand.RIGHT);
+    if (this.data.enabled && gamepad) {
+
+      // Fire DOM events for button state changes.
+      for (var i = 0; i < gamepad.buttons.length; i++) {
+        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
+          this.emit(new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"]('gamepadbuttondown', i, gamepad.buttons[i]));
+        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
+          this.emit(new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"]('gamepadbuttonup', i, gamepad.buttons[i]));
+        }
+        this.buttons[i] = gamepad.buttons[i].pressed;
+      }
+
+    } else {
+      // Reset state if controls are disabled or controller is lost.
+      for (const key in this.buttons) { this.buttons[key] = false; }
+    }
+  },
+
+  emit: function (event) {
+    // Emit original event.
+    this.el.emit(event.type, event);
+
+    // Emit convenience event, identifying button index.
+    this.el.emit(
+      event.type + ':' + event.index,
+      new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"](event.type, event.index, event)
+    );
+  },
+
+  /*******************************************************************
+   * Gamepad state
+   */
+
+  /**
+   * Returns the Gamepad instance attached to the component. If connected,
+   * a proxy-controls component may provide access to Gamepad input from a
+   * remote device.
+   *
+   * @param {string} handPreference
+   * @return {Gamepad}
+   */
+  getGamepad: (function () {
+    const _xrGamepads = [];
+    const _empty = [];
+
+    return function (handPreference) {
+      // https://github.com/donmccurdy/aframe-proxy-controls
+      const proxyControls = this.el.sceneEl.components['proxy-controls'];
+      const proxyGamepad = proxyControls && proxyControls.isConnected()
+        && proxyControls.getGamepad(0);
+      if (proxyGamepad) return proxyGamepad;
+
+      // https://www.w3.org/TR/webxr/#dom-xrinputsource-handedness
+      _xrGamepads.length = 0;
+      for (let i = 0; i < this.system.controllers.length; i++) {
+        const xrController = this.system.controllers[i];
+        const xrGamepad = xrController ? xrController.gamepad : null;
+        _xrGamepads.push(xrGamepad);
+        if (xrGamepad && xrController.handedness === handPreference) return xrGamepad;
+      }
+
+      // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad/hand
+      const navGamepads = navigator.getGamepads ? navigator.getGamepads() : _empty;
+      for (let i = 0; i < navGamepads.length; i++) {
+        const navGamepad = navGamepads[i];
+        if (navGamepad && navGamepad.hand === handPreference) return navGamepad;
+      }
+
+      return _xrGamepads[0] || navGamepads[0];
+    };
+  })(),
+
+  /**
+   * Returns the state of the given button.
+   * @param  {number} index The button (0-N) for which to find state.
+   * @return {GamepadButton}
+   */
+  getButton: function (index) {
+    return this.getGamepad(Hand.RIGHT).buttons[index];
+  },
+
+  /**
+   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
+   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
+   * @param  {number} index The axis (0-N) for which to find state.
+   * @return {number} On the interval [-1,1].
+   */
+  getAxis: function (index) {
+    return this.getGamepad(index > 1 ? Hand.RIGHT : Hand.LEFT).axes[index];
+  },
+
+  /**
+   * Returns the state of the specified joystick as a THREE.Vector2.
+   * @param  {Joystick} role
+   * @param  {THREE.Vector2} target
+   * @return {THREE.Vector2}
+   */
+  getJoystick: function (index, target) {
+    const gamepad = this.getGamepad(index === Joystick.MOVEMENT ? Hand.LEFT : Hand.RIGHT);
+    // gamepad can be null here if it becomes disconnected even if isConnected() was called
+    // in the same tick before calling getJoystick.
+    if (!gamepad) {
+      return target.set(0, 0);
+    }
+    if (gamepad.mapping === 'xr-standard') {
+      // See: https://github.com/donmccurdy/aframe-extras/issues/307
+      switch (index) {
+        case Joystick.MOVEMENT: return target.set(gamepad.axes[2], gamepad.axes[3]);
+        case Joystick.ROTATION: return target.set(gamepad.axes[2], 0);
+      }
+    } else {
+      switch (index) {
+        case Joystick.MOVEMENT: return target.set(gamepad.axes[0], gamepad.axes[1]);
+        case Joystick.ROTATION: return target.set(gamepad.axes[2], gamepad.axes[3]);
+      }
+    }
+    throw new Error('Unexpected joystick index "%d".', index);
+  },
+
+  /**
+   * Returns the state of the dpad as a THREE.Vector2.
+   * @param {THREE.Vector2} target
+   * @return {THREE.Vector2}
+   */
+  getDpad: function (target) {
+    const gamepad = this.getGamepad(Hand.LEFT);
+    if (!gamepad) {
+      return target.set(0, 0);
+    }
+    if (!gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_RIGHT]) {
+      return target.set(0, 0);
+    }
+    return target.set(
+      (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_RIGHT].pressed ? 1 : 0)
+      + (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_LEFT].pressed ? -1 : 0),
+      (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_UP].pressed ? -1 : 0)
+      + (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_DOWN].pressed ? 1 : 0)
+    );
+  },
+
+  /**
+   * Returns true if the gamepad is currently connected to the system.
+   * @return {boolean}
+   */
+  isConnected: function () {
+    const gamepad = this.getGamepad(Hand.LEFT);
+    return !!(gamepad && gamepad.connected);
+  },
+
+  /**
+   * Returns a string containing some information about the controller. Result
+   * may vary across browsers, for a given controller.
+   * @return {string}
+   */
+  getID: function () {
+    return this.getGamepad(Hand.LEFT).id;
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/controls/index.js"
+/*!*******************************!*\
+  !*** ./src/controls/index.js ***!
+  \*******************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkpoint-controls.js */ "./src/controls/checkpoint-controls.js");
+/* harmony import */ var _checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _gamepad_controls_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gamepad-controls.js */ "./src/controls/gamepad-controls.js");
+/* harmony import */ var _keyboard_controls_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./keyboard-controls.js */ "./src/controls/keyboard-controls.js");
+/* harmony import */ var _touch_controls_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./touch-controls.js */ "./src/controls/touch-controls.js");
+/* harmony import */ var _touch_controls_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_touch_controls_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _movement_controls_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./movement-controls.js */ "./src/controls/movement-controls.js");
+/* harmony import */ var _movement_controls_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_movement_controls_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./trackpad-controls.js */ "./src/controls/trackpad-controls.js");
+/* harmony import */ var _trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _nipple_controls_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./nipple-controls.js */ "./src/controls/nipple-controls.js");
+
+
+
+
+
+
+
+
+
+/***/ },
+
+/***/ "./src/controls/keyboard-controls.js"
+/*!*******************************************!*\
+  !*** ./src/controls/keyboard-controls.js ***!
+  \*******************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../lib/keyboard.polyfill.js */ "./lib/keyboard.polyfill.js");
+/* harmony import */ var _lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0__);
+/* global AFRAME, THREE */
+/* eslint-disable no-prototype-builtins */
+
+
+const PROXY_FLAG = '__keyboard-controls-proxy';
+
+const KeyboardEvent = window.KeyboardEvent;
+
+/**
+ * Keyboard Controls component.
+ *
+ * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
+ *
+ * Bind keyboard events to components, or control your entities with the WASD keys.
+ *
+ * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
+ * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
+ * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
+ * when you care about which physical key was pressed, rather thanwhich character it corresponds
+ * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
+ * player in different directions, and that mapping should ideally be independent of keyboard
+ * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
+ *
+ * @namespace wasd-controls
+ * keys the entity moves and if you release it will stop. Easing simulates friction.
+ * to the entity when pressing the keys.
+ * @param {bool} [enabled=true] - To completely enable or disable the controls
+ */
+AFRAME.registerComponent('keyboard-controls', {
+  schema: {
+    enabled:           { default: true },
+    debug:             { default: false }
+  },
+
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+    this.localKeys = {};
+    this.listeners = {
+      keydown: this.onKeyDown.bind(this),
+      keyup: this.onKeyUp.bind(this),
+      blur: this.onBlur.bind(this),
+      onContextMenu: this.onContextMenu.bind(this),
+    };
+  },
+
+  /*******************************************************************
+  * Movement
+  */
+
+  isVelocityActive: function () {
+    return this.data.enabled && !!Object.keys(this.getKeys()).length;
+  },
+
+  getVelocityDelta: function () {
+    const data = this.data;
+    const keys = this.getKeys();
+
+    this.dVelocity.set(0, 0, 0);
+    if (data.enabled) {
+      if (keys.KeyW || keys.ArrowUp)    { this.dVelocity.z -= 1; }
+      if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
+      if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
+      if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
+
+      // Move faster when the shift key is down.
+      if (keys.ShiftLeft) { this.dVelocity = this.dVelocity.multiplyScalar(2); }
+    }
+
+    return this.dVelocity.clone();
+  },
+
+  /*******************************************************************
+  * Events
+  */
+
+  play: function () {
+    this.attachEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+  },
+
+  attachEventListeners: function () {
+    window.addEventListener("contextmenu", this.listeners.onContextMenu, false);
+    window.addEventListener("keydown", this.listeners.keydown, false);
+    window.addEventListener("keyup", this.listeners.keyup, false);
+    window.addEventListener("blur", this.listeners.blur, false);
+  },
+
+  onContextMenu: function () {
+    for (const code in this.localKeys) {
+      if (this.localKeys.hasOwnProperty(code)) {
+        delete this.localKeys[code];
+      }
+    }
+  },
+
+  removeEventListeners: function () {
+    window.removeEventListener('keydown', this.listeners.keydown);
+    window.removeEventListener('keyup', this.listeners.keyup);
+    window.removeEventListener('blur', this.listeners.blur);
+  },
+
+  onKeyDown: function (event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      this.localKeys[event.code] = true;
+      this.emit(event);
+    }
+  },
+
+  onKeyUp: function (event) {
+    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
+      delete this.localKeys[event.code];
+      this.emit(event);
+    }
+  },
+
+  onBlur: function () {
+    for (const code in this.localKeys) {
+      if (this.localKeys.hasOwnProperty(code)) {
+        delete this.localKeys[code];
+      }
+    }
+  },
+
+  emit: function (event) {
+    // TODO - keydown only initially?
+    // TODO - where the f is the spacebar
+
+    // Emit original event.
+    if (PROXY_FLAG in event) {
+      // TODO - Method never triggered.
+      this.el.emit(event.type, event);
+    }
+
+    // Emit convenience event, identifying key.
+    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
+    if (this.data.debug) console.log(event.type + ':' + event.code);
+  },
+
+  /*******************************************************************
+  * Accessors
+  */
+
+  isPressed: function (code) {
+    return code in this.getKeys();
+  },
+
+  getKeys: function () {
+    if (this.isProxied()) {
+      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
+    }
+    return this.localKeys;
+  },
+
+  isProxied: function () {
+    const proxyControls = this.el.sceneEl.components['proxy-controls'];
+    return proxyControls && proxyControls.isConnected();
+  }
+
+});
+
+
+/***/ },
+
+/***/ "./src/controls/movement-controls.js"
+/*!*******************************************!*\
+  !*** ./src/controls/movement-controls.js ***!
+  \*******************************************/
+() {
+
+/**
+ * Movement Controls
+ *
+ * @author Don McCurdy <dm@donmccurdy.com>
+ */
+
+const COMPONENT_SUFFIX = '-controls';
+const MAX_DELTA = 0.2; // ms
+const EPS = 10e-6;
+const MOVED = 'moved';
+
+AFRAME.registerComponent('movement-controls', {
+
+  /*******************************************************************
+   * Schema
+   */
+
+  dependencies: ['rotation'],
+
+  schema: {
+    enabled:            { default: true },
+    controls:           { default: ['gamepad', 'trackpad', 'keyboard', 'touch'] },
+    speed:              { default: 0.3, min: 0 },
+    fly:                { default: false },
+    constrainToNavMesh: { default: false },
+    camera:             { default: '[movement-controls] [camera]', type: 'selector' }
+  },
+
+  /*******************************************************************
+   * Lifecycle
+   */
+
+  init: function () {
+    const el = this.el;
+    if (!this.data.camera) {
+      this.data.camera = el.querySelector('[camera]');
+    }
+    this.velocityCtrl = null;
+
+    this.velocity = new THREE.Vector3();
+    this.heading = new THREE.Quaternion();
+    this.eventDetail = {};
+
+    // Navigation
+    this.navGroup = null;
+    this.navNode = null;
+
+    if (el.sceneEl.hasLoaded) {
+      this.injectControls();
+    } else {
+      el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
+    }
+  },
+
+  update: function (prevData) {
+    const el = this.el;
+    const data = this.data;
+    const nav = el.sceneEl.systems.nav;
+    if (el.sceneEl.hasLoaded) {
+      this.injectControls();
+    }
+    if (nav && data.constrainToNavMesh !== prevData.constrainToNavMesh) {
+      data.constrainToNavMesh
+        ? nav.addAgent(this)
+        : nav.removeAgent(this);
+    }
+    if (data.enabled !== prevData.enabled) {
+      // Propagate the enabled change to all controls
+      for (let i = 0; i < data.controls.length; i++) {
+        const name = data.controls[i] + COMPONENT_SUFFIX;
+        this.el.setAttribute(name, { enabled: this.data.enabled });
+      }
+    }
+  },
+
+  injectControls: function () {
+    const data = this.data;
+
+    for (let i = 0; i < data.controls.length; i++) {
+      const name = data.controls[i] + COMPONENT_SUFFIX;
+      this.el.setAttribute(name, { enabled: this.data.enabled });
+    }
+  },
+
+  updateNavLocation: function () {
+    this.navGroup = null;
+    this.navNode = null;
+  },
+
+  /*******************************************************************
+   * Tick
+   */
+
+  tick: (function () {
+    const start = new THREE.Vector3();
+    const end = new THREE.Vector3();
+    const clampedEnd = new THREE.Vector3();
+    const cameraOffset = new THREE.Vector3();
+
+    return function (t, dt) {
+      if (!dt) return;
+
+      const el = this.el;
+      const data = this.data;
+
+      if (!data.enabled) return;
+
+      this.updateVelocityCtrl();
+      const velocityCtrl = this.velocityCtrl;
+      const velocity = this.velocity;
+
+      const isInVR = this.el.sceneEl.is('vr-mode');
+      if (!velocityCtrl && !isInVR) return;
+
+      // Update velocity. If FPS is too low, reset.
+      if (dt / 1000 > MAX_DELTA) {
+        velocity.set(0, 0, 0);
+      } else {
+        this.updateVelocity(dt);
+      }
+
+      if (data.constrainToNavMesh
+          && ((!velocityCtrl && isInVR) || velocityCtrl.isNavMeshConstrained !== false)) {
+
+        if (velocity.lengthSq() < EPS) return;
+
+        start.copy(el.object3D.position);
+        if (isInVR) {
+          const cameraEl = data.camera;
+          cameraEl.object3D.getWorldPosition(cameraOffset);
+          if (el.object3D.parent) {
+            el.object3D.parent.worldToLocal(cameraOffset);
+          }
+          cameraOffset.sub(el.object3D.position);
+          cameraOffset.y = 0;
+          start.add(cameraOffset);
+        }
+
+        if (velocityCtrl) {
+          end
+            .copy(velocity)
+            .multiplyScalar(dt / 1000)
+            .add(start);
+        } else {
+          end.copy(start)
+        }
+
+        const nav = el.sceneEl.systems.nav;
+        this.navGroup = this.navGroup === null ? nav.getGroup(start) : this.navGroup;
+        this.navNode = this.navNode || nav.getNode(start, this.navGroup);
+        this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
+        if (isInVR) {
+          clampedEnd.sub(cameraOffset);
+        }
+        el.object3D.position.copy(clampedEnd);
+      } else if (velocityCtrl && el.hasAttribute('velocity')) {
+        el.setAttribute('velocity', velocity);
+      } else if (velocityCtrl) {
+        el.object3D.position.x += velocity.x * dt / 1000;
+        el.object3D.position.y += velocity.y * dt / 1000;
+        el.object3D.position.z += velocity.z * dt / 1000;
+      }
+
+    };
+  }()),
+
+  /*******************************************************************
+   * Movement
+   */
+
+  updateVelocityCtrl: function () {
+    const data = this.data;
+    if (data.enabled) {
+      for (let i = 0, l = data.controls.length; i < l; i++) {
+        const control = this.el.components[data.controls[i] + COMPONENT_SUFFIX];
+        if (control && control.isVelocityActive()) {
+          this.velocityCtrl = control;
+          return;
+        }
+      }
+      this.velocityCtrl = null;
+    }
+  },
+
+  updateVelocity: (function () {
+    const vector2 = new THREE.Vector2();
+    const quaternion = new THREE.Quaternion();
+
+    return function (dt) {
+      let dVelocity;
+      const el = this.el;
+      const control = this.velocityCtrl;
+      const velocity = this.velocity;
+      const data = this.data;
+
+      if (control) {
+        if (control.getVelocityDelta) {
+          dVelocity = control.getVelocityDelta(dt);
+        } else if (control.getVelocity) {
+          velocity.copy(control.getVelocity());
+          return;
+        } else if (control.getPositionDelta) {
+          velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
+          return;
+        } else {
+          throw new Error('Incompatible movement controls: ', control);
+        }
+      }
+
+      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) {
+        velocity.copy(this.el.getAttribute('velocity'));
+      }
+
+      if (dVelocity && data.enabled) {
+        const cameraEl = data.camera;
+
+        // Rotate to heading
+        quaternion.copy(cameraEl.object3D.quaternion);
+        quaternion.premultiply(el.object3D.quaternion);
+        dVelocity.applyQuaternion(quaternion);
+
+        const factor = dVelocity.length();
+        if (data.fly) {
+          velocity.copy(dVelocity);
+          velocity.multiplyScalar(this.data.speed * 16.66667);
+        } else {
+          vector2.set(dVelocity.x, dVelocity.z);
+          vector2.setLength(factor * this.data.speed * 16.66667);
+          velocity.x = vector2.x;
+          velocity.y = 0;
+          velocity.z = vector2.y;
+        }
+        if (velocity.x !== 0 || velocity.y !== 0 || velocity.z !== 0) {
+          this.eventDetail.velocity = velocity;
+          this.el.emit(MOVED, this.eventDetail);
+        }
+      }
+    };
+
+  }())
+});
+
+
+/***/ },
+
+/***/ "./src/controls/nipple-controls.js"
+/*!*****************************************!*\
+  !*** ./src/controls/nipple-controls.js ***!
+  \*****************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var nipplejs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! nipplejs */ "./node_modules/nipplejs/dist/nipplejs.js");
+/* harmony import */ var nipplejs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(nipplejs__WEBPACK_IMPORTED_MODULE_0__);
+/* global AFRAME, THREE */
+
+
+AFRAME.registerComponent("nipple-controls", {
+  schema: {
+    enabled: { default: true },
+    mode: { default: "dynamic", oneOf: ["static", "semi", "dynamic"] },
+    rotationSensitivity: { default: 1.0 },
+    moveJoystickEnabled: { default: true },
+    lookJoystickEnabled: { default: true },
+    sideMargin: { default: "30px" },
+    bottomMargin: { default: "70px" },
+    moveJoystickPosition: { default: "left", oneOf: ["left", "right"] },
+    lookJoystickPosition: { default: "right", oneOf: ["left", "right"] },
+  },
+
+  init() {
+    this.dVelocity = new THREE.Vector3();
+    this.lookVector = new THREE.Vector2();
+    const lookControls = this.el.querySelector("[look-controls]").components["look-controls"];
+    this.pitchObject = lookControls.pitchObject;
+    this.yawObject = lookControls.yawObject;
+    this.rigRotation = this.el.object3D.rotation;
+    this.moveData = undefined;
+    this.lookData = undefined;
+    this.moving = false;
+    this.rotating = false;
+  },
+
+  update(oldData) {
+    if (
+      this.data.moveJoystickPosition !== oldData.moveJoystickPosition ||
+      this.data.sideMargin !== oldData.sideMargin ||
+      this.data.bottomMargin !== oldData.bottomMargin ||
+      this.data.mode !== oldData.mode
+    ) {
+      this.removeMoveJoystick();
+    }
+    if (
+      this.data.lookJoystickPosition !== oldData.lookJoystickPosition ||
+      this.data.sideMargin !== oldData.sideMargin ||
+      this.data.bottomMargin !== oldData.bottomMargin ||
+      this.data.mode !== oldData.mode
+    ) {
+      this.removeLookJoystick();
+    }
+    if (this.data.enabled && this.data.moveJoystickEnabled) {
+      this.createMoveJoystick();
+    } else {
+      this.removeMoveJoystick();
+    }
+    if (this.data.enabled && this.data.lookJoystickEnabled) {
+      this.createLookJoystick();
+    } else {
+      this.removeLookJoystick();
+    }
+  },
+
+  pause() {
+    this.moving = false;
+    this.rotating = false;
+  },
+
+  remove() {
+    this.removeMoveJoystick();
+    this.removeLookJoystick();
+  },
+
+  isVelocityActive() {
+    return this.data.enabled && this.moving;
+  },
+
+  getVelocityDelta() {
+    this.dVelocity.set(0, 0, 0);
+    if (this.isVelocityActive()) {
+      const force = this.moveData.force < 1 ? this.moveData.force : 1;
+      const angle = this.moveData.angle.radian;
+      const x = Math.cos(angle) * force;
+      const z = -Math.sin(angle) * force;
+      this.dVelocity.set(x, 0, z);
+    }
+    return this.dVelocity; // We don't do a clone() here, the Vector3 will be modified by the calling code but that's fine.
+  },
+
+  isRotationActive() {
+    return this.data.enabled && this.rotating;
+  },
+
+  updateRotation(dt) {
+    if (!this.isRotationActive()) return;
+
+    const force = this.lookData.force < 1 ? this.lookData.force : 1;
+    const angle = this.lookData.angle.radian;
+    const lookVector = this.lookVector;
+    lookVector.x = Math.cos(angle) * force;
+    lookVector.y = Math.sin(angle) * force;
+    lookVector.multiplyScalar((this.data.rotationSensitivity * dt) / 1000);
+
+    this.yawObject.rotation.y -= lookVector.x;
+    let x = this.pitchObject.rotation.x + lookVector.y;
+    x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, x));
+    this.pitchObject.rotation.x = x;
+  },
+
+  tick: function (t, dt) {
+    this.updateRotation(dt);
+  },
+
+  initLeftZone() {
+    const leftZone = document.createElement("div");
+    leftZone.setAttribute("id", "joystickLeftZone");
+    leftZone.setAttribute(
+      "style",
+      `position:absolute;${this.data.moveJoystickPosition}:${this.data.sideMargin};bottom:${this.data.bottomMargin};z-index:1`
+    );
+    this.el.sceneEl.appendChild(leftZone);
+    this.leftZone = leftZone;
+  },
+
+  initRightZone() {
+    const rightZone = document.createElement("div");
+    rightZone.setAttribute("id", "joystickRightZone");
+    rightZone.setAttribute(
+      "style",
+      `position:absolute;${this.data.lookJoystickPosition}:${this.data.sideMargin};bottom:${this.data.bottomMargin};z-index:1`
+    );
+    this.el.sceneEl.appendChild(rightZone);
+    this.rightZone = rightZone;
+  },
+
+  createMoveJoystick() {
+    if (this.moveJoystick) return;
+    this.initLeftZone();
+    const options = {
+      mode: this.data.mode,
+      zone: this.leftZone,
+      color: "white",
+      fadeTime: 0,
+    };
+    this.leftZone.style.width = "100px";
+    if (this.data.mode === "static") {
+      this.leftZone.style.height = "100px";
+      options.position = { left: "50%", bottom: "50%" };
+    } else {
+      this.leftZone.style.height = "400px";
+    }
+
+    this.moveJoystick = nipplejs__WEBPACK_IMPORTED_MODULE_0___default().create(options);
+    this.moveJoystick.on("move", (evt, data) => {
+      this.moveData = data;
+      this.moving = true;
+    });
+    this.moveJoystick.on("end", (evt, data) => {
+      this.moving = false;
+    });
+  },
+
+  createLookJoystick() {
+    if (this.lookJoystick) return;
+    this.initRightZone();
+    const options = {
+      mode: this.data.mode,
+      zone: this.rightZone,
+      color: "white",
+      fadeTime: 0,
+    };
+    this.rightZone.style.width = "100px";
+    if (this.data.mode === "static") {
+      this.rightZone.style.height = "100px";
+      options.position = { left: "50%", bottom: "50%" };
+    } else {
+      this.rightZone.style.height = "400px";
+    }
+
+    this.lookJoystick = nipplejs__WEBPACK_IMPORTED_MODULE_0___default().create(options);
+    this.lookJoystick.on("move", (evt, data) => {
+      this.lookData = data;
+      this.rotating = true;
+    });
+    this.lookJoystick.on("end", (evt, data) => {
+      this.rotating = false;
+    });
+  },
+
+  removeMoveJoystick() {
+    if (this.moveJoystick) {
+      this.moveJoystick.destroy();
+      this.moveJoystick = undefined;
+    }
+
+    this.moveData = undefined;
+
+    if (this.leftZone && this.leftZone.parentNode) {
+      this.leftZone.remove();
+      this.leftZone = undefined;
+    }
+  },
+
+  removeLookJoystick() {
+    if (this.lookJoystick) {
+      this.lookJoystick.destroy();
+      this.lookJoystick = undefined;
+    }
+
+    this.lookData = undefined;
+
+    if (this.rightZone && this.rightZone.parentNode) {
+      this.rightZone.remove();
+      this.rightZone = undefined;
+    }
+  },
+});
+
+
+/***/ },
+
+/***/ "./src/controls/touch-controls.js"
+/*!****************************************!*\
+  !*** ./src/controls/touch-controls.js ***!
+  \****************************************/
+() {
+
+/**
+ * Touch-to-move-forward controls for mobile.
+ */
+AFRAME.registerComponent('touch-controls', {
+  schema: {
+    enabled: { default: true },
+    reverseEnabled: { default: true }
+  },
+
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+    this.bindMethods();
+    this.direction = 0;
+  },
+
+  play: function () {
+    this.addEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+    this.dVelocity.set(0, 0, 0);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  addEventListeners: function () {
+    const sceneEl = this.el.sceneEl;
+    const canvasEl = sceneEl.canvas;
+
+    if (!canvasEl) {
+      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+      return;
+    }
+
+    canvasEl.addEventListener('touchstart', this.onTouchStart, {passive: true});
+    canvasEl.addEventListener('touchend', this.onTouchEnd, {passive: true});
+    const vrModeUI = sceneEl.getAttribute('vr-mode-ui');
+    if (vrModeUI && vrModeUI.cardboardModeEnabled) {
+      sceneEl.addEventListener('enter-vr', this.onEnterVR);
+    }
+  },
+
+  removeEventListeners: function () {
+    const canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
+    if (!canvasEl) { return; }
+
+    canvasEl.removeEventListener('touchstart', this.onTouchStart);
+    canvasEl.removeEventListener('touchend', this.onTouchEnd);
+    this.el.sceneEl.removeEventListener('enter-vr', this.onEnterVR)
+  },
+
+  isVelocityActive: function () {
+    return this.data.enabled && !!this.direction;
+  },
+
+  getVelocityDelta: function () {
+    this.dVelocity.z = this.direction;
+    return this.dVelocity.clone();
+  },
+
+  bindMethods: function () {
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onEnterVR = this.onEnterVR.bind(this);
+  },
+
+  onTouchStart: function (e) {
+    this.direction = -1;
+    if (this.data.reverseEnabled && e.touches && e.touches.length === 2) {
+      this.direction = 1;
+    }
+    e.preventDefault();
+  },
+
+  onTouchEnd: function (e) {
+    this.direction = 0;
+    e.preventDefault();
+  },
+
+  onEnterVR: function () {
+    // This is to make the Cardboard button on Chrome Android working
+    const xrSession = this.el.sceneEl.xrSession;
+    if (!xrSession) { return; }
+    xrSession.addEventListener('selectstart', this.onTouchStart);
+    xrSession.addEventListener('selectend', this.onTouchEnd);
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/controls/trackpad-controls.js"
+/*!*******************************************!*\
+  !*** ./src/controls/trackpad-controls.js ***!
+  \*******************************************/
+() {
+
+/**
+ * 3dof (Gear VR, Daydream) controls for mobile.
+ */
+AFRAME.registerComponent('trackpad-controls', {
+  schema: {
+    enabled: { default: true },
+    enableNegX: { default: true },
+    enablePosX: { default: true },
+    enableNegZ: { default: true },
+    enablePosZ: { default: true },
+    mode: { default: 'touch', oneOf: ['swipe', 'touch', 'press'] }
+
+  },
+
+  init: function () {
+    this.dVelocity = new THREE.Vector3();
+    this.zVel      = 0;
+    this.xVel      = 0;
+    this.bindMethods();
+  },
+
+  play: function () {
+    this.addEventListeners();
+  },
+
+  pause: function () {
+    this.removeEventListeners();
+    this.dVelocity.set(0, 0, 0);
+  },
+
+  remove: function () {
+    this.pause();
+  },
+
+  addEventListeners: function () {
+    const data = this.data;
+    const sceneEl = this.el.sceneEl;
+
+    sceneEl.addEventListener('axismove', this.onAxisMove);
+
+    switch (data.mode) {
+      case 'swipe':
+      case 'touch':
+        sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
+        sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
+        break;
+
+      case 'press':
+        sceneEl.addEventListener('trackpaddown', this.onTouchStart);
+        sceneEl.addEventListener('trackpadup', this.onTouchEnd);
+        break;
+    }
+
+  },
+
+  removeEventListeners: function () {
+    const sceneEl = this.el.sceneEl;
+
+    sceneEl.removeEventListener('axismove', this.onAxisMove);
+    sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
+    sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
+    sceneEl.removeEventListener('trackpaddown', this.onTouchStart);
+    sceneEl.removeEventListener('trackpadup', this.onTouchEnd);
+  },
+
+  isVelocityActive: function () {
+    return this.data.enabled && this.isMoving;
+  },
+
+  getVelocityDelta: function () {
+    this.dVelocity.z = this.isMoving ? -this.zVel : 1;
+    this.dVelocity.x = this.isMoving ? this.xVel : 1;
+    return this.dVelocity.clone();
+  },
+
+  bindMethods: function () {
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onAxisMove = this.onAxisMove.bind(this);
+  },
+
+  onTouchStart: function (e) {
+    switch(this.data.mode){
+      case 'swipe':
+        this.canRecordAxis = true;
+        this.startingAxisData = [];
+        break;
+      case 'touch':
+        this.isMoving = true;
+        break;
+      case 'press':
+        this.isMoving = true;
+        break;
+    }
+
+    e.preventDefault();
+  },
+
+  onTouchEnd: function (e) {
+    if(this.data.mode == 'swipe') {
+        this.startingAxisData = [];
+    }
+
+    this.isMoving = false;
+    e.preventDefault();
+  },
+
+  onAxisMove: function(e){
+    switch (this.data.mode) {
+      case 'swipe':
+        return this.handleSwipeAxis(e);
+      case 'touch':
+      case 'press':
+        return this.handleTouchAxis(e);
+    }
+  },
+
+  handleSwipeAxis: function(e) {
+    const data = this.data;
+    const axisData = e.detail.axis;
+
+    if(this.startingAxisData.length === 0 && this.canRecordAxis){
+      this.canRecordAxis = false;
+      this.startingAxisData[0] = axisData[0];
+      this.startingAxisData[1] = axisData[1];
+    }
+
+    if(this.startingAxisData.length > 0){
+      let velX = 0;
+      let velZ = 0;
+
+      if (data.enableNegX && axisData[0] < this.startingAxisData[0]) {
+        velX = -1;
+      }
+
+      if (data.enablePosX && axisData[0] > this.startingAxisData[0]) {
+        velX = 1;
+      }
+
+      if (data.enablePosZ && axisData[1] > this.startingAxisData[1]) {
+        velZ = -1;
+      }
+
+      if (data.enableNegZ && axisData[1] < this.startingAxisData[1]) {
+        velZ = 1;
+      }
+
+      const absChangeZ  = Math.abs(this.startingAxisData[1] - axisData[1]);
+      const absChangeX  = Math.abs(this.startingAxisData[0] - axisData[0]);
+
+      if (absChangeX > absChangeZ) {
+        this.zVel = 0;
+        this.xVel = velX;
+        this.isMoving = true;
+      } else {
+        this.xVel = 0;
+        this.zVel = velZ;
+        this.isMoving = true;
+      }
+
+    }
+  },
+
+  handleTouchAxis: function(e) {
+    const data = this.data;
+    const axisData = e.detail.axis;
+
+    let velX = 0;
+    let velZ = 0;
+
+    if (data.enableNegX && axisData[0] < 0) {
+      velX = -1;
+    }
+
+    if (data.enablePosX && axisData[0] > 0) {
+      velX = 1;
+    }
+
+    if (data.enablePosZ && axisData[1] > 0) {
+      velZ = -1;
+    }
+
+    if (data.enableNegZ && axisData[1] < 0) {
+      velZ = 1;
+    }
+
+    if (Math.abs(axisData[0]) > Math.abs(axisData[1])) {
+      this.zVel = 0;
+      this.xVel = velX;
+    } else {
+      this.xVel = 0;
+      this.zVel = velZ;
+    }
+
+  }
+
+});
+
+
+
+/***/ },
+
+/***/ "./src/loaders/animation-mixer.js"
+/*!****************************************!*\
+  !*** ./src/loaders/animation-mixer.js ***!
+  \****************************************/
+() {
+
+const LoopMode = {
+  once: THREE.LoopOnce,
+  repeat: THREE.LoopRepeat,
+  pingpong: THREE.LoopPingPong
+};
+
+/**
+ * animation-mixer
+ *
+ * Player for animation clips. Intended to be compatible with any model format that supports
+ * skeletal or morph animations through THREE.AnimationMixer.
+ * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
+ */
+AFRAME.registerComponent('animation-mixer', {
+  schema: {
+    clip: { default: '*' },
+    useRegExp: {default: false},
+    duration: { default: 0 },
+    clampWhenFinished: { default: false, type: 'boolean' },
+    crossFadeDuration: { default: 0 },
+    loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
+    repetitions: { default: Infinity, min: 0 },
+    timeScale: { default: 1 },
+    startAt: { default: 0 }
+  },
+
+  init: function () {
+    /** @type {THREE.Mesh} */
+    this.model = null;
+    /** @type {THREE.AnimationMixer} */
+    this.mixer = null;
+    /** @type {Array<THREE.AnimationAction>} */
+    this.activeActions = [];
+
+    const model = this.el.getObject3D('mesh');
+
+    if (model) {
+      this.load(model);
+    } else {
+      this.el.addEventListener('model-loaded', (e) => {
+        this.load(e.detail.model);
+      });
+    }
+  },
+
+  load: function (model) {
+    const el = this.el;
+    this.model = model;
+    this.mixer = new THREE.AnimationMixer(model);
+    this.mixer.addEventListener('loop', (e) => {
+      el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
+    });
+    this.mixer.addEventListener('finished', (e) => {
+      el.emit('animation-finished', { action: e.action, direction: e.direction });
+    });
+    if (this.data.clip) this.update({});
+  },
+
+  remove: function () {
+    if (this.mixer) this.mixer.stopAllAction();
+  },
+
+  update: function (prevData) {
+    if (!prevData) return;
+
+    const data = this.data;
+    const changes = AFRAME.utils.diff(data, prevData);
+
+    // If selected clips have changed, restart animation.
+    if ('clip' in changes) {
+      this.stopAction();
+      if (data.clip) this.playAction();
+      return;
+    }
+
+    // Otherwise, modify running actions.
+    this.activeActions.forEach((action) => {
+      if ('duration' in changes && data.duration) {
+        action.setDuration(data.duration);
+      }
+      if ('clampWhenFinished' in changes) {
+        action.clampWhenFinished = data.clampWhenFinished;
+      }
+      if ('loop' in changes || 'repetitions' in changes) {
+        action.setLoop(LoopMode[data.loop], data.repetitions);
+      }
+      if ('timeScale' in changes) {
+        action.setEffectiveTimeScale(data.timeScale);
+      }
+    });
+  },
+
+  stopAction: function () {
+    const data = this.data;
+    for (let i = 0; i < this.activeActions.length; i++) {
+      data.crossFadeDuration
+        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
+        : this.activeActions[i].stop();
+    }
+    this.activeActions.length = 0;
+  },
+
+  playAction: function () {
+    if (!this.mixer) return;
+
+    const model = this.model,
+      data = this.data,
+      clips = model.animations || (model.geometry || {}).animations || [];
+
+    if (!clips.length) return;
+
+    const re = data.useRegExp ? data.clip : wildcardToRegExp(data.clip);
+
+    for (let clip, i = 0; (clip = clips[i]); i++) {
+      if (clip.name.match(re)) {
+        const action = this.mixer.clipAction(clip, model);
+
+        action.enabled = true;
+        action.clampWhenFinished = data.clampWhenFinished;
+        if (data.duration) action.setDuration(data.duration);
+        if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
+        // animation-mixer.startAt and AnimationAction.startAt have very different meanings.
+        // animation-mixer.startAt indicates which frame in the animation to start at, in msecs.
+        // AnimationAction.startAt indicates when to start the animation (from the 1st frame),
+        // measured in global mixer time, in seconds.
+        action.startAt(this.mixer.time - data.startAt / 1000);
+        action
+          .setLoop(LoopMode[data.loop], data.repetitions)
+          .fadeIn(data.crossFadeDuration)
+          .play();
+        this.activeActions.push(action);
+      }
+    }
+  },
+
+  tick: function (t, dt) {
+    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
+  }
+});
+
+/**
+ * Creates a RegExp from the given string, converting asterisks to .* expressions,
+ * and escaping all other characters.
+ */
+function wildcardToRegExp(s) {
+  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
+}
+
+/**
+ * RegExp-escapes all characters in the given string.
+ */
+function regExpEscape(s) {
+  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+}
+
+
+/***/ },
+
+/***/ "./src/loaders/collada-model-legacy.js"
+/*!*********************************************!*\
+  !*** ./src/loaders/collada-model-legacy.js ***!
+  \*********************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/ColladaLoader.js */ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js");
+
+THREE.ColladaLoader = three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__.ColladaLoader;
+
+/**
+ * collada-model-legacy
+ *
+ * Loader for COLLADA (.dae) format.
+ */
+AFRAME.registerComponent('collada-model-legacy', {
+  schema: {type: 'asset'},
+
+  init: function () {
+    this.model = null;
+    this.loader = new THREE.ColladaLoader();
+  },
+
+  update: function () {
+    var self = this;
+    var el = this.el;
+    var src = this.data;
+    var rendererSystem = this.el.sceneEl.systems.renderer;
+
+    if (!src) { return; }
+
+    this.remove();
+
+    this.loader.load(src, function (colladaModel) {
+      self.model = colladaModel.scene;
+      self.model.traverse(function (object) {
+        if (object.isMesh) {
+          var material = object.material;
+          if (material.color) rendererSystem.applyColorCorrection(material.color);
+          if (material.map) rendererSystem.applyColorCorrection(material.map);
+          if (material.emissive) rendererSystem.applyColorCorrection(material.emissive);
+          if (material.emissiveMap) rendererSystem.applyColorCorrection(material.emissiveMap);
+        }
+      });
+      el.setObject3D('mesh', self.model);
+      el.emit('model-loaded', {format: 'collada', model: self.model});
+    });
+  },
+
+  remove: function () {
+    if (!this.model) { return; }
+    this.el.removeObject3D('mesh');
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/loaders/fbx-model.js"
+/*!**********************************!*\
+  !*** ./src/loaders/fbx-model.js ***!
+  \**********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/FBXLoader.js */ "./node_modules/three/examples/jsm/loaders/FBXLoader.js");
+
+THREE.FBXLoader = three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__.FBXLoader;
+
+/**
+ * fbx-model
+ *
+ * Loader for FBX format.
+ */
+AFRAME.registerComponent('fbx-model', {
+  schema: {
+    src:         { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    const data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    const loader = new THREE.FBXLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, this.load.bind(this));
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'fbx', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/loaders/index.js"
+/*!******************************!*\
+  !*** ./src/loaders/index.js ***!
+  \******************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _animation_mixer_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./animation-mixer.js */ "./src/loaders/animation-mixer.js");
+/* harmony import */ var _animation_mixer_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_animation_mixer_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _collada_model_legacy_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./collada-model-legacy.js */ "./src/loaders/collada-model-legacy.js");
+/* harmony import */ var _fbx_model_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./fbx-model.js */ "./src/loaders/fbx-model.js");
+/* harmony import */ var _object_model_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./object-model.js */ "./src/loaders/object-model.js");
+/* harmony import */ var _object_model_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_object_model_js__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+
+
+/***/ },
+
+/***/ "./src/loaders/object-model.js"
+/*!*************************************!*\
+  !*** ./src/loaders/object-model.js ***!
+  \*************************************/
+() {
+
+/**
+ * object-model
+ *
+ * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
+ * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
+ * includes multiple meshes or an entire scene.
+ *
+ * Check the console for errors, if in doubt. You may need to use `json-model` or
+ * `blend-character-model` for some .js and .json files.
+ *
+ * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
+ */
+AFRAME.registerComponent('object-model', {
+  schema: {
+    src:         { type: 'asset' },
+    crossorigin: { default: '' }
+  },
+
+  init: function () {
+    this.model = null;
+  },
+
+  update: function () {
+    let loader;
+    const data = this.data;
+    if (!data.src) return;
+
+    this.remove();
+    loader = new THREE.ObjectLoader();
+    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
+    loader.load(data.src, (object) => {
+
+      // Enable skinning, if applicable.
+      object.traverse((o) => {
+        if (o instanceof THREE.SkinnedMesh && o.material) {
+          o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
+        }
+      });
+
+      this.load(object);
+    });
+  },
+
+  load: function (model) {
+    this.model = model;
+    this.el.setObject3D('mesh', model);
+    this.el.emit('model-loaded', {format: 'json', model: model});
+  },
+
+  remove: function () {
+    if (this.model) this.el.removeObject3D('mesh');
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/misc/checkpoint.js"
+/*!********************************!*\
+  !*** ./src/misc/checkpoint.js ***!
+  \********************************/
+() {
+
+AFRAME.registerComponent('checkpoint', {
+  schema: {
+    offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
+  },
+
+  init: function () {
+    this.active = false;
+    this.targetEl = null;
+    this.fire = this.fire.bind(this);
+    this.offset = new THREE.Vector3();
+  },
+
+  update: function () {
+    this.offset.copy(this.data.offset);
+  },
+
+  play: function () { this.el.addEventListener('click', this.fire); },
+  pause: function () { this.el.removeEventListener('click', this.fire); },
+  remove: function () { this.pause(); },
+
+  fire: function () {
+    const targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
+    if (!targetEl) {
+      throw new Error('No `checkpoint-controls` component found.');
+    }
+    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
+  },
+
+  getOffset: function () {
+    return this.offset.copy(this.data.offset);
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/misc/cube-env-map.js"
+/*!**********************************!*\
+  !*** ./src/misc/cube-env-map.js ***!
+  \**********************************/
+() {
+
+/**
+ * @param  {Array<THREE.Material>|THREE.Material} material
+ * @return {Array<THREE.Material>}
+ */
+function ensureMaterialArray (material) {
+  if (!material) {
+    return [];
+  } else if (Array.isArray(material)) {
+    return material;
+  } else if (material.materials) {
+    return material.materials;
+  } else {
+    return [material];
+  }
+}
+
+/**
+ * @param  {THREE.Object3D} mesh
+ * @param  {Array<string>} materialNames
+ * @param  {THREE.Texture} envMap
+ * @param  {number} reflectivity  [description]
+ */
+function applyEnvMap (mesh, materialNames, envMap, reflectivity) {
+  if (!mesh) return;
+
+  materialNames = materialNames || [];
+
+  mesh.traverse((node) => {
+
+    if (!node.isMesh) return;
+
+    const meshMaterials = ensureMaterialArray(node.material);
+
+    meshMaterials.forEach((material) => {
+
+      if (material && !('envMap' in material)) return;
+      if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
+
+      material.envMap = envMap;
+      material.reflectivity = reflectivity;
+      material.needsUpdate = true;
+
+    });
+
+  });
+}
+
+/**
+ * Specifies an envMap on an entity, without replacing any existing material
+ * properties.
+ */
+AFRAME.registerComponent('cube-env-map', {
+  multiple: true,
+
+  schema: {
+    path: {default: ''},
+    extension: {default: 'jpg', oneOf: ['jpg', 'png']},
+    enableBackground: {default: false},
+    reflectivity: {default: 1, min: 0, max: 1},
+    materials: {default: []}
+  },
+
+  init: function () {
+    const data = this.data;
+
+    this.texture = new THREE.CubeTextureLoader().load([
+      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
+      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
+      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
+    ]);
+    this.texture.format = THREE.RGBAFormat;
+
+    this.object3dsetHandler = () => {
+      const mesh = this.el.getObject3D('mesh');
+      const data = this.data;
+      applyEnvMap(mesh, data.materials, this.texture, data.reflectivity);
+    };
+
+    this.object3dsetHandler();
+    this.el.addEventListener('object3dset', this.object3dsetHandler);
+    
+  },
+
+  update: function (oldData) {
+    const data = this.data;
+    const mesh = this.el.getObject3D('mesh');
+
+    let addedMaterialNames = [];
+    let removedMaterialNames = [];
+
+    if (data.materials.length) {
+      if (oldData.materials) {
+        addedMaterialNames = data.materials.filter((name) => !oldData.materials.includes(name));
+        removedMaterialNames = oldData.materials.filter((name) => !data.materials.includes(name));
+      } else {
+        addedMaterialNames = data.materials;
+      }
+    }
+    if (addedMaterialNames.length) {
+      applyEnvMap(mesh, addedMaterialNames, this.texture, data.reflectivity);
+    }
+    if (removedMaterialNames.length) {
+      applyEnvMap(mesh, removedMaterialNames, null, 1);
+    }
+
+    if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
+      const maintainedMaterialNames = data.materials
+        .filter((name) => oldData.materials.includes(name));
+      if (maintainedMaterialNames.length) {
+        applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
+      }
+    }
+
+    if (this.data.enableBackground && !oldData.enableBackground) {
+      this.setBackground(this.texture);
+    } else if (!this.data.enableBackground && oldData.enableBackground) {
+      this.setBackground(null);
+    }
+  },
+
+  remove: function () {
+    this.el.removeEventListener('object3dset', this.object3dsetHandler);
+    const mesh = this.el.getObject3D('mesh');
+    const data = this.data;
+
+    applyEnvMap(mesh, data.materials, null, 1);
+    if (data.enableBackground) this.setBackground(null);
+  },
+
+  setBackground: function (texture) {
+    this.el.sceneEl.object3D.background = texture;
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/misc/grab.js"
+/*!**************************!*\
+  !*** ./src/misc/grab.js ***!
+  \**************************/
+() {
+
+/* global CANNON */
+
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Handles events coming from the hand-controls.
+ * Determines if the entity is grabbed or released.
+ * Updates its position to move along the controller.
+ */
+AFRAME.registerComponent('grab', {
+  init: function () {
+    this.system = this.el.sceneEl.systems.physics;
+
+    this.GRABBED_STATE = 'grabbed';
+
+    this.grabbing = false;
+    this.hitEl =      /** @type {AFRAME.Element}    */ null;
+    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */ null;
+
+    // Bind event handlers
+    this.onHit = this.onHit.bind(this);
+    this.onGripOpen = this.onGripOpen.bind(this);
+    this.onGripClose = this.onGripClose.bind(this);
+  },
+
+  play: function () {
+    const el = this.el;
+    el.addEventListener('hit', this.onHit);
+    el.addEventListener('gripdown', this.onGripClose);
+    el.addEventListener('gripup', this.onGripOpen);
+    el.addEventListener('trackpaddown', this.onGripClose);
+    el.addEventListener('trackpadup', this.onGripOpen);
+    el.addEventListener('triggerdown', this.onGripClose);
+    el.addEventListener('triggerup', this.onGripOpen);
+  },
+
+  pause: function () {
+    const el = this.el;
+    el.removeEventListener('hit', this.onHit);
+    el.removeEventListener('gripdown', this.onGripClose);
+    el.removeEventListener('gripup', this.onGripOpen);
+    el.removeEventListener('trackpaddown', this.onGripClose);
+    el.removeEventListener('trackpadup', this.onGripOpen);
+    el.removeEventListener('triggerdown', this.onGripClose);
+    el.removeEventListener('triggerup', this.onGripOpen);
+  },
+
+  onGripClose: function () {
+    this.grabbing = true;
+  },
+
+  onGripOpen: function () {
+    const hitEl = this.hitEl;
+    this.grabbing = false;
+    if (!hitEl) { return; }
+    hitEl.removeState(this.GRABBED_STATE);
+    this.hitEl = undefined;
+    this.system.removeConstraint(this.constraint);
+    this.constraint = null;
+  },
+
+  onHit: function (evt) {
+    const hitEl = evt.detail.el;
+    // If the element is already grabbed (it could be grabbed by another controller).
+    // If the hand is not grabbing the element does not stick.
+    // If we're already grabbing something you can't grab again.
+    if (hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
+    hitEl.addState(this.GRABBED_STATE);
+    this.hitEl = hitEl;
+    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
+    this.system.addConstraint(this.constraint);
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/misc/index.js"
+/*!***************************!*\
+  !*** ./src/misc/index.js ***!
+  \***************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _checkpoint_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkpoint.js */ "./src/misc/checkpoint.js");
+/* harmony import */ var _checkpoint_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_checkpoint_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _cube_env_map_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./cube-env-map.js */ "./src/misc/cube-env-map.js");
+/* harmony import */ var _cube_env_map_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_cube_env_map_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _grab_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./grab.js */ "./src/misc/grab.js");
+/* harmony import */ var _grab_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grab_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _normal_material_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./normal-material.js */ "./src/misc/normal-material.js");
+/* harmony import */ var _normal_material_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_normal_material_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _sphere_collider_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sphere-collider.js */ "./src/misc/sphere-collider.js");
+/* harmony import */ var _sphere_collider_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_sphere_collider_js__WEBPACK_IMPORTED_MODULE_4__);
+
+
+
+
+
+
+
+/***/ },
+
+/***/ "./src/misc/normal-material.js"
+/*!*************************************!*\
+  !*** ./src/misc/normal-material.js ***!
+  \*************************************/
+() {
+
+/**
+ * Recursively applies a MeshNormalMaterial to the entity, such that
+ * face colors are determined by their orientation. Helpful for
+ * debugging geometry
+ */
+AFRAME.registerComponent('normal-material', {
+  init: function () {
+    this.material = new THREE.MeshNormalMaterial({flatShading: true});
+    this.applyMaterial = this.applyMaterial.bind(this);
+    this.el.addEventListener('object3dset', this.applyMaterial);
+    this.applyMaterial();
+  },
+
+  remove: function () {
+    this.el.removeEventListener('object3dset', this.applyMaterial);
+  },
+
+  applyMaterial: function () {
+    this.el.object3D.traverse((node) => {
+      if (node.isMesh) node.material = this.material;
+    });
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/misc/sphere-collider.js"
+/*!*************************************!*\
+  !*** ./src/misc/sphere-collider.js ***!
+  \*************************************/
+() {
+
+/**
+ * Based on aframe/examples/showcase/tracked-controls.
+ *
+ * Implement bounding sphere collision detection for entities with a mesh.
+ * Sets the specified state on the intersected entities.
+ *
+ * @property {string} objects - Selector of the entities to test for collision.
+ * @property {string} state - State to set on collided entities.
+ *
+ */
+AFRAME.registerComponent('sphere-collider', {
+  schema: {
+    enabled: {default: true},
+    interval: {default: 80},
+    objects: {default: ''},
+    state: {default: 'collided'},
+    radius: {default: 0.05},
+    watch: {default: true}
+  },
+
+  init: function () {
+    /** @type {MutationObserver} */
+    this.observer = null;
+    /** @type {Array<Element>} Elements to watch for collisions. */
+    this.els = [];
+    /** @type {Array<Element>} Elements currently in collision state. */
+    this.collisions = [];
+    this.prevCheckTime = undefined;
+
+    this.eventDetail = {};
+    this.handleHit = this.handleHit.bind(this);
+    this.handleHitEnd = this.handleHitEnd.bind(this);
+  },
+
+  play: function () {
+    const sceneEl = this.el.sceneEl;
+
+    if (this.data.watch) {
+      this.observer = new MutationObserver(this.update.bind(this, null));
+      this.observer.observe(sceneEl, {childList: true, subtree: true});
+    }
+  },
+
+  pause: function () {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+  },
+
+  /**
+   * Update list of entities to test for collision.
+   */
+  update: function () {
+    const data = this.data;
+    let objectEls;
+
+    // Push entities into list of els to intersect.
+    if (data.objects) {
+      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
+    } else {
+      // If objects not defined, intersect with everything.
+      objectEls = this.el.sceneEl.children;
+    }
+    // Convert from NodeList to Array
+    this.els = Array.prototype.slice.call(objectEls);
+  },
+
+  tick: (function () {
+    const position = new THREE.Vector3(),
+        meshPosition = new THREE.Vector3(),
+        colliderScale = new THREE.Vector3(),
+        size = new THREE.Vector3(),
+        box = new THREE.Box3(),
+        collisions = [],
+        distanceMap = new Map();
+    return function (time) {
+      if (!this.data.enabled) { return; }
+
+      // Only check for intersection if interval time has passed.
+      const prevCheckTime = this.prevCheckTime;
+      if (prevCheckTime && (time - prevCheckTime < this.data.interval)) { return; }
+      // Update check time.
+      this.prevCheckTime = time;
+
+      const el = this.el,
+          data = this.data,
+          mesh = el.getObject3D('mesh');
+      let colliderRadius;
+
+      if (!mesh) { return; }
+
+      collisions.length = 0;
+      distanceMap.clear();
+      el.object3D.getWorldPosition(position);
+      el.object3D.getWorldScale(colliderScale);
+      colliderRadius = data.radius * scaleFactor(colliderScale);
+      // Update collision list.
+      this.els.forEach(intersect);
+
+      // Emit events and add collision states, in order of distance.
+      collisions
+        .sort((a, b) => distanceMap.get(a) > distanceMap.get(b) ? 1 : -1)
+        .forEach(this.handleHit);
+
+      // Remove collision state from other elements.
+      this.collisions
+        .filter((el) => !distanceMap.has(el))
+        .forEach(this.handleHitEnd);
+
+      // Store new collisions
+      copyArray(this.collisions, collisions);
+
+      // Bounding sphere collision detection
+      function intersect (el) {
+        let radius, mesh, distance, extent;
+
+        if (!el.isEntity) { return; }
+
+        mesh = el.getObject3D('mesh');
+
+        if (!mesh) { return; }
+
+        box.setFromObject(mesh).getSize(size);
+        extent = Math.max(size.x, size.y, size.z) / 2;
+        radius = Math.sqrt(2 * extent * extent);
+        box.getCenter(meshPosition);
+
+        if (!radius) { return; }
+
+        distance = position.distanceTo(meshPosition);
+        if (distance < radius + colliderRadius) {
+          collisions.push(el);
+          distanceMap.set(el, distance);
+        }
+      }
+      // use max of scale factors to maintain bounding sphere collision
+      function scaleFactor (scaleVec) {
+        return Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
+      }
+    };
+  })(),
+
+  handleHit: function (targetEl) {
+    targetEl.emit('hit');
+    targetEl.addState(this.data.state);
+    this.eventDetail.el = targetEl;
+    this.el.emit('hit', this.eventDetail);
+  },
+  handleHitEnd: function (targetEl) {
+    targetEl.emit('hitend');
+    targetEl.removeState(this.data.state);
+    this.eventDetail.el = targetEl;
+    this.el.emit('hitend', this.eventDetail);
+  }
+});
+
+function copyArray (dest, source) {
+  dest.length = 0;
+  for (let i = 0; i < source.length; i++) { dest[i] = source[i]; }
+}
+
+
+/***/ },
+
+/***/ "./src/pathfinding/index.js"
+/*!**********************************!*\
+  !*** ./src/pathfinding/index.js ***!
+  \**********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _nav_mesh_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./nav-mesh.js */ "./src/pathfinding/nav-mesh.js");
+/* harmony import */ var _nav_mesh_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_nav_mesh_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _nav_agent_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./nav-agent.js */ "./src/pathfinding/nav-agent.js");
+/* harmony import */ var _nav_agent_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_nav_agent_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _system_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./system.js */ "./src/pathfinding/system.js");
+
+
+
+
+
+/***/ },
+
+/***/ "./src/pathfinding/nav-agent.js"
+/*!**************************************!*\
+  !*** ./src/pathfinding/nav-agent.js ***!
+  \**************************************/
+() {
+
+AFRAME.registerComponent('nav-agent', {
+  schema: {
+    destination: {type: 'vec3'},
+    active: {default: false},
+    speed: {default: 2}
+  },
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.system.addAgent(this);
+    this.group = null;
+    this.path = [];
+    this.raycaster = new THREE.Raycaster();
+  },
+  remove: function () {
+    this.system.removeAgent(this);
+  },
+  update: function () {
+    this.path.length = 0;
+  },
+  updateNavLocation: function () {
+    this.group = null;
+    this.path = [];
+  },
+  tick: (function () {
+    const vDest = new THREE.Vector3();
+    const vDelta = new THREE.Vector3();
+    const vNext = new THREE.Vector3();
+
+    return function (t, dt) {
+      const el = this.el;
+      const data = this.data;
+      const raycaster = this.raycaster;
+      const speed = data.speed * dt / 1000;
+
+      if (!data.active) return;
+
+      // Use PatrolJS pathfinding system to get shortest path to target.
+      if (!this.path.length) {
+        const position = this.el.object3D.position;
+        this.group = this.group || this.system.getGroup(position);
+        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group) || [];
+        el.emit('navigation-start');
+      }
+
+      // If no path is found, exit.
+      if (!this.path.length) {
+        console.warn('[nav] Unable to find path to %o.', data.destination);
+        this.el.setAttribute('nav-agent', {active: false});
+        el.emit('navigation-end');
+        return;
+      }
+
+      // Current segment is a vector from current position to next waypoint.
+      const vCurrent = el.object3D.position;
+      const vWaypoint = this.path[0];
+      vDelta.subVectors(vWaypoint, vCurrent);
+
+      const distance = vDelta.length();
+      let gazeTarget;
+
+      if (distance < speed) {
+        // If <1 step from current waypoint, discard it and move toward next.
+        this.path.shift();
+
+        // After discarding the last waypoint, exit pathfinding.
+        if (!this.path.length) {
+          this.el.setAttribute('nav-agent', {active: false});
+          el.emit('navigation-end');
+          return;
+        }
+
+        vNext.copy(vCurrent);
+        gazeTarget = this.path[0];
+      } else {
+        // If still far away from next waypoint, find next position for
+        // the current frame.
+        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
+        gazeTarget = vWaypoint;
+      }
+
+      // Look at the next waypoint.
+      gazeTarget.y = vCurrent.y;
+      el.object3D.lookAt(gazeTarget);
+
+      // Raycast against the nav mesh, to keep the agent moving along the
+      // ground, not traveling in a straight line from higher to lower waypoints.
+      raycaster.ray.origin.copy(vNext);
+      raycaster.ray.origin.y += 1.5;
+      raycaster.ray.direction = {x:0, y:-1, z:0};
+      const intersections = raycaster.intersectObject(this.system.getNavMesh());
+
+      if (!intersections.length) {
+        // Raycasting failed. Step toward the waypoint and hope for the best.
+        vCurrent.copy(vNext);
+      } else {
+        // Re-project next position onto nav mesh.
+        vDelta.subVectors(intersections[0].point, vCurrent);
+        vCurrent.add(vDelta.setLength(speed));
+      }
+
+    };
+  }())
+});
+
+
+/***/ },
+
+/***/ "./src/pathfinding/nav-mesh.js"
+/*!*************************************!*\
+  !*** ./src/pathfinding/nav-mesh.js ***!
+  \*************************************/
+() {
+
+/**
+ * nav-mesh
+ *
+ * Waits for a mesh to be loaded on the current entity, then sets it as the
+ * nav mesh in the pathfinding system.
+ */
+AFRAME.registerComponent('nav-mesh', {
+  schema: {
+    nodeName: {type: 'string'}
+  },
+
+  init: function () {
+    this.system = this.el.sceneEl.systems.nav;
+    this.hasLoadedNavMesh = false;
+    this.nodeName = this.data.nodeName;
+    this.el.addEventListener('object3dset', this.loadNavMesh.bind(this));
+  },
+
+  play: function () {
+    if (!this.hasLoadedNavMesh) this.loadNavMesh();
+  },
+
+  loadNavMesh: function () {
+    var self = this;
+    const object = this.el.getObject3D('mesh');
+    const scene = this.el.sceneEl.object3D;
+
+    if (!object) return;
+
+    let navMesh;
+    object.traverse((node) => {
+      if (node.isMesh &&
+          (!self.nodeName || node.name === self.nodeName)) navMesh = node;
+    });
+
+    if (!navMesh) return;
+
+    const navMeshGeometry = navMesh.geometry.clone();
+    navMesh.updateWorldMatrix(true, false);
+    navMeshGeometry.applyMatrix4(navMesh.matrixWorld);
+    this.system.setNavMeshGeometry(navMeshGeometry);
+    this.hasLoadedNavMesh = true;
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/pathfinding/system.js"
+/*!***********************************!*\
+  !*** ./src/pathfinding/system.js ***!
+  \***********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var three_pathfinding__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three-pathfinding */ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js");
+
+
+const pathfinder = new three_pathfinding__WEBPACK_IMPORTED_MODULE_0__.Pathfinding();
+const ZONE = 'level';
+
+/**
+ * nav
+ *
+ * Pathfinding system, using PatrolJS.
+ */
+AFRAME.registerSystem('nav', {
+  init: function () {
+    this.navMesh = null;
+    this.agents = new Set();
+  },
+
+  /**
+   * @param {THREE.Geometry} geometry
+   */
+  setNavMeshGeometry: function (geometry) {
+    this.navMesh = new THREE.Mesh(geometry);
+    pathfinder.setZoneData(ZONE, three_pathfinding__WEBPACK_IMPORTED_MODULE_0__.Pathfinding.createZone(geometry));
+    Array.from(this.agents).forEach((agent) => agent.updateNavLocation());
+  },
+
+  /**
+   * @return {THREE.Mesh}
+   */
+  getNavMesh: function () {
+    return this.navMesh;
+  },
+
+  /**
+   * @param {NavAgent} ctrl
+   */
+  addAgent: function (ctrl) {
+    this.agents.add(ctrl);
+  },
+
+  /**
+   * @param {NavAgent} ctrl
+   */
+  removeAgent: function (ctrl) {
+    this.agents.delete(ctrl);
+  },
+
+  /**
+   * @param  {THREE.Vector3} start
+   * @param  {THREE.Vector3} end
+   * @param  {number} groupID
+   * @return {Array<THREE.Vector3>}
+   */
+  getPath: function (start, end, groupID) {
+    return this.navMesh
+      ? pathfinder.findPath(start, end, ZONE, groupID)
+      : null;
+  },
+
+  /**
+   * @param {THREE.Vector3} position
+   * @return {number}
+   */
+  getGroup: function (position) {
+    return this.navMesh
+      ? pathfinder.getGroup(ZONE, position)
+      : null;
+  },
+
+  /**
+   * @param  {THREE.Vector3} position
+   * @param  {number} groupID
+   * @return {Node}
+   */
+  getNode: function (position, groupID) {
+    return this.navMesh
+      ? pathfinder.getClosestNode(position, ZONE, groupID, true)
+      : null;
+  },
+
+  /**
+   * @param  {THREE.Vector3} start Starting position.
+   * @param  {THREE.Vector3} end Desired ending position.
+   * @param  {number} groupID
+   * @param  {Node} node
+   * @param  {THREE.Vector3} endTarget (Output) Adjusted step end position.
+   * @return {Node} Current node, after step is taken.
+   */
+  clampStep: function (start, end, groupID, node, endTarget) {
+    if (!this.navMesh) {
+      endTarget.copy(end);
+      return null;
+    } else if (!node) {
+      endTarget.copy(end);
+      return this.getNode(end, groupID);
+    }
+    return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/primitives/a-grid.js"
+/*!**********************************!*\
+  !*** ./src/primitives/a-grid.js ***!
+  \**********************************/
+() {
+
+/**
+ * Flat grid.
+ *
+ * Defaults to 75x75.
+ */
+AFRAME.registerPrimitive('a-grid', {
+  defaultComponents: {
+    geometry: {
+      primitive: 'plane',
+      width: 75,
+      height: 75
+    },
+    rotation: {x: -90, y: 0, z: 0},
+    material: {
+      src: 'url(https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v1.16.3/assets/grid.png)',
+      repeat: '75 75'
+    }
+  },
+  mappings: {
+    width: 'geometry.width',
+    height: 'geometry.height',
+    src: 'material.src'
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/primitives/a-ocean.js"
+/*!***********************************!*\
+  !*** ./src/primitives/a-ocean.js ***!
+  \***********************************/
+() {
+
+/**
+ * Flat-shaded ocean primitive.
+ *
+ * Based on a Codrops tutorial:
+ * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
+ */
+AFRAME.registerPrimitive('a-ocean', {
+  defaultComponents: {
+    ocean: {},
+    rotation: {x: -90, y: 0, z: 0}
+  },
+  mappings: {
+    width: 'ocean.width',
+    depth: 'ocean.depth',
+    density: 'ocean.density',
+    amplitude: 'ocean.amplitude',
+    amplitudeVariance: 'ocean.amplitudeVariance',
+    speed: 'ocean.speed',
+    speedVariance: 'ocean.speedVariance',
+    color: 'ocean.color',
+    opacity: 'ocean.opacity'
+  }
+});
+
+AFRAME.registerComponent('ocean', {
+  schema: {
+    // Dimensions of the ocean area.
+    width: {default: 10, min: 0},
+    depth: {default: 10, min: 0},
+
+    // Density of waves.
+    density: {default: 10},
+
+    // Wave amplitude and variance.
+    amplitude: {default: 0.1},
+    amplitudeVariance: {default: 0.3},
+
+    // Wave speed and variance.
+    speed: {default: 1},
+    speedVariance: {default: 2},
+
+    // Material.
+    color: {default: '#7AD2F7', type: 'color'},
+    opacity: {default: 0.8}
+  },
+
+  /**
+   * Use play() instead of init(), because component mappings – unavailable as dependencies – are
+   * not guaranteed to have parsed when this component is initialized.
+   */
+  play: function () {
+    const el = this.el;
+    const data = this.data;
+    let material = el.components.material;
+
+    const geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
+    this.waves = [];
+    const posAttribute = geometry.getAttribute('position');
+    for (let i = 0; i < posAttribute.count; i++) {
+      this.waves.push({
+        z: posAttribute.getZ(i),
+        ang: Math.random() * Math.PI * 2,
+        amp: data.amplitude + Math.random() * data.amplitudeVariance,
+        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
+      });
+    }
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial({
+        color: data.color,
+        transparent: data.opacity < 1,
+        opacity: data.opacity,
+        flatShading: true,
+      });
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    el.setObject3D('mesh', this.mesh);
+  },
+
+  remove: function () {
+    this.el.removeObject3D('mesh');
+  },
+
+  tick: function (t, dt) {
+    if (!dt) return;
+
+    const posAttribute = this.mesh.geometry.getAttribute('position');
+    for (let i = 0; i < posAttribute.count; i++){
+      const vprops = this.waves[i];
+      const value = vprops.z + Math.sin(vprops.ang) * vprops.amp;
+      posAttribute.setZ(i, value);
+      vprops.ang += vprops.speed * dt;
+    }
+    posAttribute.needsUpdate = true;
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/primitives/a-tube.js"
+/*!**********************************!*\
+  !*** ./src/primitives/a-tube.js ***!
+  \**********************************/
+() {
+
+/**
+ * Tube following a custom path.
+ *
+ * Usage:
+ *
+ * ```html
+ * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
+ * ```
+ */
+AFRAME.registerPrimitive('a-tube', {
+  defaultComponents: {
+    tube:           {},
+  },
+  mappings: {
+    path:           'tube.path',
+    segments:       'tube.segments',
+    radius:         'tube.radius',
+    'radial-segments': 'tube.radialSegments',
+    closed:         'tube.closed'
+  }
+});
+
+AFRAME.registerComponent('tube', {
+  schema: {
+    path:           {default: []},
+    segments:       {default: 64},
+    radius:         {default: 1},
+    radialSegments: {default: 8},
+    closed:         {default: false}
+  },
+
+  init: function () {
+    const el = this.el,
+        data = this.data;
+    let material = el.components.material;
+
+    if (!data.path.length) {
+      console.error('[a-tube] `path` property expected but not found.');
+      return;
+    }
+
+    const curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
+      point = point.split(' ');
+      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
+    }));
+    const geometry = new THREE.TubeGeometry(
+      curve, data.segments, data.radius, data.radialSegments, data.closed
+    );
+
+    if (!material) {
+      material = {};
+      material.material = new THREE.MeshPhongMaterial();
+    }
+
+    this.mesh = new THREE.Mesh(geometry, material.material);
+    this.el.setObject3D('mesh', this.mesh);
+  },
+
+  update: function (prevData) {
+    if (!Object.keys(prevData).length) return;
+
+    this.remove();
+    this.init();
+  },
+
+  remove: function () {
+    if (this.mesh) this.el.removeObject3D('mesh');
+  }
+});
+
+
+/***/ },
+
+/***/ "./src/primitives/index.js"
+/*!*********************************!*\
+  !*** ./src/primitives/index.js ***!
+  \*********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _a_grid_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./a-grid.js */ "./src/primitives/a-grid.js");
+/* harmony import */ var _a_grid_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_a_grid_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _a_ocean_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./a-ocean.js */ "./src/primitives/a-ocean.js");
+/* harmony import */ var _a_ocean_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_a_ocean_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _a_tube_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./a-tube.js */ "./src/primitives/a-tube.js");
+/* harmony import */ var _a_tube_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_a_tube_js__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+
+
+/***/ },
+
+/***/ "three"
+/*!************************!*\
+  !*** external "THREE" ***!
+  \************************/
+(module) {
+
+"use strict";
+module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
+
+/***/ },
+
+/***/ "./node_modules/three/examples/jsm/curves/NURBSCurve.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/curves/NURBSCurve.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -909,13 +3764,13 @@ class NURBSCurve extends three__WEBPACK_IMPORTED_MODULE_0__.Curve {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/curves/NURBSUtils.js":
+/***/ "./node_modules/three/examples/jsm/curves/NURBSUtils.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/curves/NURBSUtils.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1462,13 +4317,13 @@ function calcVolumePoint( p, q, r, U, V, W, P, u, v, w, target ) {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/libs/fflate.module.js":
+/***/ "./node_modules/three/examples/jsm/libs/fflate.module.js"
 /*!***************************************************************!*\
   !*** ./node_modules/three/examples/jsm/libs/fflate.module.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4197,13 +7052,13 @@ function unzipSync(data, opts) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js":
+/***/ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js"
 /*!******************************************************************!*\
   !*** ./node_modules/three/examples/jsm/loaders/ColladaLoader.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8291,13 +11146,13 @@ class ColladaLoader extends three__WEBPACK_IMPORTED_MODULE_0__.Loader {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/loaders/FBXLoader.js":
+/***/ "./node_modules/three/examples/jsm/loaders/FBXLoader.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/loaders/FBXLoader.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8305,8 +11160,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   FBXLoader: () => (/* binding */ FBXLoader)
 /* harmony export */ });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "three");
-/* harmony import */ var _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../libs/fflate.module.js */ "./node_modules/three/examples/jsm/libs/fflate.module.js");
-/* harmony import */ var _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../curves/NURBSCurve.js */ "./node_modules/three/examples/jsm/curves/NURBSCurve.js");
+/* harmony import */ var _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../libs/fflate.module.js */ "./node_modules/three/examples/jsm/libs/fflate.module.js");
+/* harmony import */ var _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../curves/NURBSCurve.js */ "./node_modules/three/examples/jsm/curves/NURBSCurve.js");
 
 
 
@@ -9832,12 +12687,12 @@ class GeometryParser {
 			case 'Mesh':
 				return this.parseMeshGeometry( relationships, geoNode, deformers );
 				// removed by dead control flow
-{}
+
 
 			case 'NurbsCurve':
 				return this.parseNurbsGeometry( geoNode );
 				// removed by dead control flow
-{}
+
 
 		}
 
@@ -10695,7 +13550,7 @@ class GeometryParser {
 
 		}
 
-		const curve = new _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_1__.NURBSCurve( degree, knots, controlPoints, startKnot, endKnot );
+		const curve = new _curves_NURBSCurve_js__WEBPACK_IMPORTED_MODULE_2__.NURBSCurve( degree, knots, controlPoints, startKnot, endKnot );
 		const points = curve.getPoints( controlPoints.length * 12 );
 
 		return new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry().setFromPoints( points );
@@ -12001,7 +14856,7 @@ class BinaryParser {
 
 				}
 
-				const data = _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_2__.unzlibSync( new Uint8Array( reader.getArrayBuffer( compressedLength ) ) );
+				const data = _libs_fflate_module_js__WEBPACK_IMPORTED_MODULE_1__.unzlibSync( new Uint8Array( reader.getArrayBuffer( compressedLength ) ) );
 				const reader2 = new BinaryReader( data.buffer );
 
 				switch ( type ) {
@@ -12581,13 +15436,13 @@ function slice( a, b, from, to ) {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/three/examples/jsm/loaders/TGALoader.js":
+/***/ "./node_modules/three/examples/jsm/loaders/TGALoader.js"
 /*!**************************************************************!*\
   !*** ./node_modules/three/examples/jsm/loaders/TGALoader.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12961,7 +15816,7 @@ class TGALoader extends three__WEBPACK_IMPORTED_MODULE_0__.DataTextureLoader {
 					default:
 						throw new Error( 'THREE.TGALoader: Format not supported.' );
 						// removed by dead control flow
-{}
+
 
 				}
 
@@ -12988,7 +15843,7 @@ class TGALoader extends three__WEBPACK_IMPORTED_MODULE_0__.DataTextureLoader {
 					default:
 						throw new Error( 'THREE.TGALoader: Format not supported.' );
 						// removed by dead control flow
-{}
+
 
 				}
 
@@ -13113,2842 +15968,7 @@ class TGALoader extends three__WEBPACK_IMPORTED_MODULE_0__.DataTextureLoader {
 
 
 
-/***/ }),
-
-/***/ "./src/controls/checkpoint-controls.js":
-/*!*********************************************!*\
-  !*** ./src/controls/checkpoint-controls.js ***!
-  \*********************************************/
-/***/ (() => {
-
-const EPS = 0.1;
-
-AFRAME.registerComponent('checkpoint-controls', {
-  schema: {
-    enabled: {default: true},
-    mode: {default: 'teleport', oneOf: ['teleport', 'animate']},
-    animateSpeed: {default: 3.0}
-  },
-
-  init: function () {
-    this.active = true;
-    this.checkpoint = null;
-
-    this.isNavMeshConstrained = false;
-
-    this.offset = new THREE.Vector3();
-    this.position = new THREE.Vector3();
-    this.targetPosition = new THREE.Vector3();
-  },
-
-  play: function () { this.active = true; },
-  pause: function () { this.active = false; },
-
-  setCheckpoint: function (checkpoint) {
-    const el = this.el;
-
-    if (!this.active) return;
-    if (this.checkpoint === checkpoint) return;
-
-    if (this.checkpoint) {
-      el.emit('navigation-end', {checkpoint: this.checkpoint});
-    }
-
-    this.checkpoint = checkpoint;
-    this.sync();
-
-    // Ignore new checkpoint if we're already there.
-    if (this.position.distanceTo(this.targetPosition) < EPS) {
-      this.checkpoint = null;
-      return;
-    }
-
-    el.emit('navigation-start', {checkpoint: checkpoint});
-
-    if (this.data.mode === 'teleport') {
-      this.el.setAttribute('position', this.targetPosition);
-      this.checkpoint = null;
-      el.emit('navigation-end', {checkpoint: checkpoint});
-      el.components['movement-controls'].updateNavLocation();
-    }
-  },
-
-  isVelocityActive: function () {
-    return !!(this.active && this.checkpoint);
-  },
-
-  getVelocity: function () {
-    if (!this.active) return;
-
-    const data = this.data;
-    const offset = this.offset;
-    const position = this.position;
-    const targetPosition = this.targetPosition;
-    const checkpoint = this.checkpoint;
-
-    this.sync();
-    if (position.distanceTo(targetPosition) < EPS) {
-      this.checkpoint = null;
-      this.el.emit('navigation-end', {checkpoint: checkpoint});
-      return offset.set(0, 0, 0);
-    }
-    offset.setLength(data.animateSpeed);
-    return offset;
-  },
-
-  sync: function () {
-    const offset = this.offset;
-    const position = this.position;
-    const targetPosition = this.targetPosition;
-
-    position.copy(this.el.getAttribute('position'));
-    this.checkpoint.object3D.getWorldPosition(targetPosition);
-    targetPosition.add(this.checkpoint.components.checkpoint.getOffset());
-    offset.copy(targetPosition).sub(position);
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/controls/gamepad-controls.js":
-/*!******************************************!*\
-  !*** ./src/controls/gamepad-controls.js ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../lib/GamepadButton.js */ "./lib/GamepadButton.js");
-/* harmony import */ var _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../lib/GamepadButtonEvent.js */ "./lib/GamepadButtonEvent.js");
-/**
- * Gamepad controls for A-Frame.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-gamepad-controls
- *
- * For more information about the Gamepad API, see:
- * https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
- */
-
-
-
-
-const JOYSTICK_EPS = 0.2;
-
-const Hand = {
-  LEFT: 'left',
-  RIGHT: 'right'
-};
-
-const Joystick = {
-  MOVEMENT: 1,
-  ROTATION: 2
-};
-
-AFRAME.registerComponent('gamepad-controls', {
-
-  /*******************************************************************
-   * Statics
-   */
-
-  GamepadButton: _lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"],
-
-  /*******************************************************************
-   * Schema
-   */
-
-  schema: {
-    // Enable/disable gamepad-controls
-    enabled: { default: true },
-
-    // Rotation sensitivity
-    rotationSensitivity: { default: 2.0 },
-  },
-
-  /*******************************************************************
-   * Core
-   */
-
-  /**
-   * Called once when component is attached. Generally for initial setup.
-   */
-  init: function () {
-    const sceneEl = this.el.sceneEl;
-
-    // tracked-controls-webxr was renamed to tracked-controls in aframe 1.7.0
-    // tracked-controls-webxr is for aframe 1.6.0 and below
-    this.system = sceneEl.systems['tracked-controls'] || sceneEl.systems['tracked-controls-webxr'] || {controllers: []};
-
-    this.prevTime = window.performance.now();
-
-    // Button state
-    this.buttons = {};
-
-    // Rotation
-    const rotation = this.el.object3D.rotation;
-    this.pitch = new THREE.Object3D();
-    this.pitch.rotation.x = rotation.x;
-    this.yaw = new THREE.Object3D();
-    this.yaw.position.y = 10;
-    this.yaw.rotation.y = rotation.y;
-    this.yaw.add(this.pitch);
-
-    this._lookVector = new THREE.Vector2();
-    this._moveVector = new THREE.Vector2();
-    this._dpadVector = new THREE.Vector2();
-
-    sceneEl.addBehavior(this);
-  },
-
-  /**
-   * Called when component is attached and when component data changes.
-   * Generally modifies the entity based on the data.
-   */
-  update: function () { this.tick(); },
-
-  /**
-   * Called on each iteration of main render loop.
-   */
-  tick: function (t, dt) {
-    this.updateButtonState();
-    this.updateRotation(dt);
-  },
-
-  /**
-   * Called when a component is removed (e.g., via removeAttribute).
-   * Generally undoes all modifications to the entity.
-   */
-  remove: function () { },
-
-  /*******************************************************************
-   * Movement
-   */
-
-  isVelocityActive: function () {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    const dpad = this._dpadVector;
-    const joystick = this._moveVector;
-
-    this.getDpad(dpad);
-    this.getJoystick(Joystick.MOVEMENT, joystick);
-
-    const inputX = dpad.x || joystick.x;
-    const inputY = dpad.y || joystick.y;
-
-    return Math.abs(inputX) > JOYSTICK_EPS || Math.abs(inputY) > JOYSTICK_EPS;
-  },
-
-  getVelocityDelta: function () {
-    const dpad = this._dpadVector;
-    const joystick = this._moveVector;
-
-    this.getDpad(dpad);
-    this.getJoystick(Joystick.MOVEMENT, joystick);
-
-    const inputX = dpad.x || joystick.x;
-    const inputY = dpad.y || joystick.y;
-    const dVelocity = new THREE.Vector3();
-
-    if (Math.abs(inputX) > JOYSTICK_EPS) {
-      dVelocity.x += inputX;
-    }
-    if (Math.abs(inputY) > JOYSTICK_EPS) {
-      dVelocity.z += inputY;
-    }
-
-    return dVelocity;
-  },
-
-  /*******************************************************************
-   * Rotation
-   */
-
-  isRotationActive: function () {
-    if (!this.data.enabled || !this.isConnected()) return false;
-
-    const joystick = this._lookVector;
-
-    this.getJoystick(Joystick.ROTATION, joystick);
-
-    return Math.abs(joystick.x) > JOYSTICK_EPS || Math.abs(joystick.y) > JOYSTICK_EPS;
-  },
-
-  updateRotation: function (dt) {
-    if (!this.isRotationActive()) return;
-
-    const data = this.data;
-    const yaw = this.yaw;
-    const pitch = this.pitch;
-
-    // First copy camera rig pitch/yaw, it may have been changed from
-    // another component.
-    yaw.rotation.y = this.el.object3D.rotation.y;
-    pitch.rotation.x = this.el.object3D.rotation.x;
-
-    const lookVector = this._lookVector;
-
-    this.getJoystick(Joystick.ROTATION, lookVector);
-
-    if (Math.abs(lookVector.x) <= JOYSTICK_EPS) lookVector.x = 0;
-    if (Math.abs(lookVector.y) <= JOYSTICK_EPS) lookVector.y = 0;
-
-    lookVector.multiplyScalar(data.rotationSensitivity * dt / 1000);
-    yaw.rotation.y -= lookVector.x;
-    pitch.rotation.x -= lookVector.y;
-    pitch.rotation.x = Math.max(- Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
-    this.el.object3D.rotation.set(pitch.rotation.x, yaw.rotation.y, 0);
-  },
-
-  /*******************************************************************
-   * Button events
-   */
-
-  updateButtonState: function () {
-    const gamepad = this.getGamepad(Hand.RIGHT);
-    if (this.data.enabled && gamepad) {
-
-      // Fire DOM events for button state changes.
-      for (var i = 0; i < gamepad.buttons.length; i++) {
-        if (gamepad.buttons[i].pressed && !this.buttons[i]) {
-          this.emit(new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"]('gamepadbuttondown', i, gamepad.buttons[i]));
-        } else if (!gamepad.buttons[i].pressed && this.buttons[i]) {
-          this.emit(new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"]('gamepadbuttonup', i, gamepad.buttons[i]));
-        }
-        this.buttons[i] = gamepad.buttons[i].pressed;
-      }
-
-    } else {
-      // Reset state if controls are disabled or controller is lost.
-      for (const key in this.buttons) { this.buttons[key] = false; }
-    }
-  },
-
-  emit: function (event) {
-    // Emit original event.
-    this.el.emit(event.type, event);
-
-    // Emit convenience event, identifying button index.
-    this.el.emit(
-      event.type + ':' + event.index,
-      new _lib_GamepadButtonEvent_js__WEBPACK_IMPORTED_MODULE_1__["default"](event.type, event.index, event)
-    );
-  },
-
-  /*******************************************************************
-   * Gamepad state
-   */
-
-  /**
-   * Returns the Gamepad instance attached to the component. If connected,
-   * a proxy-controls component may provide access to Gamepad input from a
-   * remote device.
-   *
-   * @param {string} handPreference
-   * @return {Gamepad}
-   */
-  getGamepad: (function () {
-    const _xrGamepads = [];
-    const _empty = [];
-
-    return function (handPreference) {
-      // https://github.com/donmccurdy/aframe-proxy-controls
-      const proxyControls = this.el.sceneEl.components['proxy-controls'];
-      const proxyGamepad = proxyControls && proxyControls.isConnected()
-        && proxyControls.getGamepad(0);
-      if (proxyGamepad) return proxyGamepad;
-
-      // https://www.w3.org/TR/webxr/#dom-xrinputsource-handedness
-      _xrGamepads.length = 0;
-      for (let i = 0; i < this.system.controllers.length; i++) {
-        const xrController = this.system.controllers[i];
-        const xrGamepad = xrController ? xrController.gamepad : null;
-        _xrGamepads.push(xrGamepad);
-        if (xrGamepad && xrController.handedness === handPreference) return xrGamepad;
-      }
-
-      // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad/hand
-      const navGamepads = navigator.getGamepads ? navigator.getGamepads() : _empty;
-      for (let i = 0; i < navGamepads.length; i++) {
-        const navGamepad = navGamepads[i];
-        if (navGamepad && navGamepad.hand === handPreference) return navGamepad;
-      }
-
-      return _xrGamepads[0] || navGamepads[0];
-    };
-  })(),
-
-  /**
-   * Returns the state of the given button.
-   * @param  {number} index The button (0-N) for which to find state.
-   * @return {GamepadButton}
-   */
-  getButton: function (index) {
-    return this.getGamepad(Hand.RIGHT).buttons[index];
-  },
-
-  /**
-   * Returns state of the given axis. Axes are labelled 0-N, where 0-1 will
-   * represent X/Y on the first joystick, and 2-3 X/Y on the second.
-   * @param  {number} index The axis (0-N) for which to find state.
-   * @return {number} On the interval [-1,1].
-   */
-  getAxis: function (index) {
-    return this.getGamepad(index > 1 ? Hand.RIGHT : Hand.LEFT).axes[index];
-  },
-
-  /**
-   * Returns the state of the specified joystick as a THREE.Vector2.
-   * @param  {Joystick} role
-   * @param  {THREE.Vector2} target
-   * @return {THREE.Vector2}
-   */
-  getJoystick: function (index, target) {
-    const gamepad = this.getGamepad(index === Joystick.MOVEMENT ? Hand.LEFT : Hand.RIGHT);
-    // gamepad can be null here if it becomes disconnected even if isConnected() was called
-    // in the same tick before calling getJoystick.
-    if (!gamepad) {
-      return target.set(0, 0);
-    }
-    if (gamepad.mapping === 'xr-standard') {
-      // See: https://github.com/donmccurdy/aframe-extras/issues/307
-      switch (index) {
-        case Joystick.MOVEMENT: return target.set(gamepad.axes[2], gamepad.axes[3]);
-        case Joystick.ROTATION: return target.set(gamepad.axes[2], 0);
-      }
-    } else {
-      switch (index) {
-        case Joystick.MOVEMENT: return target.set(gamepad.axes[0], gamepad.axes[1]);
-        case Joystick.ROTATION: return target.set(gamepad.axes[2], gamepad.axes[3]);
-      }
-    }
-    throw new Error('Unexpected joystick index "%d".', index);
-  },
-
-  /**
-   * Returns the state of the dpad as a THREE.Vector2.
-   * @param {THREE.Vector2} target
-   * @return {THREE.Vector2}
-   */
-  getDpad: function (target) {
-    const gamepad = this.getGamepad(Hand.LEFT);
-    if (!gamepad) {
-      return target.set(0, 0);
-    }
-    if (!gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_RIGHT]) {
-      return target.set(0, 0);
-    }
-    return target.set(
-      (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_RIGHT].pressed ? 1 : 0)
-      + (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_LEFT].pressed ? -1 : 0),
-      (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_UP].pressed ? -1 : 0)
-      + (gamepad.buttons[_lib_GamepadButton_js__WEBPACK_IMPORTED_MODULE_0__["default"].DPAD_DOWN].pressed ? 1 : 0)
-    );
-  },
-
-  /**
-   * Returns true if the gamepad is currently connected to the system.
-   * @return {boolean}
-   */
-  isConnected: function () {
-    const gamepad = this.getGamepad(Hand.LEFT);
-    return !!(gamepad && gamepad.connected);
-  },
-
-  /**
-   * Returns a string containing some information about the controller. Result
-   * may vary across browsers, for a given controller.
-   * @return {string}
-   */
-  getID: function () {
-    return this.getGamepad(Hand.LEFT).id;
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/controls/index.js":
-/*!*******************************!*\
-  !*** ./src/controls/index.js ***!
-  \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkpoint-controls.js */ "./src/controls/checkpoint-controls.js");
-/* harmony import */ var _checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_checkpoint_controls_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gamepad_controls_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gamepad-controls.js */ "./src/controls/gamepad-controls.js");
-/* harmony import */ var _keyboard_controls_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./keyboard-controls.js */ "./src/controls/keyboard-controls.js");
-/* harmony import */ var _touch_controls_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./touch-controls.js */ "./src/controls/touch-controls.js");
-/* harmony import */ var _touch_controls_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_touch_controls_js__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _movement_controls_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./movement-controls.js */ "./src/controls/movement-controls.js");
-/* harmony import */ var _movement_controls_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_movement_controls_js__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./trackpad-controls.js */ "./src/controls/trackpad-controls.js");
-/* harmony import */ var _trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_trackpad_controls_js__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _nipple_controls_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./nipple-controls.js */ "./src/controls/nipple-controls.js");
-
-
-
-
-
-
-
-
-
-/***/ }),
-
-/***/ "./src/controls/keyboard-controls.js":
-/*!*******************************************!*\
-  !*** ./src/controls/keyboard-controls.js ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../lib/keyboard.polyfill.js */ "./lib/keyboard.polyfill.js");
-/* harmony import */ var _lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_lib_keyboard_polyfill_js__WEBPACK_IMPORTED_MODULE_0__);
-/* global AFRAME, THREE */
-/* eslint-disable no-prototype-builtins */
-
-
-const PROXY_FLAG = '__keyboard-controls-proxy';
-
-const KeyboardEvent = window.KeyboardEvent;
-
-/**
- * Keyboard Controls component.
- *
- * Stripped-down version of: https://github.com/donmccurdy/aframe-keyboard-controls
- *
- * Bind keyboard events to components, or control your entities with the WASD keys.
- *
- * Why use KeyboardEvent.code? "This is set to a string representing the key that was pressed to
- * generate the KeyboardEvent, without taking the current keyboard layout (e.g., QWERTY vs.
- * Dvorak), locale (e.g., English vs. French), or any modifier keys into account. This is useful
- * when you care about which physical key was pressed, rather thanwhich character it corresponds
- * to. For example, if you’re a writing a game, you might want a certain set of keys to move the
- * player in different directions, and that mapping should ideally be independent of keyboard
- * layout. See: https://developers.google.com/web/updates/2016/04/keyboardevent-keys-codes
- *
- * @namespace wasd-controls
- * keys the entity moves and if you release it will stop. Easing simulates friction.
- * to the entity when pressing the keys.
- * @param {bool} [enabled=true] - To completely enable or disable the controls
- */
-AFRAME.registerComponent('keyboard-controls', {
-  schema: {
-    enabled:           { default: true },
-    debug:             { default: false }
-  },
-
-  init: function () {
-    this.dVelocity = new THREE.Vector3();
-    this.localKeys = {};
-    this.listeners = {
-      keydown: this.onKeyDown.bind(this),
-      keyup: this.onKeyUp.bind(this),
-      blur: this.onBlur.bind(this),
-      onContextMenu: this.onContextMenu.bind(this),
-    };
-  },
-
-  /*******************************************************************
-  * Movement
-  */
-
-  isVelocityActive: function () {
-    return this.data.enabled && !!Object.keys(this.getKeys()).length;
-  },
-
-  getVelocityDelta: function () {
-    const data = this.data;
-    const keys = this.getKeys();
-
-    this.dVelocity.set(0, 0, 0);
-    if (data.enabled) {
-      if (keys.KeyW || keys.ArrowUp)    { this.dVelocity.z -= 1; }
-      if (keys.KeyA || keys.ArrowLeft)  { this.dVelocity.x -= 1; }
-      if (keys.KeyS || keys.ArrowDown)  { this.dVelocity.z += 1; }
-      if (keys.KeyD || keys.ArrowRight) { this.dVelocity.x += 1; }
-
-      // Move faster when the shift key is down.
-      if (keys.ShiftLeft) { this.dVelocity = this.dVelocity.multiplyScalar(2); }
-    }
-
-    return this.dVelocity.clone();
-  },
-
-  /*******************************************************************
-  * Events
-  */
-
-  play: function () {
-    this.attachEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-  },
-
-  attachEventListeners: function () {
-    window.addEventListener("contextmenu", this.listeners.onContextMenu, false);
-    window.addEventListener("keydown", this.listeners.keydown, false);
-    window.addEventListener("keyup", this.listeners.keyup, false);
-    window.addEventListener("blur", this.listeners.blur, false);
-  },
-
-  onContextMenu: function () {
-    for (const code in this.localKeys) {
-      if (this.localKeys.hasOwnProperty(code)) {
-        delete this.localKeys[code];
-      }
-    }
-  },
-
-  removeEventListeners: function () {
-    window.removeEventListener('keydown', this.listeners.keydown);
-    window.removeEventListener('keyup', this.listeners.keyup);
-    window.removeEventListener('blur', this.listeners.blur);
-  },
-
-  onKeyDown: function (event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      this.localKeys[event.code] = true;
-      this.emit(event);
-    }
-  },
-
-  onKeyUp: function (event) {
-    if (AFRAME.utils.shouldCaptureKeyEvent(event)) {
-      delete this.localKeys[event.code];
-      this.emit(event);
-    }
-  },
-
-  onBlur: function () {
-    for (const code in this.localKeys) {
-      if (this.localKeys.hasOwnProperty(code)) {
-        delete this.localKeys[code];
-      }
-    }
-  },
-
-  emit: function (event) {
-    // TODO - keydown only initially?
-    // TODO - where the f is the spacebar
-
-    // Emit original event.
-    if (PROXY_FLAG in event) {
-      // TODO - Method never triggered.
-      this.el.emit(event.type, event);
-    }
-
-    // Emit convenience event, identifying key.
-    this.el.emit(event.type + ':' + event.code, new KeyboardEvent(event.type, event));
-    if (this.data.debug) console.log(event.type + ':' + event.code);
-  },
-
-  /*******************************************************************
-  * Accessors
-  */
-
-  isPressed: function (code) {
-    return code in this.getKeys();
-  },
-
-  getKeys: function () {
-    if (this.isProxied()) {
-      return this.el.sceneEl.components['proxy-controls'].getKeyboard();
-    }
-    return this.localKeys;
-  },
-
-  isProxied: function () {
-    const proxyControls = this.el.sceneEl.components['proxy-controls'];
-    return proxyControls && proxyControls.isConnected();
-  }
-
-});
-
-
-/***/ }),
-
-/***/ "./src/controls/movement-controls.js":
-/*!*******************************************!*\
-  !*** ./src/controls/movement-controls.js ***!
-  \*******************************************/
-/***/ (() => {
-
-/**
- * Movement Controls
- *
- * @author Don McCurdy <dm@donmccurdy.com>
- */
-
-const COMPONENT_SUFFIX = '-controls';
-const MAX_DELTA = 0.2; // ms
-const EPS = 10e-6;
-const MOVED = 'moved';
-
-AFRAME.registerComponent('movement-controls', {
-
-  /*******************************************************************
-   * Schema
-   */
-
-  dependencies: ['rotation'],
-
-  schema: {
-    enabled:            { default: true },
-    controls:           { default: ['gamepad', 'trackpad', 'keyboard', 'touch'] },
-    speed:              { default: 0.3, min: 0 },
-    fly:                { default: false },
-    constrainToNavMesh: { default: false },
-    camera:             { default: '[movement-controls] [camera]', type: 'selector' }
-  },
-
-  /*******************************************************************
-   * Lifecycle
-   */
-
-  init: function () {
-    const el = this.el;
-    if (!this.data.camera) {
-      this.data.camera = el.querySelector('[camera]');
-    }
-    this.velocityCtrl = null;
-
-    this.velocity = new THREE.Vector3();
-    this.heading = new THREE.Quaternion();
-    this.eventDetail = {};
-
-    // Navigation
-    this.navGroup = null;
-    this.navNode = null;
-
-    if (el.sceneEl.hasLoaded) {
-      this.injectControls();
-    } else {
-      el.sceneEl.addEventListener('loaded', this.injectControls.bind(this));
-    }
-  },
-
-  update: function (prevData) {
-    const el = this.el;
-    const data = this.data;
-    const nav = el.sceneEl.systems.nav;
-    if (el.sceneEl.hasLoaded) {
-      this.injectControls();
-    }
-    if (nav && data.constrainToNavMesh !== prevData.constrainToNavMesh) {
-      data.constrainToNavMesh
-        ? nav.addAgent(this)
-        : nav.removeAgent(this);
-    }
-    if (data.enabled !== prevData.enabled) {
-      // Propagate the enabled change to all controls
-      for (let i = 0; i < data.controls.length; i++) {
-        const name = data.controls[i] + COMPONENT_SUFFIX;
-        this.el.setAttribute(name, { enabled: this.data.enabled });
-      }
-    }
-  },
-
-  injectControls: function () {
-    const data = this.data;
-
-    for (let i = 0; i < data.controls.length; i++) {
-      const name = data.controls[i] + COMPONENT_SUFFIX;
-      this.el.setAttribute(name, { enabled: this.data.enabled });
-    }
-  },
-
-  updateNavLocation: function () {
-    this.navGroup = null;
-    this.navNode = null;
-  },
-
-  /*******************************************************************
-   * Tick
-   */
-
-  tick: (function () {
-    const start = new THREE.Vector3();
-    const end = new THREE.Vector3();
-    const clampedEnd = new THREE.Vector3();
-
-    return function (t, dt) {
-      if (!dt) return;
-
-      const el = this.el;
-      const data = this.data;
-
-      if (!data.enabled) return;
-
-      this.updateVelocityCtrl();
-      const velocityCtrl = this.velocityCtrl;
-      const velocity = this.velocity;
-
-      if (!velocityCtrl) return;
-
-      // Update velocity. If FPS is too low, reset.
-      if (dt / 1000 > MAX_DELTA) {
-        velocity.set(0, 0, 0);
-      } else {
-        this.updateVelocity(dt);
-      }
-
-      if (data.constrainToNavMesh
-          && velocityCtrl.isNavMeshConstrained !== false) {
-
-        if (velocity.lengthSq() < EPS) return;
-
-        start.copy(el.object3D.position);
-        end
-          .copy(velocity)
-          .multiplyScalar(dt / 1000)
-          .add(start);
-
-        const nav = el.sceneEl.systems.nav;
-        this.navGroup = this.navGroup === null ? nav.getGroup(start) : this.navGroup;
-        this.navNode = this.navNode || nav.getNode(start, this.navGroup);
-        this.navNode = nav.clampStep(start, end, this.navGroup, this.navNode, clampedEnd);
-        el.object3D.position.copy(clampedEnd);
-      } else if (el.hasAttribute('velocity')) {
-        el.setAttribute('velocity', velocity);
-      } else {
-        el.object3D.position.x += velocity.x * dt / 1000;
-        el.object3D.position.y += velocity.y * dt / 1000;
-        el.object3D.position.z += velocity.z * dt / 1000;
-      }
-
-    };
-  }()),
-
-  /*******************************************************************
-   * Movement
-   */
-
-  updateVelocityCtrl: function () {
-    const data = this.data;
-    if (data.enabled) {
-      for (let i = 0, l = data.controls.length; i < l; i++) {
-        const control = this.el.components[data.controls[i] + COMPONENT_SUFFIX];
-        if (control && control.isVelocityActive()) {
-          this.velocityCtrl = control;
-          return;
-        }
-      }
-      this.velocityCtrl = null;
-    }
-  },
-
-  updateVelocity: (function () {
-    const vector2 = new THREE.Vector2();
-    const quaternion = new THREE.Quaternion();
-
-    return function (dt) {
-      let dVelocity;
-      const el = this.el;
-      const control = this.velocityCtrl;
-      const velocity = this.velocity;
-      const data = this.data;
-
-      if (control) {
-        if (control.getVelocityDelta) {
-          dVelocity = control.getVelocityDelta(dt);
-        } else if (control.getVelocity) {
-          velocity.copy(control.getVelocity());
-          return;
-        } else if (control.getPositionDelta) {
-          velocity.copy(control.getPositionDelta(dt).multiplyScalar(1000 / dt));
-          return;
-        } else {
-          throw new Error('Incompatible movement controls: ', control);
-        }
-      }
-
-      if (el.hasAttribute('velocity') && !data.constrainToNavMesh) {
-        velocity.copy(this.el.getAttribute('velocity'));
-      }
-
-      if (dVelocity && data.enabled) {
-        const cameraEl = data.camera;
-
-        // Rotate to heading
-        quaternion.copy(cameraEl.object3D.quaternion);
-        quaternion.premultiply(el.object3D.quaternion);
-        dVelocity.applyQuaternion(quaternion);
-
-        const factor = dVelocity.length();
-        if (data.fly) {
-          velocity.copy(dVelocity);
-          velocity.multiplyScalar(this.data.speed * 16.66667);
-        } else {
-          vector2.set(dVelocity.x, dVelocity.z);
-          vector2.setLength(factor * this.data.speed * 16.66667);
-          velocity.x = vector2.x;
-          velocity.y = 0;
-          velocity.z = vector2.y;
-        }
-        if (velocity.x !== 0 || velocity.y !== 0 || velocity.z !== 0) {
-          this.eventDetail.velocity = velocity;
-          this.el.emit(MOVED, this.eventDetail);
-        }
-      }
-    };
-
-  }())
-});
-
-
-/***/ }),
-
-/***/ "./src/controls/nipple-controls.js":
-/*!*****************************************!*\
-  !*** ./src/controls/nipple-controls.js ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var nipplejs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! nipplejs */ "./node_modules/nipplejs/dist/nipplejs.js");
-/* harmony import */ var nipplejs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(nipplejs__WEBPACK_IMPORTED_MODULE_0__);
-/* global AFRAME, THREE */
-
-
-AFRAME.registerComponent("nipple-controls", {
-  schema: {
-    enabled: { default: true },
-    mode: { default: "dynamic", oneOf: ["static", "semi", "dynamic"] },
-    rotationSensitivity: { default: 1.0 },
-    moveJoystickEnabled: { default: true },
-    lookJoystickEnabled: { default: true },
-    sideMargin: { default: "30px" },
-    bottomMargin: { default: "70px" },
-    moveJoystickPosition: { default: "left", oneOf: ["left", "right"] },
-    lookJoystickPosition: { default: "right", oneOf: ["left", "right"] },
-  },
-
-  init() {
-    this.dVelocity = new THREE.Vector3();
-    this.lookVector = new THREE.Vector2();
-    const lookControls = this.el.querySelector("[look-controls]").components["look-controls"];
-    this.pitchObject = lookControls.pitchObject;
-    this.yawObject = lookControls.yawObject;
-    this.rigRotation = this.el.object3D.rotation;
-    this.moveData = undefined;
-    this.lookData = undefined;
-    this.moving = false;
-    this.rotating = false;
-  },
-
-  update(oldData) {
-    if (
-      this.data.moveJoystickPosition !== oldData.moveJoystickPosition ||
-      this.data.sideMargin !== oldData.sideMargin ||
-      this.data.bottomMargin !== oldData.bottomMargin ||
-      this.data.mode !== oldData.mode
-    ) {
-      this.removeMoveJoystick();
-    }
-    if (
-      this.data.lookJoystickPosition !== oldData.lookJoystickPosition ||
-      this.data.sideMargin !== oldData.sideMargin ||
-      this.data.bottomMargin !== oldData.bottomMargin ||
-      this.data.mode !== oldData.mode
-    ) {
-      this.removeLookJoystick();
-    }
-    if (this.data.enabled && this.data.moveJoystickEnabled) {
-      this.createMoveJoystick();
-    } else {
-      this.removeMoveJoystick();
-    }
-    if (this.data.enabled && this.data.lookJoystickEnabled) {
-      this.createLookJoystick();
-    } else {
-      this.removeLookJoystick();
-    }
-  },
-
-  pause() {
-    this.moving = false;
-    this.rotating = false;
-  },
-
-  remove() {
-    this.removeMoveJoystick();
-    this.removeLookJoystick();
-  },
-
-  isVelocityActive() {
-    return this.data.enabled && this.moving;
-  },
-
-  getVelocityDelta() {
-    this.dVelocity.set(0, 0, 0);
-    if (this.isVelocityActive()) {
-      const force = this.moveData.force < 1 ? this.moveData.force : 1;
-      const angle = this.moveData.angle.radian;
-      const x = Math.cos(angle) * force;
-      const z = -Math.sin(angle) * force;
-      this.dVelocity.set(x, 0, z);
-    }
-    return this.dVelocity; // We don't do a clone() here, the Vector3 will be modified by the calling code but that's fine.
-  },
-
-  isRotationActive() {
-    return this.data.enabled && this.rotating;
-  },
-
-  updateRotation(dt) {
-    if (!this.isRotationActive()) return;
-
-    const force = this.lookData.force < 1 ? this.lookData.force : 1;
-    const angle = this.lookData.angle.radian;
-    const lookVector = this.lookVector;
-    lookVector.x = Math.cos(angle) * force;
-    lookVector.y = Math.sin(angle) * force;
-    lookVector.multiplyScalar((this.data.rotationSensitivity * dt) / 1000);
-
-    this.yawObject.rotation.y -= lookVector.x;
-    let x = this.pitchObject.rotation.x + lookVector.y;
-    x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, x));
-    this.pitchObject.rotation.x = x;
-  },
-
-  tick: function (t, dt) {
-    this.updateRotation(dt);
-  },
-
-  initLeftZone() {
-    const leftZone = document.createElement("div");
-    leftZone.setAttribute("id", "joystickLeftZone");
-    leftZone.setAttribute(
-      "style",
-      `position:absolute;${this.data.moveJoystickPosition}:${this.data.sideMargin};bottom:${this.data.bottomMargin};z-index:1`
-    );
-    this.el.sceneEl.appendChild(leftZone);
-    this.leftZone = leftZone;
-  },
-
-  initRightZone() {
-    const rightZone = document.createElement("div");
-    rightZone.setAttribute("id", "joystickRightZone");
-    rightZone.setAttribute(
-      "style",
-      `position:absolute;${this.data.lookJoystickPosition}:${this.data.sideMargin};bottom:${this.data.bottomMargin};z-index:1`
-    );
-    this.el.sceneEl.appendChild(rightZone);
-    this.rightZone = rightZone;
-  },
-
-  createMoveJoystick() {
-    if (this.moveJoystick) return;
-    this.initLeftZone();
-    const options = {
-      mode: this.data.mode,
-      zone: this.leftZone,
-      color: "white",
-      fadeTime: 0,
-    };
-    this.leftZone.style.width = "100px";
-    if (this.data.mode === "static") {
-      this.leftZone.style.height = "100px";
-      options.position = { left: "50%", bottom: "50%" };
-    } else {
-      this.leftZone.style.height = "400px";
-    }
-
-    this.moveJoystick = nipplejs__WEBPACK_IMPORTED_MODULE_0___default().create(options);
-    this.moveJoystick.on("move", (evt, data) => {
-      this.moveData = data;
-      this.moving = true;
-    });
-    this.moveJoystick.on("end", (evt, data) => {
-      this.moving = false;
-    });
-  },
-
-  createLookJoystick() {
-    if (this.lookJoystick) return;
-    this.initRightZone();
-    const options = {
-      mode: this.data.mode,
-      zone: this.rightZone,
-      color: "white",
-      fadeTime: 0,
-    };
-    this.rightZone.style.width = "100px";
-    if (this.data.mode === "static") {
-      this.rightZone.style.height = "100px";
-      options.position = { left: "50%", bottom: "50%" };
-    } else {
-      this.rightZone.style.height = "400px";
-    }
-
-    this.lookJoystick = nipplejs__WEBPACK_IMPORTED_MODULE_0___default().create(options);
-    this.lookJoystick.on("move", (evt, data) => {
-      this.lookData = data;
-      this.rotating = true;
-    });
-    this.lookJoystick.on("end", (evt, data) => {
-      this.rotating = false;
-    });
-  },
-
-  removeMoveJoystick() {
-    if (this.moveJoystick) {
-      this.moveJoystick.destroy();
-      this.moveJoystick = undefined;
-    }
-
-    this.moveData = undefined;
-
-    if (this.leftZone && this.leftZone.parentNode) {
-      this.leftZone.remove();
-      this.leftZone = undefined;
-    }
-  },
-
-  removeLookJoystick() {
-    if (this.lookJoystick) {
-      this.lookJoystick.destroy();
-      this.lookJoystick = undefined;
-    }
-
-    this.lookData = undefined;
-
-    if (this.rightZone && this.rightZone.parentNode) {
-      this.rightZone.remove();
-      this.rightZone = undefined;
-    }
-  },
-});
-
-
-/***/ }),
-
-/***/ "./src/controls/touch-controls.js":
-/*!****************************************!*\
-  !*** ./src/controls/touch-controls.js ***!
-  \****************************************/
-/***/ (() => {
-
-/**
- * Touch-to-move-forward controls for mobile.
- */
-AFRAME.registerComponent('touch-controls', {
-  schema: {
-    enabled: { default: true },
-    reverseEnabled: { default: true }
-  },
-
-  init: function () {
-    this.dVelocity = new THREE.Vector3();
-    this.bindMethods();
-    this.direction = 0;
-  },
-
-  play: function () {
-    this.addEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-    this.dVelocity.set(0, 0, 0);
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  addEventListeners: function () {
-    const sceneEl = this.el.sceneEl;
-    const canvasEl = sceneEl.canvas;
-
-    if (!canvasEl) {
-      sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-      return;
-    }
-
-    canvasEl.addEventListener('touchstart', this.onTouchStart, {passive: true});
-    canvasEl.addEventListener('touchend', this.onTouchEnd, {passive: true});
-    const vrModeUI = sceneEl.getAttribute('vr-mode-ui');
-    if (vrModeUI && vrModeUI.cardboardModeEnabled) {
-      sceneEl.addEventListener('enter-vr', this.onEnterVR);
-    }
-  },
-
-  removeEventListeners: function () {
-    const canvasEl = this.el.sceneEl && this.el.sceneEl.canvas;
-    if (!canvasEl) { return; }
-
-    canvasEl.removeEventListener('touchstart', this.onTouchStart);
-    canvasEl.removeEventListener('touchend', this.onTouchEnd);
-    this.el.sceneEl.removeEventListener('enter-vr', this.onEnterVR)
-  },
-
-  isVelocityActive: function () {
-    return this.data.enabled && !!this.direction;
-  },
-
-  getVelocityDelta: function () {
-    this.dVelocity.z = this.direction;
-    return this.dVelocity.clone();
-  },
-
-  bindMethods: function () {
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-    this.onEnterVR = this.onEnterVR.bind(this);
-  },
-
-  onTouchStart: function (e) {
-    this.direction = -1;
-    if (this.data.reverseEnabled && e.touches && e.touches.length === 2) {
-      this.direction = 1;
-    }
-    e.preventDefault();
-  },
-
-  onTouchEnd: function (e) {
-    this.direction = 0;
-    e.preventDefault();
-  },
-
-  onEnterVR: function () {
-    // This is to make the Cardboard button on Chrome Android working
-    const xrSession = this.el.sceneEl.xrSession;
-    if (!xrSession) { return; }
-    xrSession.addEventListener('selectstart', this.onTouchStart);
-    xrSession.addEventListener('selectend', this.onTouchEnd);
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/controls/trackpad-controls.js":
-/*!*******************************************!*\
-  !*** ./src/controls/trackpad-controls.js ***!
-  \*******************************************/
-/***/ (() => {
-
-/**
- * 3dof (Gear VR, Daydream) controls for mobile.
- */
-AFRAME.registerComponent('trackpad-controls', {
-  schema: {
-    enabled: { default: true },
-    enableNegX: { default: true },
-    enablePosX: { default: true },
-    enableNegZ: { default: true },
-    enablePosZ: { default: true },
-    mode: { default: 'touch', oneOf: ['swipe', 'touch', 'press'] }
-
-  },
-
-  init: function () {
-    this.dVelocity = new THREE.Vector3();
-    this.zVel      = 0;
-    this.xVel      = 0;
-    this.bindMethods();
-  },
-
-  play: function () {
-    this.addEventListeners();
-  },
-
-  pause: function () {
-    this.removeEventListeners();
-    this.dVelocity.set(0, 0, 0);
-  },
-
-  remove: function () {
-    this.pause();
-  },
-
-  addEventListeners: function () {
-    const data = this.data;
-    const sceneEl = this.el.sceneEl;
-
-    sceneEl.addEventListener('axismove', this.onAxisMove);
-
-    switch (data.mode) {
-      case 'swipe':
-      case 'touch':
-        sceneEl.addEventListener('trackpadtouchstart', this.onTouchStart);
-        sceneEl.addEventListener('trackpadtouchend', this.onTouchEnd);
-        break;
-
-      case 'press':
-        sceneEl.addEventListener('trackpaddown', this.onTouchStart);
-        sceneEl.addEventListener('trackpadup', this.onTouchEnd);
-        break;
-    }
-
-  },
-
-  removeEventListeners: function () {
-    const sceneEl = this.el.sceneEl;
-
-    sceneEl.removeEventListener('axismove', this.onAxisMove);
-    sceneEl.removeEventListener('trackpadtouchstart', this.onTouchStart);
-    sceneEl.removeEventListener('trackpadtouchend', this.onTouchEnd);
-    sceneEl.removeEventListener('trackpaddown', this.onTouchStart);
-    sceneEl.removeEventListener('trackpadup', this.onTouchEnd);
-  },
-
-  isVelocityActive: function () {
-    return this.data.enabled && this.isMoving;
-  },
-
-  getVelocityDelta: function () {
-    this.dVelocity.z = this.isMoving ? -this.zVel : 1;
-    this.dVelocity.x = this.isMoving ? this.xVel : 1;
-    return this.dVelocity.clone();
-  },
-
-  bindMethods: function () {
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-    this.onAxisMove = this.onAxisMove.bind(this);
-  },
-
-  onTouchStart: function (e) {
-    switch(this.data.mode){
-      case 'swipe':
-        this.canRecordAxis = true;
-        this.startingAxisData = [];
-        break;
-      case 'touch':
-        this.isMoving = true;
-        break;
-      case 'press':
-        this.isMoving = true;
-        break;
-    }
-
-    e.preventDefault();
-  },
-
-  onTouchEnd: function (e) {
-    if(this.data.mode == 'swipe') {
-        this.startingAxisData = [];
-    }
-
-    this.isMoving = false;
-    e.preventDefault();
-  },
-
-  onAxisMove: function(e){
-    switch (this.data.mode) {
-      case 'swipe':
-        return this.handleSwipeAxis(e);
-      case 'touch':
-      case 'press':
-        return this.handleTouchAxis(e);
-    }
-  },
-
-  handleSwipeAxis: function(e) {
-    const data = this.data;
-    const axisData = e.detail.axis;
-
-    if(this.startingAxisData.length === 0 && this.canRecordAxis){
-      this.canRecordAxis = false;
-      this.startingAxisData[0] = axisData[0];
-      this.startingAxisData[1] = axisData[1];
-    }
-
-    if(this.startingAxisData.length > 0){
-      let velX = 0;
-      let velZ = 0;
-
-      if (data.enableNegX && axisData[0] < this.startingAxisData[0]) {
-        velX = -1;
-      }
-
-      if (data.enablePosX && axisData[0] > this.startingAxisData[0]) {
-        velX = 1;
-      }
-
-      if (data.enablePosZ && axisData[1] > this.startingAxisData[1]) {
-        velZ = -1;
-      }
-
-      if (data.enableNegZ && axisData[1] < this.startingAxisData[1]) {
-        velZ = 1;
-      }
-
-      const absChangeZ  = Math.abs(this.startingAxisData[1] - axisData[1]);
-      const absChangeX  = Math.abs(this.startingAxisData[0] - axisData[0]);
-
-      if (absChangeX > absChangeZ) {
-        this.zVel = 0;
-        this.xVel = velX;
-        this.isMoving = true;
-      } else {
-        this.xVel = 0;
-        this.zVel = velZ;
-        this.isMoving = true;
-      }
-
-    }
-  },
-
-  handleTouchAxis: function(e) {
-    const data = this.data;
-    const axisData = e.detail.axis;
-
-    let velX = 0;
-    let velZ = 0;
-
-    if (data.enableNegX && axisData[0] < 0) {
-      velX = -1;
-    }
-
-    if (data.enablePosX && axisData[0] > 0) {
-      velX = 1;
-    }
-
-    if (data.enablePosZ && axisData[1] > 0) {
-      velZ = -1;
-    }
-
-    if (data.enableNegZ && axisData[1] < 0) {
-      velZ = 1;
-    }
-
-    if (Math.abs(axisData[0]) > Math.abs(axisData[1])) {
-      this.zVel = 0;
-      this.xVel = velX;
-    } else {
-      this.xVel = 0;
-      this.zVel = velZ;
-    }
-
-  }
-
-});
-
-
-
-/***/ }),
-
-/***/ "./src/loaders/animation-mixer.js":
-/*!****************************************!*\
-  !*** ./src/loaders/animation-mixer.js ***!
-  \****************************************/
-/***/ (() => {
-
-const LoopMode = {
-  once: THREE.LoopOnce,
-  repeat: THREE.LoopRepeat,
-  pingpong: THREE.LoopPingPong
-};
-
-/**
- * animation-mixer
- *
- * Player for animation clips. Intended to be compatible with any model format that supports
- * skeletal or morph animations through THREE.AnimationMixer.
- * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
- */
-AFRAME.registerComponent('animation-mixer', {
-  schema: {
-    clip: { default: '*' },
-    useRegExp: {default: false},
-    duration: { default: 0 },
-    clampWhenFinished: { default: false, type: 'boolean' },
-    crossFadeDuration: { default: 0 },
-    loop: { default: 'repeat', oneOf: Object.keys(LoopMode) },
-    repetitions: { default: Infinity, min: 0 },
-    timeScale: { default: 1 },
-    startAt: { default: 0 }
-  },
-
-  init: function () {
-    /** @type {THREE.Mesh} */
-    this.model = null;
-    /** @type {THREE.AnimationMixer} */
-    this.mixer = null;
-    /** @type {Array<THREE.AnimationAction>} */
-    this.activeActions = [];
-
-    const model = this.el.getObject3D('mesh');
-
-    if (model) {
-      this.load(model);
-    } else {
-      this.el.addEventListener('model-loaded', (e) => {
-        this.load(e.detail.model);
-      });
-    }
-  },
-
-  load: function (model) {
-    const el = this.el;
-    this.model = model;
-    this.mixer = new THREE.AnimationMixer(model);
-    this.mixer.addEventListener('loop', (e) => {
-      el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
-    });
-    this.mixer.addEventListener('finished', (e) => {
-      el.emit('animation-finished', { action: e.action, direction: e.direction });
-    });
-    if (this.data.clip) this.update({});
-  },
-
-  remove: function () {
-    if (this.mixer) this.mixer.stopAllAction();
-  },
-
-  update: function (prevData) {
-    if (!prevData) return;
-
-    const data = this.data;
-    const changes = AFRAME.utils.diff(data, prevData);
-
-    // If selected clips have changed, restart animation.
-    if ('clip' in changes) {
-      this.stopAction();
-      if (data.clip) this.playAction();
-      return;
-    }
-
-    // Otherwise, modify running actions.
-    this.activeActions.forEach((action) => {
-      if ('duration' in changes && data.duration) {
-        action.setDuration(data.duration);
-      }
-      if ('clampWhenFinished' in changes) {
-        action.clampWhenFinished = data.clampWhenFinished;
-      }
-      if ('loop' in changes || 'repetitions' in changes) {
-        action.setLoop(LoopMode[data.loop], data.repetitions);
-      }
-      if ('timeScale' in changes) {
-        action.setEffectiveTimeScale(data.timeScale);
-      }
-    });
-  },
-
-  stopAction: function () {
-    const data = this.data;
-    for (let i = 0; i < this.activeActions.length; i++) {
-      data.crossFadeDuration
-        ? this.activeActions[i].fadeOut(data.crossFadeDuration)
-        : this.activeActions[i].stop();
-    }
-    this.activeActions.length = 0;
-  },
-
-  playAction: function () {
-    if (!this.mixer) return;
-
-    const model = this.model,
-      data = this.data,
-      clips = model.animations || (model.geometry || {}).animations || [];
-
-    if (!clips.length) return;
-
-    const re = data.useRegExp ? data.clip : wildcardToRegExp(data.clip);
-
-    for (let clip, i = 0; (clip = clips[i]); i++) {
-      if (clip.name.match(re)) {
-        const action = this.mixer.clipAction(clip, model);
-
-        action.enabled = true;
-        action.clampWhenFinished = data.clampWhenFinished;
-        if (data.duration) action.setDuration(data.duration);
-        if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
-        // animation-mixer.startAt and AnimationAction.startAt have very different meanings.
-        // animation-mixer.startAt indicates which frame in the animation to start at, in msecs.
-        // AnimationAction.startAt indicates when to start the animation (from the 1st frame),
-        // measured in global mixer time, in seconds.
-        action.startAt(this.mixer.time - data.startAt / 1000);
-        action
-          .setLoop(LoopMode[data.loop], data.repetitions)
-          .fadeIn(data.crossFadeDuration)
-          .play();
-        this.activeActions.push(action);
-      }
-    }
-  },
-
-  tick: function (t, dt) {
-    if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
-  }
-});
-
-/**
- * Creates a RegExp from the given string, converting asterisks to .* expressions,
- * and escaping all other characters.
- */
-function wildcardToRegExp(s) {
-  return new RegExp('^' + s.split(/\*+/).map(regExpEscape).join('.*') + '$');
-}
-
-/**
- * RegExp-escapes all characters in the given string.
- */
-function regExpEscape(s) {
-  return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
-}
-
-
-/***/ }),
-
-/***/ "./src/loaders/collada-model-legacy.js":
-/*!*********************************************!*\
-  !*** ./src/loaders/collada-model-legacy.js ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/ColladaLoader.js */ "./node_modules/three/examples/jsm/loaders/ColladaLoader.js");
-
-THREE.ColladaLoader = three_addons_loaders_ColladaLoader_js__WEBPACK_IMPORTED_MODULE_0__.ColladaLoader;
-
-/**
- * collada-model-legacy
- *
- * Loader for COLLADA (.dae) format.
- */
-AFRAME.registerComponent('collada-model-legacy', {
-  schema: {type: 'asset'},
-
-  init: function () {
-    this.model = null;
-    this.loader = new THREE.ColladaLoader();
-  },
-
-  update: function () {
-    var self = this;
-    var el = this.el;
-    var src = this.data;
-    var rendererSystem = this.el.sceneEl.systems.renderer;
-
-    if (!src) { return; }
-
-    this.remove();
-
-    this.loader.load(src, function (colladaModel) {
-      self.model = colladaModel.scene;
-      self.model.traverse(function (object) {
-        if (object.isMesh) {
-          var material = object.material;
-          if (material.color) rendererSystem.applyColorCorrection(material.color);
-          if (material.map) rendererSystem.applyColorCorrection(material.map);
-          if (material.emissive) rendererSystem.applyColorCorrection(material.emissive);
-          if (material.emissiveMap) rendererSystem.applyColorCorrection(material.emissiveMap);
-        }
-      });
-      el.setObject3D('mesh', self.model);
-      el.emit('model-loaded', {format: 'collada', model: self.model});
-    });
-  },
-
-  remove: function () {
-    if (!this.model) { return; }
-    this.el.removeObject3D('mesh');
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/loaders/fbx-model.js":
-/*!**********************************!*\
-  !*** ./src/loaders/fbx-model.js ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/addons/loaders/FBXLoader.js */ "./node_modules/three/examples/jsm/loaders/FBXLoader.js");
-
-THREE.FBXLoader = three_addons_loaders_FBXLoader_js__WEBPACK_IMPORTED_MODULE_0__.FBXLoader;
-
-/**
- * fbx-model
- *
- * Loader for FBX format.
- */
-AFRAME.registerComponent('fbx-model', {
-  schema: {
-    src:         { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    const data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    const loader = new THREE.FBXLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, this.load.bind(this));
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'fbx', model: model});
-  },
-
-  remove: function () {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/loaders/index.js":
-/*!******************************!*\
-  !*** ./src/loaders/index.js ***!
-  \******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _animation_mixer_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./animation-mixer.js */ "./src/loaders/animation-mixer.js");
-/* harmony import */ var _animation_mixer_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_animation_mixer_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _collada_model_legacy_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./collada-model-legacy.js */ "./src/loaders/collada-model-legacy.js");
-/* harmony import */ var _fbx_model_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./fbx-model.js */ "./src/loaders/fbx-model.js");
-/* harmony import */ var _object_model_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./object-model.js */ "./src/loaders/object-model.js");
-/* harmony import */ var _object_model_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_object_model_js__WEBPACK_IMPORTED_MODULE_3__);
-
-
-
-
-
-
-/***/ }),
-
-/***/ "./src/loaders/object-model.js":
-/*!*************************************!*\
-  !*** ./src/loaders/object-model.js ***!
-  \*************************************/
-/***/ (() => {
-
-/**
- * object-model
- *
- * Loader for THREE.js JSON format. Somewhat confusingly, there are two different THREE.js formats,
- * both having the .json extension. This loader supports only THREE.ObjectLoader, which typically
- * includes multiple meshes or an entire scene.
- *
- * Check the console for errors, if in doubt. You may need to use `json-model` or
- * `blend-character-model` for some .js and .json files.
- *
- * See: https://clara.io/learn/user-guide/data_exchange/threejs_export
- */
-AFRAME.registerComponent('object-model', {
-  schema: {
-    src:         { type: 'asset' },
-    crossorigin: { default: '' }
-  },
-
-  init: function () {
-    this.model = null;
-  },
-
-  update: function () {
-    let loader;
-    const data = this.data;
-    if (!data.src) return;
-
-    this.remove();
-    loader = new THREE.ObjectLoader();
-    if (data.crossorigin) loader.setCrossOrigin(data.crossorigin);
-    loader.load(data.src, (object) => {
-
-      // Enable skinning, if applicable.
-      object.traverse((o) => {
-        if (o instanceof THREE.SkinnedMesh && o.material) {
-          o.material.skinning = !!((o.geometry && o.geometry.bones) || []).length;
-        }
-      });
-
-      this.load(object);
-    });
-  },
-
-  load: function (model) {
-    this.model = model;
-    this.el.setObject3D('mesh', model);
-    this.el.emit('model-loaded', {format: 'json', model: model});
-  },
-
-  remove: function () {
-    if (this.model) this.el.removeObject3D('mesh');
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/misc/checkpoint.js":
-/*!********************************!*\
-  !*** ./src/misc/checkpoint.js ***!
-  \********************************/
-/***/ (() => {
-
-AFRAME.registerComponent('checkpoint', {
-  schema: {
-    offset: {default: {x: 0, y: 0, z: 0}, type: 'vec3'}
-  },
-
-  init: function () {
-    this.active = false;
-    this.targetEl = null;
-    this.fire = this.fire.bind(this);
-    this.offset = new THREE.Vector3();
-  },
-
-  update: function () {
-    this.offset.copy(this.data.offset);
-  },
-
-  play: function () { this.el.addEventListener('click', this.fire); },
-  pause: function () { this.el.removeEventListener('click', this.fire); },
-  remove: function () { this.pause(); },
-
-  fire: function () {
-    const targetEl = this.el.sceneEl.querySelector('[checkpoint-controls]');
-    if (!targetEl) {
-      throw new Error('No `checkpoint-controls` component found.');
-    }
-    targetEl.components['checkpoint-controls'].setCheckpoint(this.el);
-  },
-
-  getOffset: function () {
-    return this.offset.copy(this.data.offset);
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/misc/cube-env-map.js":
-/*!**********************************!*\
-  !*** ./src/misc/cube-env-map.js ***!
-  \**********************************/
-/***/ (() => {
-
-/**
- * @param  {Array<THREE.Material>|THREE.Material} material
- * @return {Array<THREE.Material>}
- */
-function ensureMaterialArray (material) {
-  if (!material) {
-    return [];
-  } else if (Array.isArray(material)) {
-    return material;
-  } else if (material.materials) {
-    return material.materials;
-  } else {
-    return [material];
-  }
-}
-
-/**
- * @param  {THREE.Object3D} mesh
- * @param  {Array<string>} materialNames
- * @param  {THREE.Texture} envMap
- * @param  {number} reflectivity  [description]
- */
-function applyEnvMap (mesh, materialNames, envMap, reflectivity) {
-  if (!mesh) return;
-
-  materialNames = materialNames || [];
-
-  mesh.traverse((node) => {
-
-    if (!node.isMesh) return;
-
-    const meshMaterials = ensureMaterialArray(node.material);
-
-    meshMaterials.forEach((material) => {
-
-      if (material && !('envMap' in material)) return;
-      if (materialNames.length && materialNames.indexOf(material.name) === -1) return;
-
-      material.envMap = envMap;
-      material.reflectivity = reflectivity;
-      material.needsUpdate = true;
-
-    });
-
-  });
-}
-
-/**
- * Specifies an envMap on an entity, without replacing any existing material
- * properties.
- */
-AFRAME.registerComponent('cube-env-map', {
-  multiple: true,
-
-  schema: {
-    path: {default: ''},
-    extension: {default: 'jpg', oneOf: ['jpg', 'png']},
-    enableBackground: {default: false},
-    reflectivity: {default: 1, min: 0, max: 1},
-    materials: {default: []}
-  },
-
-  init: function () {
-    const data = this.data;
-
-    this.texture = new THREE.CubeTextureLoader().load([
-      data.path + 'posx.' + data.extension, data.path + 'negx.' + data.extension,
-      data.path + 'posy.' + data.extension, data.path + 'negy.' + data.extension,
-      data.path + 'posz.' + data.extension, data.path + 'negz.' + data.extension
-    ]);
-    this.texture.format = THREE.RGBAFormat;
-
-    this.object3dsetHandler = () => {
-      const mesh = this.el.getObject3D('mesh');
-      const data = this.data;
-      applyEnvMap(mesh, data.materials, this.texture, data.reflectivity);
-    };
-
-    this.object3dsetHandler();
-    this.el.addEventListener('object3dset', this.object3dsetHandler);
-    
-  },
-
-  update: function (oldData) {
-    const data = this.data;
-    const mesh = this.el.getObject3D('mesh');
-
-    let addedMaterialNames = [];
-    let removedMaterialNames = [];
-
-    if (data.materials.length) {
-      if (oldData.materials) {
-        addedMaterialNames = data.materials.filter((name) => !oldData.materials.includes(name));
-        removedMaterialNames = oldData.materials.filter((name) => !data.materials.includes(name));
-      } else {
-        addedMaterialNames = data.materials;
-      }
-    }
-    if (addedMaterialNames.length) {
-      applyEnvMap(mesh, addedMaterialNames, this.texture, data.reflectivity);
-    }
-    if (removedMaterialNames.length) {
-      applyEnvMap(mesh, removedMaterialNames, null, 1);
-    }
-
-    if (oldData.materials && data.reflectivity !== oldData.reflectivity) {
-      const maintainedMaterialNames = data.materials
-        .filter((name) => oldData.materials.includes(name));
-      if (maintainedMaterialNames.length) {
-        applyEnvMap(mesh, maintainedMaterialNames, this.texture, data.reflectivity);
-      }
-    }
-
-    if (this.data.enableBackground && !oldData.enableBackground) {
-      this.setBackground(this.texture);
-    } else if (!this.data.enableBackground && oldData.enableBackground) {
-      this.setBackground(null);
-    }
-  },
-
-  remove: function () {
-    this.el.removeEventListener('object3dset', this.object3dsetHandler);
-    const mesh = this.el.getObject3D('mesh');
-    const data = this.data;
-
-    applyEnvMap(mesh, data.materials, null, 1);
-    if (data.enableBackground) this.setBackground(null);
-  },
-
-  setBackground: function (texture) {
-    this.el.sceneEl.object3D.background = texture;
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/misc/grab.js":
-/*!**************************!*\
-  !*** ./src/misc/grab.js ***!
-  \**************************/
-/***/ (() => {
-
-/* global CANNON */
-
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Handles events coming from the hand-controls.
- * Determines if the entity is grabbed or released.
- * Updates its position to move along the controller.
- */
-AFRAME.registerComponent('grab', {
-  init: function () {
-    this.system = this.el.sceneEl.systems.physics;
-
-    this.GRABBED_STATE = 'grabbed';
-
-    this.grabbing = false;
-    this.hitEl =      /** @type {AFRAME.Element}    */ null;
-    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
-    this.constraint = /** @type {CANNON.Constraint} */ null;
-
-    // Bind event handlers
-    this.onHit = this.onHit.bind(this);
-    this.onGripOpen = this.onGripOpen.bind(this);
-    this.onGripClose = this.onGripClose.bind(this);
-  },
-
-  play: function () {
-    const el = this.el;
-    el.addEventListener('hit', this.onHit);
-    el.addEventListener('gripdown', this.onGripClose);
-    el.addEventListener('gripup', this.onGripOpen);
-    el.addEventListener('trackpaddown', this.onGripClose);
-    el.addEventListener('trackpadup', this.onGripOpen);
-    el.addEventListener('triggerdown', this.onGripClose);
-    el.addEventListener('triggerup', this.onGripOpen);
-  },
-
-  pause: function () {
-    const el = this.el;
-    el.removeEventListener('hit', this.onHit);
-    el.removeEventListener('gripdown', this.onGripClose);
-    el.removeEventListener('gripup', this.onGripOpen);
-    el.removeEventListener('trackpaddown', this.onGripClose);
-    el.removeEventListener('trackpadup', this.onGripOpen);
-    el.removeEventListener('triggerdown', this.onGripClose);
-    el.removeEventListener('triggerup', this.onGripOpen);
-  },
-
-  onGripClose: function () {
-    this.grabbing = true;
-  },
-
-  onGripOpen: function () {
-    const hitEl = this.hitEl;
-    this.grabbing = false;
-    if (!hitEl) { return; }
-    hitEl.removeState(this.GRABBED_STATE);
-    this.hitEl = undefined;
-    this.system.removeConstraint(this.constraint);
-    this.constraint = null;
-  },
-
-  onHit: function (evt) {
-    const hitEl = evt.detail.el;
-    // If the element is already grabbed (it could be grabbed by another controller).
-    // If the hand is not grabbing the element does not stick.
-    // If we're already grabbing something you can't grab again.
-    if (hitEl.is(this.GRABBED_STATE) || !this.grabbing || this.hitEl) { return; }
-    hitEl.addState(this.GRABBED_STATE);
-    this.hitEl = hitEl;
-    this.constraint = new CANNON.LockConstraint(this.el.body, hitEl.body);
-    this.system.addConstraint(this.constraint);
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/misc/index.js":
-/*!***************************!*\
-  !*** ./src/misc/index.js ***!
-  \***************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _checkpoint_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkpoint.js */ "./src/misc/checkpoint.js");
-/* harmony import */ var _checkpoint_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_checkpoint_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _cube_env_map_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./cube-env-map.js */ "./src/misc/cube-env-map.js");
-/* harmony import */ var _cube_env_map_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_cube_env_map_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _grab_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./grab.js */ "./src/misc/grab.js");
-/* harmony import */ var _grab_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grab_js__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _normal_material_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./normal-material.js */ "./src/misc/normal-material.js");
-/* harmony import */ var _normal_material_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_normal_material_js__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _sphere_collider_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sphere-collider.js */ "./src/misc/sphere-collider.js");
-/* harmony import */ var _sphere_collider_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_sphere_collider_js__WEBPACK_IMPORTED_MODULE_4__);
-
-
-
-
-
-
-
-/***/ }),
-
-/***/ "./src/misc/normal-material.js":
-/*!*************************************!*\
-  !*** ./src/misc/normal-material.js ***!
-  \*************************************/
-/***/ (() => {
-
-/**
- * Recursively applies a MeshNormalMaterial to the entity, such that
- * face colors are determined by their orientation. Helpful for
- * debugging geometry
- */
-AFRAME.registerComponent('normal-material', {
-  init: function () {
-    this.material = new THREE.MeshNormalMaterial({flatShading: true});
-    this.applyMaterial = this.applyMaterial.bind(this);
-    this.el.addEventListener('object3dset', this.applyMaterial);
-    this.applyMaterial();
-  },
-
-  remove: function () {
-    this.el.removeEventListener('object3dset', this.applyMaterial);
-  },
-
-  applyMaterial: function () {
-    this.el.object3D.traverse((node) => {
-      if (node.isMesh) node.material = this.material;
-    });
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/misc/sphere-collider.js":
-/*!*************************************!*\
-  !*** ./src/misc/sphere-collider.js ***!
-  \*************************************/
-/***/ (() => {
-
-/**
- * Based on aframe/examples/showcase/tracked-controls.
- *
- * Implement bounding sphere collision detection for entities with a mesh.
- * Sets the specified state on the intersected entities.
- *
- * @property {string} objects - Selector of the entities to test for collision.
- * @property {string} state - State to set on collided entities.
- *
- */
-AFRAME.registerComponent('sphere-collider', {
-  schema: {
-    enabled: {default: true},
-    interval: {default: 80},
-    objects: {default: ''},
-    state: {default: 'collided'},
-    radius: {default: 0.05},
-    watch: {default: true}
-  },
-
-  init: function () {
-    /** @type {MutationObserver} */
-    this.observer = null;
-    /** @type {Array<Element>} Elements to watch for collisions. */
-    this.els = [];
-    /** @type {Array<Element>} Elements currently in collision state. */
-    this.collisions = [];
-    this.prevCheckTime = undefined;
-
-    this.eventDetail = {};
-    this.handleHit = this.handleHit.bind(this);
-    this.handleHitEnd = this.handleHitEnd.bind(this);
-  },
-
-  play: function () {
-    const sceneEl = this.el.sceneEl;
-
-    if (this.data.watch) {
-      this.observer = new MutationObserver(this.update.bind(this, null));
-      this.observer.observe(sceneEl, {childList: true, subtree: true});
-    }
-  },
-
-  pause: function () {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-  },
-
-  /**
-   * Update list of entities to test for collision.
-   */
-  update: function () {
-    const data = this.data;
-    let objectEls;
-
-    // Push entities into list of els to intersect.
-    if (data.objects) {
-      objectEls = this.el.sceneEl.querySelectorAll(data.objects);
-    } else {
-      // If objects not defined, intersect with everything.
-      objectEls = this.el.sceneEl.children;
-    }
-    // Convert from NodeList to Array
-    this.els = Array.prototype.slice.call(objectEls);
-  },
-
-  tick: (function () {
-    const position = new THREE.Vector3(),
-        meshPosition = new THREE.Vector3(),
-        colliderScale = new THREE.Vector3(),
-        size = new THREE.Vector3(),
-        box = new THREE.Box3(),
-        collisions = [],
-        distanceMap = new Map();
-    return function (time) {
-      if (!this.data.enabled) { return; }
-
-      // Only check for intersection if interval time has passed.
-      const prevCheckTime = this.prevCheckTime;
-      if (prevCheckTime && (time - prevCheckTime < this.data.interval)) { return; }
-      // Update check time.
-      this.prevCheckTime = time;
-
-      const el = this.el,
-          data = this.data,
-          mesh = el.getObject3D('mesh');
-      let colliderRadius;
-
-      if (!mesh) { return; }
-
-      collisions.length = 0;
-      distanceMap.clear();
-      el.object3D.getWorldPosition(position);
-      el.object3D.getWorldScale(colliderScale);
-      colliderRadius = data.radius * scaleFactor(colliderScale);
-      // Update collision list.
-      this.els.forEach(intersect);
-
-      // Emit events and add collision states, in order of distance.
-      collisions
-        .sort((a, b) => distanceMap.get(a) > distanceMap.get(b) ? 1 : -1)
-        .forEach(this.handleHit);
-
-      // Remove collision state from other elements.
-      this.collisions
-        .filter((el) => !distanceMap.has(el))
-        .forEach(this.handleHitEnd);
-
-      // Store new collisions
-      copyArray(this.collisions, collisions);
-
-      // Bounding sphere collision detection
-      function intersect (el) {
-        let radius, mesh, distance, extent;
-
-        if (!el.isEntity) { return; }
-
-        mesh = el.getObject3D('mesh');
-
-        if (!mesh) { return; }
-
-        box.setFromObject(mesh).getSize(size);
-        extent = Math.max(size.x, size.y, size.z) / 2;
-        radius = Math.sqrt(2 * extent * extent);
-        box.getCenter(meshPosition);
-
-        if (!radius) { return; }
-
-        distance = position.distanceTo(meshPosition);
-        if (distance < radius + colliderRadius) {
-          collisions.push(el);
-          distanceMap.set(el, distance);
-        }
-      }
-      // use max of scale factors to maintain bounding sphere collision
-      function scaleFactor (scaleVec) {
-        return Math.max(scaleVec.x, scaleVec.y, scaleVec.z);
-      }
-    };
-  })(),
-
-  handleHit: function (targetEl) {
-    targetEl.emit('hit');
-    targetEl.addState(this.data.state);
-    this.eventDetail.el = targetEl;
-    this.el.emit('hit', this.eventDetail);
-  },
-  handleHitEnd: function (targetEl) {
-    targetEl.emit('hitend');
-    targetEl.removeState(this.data.state);
-    this.eventDetail.el = targetEl;
-    this.el.emit('hitend', this.eventDetail);
-  }
-});
-
-function copyArray (dest, source) {
-  dest.length = 0;
-  for (let i = 0; i < source.length; i++) { dest[i] = source[i]; }
-}
-
-
-/***/ }),
-
-/***/ "./src/pathfinding/index.js":
-/*!**********************************!*\
-  !*** ./src/pathfinding/index.js ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _nav_mesh_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./nav-mesh.js */ "./src/pathfinding/nav-mesh.js");
-/* harmony import */ var _nav_mesh_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_nav_mesh_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _nav_agent_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./nav-agent.js */ "./src/pathfinding/nav-agent.js");
-/* harmony import */ var _nav_agent_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_nav_agent_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _system_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./system.js */ "./src/pathfinding/system.js");
-
-
-
-
-
-/***/ }),
-
-/***/ "./src/pathfinding/nav-agent.js":
-/*!**************************************!*\
-  !*** ./src/pathfinding/nav-agent.js ***!
-  \**************************************/
-/***/ (() => {
-
-AFRAME.registerComponent('nav-agent', {
-  schema: {
-    destination: {type: 'vec3'},
-    active: {default: false},
-    speed: {default: 2}
-  },
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.system.addAgent(this);
-    this.group = null;
-    this.path = [];
-    this.raycaster = new THREE.Raycaster();
-  },
-  remove: function () {
-    this.system.removeAgent(this);
-  },
-  update: function () {
-    this.path.length = 0;
-  },
-  updateNavLocation: function () {
-    this.group = null;
-    this.path = [];
-  },
-  tick: (function () {
-    const vDest = new THREE.Vector3();
-    const vDelta = new THREE.Vector3();
-    const vNext = new THREE.Vector3();
-
-    return function (t, dt) {
-      const el = this.el;
-      const data = this.data;
-      const raycaster = this.raycaster;
-      const speed = data.speed * dt / 1000;
-
-      if (!data.active) return;
-
-      // Use PatrolJS pathfinding system to get shortest path to target.
-      if (!this.path.length) {
-        const position = this.el.object3D.position;
-        this.group = this.group || this.system.getGroup(position);
-        this.path = this.system.getPath(position, vDest.copy(data.destination), this.group) || [];
-        el.emit('navigation-start');
-      }
-
-      // If no path is found, exit.
-      if (!this.path.length) {
-        console.warn('[nav] Unable to find path to %o.', data.destination);
-        this.el.setAttribute('nav-agent', {active: false});
-        el.emit('navigation-end');
-        return;
-      }
-
-      // Current segment is a vector from current position to next waypoint.
-      const vCurrent = el.object3D.position;
-      const vWaypoint = this.path[0];
-      vDelta.subVectors(vWaypoint, vCurrent);
-
-      const distance = vDelta.length();
-      let gazeTarget;
-
-      if (distance < speed) {
-        // If <1 step from current waypoint, discard it and move toward next.
-        this.path.shift();
-
-        // After discarding the last waypoint, exit pathfinding.
-        if (!this.path.length) {
-          this.el.setAttribute('nav-agent', {active: false});
-          el.emit('navigation-end');
-          return;
-        }
-
-        vNext.copy(vCurrent);
-        gazeTarget = this.path[0];
-      } else {
-        // If still far away from next waypoint, find next position for
-        // the current frame.
-        vNext.copy(vDelta.setLength(speed)).add(vCurrent);
-        gazeTarget = vWaypoint;
-      }
-
-      // Look at the next waypoint.
-      gazeTarget.y = vCurrent.y;
-      el.object3D.lookAt(gazeTarget);
-
-      // Raycast against the nav mesh, to keep the agent moving along the
-      // ground, not traveling in a straight line from higher to lower waypoints.
-      raycaster.ray.origin.copy(vNext);
-      raycaster.ray.origin.y += 1.5;
-      raycaster.ray.direction = {x:0, y:-1, z:0};
-      const intersections = raycaster.intersectObject(this.system.getNavMesh());
-
-      if (!intersections.length) {
-        // Raycasting failed. Step toward the waypoint and hope for the best.
-        vCurrent.copy(vNext);
-      } else {
-        // Re-project next position onto nav mesh.
-        vDelta.subVectors(intersections[0].point, vCurrent);
-        vCurrent.add(vDelta.setLength(speed));
-      }
-
-    };
-  }())
-});
-
-
-/***/ }),
-
-/***/ "./src/pathfinding/nav-mesh.js":
-/*!*************************************!*\
-  !*** ./src/pathfinding/nav-mesh.js ***!
-  \*************************************/
-/***/ (() => {
-
-/**
- * nav-mesh
- *
- * Waits for a mesh to be loaded on the current entity, then sets it as the
- * nav mesh in the pathfinding system.
- */
-AFRAME.registerComponent('nav-mesh', {
-  schema: {
-    nodeName: {type: 'string'}
-  },
-
-  init: function () {
-    this.system = this.el.sceneEl.systems.nav;
-    this.hasLoadedNavMesh = false;
-    this.nodeName = this.data.nodeName;
-    this.el.addEventListener('object3dset', this.loadNavMesh.bind(this));
-  },
-
-  play: function () {
-    if (!this.hasLoadedNavMesh) this.loadNavMesh();
-  },
-
-  loadNavMesh: function () {
-    var self = this;
-    const object = this.el.getObject3D('mesh');
-    const scene = this.el.sceneEl.object3D;
-
-    if (!object) return;
-
-    let navMesh;
-    object.traverse((node) => {
-      if (node.isMesh &&
-          (!self.nodeName || node.name === self.nodeName)) navMesh = node;
-    });
-
-    if (!navMesh) return;
-
-    const navMeshGeometry = navMesh.geometry.clone();
-    navMesh.updateWorldMatrix(true, false);
-    navMeshGeometry.applyMatrix4(navMesh.matrixWorld);
-    this.system.setNavMeshGeometry(navMeshGeometry);
-    this.hasLoadedNavMesh = true;
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/pathfinding/system.js":
-/*!***********************************!*\
-  !*** ./src/pathfinding/system.js ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var three_pathfinding__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three-pathfinding */ "./node_modules/three-pathfinding/dist/three-pathfinding.module.js");
-
-
-const pathfinder = new three_pathfinding__WEBPACK_IMPORTED_MODULE_0__.Pathfinding();
-const ZONE = 'level';
-
-/**
- * nav
- *
- * Pathfinding system, using PatrolJS.
- */
-AFRAME.registerSystem('nav', {
-  init: function () {
-    this.navMesh = null;
-    this.agents = new Set();
-  },
-
-  /**
-   * @param {THREE.Geometry} geometry
-   */
-  setNavMeshGeometry: function (geometry) {
-    this.navMesh = new THREE.Mesh(geometry);
-    pathfinder.setZoneData(ZONE, three_pathfinding__WEBPACK_IMPORTED_MODULE_0__.Pathfinding.createZone(geometry));
-    Array.from(this.agents).forEach((agent) => agent.updateNavLocation());
-  },
-
-  /**
-   * @return {THREE.Mesh}
-   */
-  getNavMesh: function () {
-    return this.navMesh;
-  },
-
-  /**
-   * @param {NavAgent} ctrl
-   */
-  addAgent: function (ctrl) {
-    this.agents.add(ctrl);
-  },
-
-  /**
-   * @param {NavAgent} ctrl
-   */
-  removeAgent: function (ctrl) {
-    this.agents.delete(ctrl);
-  },
-
-  /**
-   * @param  {THREE.Vector3} start
-   * @param  {THREE.Vector3} end
-   * @param  {number} groupID
-   * @return {Array<THREE.Vector3>}
-   */
-  getPath: function (start, end, groupID) {
-    return this.navMesh
-      ? pathfinder.findPath(start, end, ZONE, groupID)
-      : null;
-  },
-
-  /**
-   * @param {THREE.Vector3} position
-   * @return {number}
-   */
-  getGroup: function (position) {
-    return this.navMesh
-      ? pathfinder.getGroup(ZONE, position)
-      : null;
-  },
-
-  /**
-   * @param  {THREE.Vector3} position
-   * @param  {number} groupID
-   * @return {Node}
-   */
-  getNode: function (position, groupID) {
-    return this.navMesh
-      ? pathfinder.getClosestNode(position, ZONE, groupID, true)
-      : null;
-  },
-
-  /**
-   * @param  {THREE.Vector3} start Starting position.
-   * @param  {THREE.Vector3} end Desired ending position.
-   * @param  {number} groupID
-   * @param  {Node} node
-   * @param  {THREE.Vector3} endTarget (Output) Adjusted step end position.
-   * @return {Node} Current node, after step is taken.
-   */
-  clampStep: function (start, end, groupID, node, endTarget) {
-    if (!this.navMesh) {
-      endTarget.copy(end);
-      return null;
-    } else if (!node) {
-      endTarget.copy(end);
-      return this.getNode(end, groupID);
-    }
-    return pathfinder.clampStep(start, end, node, ZONE, groupID, endTarget);
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/primitives/a-grid.js":
-/*!**********************************!*\
-  !*** ./src/primitives/a-grid.js ***!
-  \**********************************/
-/***/ (() => {
-
-/**
- * Flat grid.
- *
- * Defaults to 75x75.
- */
-AFRAME.registerPrimitive('a-grid', {
-  defaultComponents: {
-    geometry: {
-      primitive: 'plane',
-      width: 75,
-      height: 75
-    },
-    rotation: {x: -90, y: 0, z: 0},
-    material: {
-      src: 'url(https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v1.16.3/assets/grid.png)',
-      repeat: '75 75'
-    }
-  },
-  mappings: {
-    width: 'geometry.width',
-    height: 'geometry.height',
-    src: 'material.src'
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/primitives/a-ocean.js":
-/*!***********************************!*\
-  !*** ./src/primitives/a-ocean.js ***!
-  \***********************************/
-/***/ (() => {
-
-/**
- * Flat-shaded ocean primitive.
- *
- * Based on a Codrops tutorial:
- * http://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
- */
-AFRAME.registerPrimitive('a-ocean', {
-  defaultComponents: {
-    ocean: {},
-    rotation: {x: -90, y: 0, z: 0}
-  },
-  mappings: {
-    width: 'ocean.width',
-    depth: 'ocean.depth',
-    density: 'ocean.density',
-    amplitude: 'ocean.amplitude',
-    amplitudeVariance: 'ocean.amplitudeVariance',
-    speed: 'ocean.speed',
-    speedVariance: 'ocean.speedVariance',
-    color: 'ocean.color',
-    opacity: 'ocean.opacity'
-  }
-});
-
-AFRAME.registerComponent('ocean', {
-  schema: {
-    // Dimensions of the ocean area.
-    width: {default: 10, min: 0},
-    depth: {default: 10, min: 0},
-
-    // Density of waves.
-    density: {default: 10},
-
-    // Wave amplitude and variance.
-    amplitude: {default: 0.1},
-    amplitudeVariance: {default: 0.3},
-
-    // Wave speed and variance.
-    speed: {default: 1},
-    speedVariance: {default: 2},
-
-    // Material.
-    color: {default: '#7AD2F7', type: 'color'},
-    opacity: {default: 0.8}
-  },
-
-  /**
-   * Use play() instead of init(), because component mappings – unavailable as dependencies – are
-   * not guaranteed to have parsed when this component is initialized.
-   */
-  play: function () {
-    const el = this.el;
-    const data = this.data;
-    let material = el.components.material;
-
-    const geometry = new THREE.PlaneGeometry(data.width, data.depth, data.density, data.density);
-    this.waves = [];
-    const posAttribute = geometry.getAttribute('position');
-    for (let i = 0; i < posAttribute.count; i++) {
-      this.waves.push({
-        z: posAttribute.getZ(i),
-        ang: Math.random() * Math.PI * 2,
-        amp: data.amplitude + Math.random() * data.amplitudeVariance,
-        speed: (data.speed + Math.random() * data.speedVariance) / 1000 // radians / frame
-      });
-    }
-
-    if (!material) {
-      material = {};
-      material.material = new THREE.MeshPhongMaterial({
-        color: data.color,
-        transparent: data.opacity < 1,
-        opacity: data.opacity,
-        flatShading: true,
-      });
-    }
-
-    this.mesh = new THREE.Mesh(geometry, material.material);
-    el.setObject3D('mesh', this.mesh);
-  },
-
-  remove: function () {
-    this.el.removeObject3D('mesh');
-  },
-
-  tick: function (t, dt) {
-    if (!dt) return;
-
-    const posAttribute = this.mesh.geometry.getAttribute('position');
-    for (let i = 0; i < posAttribute.count; i++){
-      const vprops = this.waves[i];
-      const value = vprops.z + Math.sin(vprops.ang) * vprops.amp;
-      posAttribute.setZ(i, value);
-      vprops.ang += vprops.speed * dt;
-    }
-    posAttribute.needsUpdate = true;
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/primitives/a-tube.js":
-/*!**********************************!*\
-  !*** ./src/primitives/a-tube.js ***!
-  \**********************************/
-/***/ (() => {
-
-/**
- * Tube following a custom path.
- *
- * Usage:
- *
- * ```html
- * <a-tube path="5 0 5, 5 0 -5, -5 0 -5" radius="0.5"></a-tube>
- * ```
- */
-AFRAME.registerPrimitive('a-tube', {
-  defaultComponents: {
-    tube:           {},
-  },
-  mappings: {
-    path:           'tube.path',
-    segments:       'tube.segments',
-    radius:         'tube.radius',
-    'radial-segments': 'tube.radialSegments',
-    closed:         'tube.closed'
-  }
-});
-
-AFRAME.registerComponent('tube', {
-  schema: {
-    path:           {default: []},
-    segments:       {default: 64},
-    radius:         {default: 1},
-    radialSegments: {default: 8},
-    closed:         {default: false}
-  },
-
-  init: function () {
-    const el = this.el,
-        data = this.data;
-    let material = el.components.material;
-
-    if (!data.path.length) {
-      console.error('[a-tube] `path` property expected but not found.');
-      return;
-    }
-
-    const curve = new THREE.CatmullRomCurve3(data.path.map(function (point) {
-      point = point.split(' ');
-      return new THREE.Vector3(Number(point[0]), Number(point[1]), Number(point[2]));
-    }));
-    const geometry = new THREE.TubeGeometry(
-      curve, data.segments, data.radius, data.radialSegments, data.closed
-    );
-
-    if (!material) {
-      material = {};
-      material.material = new THREE.MeshPhongMaterial();
-    }
-
-    this.mesh = new THREE.Mesh(geometry, material.material);
-    this.el.setObject3D('mesh', this.mesh);
-  },
-
-  update: function (prevData) {
-    if (!Object.keys(prevData).length) return;
-
-    this.remove();
-    this.init();
-  },
-
-  remove: function () {
-    if (this.mesh) this.el.removeObject3D('mesh');
-  }
-});
-
-
-/***/ }),
-
-/***/ "./src/primitives/index.js":
-/*!*********************************!*\
-  !*** ./src/primitives/index.js ***!
-  \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _a_grid_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./a-grid.js */ "./src/primitives/a-grid.js");
-/* harmony import */ var _a_grid_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_a_grid_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _a_ocean_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./a-ocean.js */ "./src/primitives/a-ocean.js");
-/* harmony import */ var _a_ocean_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_a_ocean_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _a_tube_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./a-tube.js */ "./src/primitives/a-tube.js");
-/* harmony import */ var _a_tube_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_a_tube_js__WEBPACK_IMPORTED_MODULE_2__);
-
-
-
-
-
-/***/ }),
-
-/***/ "three":
-/*!************************!*\
-  !*** external "THREE" ***!
-  \************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
-
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -15970,6 +15990,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_three__;
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
