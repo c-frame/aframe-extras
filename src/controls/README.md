@@ -76,17 +76,6 @@ With navigation mesh:
 </a-entity>
 ```
 
-With physics-based movement.
-
-> **WARNING** *Using physics for movement is unstable and performs poorly. When preventing players from passing through obstacles, use a navigation mesh instead whenever possible.*
-
-```html
-<a-entity id="rig" movement-controls kinematic-body>
-  <a-entity camera
-            position="0 1.6 0"
-            look-controls="pointerLockEnabled: true"></a-entity>
-</a-entity>
-```
 
 ## Options
 
